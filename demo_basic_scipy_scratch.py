@@ -1,5 +1,6 @@
 """
-Demonstration of the basic operation of the SNS-Toolbox. Using scipy, the basic flow of every backend type will be demonstrated
+Demonstration of the basic operation of the SNS-Toolbox. Using scipy, the basic flow of every backend type will be demonstrated.
+This is from scratch, no neuron, synapse, or network objects are used.
 William Nourse
 May 4th, 2021
 What's in the box?
@@ -68,7 +69,7 @@ def forward_scipy(timeFactor, Gm, Ibias, gMax, delE, R, Ulast):
     numElements = np.size(Cm)   # Number of neurons in the network
 
     # Want to compute Gsyn = max(0, min(gMax, gMax*Ulast/R)), using sparse operations
-    
+
     Gsyn = gMax.minimum(gMax.multiply(Ulast/R))   # Gsyn = min(gMax, gMax*Ulast/R)
     Gsyn = Gsyn.maximum(0)  # Gsyn = max(0, min(gMax, gMax*Ulast/R))
     # Gsyn = gMax*np.maximum(0,np.minimum(1,Ulast/R)) (Normal Matrix version)
