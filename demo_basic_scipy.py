@@ -12,7 +12,7 @@ IMPORTS
 
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.sparse import csr_matrix
+from scipy.sparse import csr_matrix, lil_matrix
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -55,7 +55,7 @@ def forward_manual(dt, Cm, Gm, Ibias, gMax, delE, R, Ulast):
 def forward_scipy(timeFactor, Gm, Ibias, gMax, delE, R, Ulast):
     """
     Compute the network states using sparse matrix techniques (scipy)
-    :param Cm:      Sparse vector of dt/Cm (ms/nF)
+    :param timeFactor:      Sparse vector of dt/Cm (ms/nF)
     :param Gm:      Sparse matrix of membrane conductance terms, which is only nonzero on the diagonal (uS)
     :param Ibias:   Sparse vector of bias currents (nA)
     :param gMax:    Sparse matrix of maximum synaptic conductances (uS)
@@ -68,25 +68,21 @@ def forward_scipy(timeFactor, Gm, Ibias, gMax, delE, R, Ulast):
     numElements = np.size(Cm)   # Number of neurons in the network
 
     # Want to compute Gsyn = max(0, min(gMax, gMax*Ulast/R)), using sparse operations
-    # Gsyn = gMax.copy()
-    # temp = gMax*Ulast/R
-    # Gsyn = Gsyn.minimum(temp)
-    # Gsyn = Gsyn.maximum(0)
-    Gsyn = gMax*np.maximum(0,np.minimum(1,Ulast/R))
+    
+    Gsyn = gMax.minimum(gMax.multiply(Ulast/R))   # Gsyn = min(gMax, gMax*Ulast/R)
+    Gsyn = Gsyn.maximum(0)  # Gsyn = max(0, min(gMax, gMax*Ulast/R))
+    # Gsyn = gMax*np.maximum(0,np.minimum(1,Ulast/R)) (Normal Matrix version)
 
-    Isyn = np.zeros(numElements)    # Initialize synaptic current for all neurons
+    Isyn = lil_matrix(np.zeros(numElements))   # Initialize synaptic current for all neurons
 
     # Compute the following for each neuron:
     # Isyn[j] = sum(elementwise(G[:,j], delE[:,j])) - Ulast[j]*sum(G[:,j])
     for i in range(numElements):
-        # temp1 = Gsyn[:,i]
-        # temp2 = delE[:,i]
-        # delTerm = Gsyn[:,i].multiply(delE[:,i])
-        # Isyn[i,0] = delTerm.sum() - Ulast[i,0]*Gsyn[:,i].sum()
-        Isyn[i] = np.sum(Gsyn[i,:]*delE[i,:]) - Ulast[i]*np.sum(Gsyn[i,:])
-        foo=0
+        Isyn[0,i] = (Gsyn[i,:].multiply(delE[i,:])).sum() - Ulast[0,i]*Gsyn[i,:].sum()
 
-    Unext = Ulast + timeFactor*(-(Ulast @ Gm) + Ibias + Isyn)  # Update all of the neurons at once
+        # Isyn[i] = np.sum(Gsyn[i,:]*delE[i,:]) - Ulast[i]*np.sum(Gsyn[i,:]) (Normal matrix version)
+
+    Unext = Ulast + timeFactor.multiply(-(Ulast @ Gm) + Ibias + Isyn)  # Update all of the neurons at once
 
     return Unext
 
@@ -101,13 +97,14 @@ tMax = 100
 R = 20
 Cm = 5 + np.zeros(numNeurons)  # nF
 Gm = 1 + np.zeros(numNeurons)  # uS
-GmArr = np.diag(Gm) # uS, Converted into a diagonal matrix
+GmRow = np.array(list(range(numNeurons)))
+GmArr = csr_matrix((Gm,(GmRow,GmRow)),shape=(numNeurons,numNeurons)) # uS, Converted into a diagonal matrix
 #Ibias = np.linspace(0,R,num=numNeurons)
 Ibias = np.array([R,0])
 t = np.arange(0,tMax,dt)
 numSteps = len(t)
 Umanual = np.zeros([numNeurons,numSteps])
-Umatrix = np.zeros([numSteps,numNeurons])
+Umatrix = lil_matrix(np.zeros([numSteps,numNeurons]))
 
 delE = 100
 delEMat = np.array([[0,0],[delE,0]])
@@ -118,15 +115,19 @@ gMaxMat = np.array([[0,0],[gMax,0]])
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SIMULATION
 """
-
+print('Time to Simulate')
 # Compute the network manually
 for i in range(1,numSteps):
     Umanual[:,i] = forward_manual(dt, Cm, Gm, Ibias, gMaxMat, delEMat, R, Umanual[:, i - 1])
 
 # Compute the network with matrices/vectors
+timeFactor = csr_matrix(dt/Cm)
+IbiasSparse = csr_matrix(Ibias)
+gMaxSparse = csr_matrix(gMaxMat)
+delESparse = csr_matrix(delEMat)
 for i in range(1,numSteps):
-    Umatrix[i,:] = forward_scipy(dt/Cm, GmArr, Ibias, gMaxMat, delEMat, R, Umatrix[i-1,:])
-
+    Umatrix[i,:] = forward_scipy(timeFactor, GmArr, IbiasSparse, gMaxSparse, delESparse, R, Umatrix[i-1,:])
+Umatrix = Umatrix.toarray()
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 PLOTTING
