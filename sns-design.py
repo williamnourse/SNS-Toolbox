@@ -11,7 +11,7 @@ IMPORTS
 """
 
 import copy
-
+from graphviz import Digraph
 
 # SVG standard colors for graphviz
 colors = {'aliceblue','antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque',	'black', 'blanchedalmond',
@@ -51,6 +51,10 @@ class Neuron:
         self.bias = bias  # Constant applied current (nA)
         # TODO: Valid color check
         self.color = color
+        if color in colorsWhiteText:
+            self.fontColor = 'white'
+        else:
+            self.fontColor = 'black'
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -70,9 +74,11 @@ NETWORKS
 """
 
 class Network:
-    def __init__(self):
+    def __init__(self,name='Network'):
         self.neurons = []
         self.synapses = []
+        self.name = name
+        self.graph = Digraph(filename=(self.name+'.gv'))
 
     def getNumNeurons(self):
         return len(self.neurons)
@@ -86,18 +92,46 @@ class Network:
             self.neurons[self.getNumNeurons()-1].name += suffix
         if color is not None:
             self.neurons[self.getNumNeurons() - 1].color = color
+            if color in colorsWhiteText:
+                self.neurons[self.getNumNeurons()-1].fontColor = 'white'
+            else:
+                self.neurons[self.getNumNeurons()-1].fontColor = 'black'
+        self.graph.node(str(self.getNumNeurons()-1),self.neurons[self.getNumNeurons()-1].name, style='filled',
+                        fillcolor=self.neurons[self.getNumNeurons()-1].color,fontcolor=self.neurons[self.getNumNeurons()-1].fontColor)
 
-    def addSynapse(self, synapseType, source, destination):
+    def addSynapse(self, synapseType, source, destination, viewLabel=False):
         self.synapses.append(copy.copy(synapseType))
         self.synapses[self.getNumSynapses() - 1].source = source
         self.synapses[self.getNumSynapses() - 1].destination = destination
+        if viewLabel:
+            self.synapses[self.getNumSynapses() - 1].label = self.synapses[self.getNumSynapses() - 1].name
+        else:
+            self.synapses[self.getNumSynapses() - 1].label = None
+        if self.synapses[self.getNumSynapses() - 1].deltaE > 0:
+            style = 'invempty'
+        elif self.synapses[self.getNumSynapses() - 1].deltaE < 0:
+            style = 'dot'
+        else:
+            style = 'odot'
+        self.graph.edge(str(self.synapses[self.getNumSynapses() - 1].source),
+                        str(self.synapses[self.getNumSynapses() - 1].destination), arrowhead=style,
+                        label=self.synapses[self.getNumSynapses() - 1].label)
 
     def addSubNetwork(self, network, color=None):
         numNeurons = self.getNumNeurons()
         for neuron in network.neurons:
             self.addNeuron(neuronType=neuron,color=color)
         for synapse in network.synapses:
-            self.addSynapse(synapseType=synapse, source=(synapse.source + numNeurons), destination=(synapse.destination + numNeurons))
+            if synapse.label is None:
+                self.addSynapse(synapseType=synapse, source=(synapse.source + numNeurons),
+                                destination=(synapse.destination + numNeurons))
+            else:
+                self.addSynapse(synapseType=synapse, source=(synapse.source + numNeurons),
+                                destination=(synapse.destination + numNeurons),viewLabel=True)
+
+    def renderGraph(self,format='png',view=False):
+        self.graph.format = format
+        self.graph.render(view=view)
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -106,17 +140,22 @@ TEST
 
 simple = Neuron()
 slow = Neuron(membraneCapacitance=50)
-transmit = Synapse()
+transmit = Synapse(name='Transmit')
+inhibit = Synapse(name='Inhibit', relativeReversalPotential=-40)
+modulate = Synapse(name='Mod', relativeReversalPotential=0)
 
-smallNet = Network()
+smallNet = Network(name='SmallNet')
 smallNet.addNeuron(simple,suffix='A',color='blue')
 smallNet.addNeuron(simple,suffix='B')
 smallNet.addNeuron(slow,color='orange')
-smallNet.addSynapse(transmit,0,2)
-smallNet.addSynapse(transmit,1,2)
+smallNet.addSynapse(transmit,0,2,viewLabel=True)
+smallNet.addSynapse(transmit,1,2,viewLabel=True)
+smallNet.renderGraph(view=True)
 
-bigNet = Network()
+bigNet = Network(name='BigNet')
 bigNet.addNeuron(simple,suffix='Origin')
+bigNet.addNeuron(simple,suffix='Modulate',color='indianred')
 bigNet.addSubNetwork(smallNet,color='teal')
-bigNet.addSynapse(transmit,0,1)
-print(bigNet)
+bigNet.addSynapse(inhibit,0,1,viewLabel=True)
+bigNet.addSynapse(modulate,1,2,viewLabel=True)
+bigNet.renderGraph(view=True)
