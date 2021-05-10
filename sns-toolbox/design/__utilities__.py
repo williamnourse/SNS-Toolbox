@@ -14,11 +14,11 @@ import warnings
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-VARIABLES
+CONSTANTS
 """
 
 # SVG standard colors for graphviz
-setOfValidColors = {'aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque', 'black', 'blanchedalmond',
+SETOFVALIDCOLORS = {'aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque', 'black', 'blanchedalmond',
           'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chartreuse', 'chocolate', 'coral',
           'cornflowerblue', 'cornsilk', 'crimson', 'cyan', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgray',
           'darkgreen', 'darkgrey', 'darkkhaki', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred',
@@ -38,7 +38,7 @@ setOfValidColors = {'aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 
                     'thistle', 'tomato', 'turquoise', 'violet', 'wheat', 'white', 'whitesmoke', 'yellow', 'yellowgreen'}
 
 # Standard SVG colors which need white text instead of black for good visibility
-colorsWhiteText = {'black', 'blue', 'blueviolet', 'brown', 'darkblue', 'darkmagenta', 'darkolivegreen', 'darkred',
+COLORSWHITETEXT = {'black', 'blue', 'blueviolet', 'brown', 'darkblue', 'darkmagenta', 'darkolivegreen', 'darkred',
           'darkslateblue', 'darkslategray', 'darkslategrey', 'darkviolet', 'dimgray', 'dimgrey', 'gray', 'grey', 'green',
           'indigo', 'maroon', 'mediumblue', 'midnightblue', 'navy', 'olive', 'purple', 'saddlebrown', 'teal'}
 
@@ -47,9 +47,9 @@ colorsWhiteText = {'black', 'blue', 'blueviolet', 'brown', 'darkblue', 'darkmage
 FUNCTIONS
 """
 
-def validColor(color: str) -> bool:
+def validColor(color: str = None) -> bool:
     if isinstance(color, str):
-        if color in setOfValidColors:
+        if color in SETOFVALIDCOLORS:
             return True
         else:
             return False
@@ -58,7 +58,7 @@ def validColor(color: str) -> bool:
 
 def setTextColor(color: str) -> str:
     if isinstance(color, str):
-        if color in colorsWhiteText:
+        if color in COLORSWHITETEXT:
             return 'white'
         else:
             return 'black'

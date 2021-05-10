@@ -10,7 +10,7 @@ He's convinced me, gimme back my dollar!
 IMPORTS
 """
 
-from typing import Dict, Any, Optional
+from typing import Dict, Any
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
