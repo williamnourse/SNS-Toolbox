@@ -27,6 +27,7 @@ class Neuron:
         :param name:    Name of this neuron preset
         :param color:   Background fill color for the neuron, taken from the standard SVG colors
         """
+        # TODO: Type checking
         self.params: Dict[str, Any] = {}
         if validColor(color):
             self.params['color'] = color
@@ -51,6 +52,7 @@ class NonSpikingNeuron(Neuron):
         :param membraneConductance: (uS)
         :param bias:                Bias current (nA)
         """
+        # TODO: Type checking
         super().__init__()
         self.params['membraneCapacitance'] = membraneCapacitance
         self.params['membraneConductance'] = membraneConductance

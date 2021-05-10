@@ -44,12 +44,10 @@ NEURON MODELS
 
 class Neuron:
     def __init__(self, name='Neuron', membraneCapacitance=5, membraneConductance=1, bias=0, color='white'):
-        # TODO: Type checking on neuron model design
         self.name = name    # Name of this neuron preset
         self.membraneCapacitance = membraneCapacitance        # Membrane capacitance (nF)
         self.membraneConductance = membraneConductance        # Membrane conductance (uS)
         self.bias = bias  # Constant applied current (nA)
-        # TODO: Valid color check
         self.color = color
         if color in colorsWhiteText:
             self.fontColor = 'white'
@@ -63,7 +61,6 @@ SYNAPSE MODELS
 
 class Synapse:
     def __init__(self, name='Synapse', maxConductance=1, relativeReversalPotential=40):
-        # TODO: Type checking on synapse model design
         self.name = name
         self.Gmax = maxConductance
         self.deltaE = relativeReversalPotential
