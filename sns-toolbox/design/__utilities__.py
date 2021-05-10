@@ -10,7 +10,7 @@ Fizz Buzz
 IMPORTS
 """
 
-# from typing import Text,
+import warnings
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -48,13 +48,20 @@ FUNCTIONS
 """
 
 def validColor(color: str) -> bool:
-    if color in setOfValidColors:
-        return True
+    if isinstance(color, str):
+        if color in setOfValidColors:
+            return True
+        else:
+            return False
     else:
         return False
 
 def setTextColor(color: str) -> str:
-    if color in colorsWhiteText:
-        return 'white'
+    if isinstance(color, str):
+        if color in colorsWhiteText:
+            return 'white'
+        else:
+            return 'black'
     else:
+        warnings.warn('WARNING: Specified background color is not a string. Defaulting to black text color')
         return 'black'
