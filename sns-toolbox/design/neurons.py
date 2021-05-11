@@ -46,19 +46,19 @@ class Neuron:
         if isinstance(name,str):
             self.params['name'] = name
         else:
-            raise ValueError('Neuron name must be a string')
+            raise TypeError('Neuron name must be a string')
         if isinstance(membraneCapacitance,numbers.Number):
             self.params['membraneCapacitance'] = membraneCapacitance
         else:
-            raise ValueError('Membrane capacitance must be a number (int, float, double, etc.)')
+            raise TypeError('Membrane capacitance must be a number (int, float, double, etc.)')
         if isinstance(membraneConductance,numbers.Number):
             self.params['membraneConductance'] = membraneConductance
         else:
-            raise ValueError('Membrane conductance must be a number (int, float, double, etc.')
+            raise TypeError('Membrane conductance must be a number (int, float, double, etc.')
         if isinstance(bias,numbers.Number):
             self.params['bias'] = bias
         else:
-            raise ValueError('Bias must be a number (int, float, double, etc.')
+            raise TypeError('Bias must be a number (int, float, double, etc.')
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

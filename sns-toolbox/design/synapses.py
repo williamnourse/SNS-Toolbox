@@ -28,7 +28,7 @@ class Synapse:
         if isinstance(name,str):
             self.params['name'] = name
         else:
-            raise ValueError('Name should be a string')
+            raise TypeError('Name should be a string')
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -55,18 +55,18 @@ class NonSpikingSynapse(Synapse):
             else:
                 raise ValueError('maxConductance (gMax) must be greater than 0')
         else:
-            raise ValueError('maxConductance (gMax) must be a number (int, float, double, etc.')
+            raise TypeError('maxConductance (gMax) must be a number (int, float, double, etc.')
         if isinstance(relativeReversalPotential,numbers.Number):
             self.params['relativeReversalPotential'] = relativeReversalPotential
         else:
-            raise ValueError('relativeReversalPotential (deltaEsyn) must be a number (int, float, double, etc.')
+            raise TypeError('relativeReversalPotential (deltaEsyn) must be a number (int, float, double, etc.')
         if isinstance(R,numbers.Number):
             if R > 0:
                 self.params['R'] = R
             else:
                 raise ValueError('R must be greater than 0')
         else:
-            raise ValueError('R must be a number (int, float, double, etc.')
+            raise TypeError('R must be a number (int, float, double, etc.')
 
 class TransmissionSynapse(NonSpikingSynapse):
     def __init__(self, gain: float = 1.0,
@@ -90,7 +90,7 @@ class TransmissionSynapse(NonSpikingSynapse):
                 if self.params['maxConductance'] < 0:
                     raise ValueError('Gain causes maxConductance to be negative, decrease gain or increase relativeReversalPotential')
         else:
-            raise ValueError('Gain must be a number (int, float, double, etc.)')
+            raise TypeError('Gain must be a number (int, float, double, etc.)')
 
 class ModulationSynapse(NonSpikingSynapse):
     def __init__(self, name: str = 'Modulate', **kwargs) -> None:

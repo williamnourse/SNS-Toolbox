@@ -4,6 +4,7 @@ William Nourse
 May 10, 2021
 You're gonna be okay!
 """
+import numbers
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -23,14 +24,17 @@ from __utilities__ import validColor, setTextColor
 BASE CLASS
 """
 
-class NonSpikingNetwork():
+class NonSpikingNetwork:
     def __init__(self, name: str = 'Network') -> None:
         """
         Constructor for base network class
         :param name: Name for this network
         """
         self.params: Dict[str, Any] = {}
-        self.params['name'] = name
+        if isinstance(name,str):
+            self.params['name'] = name
+        else:
+            raise TypeError('Name must be a string')
         self.neurons: List[NonSpikingNeuron] = []
         self.synapses: List[NonSpikingSynapse] = []
         self.graph = Digraph(filename=(self.params['name']+'.gv'))
@@ -50,9 +54,15 @@ class NonSpikingNetwork():
         return len(self.synapses)
 
     def addNeuron(self, neuron: NonSpikingNeuron, suffix: str = None, color: str = None) -> None:
-        self.neurons.append(copy.deepcopy(neuron))
+        if isinstance(neuron,NonSpikingNeuron):
+            self.neurons.append(copy.deepcopy(neuron))
+        else:
+            raise TypeError('Neuron must be of type (or inherit from) NonSpikingNeuron')
         if suffix is not None:
-            self.neurons[self.getNumNeurons() - 1].params['name'] += suffix
+            if isinstance(suffix,str):
+                self.neurons[self.getNumNeurons() - 1].params['name'] += suffix
+            else:
+                raise TypeError('Suffix must be a string')
         if validColor(color):
             self.neurons[self.getNumNeurons() - 1].params['color'] = color
             self.neurons[self.getNumNeurons() - 1].params['fontColor'] = setTextColor(
@@ -64,7 +74,30 @@ class NonSpikingNetwork():
 
     def addSynapse(self, synapse: NonSpikingSynapse, source: int,
                    destination: int, viewLabel: bool = False, offset: int = 0) -> None:
-        self.synapses.append(copy.deepcopy(synapse))
+        if isinstance(synapse,NonSpikingSynapse):
+            self.synapses.append(copy.deepcopy(synapse))
+        else:
+            raise TypeError('Synapse must be of type (or inherit from) NonSpikingSynapse')
+        if not isinstance(source,int):
+            raise TypeError('Source index must be an integer')
+        if not isinstance(destination,int):
+            raise TypeError('Destination index must be an integer')
+        if not isinstance(offset,int):
+            raise TypeError('Index offset must be an integer')
+        if not isinstance(viewLabel,bool):
+            raise TypeError('viewLabel must be of type bool')
+        if source > self.getNumNeurons()-1:
+            raise ValueError('Source index is outside of network size')
+        if source < 0:
+            raise ValueError('Source index must be >= 0')
+        if destination > self.getNumNeurons()-1:
+            raise ValueError('Destination index is outside of network size')
+        if destination < 0:
+            raise ValueError('Destination index must be >= 0')
+        if (source + offset) > self.getNumNeurons()-1:
+            raise ValueError('Offset makes source index out of range')
+        if (offset + destination) > self.getNumNeurons()-1:
+            raise ValueError('Offset makes destination index out of range')
         self.synapses[self.getNumSynapses() - 1].params['source'] = source + offset
         self.synapses[self.getNumSynapses() - 1].params['destination'] = destination + offset
         if viewLabel:
@@ -83,6 +116,8 @@ class NonSpikingNetwork():
                         label=self.synapses[self.getNumSynapses() - 1].params['label'])
 
     def addNetwork(self, network: 'NonSpikingNetwork', color: str = None) -> None:
+        if not isinstance(network,NonSpikingNetwork):
+            raise TypeError('Network needs to be of type NonSpikingNetwork')
         numNeurons = self.getNumNeurons()
         for neuron in network.neurons:
             self.addNeuron(neuron=neuron, color=color)
@@ -103,4 +138,10 @@ class NonSpikingNetwork():
 SPECIFIC MODELS
 """
 
+# TODO: Addition/Subtraction
 
+# TODO: Multiplication
+
+# TODO: Division
+
+# TODO: Integration
