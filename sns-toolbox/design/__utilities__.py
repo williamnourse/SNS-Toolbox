@@ -63,5 +63,5 @@ def setTextColor(color: str) -> str:
         else:
             return 'black'
     else:
-        warnings.warn('WARNING: Specified background color is not a string. Defaulting to black text color')
+        warnings.warn('Specified background color is not a string. Defaulting to black text color')
         return 'black'
