@@ -14,6 +14,9 @@ import unittest
 import warnings
 
 import __utilities__
+import neurons
+import synapses
+import networks
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -29,6 +32,9 @@ class TestValidColor(unittest.TestCase):
 
     def test_input_not_string(self):
         self.assertEqual(False, __utilities__.validColor(5), 'Should be False')
+
+    def test_input_none(self):
+        self.assertEqual(False, __utilities__.validColor(), 'Should be False')
 
     def test_color_in_set_uppercase(self):
         self.assertEqual(False, __utilities__.validColor('ROYALblue'), 'Should be False')
@@ -54,6 +60,34 @@ class TestSetTextColor(unittest.TestCase):
         warnings.simplefilter('ignore', category=UserWarning)
         self.assertEqual('black', __utilities__.setTextColor(['black','blue']), 'Should be black')
 
+    def test_input_none(self):
+        self.assertEqual('black', __utilities__.setTextColor(), 'Should be black')
+
+"""
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+NEURONS TESTS
+"""
+
+
+
+"""
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+SYNAPSES TESTS
+"""
+
+
+
+"""
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+NETWORKS TESTS
+"""
+
+
+
+"""
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+MAIN TESTING FUNCTION
+"""
 
 if __name__ == '__main__':
     unittest.main()

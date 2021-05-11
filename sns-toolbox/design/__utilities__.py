@@ -56,7 +56,7 @@ def validColor(color: str = None) -> bool:
     else:
         return False
 
-def setTextColor(color: str) -> str:
+def setTextColor(color: str = None) -> str:
     if isinstance(color, str):
         if color in COLORSWHITETEXT:
             return 'white'
