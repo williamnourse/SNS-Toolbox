@@ -12,6 +12,7 @@ IMPORTS
 
 from typing import Dict, Any
 import warnings
+import numbers
 
 from __utilities__ import validColor, setTextColor
 
@@ -39,13 +40,25 @@ class Neuron:
         if validColor(color):
             self.params['color'] = color
         else:
-            warnings.warn('WARNING: Specified color is not in the standard SVG set. Defaulting to white.')
+            warnings.warn('Specified color is not in the standard SVG set. Defaulting to white.')
             self.params['color'] = 'white'
         self.params['fontColor'] = setTextColor(self.params['color'])
-        self.params['name'] = name
-        self.params['membraneCapacitance'] = membraneCapacitance
-        self.params['membraneConductance'] = membraneConductance
-        self.params['bias'] = bias
+        if isinstance(name,str):
+            self.params['name'] = name
+        else:
+            raise ValueError('Neuron name must be a string')
+        if isinstance(membraneCapacitance,numbers.Number):
+            self.params['membraneCapacitance'] = membraneCapacitance
+        else:
+            raise ValueError('Membrane capacitance must be a number (int, float, double, etc.)')
+        if isinstance(membraneConductance,numbers.Number):
+            self.params['membraneConductance'] = membraneConductance
+        else:
+            raise ValueError('Membrane conductance must be a number (int, float, double, etc.')
+        if isinstance(bias,numbers.Number):
+            self.params['bias'] = bias
+        else:
+            raise ValueError('Bias must be a number (int, float, double, etc.')
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -60,5 +73,4 @@ class NonSpikingNeuron(Neuron):
         Classic non-spiking neuron model, whose dynamics are as follows:
         membraneCapacitance*dU/dt = -membraneConductance*U + bias + synaptic + external
         """
-        # TODO: Type checking
         super().__init__(**kwargs)

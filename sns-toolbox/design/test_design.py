@@ -68,7 +68,95 @@ class TestSetTextColor(unittest.TestCase):
 NEURONS TESTS
 """
 
+class TestNeuron(unittest.TestCase):
+    def test_construct_default(self):
+        testNeuron = neurons.Neuron()
+        with self.subTest():    # Name
+            self.assertEqual(testNeuron.params['name'],'Neuron','Should be Neuron')
+        with self.subTest():    # Color
+            self.assertEqual(testNeuron.params['color'], 'white', 'Should be white')
+        with self.subTest():    # Membrane Capacitance
+            self.assertEqual(testNeuron.params['membraneCapacitance'],5.0,'Should be 5.0')
+        with self.subTest():    # Membrane Conductance
+            self.assertEqual(testNeuron.params['fontColor'],'black','Should be black')
+        with self.subTest():    # Bias current
+            self.assertEqual(testNeuron.params['bias'],0.0,'Should be 0.0')
 
+    def test_construct_valid(self):
+        testNeuron = neurons.Neuron(name='Name',
+                                    color='blue',
+                                    membraneCapacitance=2.0,
+                                    membraneConductance=2.0,
+                                    bias=2.0)
+        with self.subTest():  # Name
+            self.assertEqual(testNeuron.params['name'], 'Name', 'Should be Name')
+        with self.subTest():  # Color
+            self.assertEqual(testNeuron.params['color'], 'blue', 'Should be blue')
+        with self.subTest():  # Membrane Capacitance
+            self.assertEqual(testNeuron.params['membraneCapacitance'], 2.0, 'Should be 2.0')
+        with self.subTest():  # Membrane Conductance
+            self.assertEqual(testNeuron.params['fontColor'], 'white', 'Should be white')
+        with self.subTest():  # Bias current
+            self.assertEqual(testNeuron.params['bias'], 2.0, 'Should be 2.0')
+
+    def test_construct_invalid(self):
+        with self.subTest():
+            with self.assertRaises(ValueError):
+                testNeuron = neurons.Neuron(name=1)
+        with self.subTest():
+            with self.assertRaises(ValueError):
+                testNeuron = neurons.Neuron(membraneCapacitance='foo')
+        with self.subTest():
+            with self.assertRaises(ValueError):
+                testNeuron = neurons.Neuron(membraneConductance='foo')
+        with self.subTest():
+            with self.assertRaises(ValueError):
+                testNeuron = neurons.Neuron(bias='foo')
+
+class TestNonSpikingNeuron(unittest.TestCase):
+    def test_construct_default(self):
+        testNeuron = neurons.NonSpikingNeuron()
+        with self.subTest():    # Name
+            self.assertEqual(testNeuron.params['name'],'Neuron','Should be Neuron')
+        with self.subTest():    # Color
+            self.assertEqual(testNeuron.params['color'], 'white', 'Should be white')
+        with self.subTest():    # Membrane Capacitance
+            self.assertEqual(testNeuron.params['membraneCapacitance'],5.0,'Should be 5.0')
+        with self.subTest():    # Membrane Conductance
+            self.assertEqual(testNeuron.params['fontColor'],'black','Should be black')
+        with self.subTest():    # Bias current
+            self.assertEqual(testNeuron.params['bias'],0.0,'Should be 0.0')
+
+    def test_construct_valid(self):
+        testNeuron = neurons.NonSpikingNeuron(name='Name',
+                                              color='blue',
+                                              membraneCapacitance=2.0,
+                                              membraneConductance=2.0,
+                                              bias=2.0)
+        with self.subTest():  # Name
+            self.assertEqual(testNeuron.params['name'], 'Name', 'Should be Name')
+        with self.subTest():  # Color
+            self.assertEqual(testNeuron.params['color'], 'blue', 'Should be blue')
+        with self.subTest():  # Membrane Capacitance
+            self.assertEqual(testNeuron.params['membraneCapacitance'], 2.0, 'Should be 2.0')
+        with self.subTest():  # Membrane Conductance
+            self.assertEqual(testNeuron.params['fontColor'], 'white', 'Should be white')
+        with self.subTest():  # Bias current
+            self.assertEqual(testNeuron.params['bias'], 2.0, 'Should be 2.0')
+
+    def test_construct_invalid(self):
+        with self.subTest():
+            with self.assertRaises(ValueError):
+                testNeuron = neurons.NonSpikingNeuron(name=1)
+        with self.subTest():
+            with self.assertRaises(ValueError):
+                testNeuron = neurons.NonSpikingNeuron(membraneCapacitance='foo')
+        with self.subTest():
+            with self.assertRaises(ValueError):
+                testNeuron = neurons.NonSpikingNeuron(membraneConductance='foo')
+        with self.subTest():
+            with self.assertRaises(ValueError):
+                testNeuron = neurons.NonSpikingNeuron(bias='foo')
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
