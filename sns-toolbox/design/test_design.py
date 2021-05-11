@@ -2,7 +2,7 @@
 Test the code within the design suite
 William Nourse
 May 11, 2021
-Why do I have to be Mr. Pink
+Why do I have to be Mr. Pink?
 """
 
 """
@@ -41,6 +41,7 @@ class TestValidColor(unittest.TestCase):
 
     def test_color_tuple(self):
         self.assertEqual(False, __utilities__.validColor(['navy','olive']))
+
 
 class TestSetTextColor(unittest.TestCase):
     def test_color_with_white_text(self):
@@ -113,6 +114,7 @@ class TestNeuron(unittest.TestCase):
             with self.assertRaises(ValueError):
                 testNeuron = neurons.Neuron(bias='foo')
 
+
 class TestNonSpikingNeuron(unittest.TestCase):
     def test_construct_default(self):
         testNeuron = neurons.NonSpikingNeuron()
@@ -163,6 +165,108 @@ class TestNonSpikingNeuron(unittest.TestCase):
 SYNAPSES TESTS
 """
 
+class TestSynapse(unittest.TestCase):
+    def test_construct_default(self):
+        testSynapse = synapses.Synapse()
+        self.assertEqual(testSynapse.params['name'],'Synapse','Should be Synapse')
+
+    def test_construct_valid(self):
+        testSynapse = synapses.Synapse(name='Name')
+        self.assertEqual(testSynapse.params['name'],'Name','Should be Name')
+
+    def test_construct_invalid(self):
+        with self.assertRaises(ValueError):
+            testSynapse = synapses.Synapse(name=5)
+
+
+class TestNonSpikingSynapse(unittest.TestCase):
+    def test_construct_default(self):
+        testSynapse = synapses.NonSpikingSynapse()
+        with self.subTest():
+            self.assertEqual(testSynapse.params['name'],'Synapse','Should be Synapse')
+        with self.subTest():
+            self.assertEqual(testSynapse.params['maxConductance'],1.0,'Should be 1.0')
+        with self.subTest():
+            self.assertEqual(testSynapse.params['relativeReversalPotential'],40.0,'Should be 40.0')
+        with self.subTest():
+            self.assertEqual(testSynapse.params['R'],20.0,'Should be 20.0')
+
+    def test_construct_valid(self):
+        testSynapse = synapses.NonSpikingSynapse(name='Name',maxConductance=2.0,relativeReversalPotential=2.0,R=2.0)
+        with self.subTest():
+            self.assertEqual(testSynapse.params['name'], 'Name', 'Should be Name')
+        with self.subTest():
+            self.assertEqual(testSynapse.params['maxConductance'], 2.0, 'Should be 2.0')
+        with self.subTest():
+            self.assertEqual(testSynapse.params['relativeReversalPotential'], 2.0, 'Should be 2.0')
+        with self.subTest():
+            self.assertEqual(testSynapse.params['R'], 2.0, 'Should be 2.0')
+
+    def test_construct_invalid(self):
+        with self.subTest():
+            with self.assertRaises(ValueError):
+                testSynapse = synapses.NonSpikingSynapse(name=5)
+        with self.subTest():
+            with self.assertRaises(ValueError):
+                testSynapse = synapses.NonSpikingSynapse(maxConductance='foo')
+        with self.subTest():
+            with self.assertRaises(ValueError):
+                testSynapse = synapses.NonSpikingSynapse(relativeReversalPotential='foo')
+        with self.subTest():
+            with self.assertRaises(ValueError):
+                testSynapse = synapses.NonSpikingSynapse(R='foo')
+        with self.subTest():
+            with self.assertRaises(ValueError):
+                testSynapse = synapses.NonSpikingSynapse(maxConductance=0)
+        with self.subTest():
+            with self.assertRaises(ValueError):
+                testSynapse = synapses.NonSpikingSynapse(R=0)
+        with self.subTest():
+            with self.assertRaises(ValueError):
+                testSynapse = synapses.NonSpikingSynapse(maxConductance=-1)
+        with self.subTest():
+            with self.assertRaises(ValueError):
+                testSynapse = synapses.NonSpikingSynapse(R=-1)
+
+
+class TestTransmissionSynapse(unittest.TestCase):
+    def test_construct_default(self):
+        testSynapse = synapses.TransmissionSynapse()
+        with self.subTest():
+            self.assertEqual(((1.0*20.0)/(40.0-1.0*20.0)),testSynapse.params['maxConductance'],'Should be 1.0')
+        with self.subTest():
+            self.assertEqual('Transmit',testSynapse.params['name'],'Should be Transmit')
+
+    def test_construct_valid(self):
+        testSynapse = synapses.TransmissionSynapse(gain=1.5,name='Name')
+        with self.subTest():
+            self.assertEqual(((1.5 * 20.0) / (40.0 - 1.5 * 20.0)), testSynapse.params['maxConductance'],
+                             'Should be 3.0')
+        with self.subTest():
+            self.assertEqual('Name', testSynapse.params['name'], 'Should be Name')
+
+    def test_construct_invalid(self):
+        with self.subTest():
+            with self.assertRaises(ValueError): # not a number
+                testSynapse = synapses.TransmissionSynapse(gain='foo')
+        with self.subTest():
+            with self.assertRaises(ValueError): # = 0
+                testSynapse = synapses.TransmissionSynapse(gain=0)
+        with self.subTest():
+            with self.assertRaises(ValueError):  # < 0
+                testSynapse = synapses.TransmissionSynapse(gain=-1)
+        with self.subTest():
+            with self.assertRaises(ValueError): # gain causes gMax < 0
+                testSynapse = synapses.TransmissionSynapse(gain=3.0)
+
+
+class TestModulationSynapse(unittest.TestCase):
+    def test_construct_default(self):
+        testSynapse = synapses.ModulationSynapse()
+        with self.subTest():
+            self.assertEqual(0.0,testSynapse.params['relativeReversalPotential'],'Should be 0.0')
+        with self.subTest():
+            self.assertEqual('Modulate',testSynapse.params['name'],'Should be Modulate')
 
 
 """

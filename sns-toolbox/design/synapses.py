@@ -11,6 +11,7 @@ IMPORTS
 """
 
 from typing import Dict, Any
+import numbers
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -24,8 +25,10 @@ class Synapse:
         :param name: Name of this synapse preset
         """
         self.params: Dict[str, Any] = {}
-        # TODO: Type checking
-        self.params['name'] = name
+        if isinstance(name,str):
+            self.params['name'] = name
+        else:
+            raise ValueError('Name should be a string')
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -46,10 +49,24 @@ class NonSpikingSynapse(Synapse):
         :param R:                           mV
         """
         super().__init__(**kwargs)  # Call to constructor of parent class
-        # TODO: Type checking
-        self.params['maxConductance'] = maxConductance
-        self.params['relativeReversalPotential'] = relativeReversalPotential
-        self.params['R'] = R
+        if isinstance(maxConductance,numbers.Number):
+            if maxConductance > 0:
+                self.params['maxConductance'] = maxConductance
+            else:
+                raise ValueError('maxConductance (gMax) must be greater than 0')
+        else:
+            raise ValueError('maxConductance (gMax) must be a number (int, float, double, etc.')
+        if isinstance(relativeReversalPotential,numbers.Number):
+            self.params['relativeReversalPotential'] = relativeReversalPotential
+        else:
+            raise ValueError('relativeReversalPotential (deltaEsyn) must be a number (int, float, double, etc.')
+        if isinstance(R,numbers.Number):
+            if R > 0:
+                self.params['R'] = R
+            else:
+                raise ValueError('R must be greater than 0')
+        else:
+            raise ValueError('R must be a number (int, float, double, etc.')
 
 class TransmissionSynapse(NonSpikingSynapse):
     def __init__(self, gain: float = 1.0,
@@ -62,8 +79,18 @@ class TransmissionSynapse(NonSpikingSynapse):
         :param name:    Name of this synapse preset
         """
         super().__init__(name=name, **kwargs)  # Call to constructor of parent class
-        self.params['maxConductance'] = (gain*self.params['R'])/\
-                                        (self.params['relativeReversalPotential']-gain*self.params['R'])
+        if isinstance(gain,numbers.Number):
+            if gain <= 0:
+                raise ValueError('Gain must be greater than 0')
+            else:
+                try:
+                    self.params['maxConductance'] = (gain*self.params['R'])/(self.params['relativeReversalPotential']-gain*self.params['R'])
+                except ZeroDivisionError:
+                    raise ValueError('Gain causes division by 0, decrease gain or increase relativeReversalPotential')
+                if self.params['maxConductance'] < 0:
+                    raise ValueError('Gain causes maxConductance to be negative, decrease gain or increase relativeReversalPotential')
+        else:
+            raise ValueError('Gain must be a number (int, float, double, etc.)')
 
 class ModulationSynapse(NonSpikingSynapse):
     def __init__(self, name: str = 'Modulate', **kwargs) -> None:
