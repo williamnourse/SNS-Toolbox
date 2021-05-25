@@ -15,9 +15,9 @@ from typing import Dict, Any, List, Type, TypeVar
 import copy
 from graphviz import Digraph
 
-from neurons import NonSpikingNeuron
-from synapses import NonSpikingSynapse
-from __utilities__ import validColor, setTextColor
+from sns_toolbox.design.neurons import NonSpikingNeuron
+from sns_toolbox.design.synapses import NonSpikingSynapse
+from sns_toolbox.design.__utilities__ import validColor, setTextColor
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

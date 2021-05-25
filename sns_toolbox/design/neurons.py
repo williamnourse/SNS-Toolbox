@@ -14,7 +14,7 @@ from typing import Dict, Any
 import warnings
 import numbers
 
-from __utilities__ import validColor, setTextColor
+from sns_toolbox.design.__utilities__ import validColor, setTextColor
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -13,10 +13,10 @@ IMPORTS
 import unittest
 import warnings
 
-import __utilities__
-import neurons
-import synapses
-import networks
+from sns_toolbox.design import __utilities__
+from sns_toolbox.design import neurons
+from sns_toolbox.design import synapses
+from sns_toolbox.design import networks
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
