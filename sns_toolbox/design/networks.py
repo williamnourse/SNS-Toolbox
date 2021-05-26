@@ -4,7 +4,6 @@ William Nourse
 May 10, 2021
 You're gonna be okay!
 """
-import numbers
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -12,6 +11,7 @@ IMPORTS
 """
 
 from typing import Dict, Any, List, Type, TypeVar
+from numbers import Number
 import copy
 from graphviz import Digraph
 
@@ -25,7 +25,7 @@ BASE CLASS
 """
 
 class NonSpikingNetwork:
-    def __init__(self, name: str = 'Network') -> None:
+    def __init__(self, name: str = 'Network', range: float = 20.0) -> None:
         """
         Constructor for base network class
         :param name: Name for this network
@@ -35,6 +35,7 @@ class NonSpikingNetwork:
             self.params['name'] = name
         else:
             raise TypeError('Name must be a string')
+        self.params['R'] = range
         self.neurons: List[NonSpikingNeuron] = []
         self.synapses: List[NonSpikingSynapse] = []
         self.graph = Digraph(filename=(self.params['name']+'.gv'))
