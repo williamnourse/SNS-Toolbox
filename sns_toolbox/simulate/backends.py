@@ -98,9 +98,9 @@ class SNS_Manual(NonSpikingBackend):
     def forward(self, statesLast: np.ndarray, appliedCurrents: np.ndarray) -> np.ndarray:
         """
         Compute the next neural states
-        :param statesLast:
-        :param appliedCurrents:
-        :return:
+        :param statesLast:      Neural states at the last timestep
+        :param appliedCurrents: External currents at the current timestep
+        :return:                Neural states at the current timestep
         """
         for source in range(self.numNeurons):
             for dest in range(self.numNeurons):
@@ -167,7 +167,12 @@ class SNS_SciPy(NonSpikingBackend):
         self.delE = csr_matrix((delEVals, (destinations, sources)), shape=(self.numNeurons, self.numNeurons))
 
     def forward(self, statesLast: csr_matrix, appliedCurrents: csr_matrix) -> csr_matrix:
-
+        """
+        Compute the next neural states
+        :param statesLast:      Neural states at the last timestep
+        :param appliedCurrents: External currents at the current timestep
+        :return:                Neural states at the current timestep
+        """
         # Compute the synaptic conductance matrix
         Gsyn = self.gMax.minimum(self.gMax.multiply(statesLast/self.R))
         Gsyn = Gsyn.maximum(0)
