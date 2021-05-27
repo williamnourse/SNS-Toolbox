@@ -134,13 +134,13 @@ Umatrix = Umatrix.toarray()
 PLOTTING
 """
 
-# Manual
+# SNS_Manual
 plt.figure()
 for i in range(numNeurons):
     plt.plot(t,Umanual[i,:],label=str(i))
 plt.xlabel('t (ms)')
 plt.ylabel('U (mV)')
-plt.title('Manual Computation')
+plt.title('SNS_Manual Computation')
 plt.legend()
 
 
@@ -159,7 +159,7 @@ for i in range(numNeurons):
     plt.plot(t,Umanual[i,:]-Umatrix[:,i].transpose(),label=str(i))
 plt.xlabel('t (ms)')
 plt.ylabel('U (mV)')
-plt.title('Manual - Matrix')
+plt.title('SNS_Manual - Matrix')
 plt.legend()
 
 plt.show()
