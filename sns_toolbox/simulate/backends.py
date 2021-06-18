@@ -14,6 +14,7 @@ IMPORTS
 
 from typing import Any
 import numpy as np
+import torch
 from scipy.sparse import csr_matrix, lil_matrix
 
 from sns_toolbox.design.networks import NonSpikingNetwork
@@ -39,6 +40,7 @@ class NonSpikingBackend:
         self.dt = dt
         self.numNeurons = network.getNumNeurons()
         self.numSynapses = network.getNumSynapses()
+        self.R = network.params['R']
 
     def forward(self, statesLast: Any, appliedCurrents: Any) -> Any:
         """
@@ -70,7 +72,6 @@ class SNS_Manual(NonSpikingBackend):
         """
         super().__init__(network,**kwargs)
         # Network Parameters
-        self.R = network.params['R']
         self.statesNext = np.zeros(self.numNeurons)
 
         # Neural Parameters
@@ -133,9 +134,6 @@ class SNS_SciPy(NonSpikingBackend):
         """
         super().__init__(network,**kwargs)
 
-        # Network Parameters
-        self.R = network.params['R']
-
         # Neural Parameters
         Cm = np.zeros(self.numNeurons)
         Gm = np.zeros(self.numNeurons)
@@ -186,3 +184,41 @@ class SNS_SciPy(NonSpikingBackend):
         statesNext = statesLast + self.timeFactor.multiply(-(statesLast @ self.GmArr) + self.Ibias + Isyn + appliedCurrents)
 
         return statesNext
+
+"""
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+PYTORCH SPARSE
+"""
+
+class SNS_Pytorch(NonSpikingBackend):
+    def __init__(self, network: NonSpikingNetwork, device: torch.device = None,**kwargs):
+        super().__init__(network,**kwargs)
+
+        # Neural parameters
+        Cm = np.zeros(self.numNeurons)
+        Gm = np.zeros(self.numNeurons)
+        Ibias = np.zeros(self.numNeurons)
+
+        for i in range(self.numNeurons):
+            Cm[i] = network.neurons[i].params['membraneCapacitance']
+            Gm[i] = network.neurons[i].params['membraneConductance']
+            Ibias[i] = network.neurons[i].params['bias']
+
+        GmRow = np.array(list(range(self.numNeurons)))
+        self.Ibias = torch.as_tensor(Ibias)#.to_sparse()
+        self.GmArr = torch.sparse_coo_tensor([GmRow,GmRow],Gm,[self.numNeurons,self.numNeurons])
+        self.timeFactor = torch.as_tensor(self.dt / Cm)#.to_sparse()
+
+        # Synapse parameters
+        sources = []
+        destinations = []
+        gMaxVals = []
+        delEVals = []
+        for i in range(self.numSynapses):
+            sources.append(network.synapses[i].params['source'])
+            destinations.append(network.synapses[i].params['destination'])
+            gMaxVals.append(network.synapses[i].params['maxConductance'])
+            delEVals.append(network.synapses[i].params['relativeReversalPotential'])
+
+        self.gMax = torch.sparse_coo_tensor([destinations,sources],gMaxVals,[self.numNeurons,self.numNeurons])
+        self.delE = torch.sparse_coo_tensor([destinations,sources],delEVals,[self.numNeurons,self.numNeurons])
