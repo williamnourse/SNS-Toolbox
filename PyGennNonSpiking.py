@@ -14,7 +14,7 @@ IMPORTS
 import numpy as np
 import matplotlib.pyplot as plt
 
-from pygenn.genn_model import GeNNModel, create_custom_neuron_class, create_custom_weight_update_class
+from pygenn.genn_model import GeNNModel, create_custom_neuron_class, create_custom_weight_update_class, create_custom_postsynaptic_class
 from pygenn.genn_wrapper import NO_DELAY
 from pygenn.genn_wrapper.Models import VarAccess_READ_WRITE
 
@@ -45,13 +45,22 @@ inputModel = create_custom_neuron_class("input",
 Non-spiking synaptic conductance model:
 Gsyn = Gmax*max(0,min(1,Upre/R))
 """
-piecewiseLinearUpdate = create_custom_weight_update_class("piecewiseLinear",
+piecewiseLinearUpdate = create_custom_weight_update_class("piecewiseLinearWeight",
                                                           param_names=['Gmax','R'],
-                                                          var_name_types=[('Gsyn', 'scalar')],
-                                                          event_code='$(addToInSyn, $(Gsyn)*fmin(1.0,$(U_pre)/$(R))-$(inSyn))',
-                                                          event_threshold_condition_code='$(U_pre) > 0'
+                                                          synapse_dynamics_code='$(addToInSyn, $(Gmax)*fmin(1.0,fmax(0.0,$(U_pre)/$(R)))-$(inSyn));'
                                                           )
-piecewiseLinearPostsynaptic = 
+                                                          #var_name_types=[('Gsyn', 'scalar')],
+                                                          #event_code='$(addToInSyn, $(Gsyn)*fmin(1.0,$(U_pre)/$(R))-$(inSyn))',
+                                                          #event_threshold_condition_code='$(U_pre) > 0'
+                                                          #)
+
+"""
+Non-spiking synaptic current model:
+Isyn = Gsyn,pre*(delE,pre-U,post)
+"""
+piecewiseLinearPostsynaptic = create_custom_postsynaptic_class('piecewiseLinearPostSyn',
+                                                               param_names=['delE'],
+                                                               apply_input_code='$(Isyn) += $(inSyn)*($(delE)-$(U));')
 
 model = GeNNModel("float", "testNonSpike")
 model.dT = 1.0  # ms
@@ -68,10 +77,10 @@ pop = model.add_neuron_population("Population",6, nonspikingModel, params, state
 inputs = model.add_neuron_population("Inputs",2,inputModel, {},inputInit)
 pop.set_extra_global_param('Iapp',0.0)
 
-# model.add_current_source('ConstantStim',
-#                          'DC',
-#                          pop,
-#                          {'amp': "$(stim)"},{})
+#model.add_current_source('ConstantStim',
+#                         'DC',
+#                         pop,
+#                         {'amp': "$(stim)"},{})
 
 model.build()
 
