@@ -42,8 +42,9 @@ inputModel = create_custom_neuron_class("input",
                                         var_name_types=[('Val','scalar', VarAccess_READ_WRITE)])
 
 """
-Non-spiking synaptic conductance model:
+Non-spiking synapse model:
 Gsyn = Gmax*max(0,min(1,Upre/R))
+Isyn = Gsyn,pre*(delE,pre-U,post)
 """
 piecewiseLinearUpdate = create_custom_weight_update_class("piecewiseLinearWeight",
                                                           param_names=['Gmax','R'],
@@ -54,23 +55,31 @@ piecewiseLinearUpdate = create_custom_weight_update_class("piecewiseLinearWeight
                                                           #event_threshold_condition_code='$(U_pre) > 0'
                                                           #)
 
-"""
-Non-spiking synaptic current model:
-Isyn = Gsyn,pre*(delE,pre-U,post)
-"""
 piecewiseLinearPostsynaptic = create_custom_postsynaptic_class('piecewiseLinearPostSyn',
                                                                param_names=['delE'],
                                                                apply_input_code='$(Isyn) += $(inSyn)*($(delE)-$(U));')
 
-model = GeNNModel("float", "testNonSpike")
-model.dT = 1.0  # ms
+"""
+Pure input connection synapse model:
+"""
+inputWeightUpdate = create_custom_weight_update_class('inputWeight',
+                                                      synapse_dynamics_code='$(addToInSyn, $(U_pre)-$(inSyn));')
 
-params = {"Gm": 1.0,    # uS
+inputPostsynaptic = create_custom_postsynaptic_class('inputPostSyn',
+                                                     apply_input_code='$(Isyn) += $(inSyn)')
+"""
+Parameters for all of the neurons in the simulation
+"""
+model = GeNNModel("float", "testNonSpike")  # Create the model which will contain all of the neurons
+model.dT = 1.0  # simulation timestep (ms)
+
+#
+neuronParams = {"Gm": 1.0,    # uS
           "Cm": 5.0,    # nF
           "Ibias": 0.0  # nA
           }
 
-stateInit = {"U": [0.0,1.0,2.0,3.0,4.0,5.0]}
+neuronInit = {"U": 0.0}
 inputInit = {'Val': [1.0,5.0]}
 
 pop = model.add_neuron_population("Population",6, nonspikingModel, params, stateInit)
