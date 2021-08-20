@@ -45,21 +45,13 @@ EXPORT_VAR double initSparseTime;
 // ------------------------------------------------------------------------
 // local neuron groups
 // ------------------------------------------------------------------------
-#define spikeCount_Inputs glbSpkCntInputs[0]
-#define spike_Inputs glbSpkInputs
-#define glbSpkShiftInputs 0
+#define spikeCount_Applied Current glbSpkCntApplied Current[0]
+#define spike_Applied Current glbSpkApplied Current
+#define glbSpkShiftApplied Current 0
 
-EXPORT_VAR unsigned int* glbSpkCntInputs;
-EXPORT_VAR unsigned int* glbSpkInputs;
-EXPORT_VAR scalar* ValInputs;
-#define spikeCount_Population glbSpkCntPopulation[0]
-#define spike_Population glbSpkPopulation
-#define glbSpkShiftPopulation 0
-
-EXPORT_VAR unsigned int* glbSpkCntPopulation;
-EXPORT_VAR unsigned int* glbSpkPopulation;
-EXPORT_VAR scalar* UPopulation;
-EXPORT_VAR float IappPopulation;
+EXPORT_VAR unsigned int* glbSpkCntApplied Current;
+EXPORT_VAR unsigned int* glbSpkApplied Current;
+EXPORT_VAR scalar* ValApplied Current;
 
 // ------------------------------------------------------------------------
 // postsynaptic variables
@@ -73,32 +65,19 @@ EXPORT_VAR float IappPopulation;
 // synapse variables
 // ------------------------------------------------------------------------
 
-EXPORT_FUNC void pushInputsSpikesToDevice(bool uninitialisedOnly = false);
-EXPORT_FUNC void pullInputsSpikesFromDevice();
-EXPORT_FUNC void pushInputsCurrentSpikesToDevice(bool uninitialisedOnly = false);
-EXPORT_FUNC void pullInputsCurrentSpikesFromDevice();
-EXPORT_FUNC unsigned int* getInputsCurrentSpikes();
-EXPORT_FUNC unsigned int& getInputsCurrentSpikeCount();
-EXPORT_FUNC void pushValInputsToDevice(bool uninitialisedOnly = false);
-EXPORT_FUNC void pullValInputsFromDevice();
-EXPORT_FUNC void pushCurrentValInputsToDevice(bool uninitialisedOnly = false);
-EXPORT_FUNC void pullCurrentValInputsFromDevice();
-EXPORT_FUNC scalar* getCurrentValInputs();
-EXPORT_FUNC void pushInputsStateToDevice(bool uninitialisedOnly = false);
-EXPORT_FUNC void pullInputsStateFromDevice();
-EXPORT_FUNC void pushPopulationSpikesToDevice(bool uninitialisedOnly = false);
-EXPORT_FUNC void pullPopulationSpikesFromDevice();
-EXPORT_FUNC void pushPopulationCurrentSpikesToDevice(bool uninitialisedOnly = false);
-EXPORT_FUNC void pullPopulationCurrentSpikesFromDevice();
-EXPORT_FUNC unsigned int* getPopulationCurrentSpikes();
-EXPORT_FUNC unsigned int& getPopulationCurrentSpikeCount();
-EXPORT_FUNC void pushUPopulationToDevice(bool uninitialisedOnly = false);
-EXPORT_FUNC void pullUPopulationFromDevice();
-EXPORT_FUNC void pushCurrentUPopulationToDevice(bool uninitialisedOnly = false);
-EXPORT_FUNC void pullCurrentUPopulationFromDevice();
-EXPORT_FUNC scalar* getCurrentUPopulation();
-EXPORT_FUNC void pushPopulationStateToDevice(bool uninitialisedOnly = false);
-EXPORT_FUNC void pullPopulationStateFromDevice();
+EXPORT_FUNC void pushApplied CurrentSpikesToDevice(bool uninitialisedOnly = false);
+EXPORT_FUNC void pullApplied CurrentSpikesFromDevice();
+EXPORT_FUNC void pushApplied CurrentCurrentSpikesToDevice(bool uninitialisedOnly = false);
+EXPORT_FUNC void pullApplied CurrentCurrentSpikesFromDevice();
+EXPORT_FUNC unsigned int* getApplied CurrentCurrentSpikes();
+EXPORT_FUNC unsigned int& getApplied CurrentCurrentSpikeCount();
+EXPORT_FUNC void pushValApplied CurrentToDevice(bool uninitialisedOnly = false);
+EXPORT_FUNC void pullValApplied CurrentFromDevice();
+EXPORT_FUNC void pushCurrentValApplied CurrentToDevice(bool uninitialisedOnly = false);
+EXPORT_FUNC void pullCurrentValApplied CurrentFromDevice();
+EXPORT_FUNC scalar* getCurrentValApplied Current();
+EXPORT_FUNC void pushApplied CurrentStateToDevice(bool uninitialisedOnly = false);
+EXPORT_FUNC void pullApplied CurrentStateFromDevice();
 // Runner functions
 EXPORT_FUNC void copyStateToDevice(bool uninitialisedOnly = false);
 EXPORT_FUNC void copyConnectivityToDevice(bool uninitialisedOnly = false);

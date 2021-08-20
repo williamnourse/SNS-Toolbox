@@ -25,20 +25,14 @@ double initSparseTime;
 // merged group arrays
 // ------------------------------------------------------------------------
 MergedNeuronInitGroup0 mergedNeuronInitGroup0[1];
-MergedNeuronInitGroup1 mergedNeuronInitGroup1[1];
 MergedNeuronUpdateGroup0 mergedNeuronUpdateGroup0[1];
-MergedNeuronUpdateGroup1 mergedNeuronUpdateGroup1[1];
-MergedNeuronSpikeQueueUpdateGroup0 mergedNeuronSpikeQueueUpdateGroup0[2];
+MergedNeuronSpikeQueueUpdateGroup0 mergedNeuronSpikeQueueUpdateGroup0[1];
 // ------------------------------------------------------------------------
 // local neuron groups
 // ------------------------------------------------------------------------
-unsigned int* glbSpkCntInputs;
-unsigned int* glbSpkInputs;
-scalar* ValInputs;
-unsigned int* glbSpkCntPopulation;
-unsigned int* glbSpkPopulation;
-scalar* UPopulation;
-float IappPopulation;
+unsigned int* glbSpkCntApplied Current;
+unsigned int* glbSpkApplied Current;
+scalar* ValApplied Current;
 
 // ------------------------------------------------------------------------
 // postsynaptic variables
@@ -60,119 +54,72 @@ float IappPopulation;
 // ------------------------------------------------------------------------
 // copying things to device
 // ------------------------------------------------------------------------
-void pushInputsSpikesToDevice(bool uninitialisedOnly) {
+void pushApplied CurrentSpikesToDevice(bool uninitialisedOnly) {
 }
 
-void pushInputsCurrentSpikesToDevice(bool uninitialisedOnly) {
+void pushApplied CurrentCurrentSpikesToDevice(bool uninitialisedOnly) {
 }
 
-void pushValInputsToDevice(bool uninitialisedOnly) {
+void pushValApplied CurrentToDevice(bool uninitialisedOnly) {
 }
 
-void pushCurrentValInputsToDevice(bool uninitialisedOnly) {
+void pushCurrentValApplied CurrentToDevice(bool uninitialisedOnly) {
 }
 
-void pushInputsStateToDevice(bool uninitialisedOnly) {
-    pushValInputsToDevice(uninitialisedOnly);
-}
-
-void pushPopulationSpikesToDevice(bool uninitialisedOnly) {
-}
-
-void pushPopulationCurrentSpikesToDevice(bool uninitialisedOnly) {
-}
-
-void pushUPopulationToDevice(bool uninitialisedOnly) {
-}
-
-void pushCurrentUPopulationToDevice(bool uninitialisedOnly) {
-}
-
-void pushPopulationStateToDevice(bool uninitialisedOnly) {
-    pushUPopulationToDevice(uninitialisedOnly);
+void pushApplied CurrentStateToDevice(bool uninitialisedOnly) {
+    pushValApplied CurrentToDevice(uninitialisedOnly);
 }
 
 
 // ------------------------------------------------------------------------
 // copying things from device
 // ------------------------------------------------------------------------
-void pullInputsSpikesFromDevice() {
+void pullApplied CurrentSpikesFromDevice() {
 }
 
-void pullInputsCurrentSpikesFromDevice() {
+void pullApplied CurrentCurrentSpikesFromDevice() {
 }
 
-void pullValInputsFromDevice() {
+void pullValApplied CurrentFromDevice() {
 }
 
-void pullCurrentValInputsFromDevice() {
+void pullCurrentValApplied CurrentFromDevice() {
 }
 
-void pullInputsStateFromDevice() {
-    pullValInputsFromDevice();
-}
-
-void pullPopulationSpikesFromDevice() {
-}
-
-void pullPopulationCurrentSpikesFromDevice() {
-}
-
-void pullUPopulationFromDevice() {
-}
-
-void pullCurrentUPopulationFromDevice() {
-}
-
-void pullPopulationStateFromDevice() {
-    pullUPopulationFromDevice();
+void pullApplied CurrentStateFromDevice() {
+    pullValApplied CurrentFromDevice();
 }
 
 
 // ------------------------------------------------------------------------
 // helper getter functions
 // ------------------------------------------------------------------------
-unsigned int* getInputsCurrentSpikes() {
-    return  glbSpkInputs;
+unsigned int* getApplied CurrentCurrentSpikes() {
+    return  glbSpkApplied Current;
 }
 
-unsigned int& getInputsCurrentSpikeCount() {
-    return glbSpkCntInputs[0];
+unsigned int& getApplied CurrentCurrentSpikeCount() {
+    return glbSpkCntApplied Current[0];
 }
 
-scalar* getCurrentValInputs() {
-    return ValInputs;
-}
-
-unsigned int* getPopulationCurrentSpikes() {
-    return  glbSpkPopulation;
-}
-
-unsigned int& getPopulationCurrentSpikeCount() {
-    return glbSpkCntPopulation[0];
-}
-
-scalar* getCurrentUPopulation() {
-    return UPopulation;
+scalar* getCurrentValApplied Current() {
+    return ValApplied Current;
 }
 
 
 void copyStateToDevice(bool uninitialisedOnly) {
-    pushInputsStateToDevice(uninitialisedOnly);
-    pushPopulationStateToDevice(uninitialisedOnly);
+    pushApplied CurrentStateToDevice(uninitialisedOnly);
 }
 
 void copyConnectivityToDevice(bool uninitialisedOnly) {
 }
 
 void copyStateFromDevice() {
-    pullInputsStateFromDevice();
-    pullPopulationStateFromDevice();
+    pullApplied CurrentStateFromDevice();
 }
 
 void copyCurrentSpikesFromDevice() {
-    pullInputsCurrentSpikesFromDevice();
-    pullPopulationCurrentSpikesFromDevice();
+    pullApplied CurrentCurrentSpikesFromDevice();
 }
 
 void copyCurrentSpikeEventsFromDevice() {
@@ -189,12 +136,9 @@ void allocateMem() {
     // ------------------------------------------------------------------------
     // local neuron groups
     // ------------------------------------------------------------------------
-    glbSpkCntInputs = new unsigned int[1];
-    glbSpkInputs = new unsigned int[2];
-    ValInputs = new scalar[2];
-    glbSpkCntPopulation = new unsigned int[1];
-    glbSpkPopulation = new unsigned int[6];
-    UPopulation = new scalar[6];
+    glbSpkCntApplied Current = new unsigned int[1];
+    glbSpkApplied Current = new unsigned int[1];
+    ValApplied Current = new scalar[1];
     
     // ------------------------------------------------------------------------
     // postsynaptic variables
@@ -208,16 +152,11 @@ void allocateMem() {
     // synapse variables
     // ------------------------------------------------------------------------
     
-    mergedNeuronInitGroup0[0] = {glbSpkCntPopulation, glbSpkPopulation, 6, };
+    mergedNeuronInitGroup0[0] = {glbSpkCntApplied Current, glbSpkApplied Current, ValApplied Current, 1, };
     pushMergedNeuronInitGroup0ToDevice(mergedNeuronInitGroup0);
-    mergedNeuronInitGroup1[0] = {glbSpkCntInputs, glbSpkInputs, 2, };
-    pushMergedNeuronInitGroup1ToDevice(mergedNeuronInitGroup1);
-    mergedNeuronUpdateGroup0[0] = {glbSpkCntPopulation, glbSpkPopulation, UPopulation, 6, IappPopulation, };
+    mergedNeuronUpdateGroup0[0] = {glbSpkCntApplied Current, glbSpkApplied Current, ValApplied Current, 1, };
     pushMergedNeuronUpdateGroup0ToDevice(mergedNeuronUpdateGroup0);
-    mergedNeuronUpdateGroup1[0] = {glbSpkCntInputs, glbSpkInputs, ValInputs, 2, };
-    pushMergedNeuronUpdateGroup1ToDevice(mergedNeuronUpdateGroup1);
-    mergedNeuronSpikeQueueUpdateGroup0[0] = {glbSpkCntPopulation, };
-    mergedNeuronSpikeQueueUpdateGroup0[1] = {glbSpkCntInputs, };
+    mergedNeuronSpikeQueueUpdateGroup0[0] = {glbSpkCntApplied Current, };
     pushMergedNeuronSpikeQueueUpdateGroup0ToDevice(mergedNeuronSpikeQueueUpdateGroup0);
 }
 
@@ -232,12 +171,9 @@ void freeMem() {
     // ------------------------------------------------------------------------
     // local neuron groups
     // ------------------------------------------------------------------------
-    delete[] glbSpkCntInputs;
-    delete[] glbSpkInputs;
-    delete[] ValInputs;
-    delete[] glbSpkCntPopulation;
-    delete[] glbSpkPopulation;
-    delete[] UPopulation;
+    delete[] glbSpkCntApplied Current;
+    delete[] glbSpkApplied Current;
+    delete[] ValApplied Current;
     
     // ------------------------------------------------------------------------
     // postsynaptic variables

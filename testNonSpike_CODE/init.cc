@@ -3,16 +3,12 @@
 // merged group arrays
 // ------------------------------------------------------------------------
 static MergedNeuronInitGroup0 mergedNeuronInitGroup0[1];
-static MergedNeuronInitGroup1 mergedNeuronInitGroup1[1];
 
 // ------------------------------------------------------------------------
 // merged group functions
 // ------------------------------------------------------------------------
 void pushMergedNeuronInitGroup0ToDevice(const MergedNeuronInitGroup0 *group) {
     std::copy_n(group, 1, mergedNeuronInitGroup0);
-}
-void pushMergedNeuronInitGroup1ToDevice(const MergedNeuronInitGroup1 *group) {
-    std::copy_n(group, 1, mergedNeuronInitGroup1);
 }
 
 // ------------------------------------------------------------------------
@@ -29,16 +25,10 @@ void initialize() {
             for (unsigned i = 0; i < (group.numNeurons); i++) {
                 group.spk[i] = 0;
             }
-            // current source variables
-        }
-    }
-     {
-        // merged neuron init group 1
-        for(unsigned int g = 0; g < 1; g++) {
-            const auto &group = mergedNeuronInitGroup1[g]; 
-            group.spkCnt[0] = 0;
-            for (unsigned i = 0; i < (group.numNeurons); i++) {
-                group.spk[i] = 0;
+             {
+                for (unsigned i = 0; i < (group.numNeurons); i++) {
+                    group.Val[i] = (0.00000000000000000e+00f);
+                }
             }
             // current source variables
         }

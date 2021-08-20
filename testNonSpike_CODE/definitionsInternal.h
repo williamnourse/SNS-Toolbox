@@ -11,29 +11,12 @@ struct MergedNeuronInitGroup0
  {
     unsigned int* spkCnt;
     unsigned int* spk;
-    unsigned int numNeurons;
-    
-}
-;
-struct MergedNeuronInitGroup1
- {
-    unsigned int* spkCnt;
-    unsigned int* spk;
+    scalar* Val;
     unsigned int numNeurons;
     
 }
 ;
 struct MergedNeuronUpdateGroup0
- {
-    unsigned int* spkCnt;
-    unsigned int* spk;
-    scalar* U;
-    unsigned int numNeurons;
-    float Iapp;
-    
-}
-;
-struct MergedNeuronUpdateGroup1
  {
     unsigned int* spkCnt;
     unsigned int* spk;
@@ -79,8 +62,6 @@ extern "C" {
 // copying merged group structures to device
 // ------------------------------------------------------------------------
 EXPORT_FUNC void pushMergedNeuronInitGroup0ToDevice(const MergedNeuronInitGroup0 *group);
-EXPORT_FUNC void pushMergedNeuronInitGroup1ToDevice(const MergedNeuronInitGroup1 *group);
 EXPORT_FUNC void pushMergedNeuronUpdateGroup0ToDevice(const MergedNeuronUpdateGroup0 *group);
-EXPORT_FUNC void pushMergedNeuronUpdateGroup1ToDevice(const MergedNeuronUpdateGroup1 *group);
 EXPORT_FUNC void pushMergedNeuronSpikeQueueUpdateGroup0ToDevice(const MergedNeuronSpikeQueueUpdateGroup0 *group);
 }  // extern "C"
