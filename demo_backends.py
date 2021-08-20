@@ -25,7 +25,7 @@ net = NonSpikingNetwork(name='Network')
 net.addNeuron(simple,suffix='A')
 net.addNeuron(simple,suffix='B')
 net.addSynapse(transmit,0,1)
-# net.renderGraph(view=True)
+net.renderGraph(view=True)
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
