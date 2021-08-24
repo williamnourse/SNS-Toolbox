@@ -53,7 +53,7 @@ outputConnectivityMatrix = np.identity(numNeurons)  # matrix because we're readi
 ########################################################################################################################
 SIMULATION
 """
-tmax = 50.0                 # max time (ms)
+tmax = 10                 # max time (ms)
 t = np.arange(0,tmax,dt)    # simulation time vector
 numSteps = len(t)           # number of simulation steps
 timeFactorMembrane = dt / Cm          # multiplicative time factor (save on operations)
@@ -65,12 +65,14 @@ for i in range(numSteps):
     Iapp = inputConnectivityVector*inputNodes
     U = Ulast + timeFactorMembrane * (-Gm * Ulast + Ib + Iapp)
     theta = thetaLast + timeFactorThreshold * (-thetaLast+theta0+m*Ulast)
-    for j in range(numNeurons):
-        if spikes[j] == 1.0:
-            spikes[j] = 0.0
-        if U[0][j]>theta[0][j]:
-            U[0][j] = 0
-            spikes[j] = 1.0
+    # for j in range(numNeurons):
+    #     if spikes[j] == 1.0:
+    #         spikes[j] = 0.0
+    #     if U[0][j]>theta[0][j]:
+    #         U[0][j] = 0
+    #         spikes[j] = 1.0
+    spikes = np.sign(np.minimum(0,theta-U))
+    U = U*(spikes+1)
     outputNodes = np.matmul(U,outputConnectivityMatrix)
     outVals[:,i] = outputNodes
 

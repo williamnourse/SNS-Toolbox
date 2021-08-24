@@ -7,7 +7,6 @@ The word today is 'Squatter's Rights'
 import pickle
 
 import numpy as np
-import matplotlib.pyplot as plt
 import time
 
 """
@@ -182,5 +181,3 @@ print('Method 1 Min: '+str(min1PercentTime)+'     Max: '+str(max1PercentTime))
 print('Method 2 Min: '+str(min2PercentTime)+'     Max: '+str(max2PercentTime))
 print('Minimum Difference: '+str(abs(min1PercentTime-min2PercentTime)))
 print('Maximum Difference: '+str(abs(max1PercentTime-max2PercentTime)))
-
-plt.show()
