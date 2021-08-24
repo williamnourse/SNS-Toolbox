@@ -169,7 +169,7 @@ pickleData.update({'percentSize':        netSize,
                    'percentTimes1':      np.copy(times1),
                    'percentTimes2':      np.copy(times2)})
 
-pickle.dump(pickleData,open('spikingMethodComparisonData.p','wb'))
+pickle.dump(pickleData, open('spikingMethodComparisonData.p', 'wb'))
 
 print('\nSize Stats:')
 print('Method 1 Min: '+str(min1SizeTime)+'     Max: '+str(max1SizeTime))

@@ -9,7 +9,7 @@ import pickle
 import numpy as np
 import matplotlib.pyplot as plt
 
-data = pickle.load(open('spikingMethodComparisonData.p','rb'))
+data = pickle.load(open('spikingMethodComparisonData.p', 'rb'))
 
 plt.figure()
 plt.plot(data['sizes'],data['sizeTimes1'],label='Method 1')
