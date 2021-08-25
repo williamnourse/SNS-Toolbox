@@ -39,6 +39,49 @@ thetaLast = np.copy(theta0)
 theta = np.zeros([1,numNeurons])
 spikes = np.zeros(numNeurons)
 
+Gspike = np.zeros([numNeurons,numNeurons])
+#                            Source
+#                    0 1 2 3 4 5 6 7 8 9 10
+GmaxNon = np.array([[0,0,0,0,0,0,0,0,0,0,0], # 0  D
+                    [0,0,0,0,0,0,0,0,0,0,0], # 1  e
+                    [0,0,0,0,0,0,0,0,0,0,0], # 2  s
+                    [0,0,0,0,0,0,0,0,0,0,0], # 3  t
+                    [0,0,0,0,0,0,0,0,0,0,0], # 4  i
+                    [0,0,0,0,0,0,0,0,0,0,0], # 5  n
+                    [0,0,0,0,0,0,0,0,0,0,0], # 6  a
+                    [0,0,0,1,0,0,0,0,0,0,0], # 7  t
+                    [0,0,0,1,0,0,0,0,0,0,0], # 8  i
+                    [0,0,0,1,10,0,0,0,0,0,0], # 9  o
+                    [0,0,0,0,10,0,0,0,0,0,0]])# 10 n
+
+#                            Source
+#                    0 1 2 3 4 5 6 7 8 9 10
+GmaxSpk = np.array([[0,0,0,0,0,0,0,0,0,0,0], # 0  D
+                    [0,0,0,0,0,0,0,0,0,0,0], # 1  e
+                    [0,0,0,0,0,0,0,0,0,0,0], # 2  s
+                    [0,0,0,0,0,0,0,0,0,0,0], # 3  t
+                    [0,0,0,0,0,0,0,0,0,0,0], # 4  i
+                    [1,0,0,0,0,0,0,0,0,0,0], # 5  n
+                    [1,0,0,0,0,0,0,0,0,0,0], # 6  a
+                    [0,0,0,0,0,0,0,0,0,0,0], # 7  t
+                    [0,0,0,0,0,0,0,0,0,0,0], # 8  i
+                    [0,0,0,0,0,0,0,0,0,0,0], # 9  o
+                    [1,0,0,0,0,0,0,0,0,0,0]])# 10 n
+
+#                            Source
+#                    0 1 2 3 4 5 6 7 8 9 10
+DelE = np.array([[0,0,0,0,0,0,0,0,0,0,0],    # 0  D
+                 [0,0,0,0,0,0,0,0,0,0,0],    # 1  e
+                 [0,0,0,0,0,0,0,0,0,0,0],    # 2  s
+                 [0,0,0,0,0,0,0,0,0,0,0],    # 3  t
+                 [0,0,0,0,0,0,0,0,0,0,0],    # 4  i
+                 [-100,0,0,0,0,0,0,0,0,0,0],    # 5  n
+                 [100,0,0,0,0,0,0,0,0,0,0],    # 6  a
+                 [0,0,0,-100,0,0,0,0,0,0,0], # 7  t
+                 [0,0,0,100,0,0,0,0,0,0,0],  # 8  i
+                 [0,0,0,100,0,0,0,0,0,0,0],  # 9  o
+                 [100,0,0,0,0,0,0,0,0,0,0]])   # 10 n
+
 # Neural Parameters
 Cm = np.zeros(numNeurons) + 5.0 # membrane capacitance (nF)
 Gm = np.zeros(numNeurons) + 1.0 # membrane conductance (uS)
@@ -58,32 +101,32 @@ t = np.arange(0,tmax,dt)    # simulation time vector
 numSteps = len(t)           # number of simulation steps
 timeFactorMembrane = dt / Cm          # multiplicative time factor (save on operations)
 timeFactorThreshold = dt / tauTheta
+tauSyn = 1
+timeFactorSynapse = dt / tauSyn
 
 outVals = np.zeros([numNeurons,numSteps])  # vector for storing output values
 
-ctr = np.zeros(numNeurons)
+refCtr = np.zeros(numNeurons)
 refMs = 0 # refractory period in ms
 refPeriod = np.zeros(numNeurons)+refMs*(1/dt)
 
 for i in range(numSteps):
-    Iapp = inputConnectivityVector*inputNodes
-    U = Ulast + timeFactorMembrane * (-Gm * Ulast + Ib + Iapp)
-    theta = thetaLast + timeFactorThreshold * (-thetaLast+theta0+m*Ulast)
-    # for j in range(numNeurons):
-    #     if spikes[j] == 1.0:
-    #         spikes[j] = 0.0
-    #     if U[0][j]>theta[0][j]:
-    #         U[0][j] = 0
-    #         spikes[j] = 1.0
-    # spikes = np.sign(np.minimum(0,theta-U))
-    spikes = np.sign(np.minimum(0, theta - U+ctr*U))
-    U = U*(spikes+1)
-    ctr = np.maximum(0,ctr + (-spikes)*(refPeriod+1)-1)
-    outputNodes = np.matmul(U,outputConnectivityMatrix)
-    outVals[:,i] = outputNodes
+    Iapp = inputConnectivityVector*inputNodes   # Apply external current sources to their destinations
+    Gnon = np.maximum(0,np.minimum(GmaxNon*Ulast,GmaxNon))
+    Gspike = Gspike*(1 - timeFactorSynapse)
+    Gsyn = Gnon + Gspike
+    Isyn = np.sum(Gsyn*DelE,axis=1) - Ulast*np.sum(Gsyn,axis=1)
+    U = Ulast + timeFactorMembrane * (-Gm * Ulast + Ib + Isyn + Iapp)  # Update membrane potential
+    theta = thetaLast + timeFactorThreshold * (-thetaLast+theta0+m*Ulast)   # Update the firing thresholds
+    spikes = np.sign(np.minimum(0, theta + U*(-1 + refCtr)))    # Compute which neurons have spiked
+    Gspike = np.maximum(Gspike, (-spikes) * GmaxSpk)    # Update the conductance of synapses which spiked
+    U = U*(spikes+1)    # Reset the membrane voltages of neurons which spiked
+    refCtr = np.maximum(0, refCtr - spikes * (refPeriod + 1) - 1) # Update refractory periods
+    outputNodes = np.matmul(U,outputConnectivityMatrix) # Copy desired neural quantities to output nodes
+    outVals[:,i] = outputNodes  # Read output values
 
-    Ulast = np.copy(U)
-    thetaLast = np.copy(theta)
+    Ulast = np.copy(U)  # Copy the current membrane voltage to be the past value
+    thetaLast = np.copy(theta)  # Copy the current threshold value to be the past value
 
 """
 ########################################################################################################################
