@@ -28,11 +28,12 @@ dt = 0.001  # timestep (ms)
 # External Input Handling
 externalCurrent = 20.0         # magnitude of applied current (nA)
 inputNodes = [externalCurrent] # vector of input currents
-inputConnectivityVector = np.array([[1,1,1,1,1,1,0,0,0,0,0]])   # this is a vector because input is 1d
+inputConnectivityVector = np.array([[1],[1],[1],[1],[1],[1],[0],[0],[0],[0],[0]]) # this is a vector because input is 1d
 
 # Initialize Neurons
 Uini = np.zeros(numNeurons)     # all neurons should start with zero voltage
-theta0 = np.array([[1.0,1.0,1.0,sys.float_info.max,sys.float_info.max,1.0,1.0,sys.float_info.max,sys.float_info.max,sys.float_info.max,1.0]])
+theta0 = np.array([[1.0,1.0,1.0,sys.float_info.max,sys.float_info.max,1.0,1.0,sys.float_info.max,sys.float_info.max,
+                    sys.float_info.max,1.0]])
 Ulast = np.copy(Uini)   # previous timestep
 U = np.zeros(numNeurons)        # current timestep
 thetaLast = np.copy(theta0)
@@ -111,8 +112,8 @@ refMs = 0 # refractory period in ms
 refPeriod = np.zeros(numNeurons)+refMs*(1/dt)
 
 for i in range(numSteps):
-    Iapp = inputConnectivityVector*inputNodes   # Apply external current sources to their destinations
-    Gnon = np.maximum(0,np.minimum(GmaxNon*Ulast,GmaxNon))
+    Iapp = np.matmul(inputConnectivityVector,inputNodes)   # Apply external current sources to their destinations
+    Gnon = np.maximum(0,np.minimum(GmaxNon*Ulast/R,GmaxNon))
     Gspike = Gspike*(1 - timeFactorSynapse)
     Gsyn = Gnon + Gspike
     Isyn = np.sum(Gsyn*DelE,axis=1) - Ulast*np.sum(Gsyn,axis=1)
@@ -139,4 +140,3 @@ for i in range(numNeurons):
     plt.plot(t,outVals[i,:])
     plt.ylabel(str(i))
 plt.show()
-
