@@ -60,6 +60,17 @@ class Neuron:
         else:
             raise TypeError('Bias must be a number (int, float, double, etc.')
 
+class Population:
+    def __init__(self,name: str = 'Population',
+                 color: str = 'white',
+                 neuronType=Neuron,
+                 numNeurons=5):
+        self.params: Dict[str, Any] = {}
+        self.params['name'] = name
+        self.params['color'] = color
+        self.params['neuronType'] = neuronType
+        self.params['numNeurons'] = numNeurons
+
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SPECIFIC MODELS

@@ -17,7 +17,7 @@ import numpy as np
 import torch
 from scipy.sparse import csr_matrix, lil_matrix
 
-from sns_toolbox.design.networks import NonSpikingNetwork
+from sns_toolbox.design.networks import Network
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -31,7 +31,7 @@ class NonSpikingBackend:
         - Take in (some form of) a vector of input states and applied currents, and compute the result for the next
           timestep
     """
-    def __init__(self, network: NonSpikingNetwork, dt: float = 0.1) -> None:
+    def __init__(self, network: Network, dt: float = 0.1) -> None:
         """
         Construct the backend based on the network design
         :param network: NonSpikingNetwork to serve as a design template
@@ -63,7 +63,7 @@ class SNS_Manual(NonSpikingBackend):
     slow at scale. Note that this method stores a dense matrix of synaptic parameters, which has problematic scaling
     for memory requirements!
     """
-    def __init__(self, network: NonSpikingNetwork,**kwargs) -> None:
+    def __init__(self, network: Network, **kwargs) -> None:
         """
         Initialize the backend
 
@@ -126,7 +126,7 @@ class SNS_SciPy(NonSpikingBackend):
     This is the simplest approach to simulating large networks using sparse matrices. Whether it scales to methods run
     on GPUs remains to be seen, but should definitely use less memory than the naive, manual approach.
     """
-    def __init__(self, network: NonSpikingNetwork,**kwargs) -> None:
+    def __init__(self, network: Network, **kwargs) -> None:
         """
         Initialize the backend
         :param network: NonSpikingNetwork to serve as a design template
@@ -191,7 +191,7 @@ PYTORCH SPARSE
 """
 
 class SNS_Pytorch(NonSpikingBackend):
-    def __init__(self, network: NonSpikingNetwork, device: torch.device = None,**kwargs):
+    def __init__(self, network: Network, device: torch.device = None, **kwargs):
         super().__init__(network,**kwargs)
 
         # Neural parameters

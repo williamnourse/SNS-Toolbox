@@ -277,7 +277,7 @@ NETWORKS TESTS
 class TestNonSpikingNetwork(unittest.TestCase):
     # I'm going to ignore anything with graphviz, that's better debugged visually
     def test_construct_default(self):
-        testNetwork = networks.NonSpikingNetwork()
+        testNetwork = networks.Network()
         with self.subTest():
             self.assertEqual(testNetwork.params['name'],'Network','Should be Network')
         with self.subTest():
@@ -286,7 +286,7 @@ class TestNonSpikingNetwork(unittest.TestCase):
             self.assertEqual(testNetwork.synapses,[],'Should be empty list')
 
     def test_construct_valid(self):
-        testNetwork = networks.NonSpikingNetwork(name='Name')
+        testNetwork = networks.Network(name='Name')
         with self.subTest():
             self.assertEqual(testNetwork.params['name'], 'Name', 'Should be Name')
         with self.subTest():
@@ -296,28 +296,28 @@ class TestNonSpikingNetwork(unittest.TestCase):
 
     def test_construct_invalid(self):
         with self.assertRaises(TypeError):
-            testNetwork = networks.NonSpikingNetwork(name=5)
+            testNetwork = networks.Network(name=5)
 
     def test_getNumNeurons_empty(self):
-        testNetwork = networks.NonSpikingNetwork()
+        testNetwork = networks.Network()
         self.assertEqual(testNetwork.getNumNeurons(),0,'Should be 0')
 
     def test_getNumNeurons_not_empty(self):
-        testNetwork = networks.NonSpikingNetwork()
+        testNetwork = networks.Network()
         testNetwork.neurons = [1,2]
         self.assertEqual(testNetwork.getNumNeurons(),2,'Should be 2')
 
     def test_getNumSynapses_empty(self):
-        testNetwork = networks.NonSpikingNetwork()
+        testNetwork = networks.Network()
         self.assertEqual(testNetwork.getNumSynapses(),0,'Should be 0')
 
     def test_getNumSynapses_not_empty(self):
-        testNetwork = networks.NonSpikingNetwork()
+        testNetwork = networks.Network()
         testNetwork.synapses = [1,2]
         self.assertEqual(testNetwork.getNumSynapses(),2,'Should be 2')
 
     def test_addNeuron_default(self):
-        testNetwork = networks.NonSpikingNetwork()
+        testNetwork = networks.Network()
         testNeuron = neurons.NonSpikingNeuron() # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
         testNetwork.addNeuron(testNeuron)
         with self.subTest():
@@ -328,13 +328,13 @@ class TestNonSpikingNetwork(unittest.TestCase):
             self.assertEqual(testNetwork.neurons[0].params['fontColor'],'black', 'Should be black')
 
     def test_addNeuron_copy(self):
-        testNetwork = networks.NonSpikingNetwork()
+        testNetwork = networks.Network()
         testNeuron = neurons.NonSpikingNeuron()  # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
         testNetwork.addNeuron(testNeuron)
         self.assertNotEqual(testNeuron,testNetwork.neurons[0])
 
     def test_addNeuron_valid(self):
-        testNetwork = networks.NonSpikingNetwork()
+        testNetwork = networks.Network()
         testNeuron = neurons.NonSpikingNeuron()  # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
         testNetwork.addNeuron(testNeuron,suffix='Test',color='indianred')
         with self.subTest():
@@ -343,7 +343,7 @@ class TestNonSpikingNetwork(unittest.TestCase):
             self.assertEqual(testNetwork.neurons[0].params['color'],'indianred','Should be indianred')
 
     def test_addNeuron_invalid(self):
-        testNetwork = networks.NonSpikingNetwork()
+        testNetwork = networks.Network()
         testNeuron = neurons.NonSpikingNeuron()  # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
         with self.subTest():
             with self.assertRaises(TypeError):
@@ -353,7 +353,7 @@ class TestNonSpikingNetwork(unittest.TestCase):
                 testNetwork.addNeuron(5)
 
     def test_addSynapse_default(self):
-        testNetwork = networks.NonSpikingNetwork()
+        testNetwork = networks.Network()
         testNeuron = neurons.NonSpikingNeuron()  # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
         testNetwork.addNeuron(testNeuron)
         testNetwork.addNeuron(testNeuron,suffix='2')
@@ -369,7 +369,7 @@ class TestNonSpikingNetwork(unittest.TestCase):
             self.assertEqual(testNetwork.synapses[0].params['label'],None,'Should be None')
 
     def test_addSynapse_valid(self):
-        testNetwork = networks.NonSpikingNetwork()
+        testNetwork = networks.Network()
         testNeuron = neurons.NonSpikingNeuron()  # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
         testNetwork.addNeuron(testNeuron)
         testNetwork.addNeuron(testNeuron, suffix='2')
@@ -383,7 +383,7 @@ class TestNonSpikingNetwork(unittest.TestCase):
             self.assertEqual(testNetwork.synapses[0].params['label'],'Synapse','Should be Synapse')
 
     def test_addSynapse_invalid(self):
-        testNetwork = networks.NonSpikingNetwork()
+        testNetwork = networks.Network()
         testNeuron = neurons.NonSpikingNeuron()  # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
         testNetwork.addNeuron(testNeuron)
         testNetwork.addNeuron(testNeuron, suffix='2')
@@ -423,8 +423,8 @@ class TestNonSpikingNetwork(unittest.TestCase):
                 testNetwork.addSynapse(testSynapse,0,1,offset=1)
 
     def test_addNetwork_default(self):
-        testNetwork = networks.NonSpikingNetwork()
-        sourceNetwork = networks.NonSpikingNetwork()
+        testNetwork = networks.Network()
+        sourceNetwork = networks.Network()
         testNeuron = neurons.NonSpikingNeuron()  # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
         sourceNetwork.addNeuron(testNeuron)
         sourceNetwork.addNeuron(testNeuron)
@@ -450,8 +450,8 @@ class TestNonSpikingNetwork(unittest.TestCase):
             self.assertNotEqual(testNetwork.synapses[0].params['label'],None,'Should be Synapse')
 
     def test_addNetwork_valid(self):
-        testNetwork = networks.NonSpikingNetwork()
-        sourceNetwork = networks.NonSpikingNetwork()
+        testNetwork = networks.Network()
+        sourceNetwork = networks.Network()
         testNeuron = neurons.NonSpikingNeuron()  # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
         sourceNetwork.addNeuron(testNeuron)
         sourceNetwork.addNeuron(testNeuron)
@@ -465,7 +465,7 @@ class TestNonSpikingNetwork(unittest.TestCase):
             self.assertEqual(testNetwork.neurons[2].params['color'],'navy','Should be navy')
 
     def test_addNetwork_invalid(self):
-        testNetwork = networks.NonSpikingNetwork()
+        testNetwork = networks.Network()
         with self.assertRaises(TypeError):
             testNetwork.addNetwork('foo')
 

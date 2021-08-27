@@ -10,7 +10,7 @@ from scipy.sparse import csr_matrix, lil_matrix
 
 from sns_toolbox.design.neurons import NonSpikingNeuron
 from sns_toolbox.design.synapses import NonSpikingSynapse
-from sns_toolbox.design.networks import NonSpikingNetwork
+from sns_toolbox.design.networks import Network
 from sns_toolbox.simulate.backends import SNS_Manual, SNS_SciPy
 
 """
@@ -21,7 +21,7 @@ DESIGN
 numNeurons = 2
 simple = NonSpikingNeuron()
 transmit = NonSpikingSynapse(name='Transmit')
-net = NonSpikingNetwork(name='Network')
+net = Network(name='Network')
 net.addNeuron(simple,suffix='A')
 net.addNeuron(simple,suffix='B')
 net.addSynapse(transmit,0,1)

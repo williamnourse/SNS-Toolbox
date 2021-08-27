@@ -1,5 +1,5 @@
 """
-Networks store a combination of neurons and synapse, so they can be vusualized and compiled
+Networks store a combination of neurons and synapse, so they can be visualized and compiled
 William Nourse
 May 10, 2021
 You're gonna be okay!
@@ -15,7 +15,7 @@ from numbers import Number
 import copy
 from graphviz import Digraph
 
-from sns_toolbox.design.neurons import NonSpikingNeuron
+from sns_toolbox.design.neurons import Neuron
 from sns_toolbox.design.synapses import NonSpikingSynapse
 from sns_toolbox.design.__utilities__ import validColor, setTextColor
 
@@ -24,8 +24,8 @@ from sns_toolbox.design.__utilities__ import validColor, setTextColor
 BASE CLASS
 """
 
-class NonSpikingNetwork:
-    def __init__(self, name: str = 'Network', range: float = 20.0) -> None:
+class Network:
+    def __init__(self, name: str = 'Network', R: float = 20.0) -> None:
         """
         Constructor for base network class
         :param name: Name for this network
@@ -35,8 +35,8 @@ class NonSpikingNetwork:
             self.params['name'] = name
         else:
             raise TypeError('Name must be a string')
-        self.params['R'] = range
-        self.neurons: List[NonSpikingNeuron] = []
+        self.params['R'] = R
+        self.neurons: List[Neuron] = []
         self.synapses: List[NonSpikingSynapse] = []
         self.graph = Digraph(filename=(self.params['name']+'.gv'))
 
@@ -54,8 +54,8 @@ class NonSpikingNetwork:
         """
         return len(self.synapses)
 
-    def addNeuron(self, neuron: NonSpikingNeuron, suffix: str = None, color: str = None) -> None:
-        if isinstance(neuron,NonSpikingNeuron):
+    def addNeuron(self, neuron: Neuron, suffix: str = None, color: str = None) -> None:
+        if isinstance(neuron,Neuron):
             self.neurons.append(copy.deepcopy(neuron))
         else:
             raise TypeError('Neuron must be of type (or inherit from) NonSpikingNeuron')
@@ -116,8 +116,8 @@ class NonSpikingNetwork:
                         str(self.synapses[self.getNumSynapses() - 1].params['destination']), arrowhead=style,
                         label=self.synapses[self.getNumSynapses() - 1].params['label'])
 
-    def addNetwork(self, network: 'NonSpikingNetwork', color: str = None) -> None:
-        if not isinstance(network,NonSpikingNetwork):
+    def addNetwork(self, network: 'Network', color: str = None) -> None:
+        if not isinstance(network, Network):
             raise TypeError('Network needs to be of type NonSpikingNetwork')
         numNeurons = self.getNumNeurons()
         for neuron in network.neurons:
@@ -132,6 +132,40 @@ class NonSpikingNetwork:
 
     def renderGraph(self, format: str = 'png', view: bool = False) -> None:
         self.graph.format = format
+        self.graph.render(view=view)
+
+class BetterNetwork:
+    def __init__(self, name: str = 'Network', R: float = 20.0) -> None:
+        """
+        Constructor for base network class
+        :param name: Name for this network
+        """
+        self.params: Dict[str, Any] = {}
+        if isinstance(name,str):
+            self.params['name'] = name
+        else:
+            raise TypeError('Name must be a string')
+        self.params['R'] = R
+        self.inputs = []
+        self.populations = []
+        self.outputs = []
+        self.graph = Digraph(filename=(self.params['name']+'.gv'))
+
+    def addPopulation(self,neuronType,numNeurons,name='Population',color='white'):
+        self.populations.append({'type':neuronType,
+                                 'number':numNeurons,
+                                 'name':name,
+                                 'color':color})
+        if not validColor(color):
+            color = 'white'
+        fontColor = setTextColor(color)
+        self.graph.node(str(len(self.populations)-1), name,
+                        style='filled',
+                        fillcolor=color,
+                        fontcolor=fontColor)
+
+    def renderGraph(self, imgFormat: str = 'png', view: bool = False) -> None:
+        self.graph.format = imgFormat
         self.graph.render(view=view)
 
 """
