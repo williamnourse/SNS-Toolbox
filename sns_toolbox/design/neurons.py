@@ -65,8 +65,6 @@ class Neuron:
 SPECIFIC MODELS
 """
 
-# Only one of these (for now, or for forever *shrugs*)
-
 class NonSpikingNeuron(Neuron):
     def __init__(self, **kwargs) -> None:
         """
@@ -74,3 +72,19 @@ class NonSpikingNeuron(Neuron):
         membraneCapacitance*dU/dt = -membraneConductance*U + bias + synaptic + external
         """
         super().__init__(**kwargs)
+
+class SpikingNeuron(Neuron):
+    def __init__(self, thresholdTimeConstant: float = 5.0,
+                 thresholdInitialValue: float = 1.0,
+                 thresholdProportionalityConstant: float = 0.0,
+                 **kwargs) -> None:
+        """
+        Generalized leaky integrate-and-fire neuron model, whose dynamics are as follows:
+        membraneCapacitance*dU/dt = -membraneConductance*U + bias + synaptic + external
+        thresholdTimeConstant*dTheta/dt = -Theta + thresholdInitialValue + thresholdProportionalityConstant*U
+        if U > Theta, U->0
+        """
+        super().__init__(**kwargs)
+        self.params['thresholdTimeConstant'] = thresholdTimeConstant
+        self.params['thresholdInitialValue'] = thresholdInitialValue
+        self.params['thresholdProportionalityConstant'] = thresholdProportionalityConstant
