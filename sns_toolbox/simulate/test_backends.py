@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 from scipy.sparse import csr_matrix, lil_matrix
 
 from sns_toolbox.design.neurons import NonSpikingNeuron
-from sns_toolbox.design.synapses import NonSpikingSynapse
+from sns_toolbox.design.connections import NonSpikingSynapse
 from sns_toolbox.design.networks import Network
 from sns_toolbox.simulate.backends import SNS_Manual, SNS_SciPy
 

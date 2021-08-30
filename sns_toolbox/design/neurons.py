@@ -38,13 +38,12 @@ class Neuron:
         # TODO: Type checking
         self.params: Dict[str, Any] = {}
         if validColor(color):
-            self.params['color'] = color
+            self.color = color
         else:
             warnings.warn('Specified color is not in the standard SVG set. Defaulting to white.')
-            self.params['color'] = 'white'
-        self.params['fontColor'] = setTextColor(self.params['color'])
+            self.color = 'white'
         if isinstance(name,str):
-            self.params['name'] = name
+            self.name = name
         else:
             raise TypeError('Neuron name must be a string')
         if isinstance(membraneCapacitance,numbers.Number):
@@ -59,17 +58,6 @@ class Neuron:
             self.params['bias'] = bias
         else:
             raise TypeError('Bias must be a number (int, float, double, etc.')
-
-class Population:
-    def __init__(self,name: str = 'Population',
-                 color: str = 'white',
-                 neuronType=Neuron,
-                 numNeurons=5):
-        self.params: Dict[str, Any] = {}
-        self.params['name'] = name
-        self.params['color'] = color
-        self.params['neuronType'] = neuronType
-        self.params['numNeurons'] = numNeurons
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

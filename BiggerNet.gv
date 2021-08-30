@@ -1,0 +1,21 @@
+digraph {
+	In0 [label=Input fillcolor=white fontcolor=black shape=invhouse style=filled]
+	Out0 [label=Output fillcolor=white fontcolor=black shape=house style=filled]
+	0 [label=1 fillcolor=blue fontcolor=white style=filled]
+	1 [label=2 fillcolor=blue fontcolor=white shape=doublecircle style=filled]
+	0 -> 1 [arrowhead=invempty]
+	2 [label="Single Non" fillcolor=burlywood fontcolor=black style=filled]
+	3 [label="Single Spike" fillcolor=burlywood fontcolor=black style=filled]
+	In1 [label=Input fillcolor=burlywood fontcolor=black shape=invhouse style=filled]
+	Out1 [label="2 Outputs" fillcolor=burlywood fontcolor=black shape=house style=filled]
+	In1 -> 2
+	In1 -> 3 [label=1.0]
+	2 -> Out1 [label=5.0]
+	3 -> Out1
+	2 -> 3 [label=Mod arrowhead=odot]
+	3 -> 2 [arrowhead=dot]
+	0 -> 2 [label=Transmit arrowhead=invempty]
+	3 -> 1 [arrowhead=dot]
+	In0 -> 0
+	1 -> Out0
+}

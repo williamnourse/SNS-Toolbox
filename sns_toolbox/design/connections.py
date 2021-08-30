@@ -26,16 +26,35 @@ class Synapse:
         """
         self.params: Dict[str, Any] = {}
         if isinstance(name,str):
-            self.params['name'] = name
+            self.name = name
         else:
             raise TypeError('Name should be a string')
 
-"""
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-SPECIFIC MODELS
-"""
-
 class NonSpikingSynapse(Synapse):
+    def __init__(self,maxConductance: float = 1.0,
+                 relativeReversalPotential: float = 40.0,
+                 **kwargs: Any) -> None:
+        """
+        Basic non-spiking synapse, where the conductance is defined as the following:
+        Conductance = maxConductance * max(0, min(1, Upre/R)), and the synaptic current is
+        Isyn = Conductance*(relativeReversalPotential - Upost)
+        :param maxConductance:              uS
+        :param relativeReversalPotential:   mV
+        """
+        super().__init__(**kwargs)  # Call to constructor of parent class
+        if isinstance(maxConductance,numbers.Number):
+            if maxConductance > 0:
+                self.params['maxConductance'] = maxConductance
+            else:
+                raise ValueError('maxConductance (gMax) must be greater than 0')
+        else:
+            raise TypeError('maxConductance (gMax) must be a number (int, float, double, etc.')
+        if isinstance(relativeReversalPotential,numbers.Number):
+            self.params['relativeReversalPotential'] = relativeReversalPotential
+        else:
+            raise TypeError('relativeReversalPotential (deltaEsyn) must be a number (int, float, double, etc.')
+
+class SpikingSynapse(Synapse):
     def __init__(self,maxConductance: float = 1.0,
                  relativeReversalPotential: float = 40.0,
                  R: float = 20.0,
@@ -68,7 +87,12 @@ class NonSpikingSynapse(Synapse):
         else:
             raise TypeError('R must be a number (int, float, double, etc.')
 
-class TransmissionSynapse(NonSpikingSynapse):
+"""
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+SPECIFIC MODELS
+"""
+
+class NonSpikingTransmissionSynapse(NonSpikingSynapse):
     def __init__(self, gain: float = 1.0,
                  name: str = 'Transmit',
                  **kwargs) -> None:
@@ -92,7 +116,7 @@ class TransmissionSynapse(NonSpikingSynapse):
         else:
             raise TypeError('Gain must be a number (int, float, double, etc.)')
 
-class ModulationSynapse(NonSpikingSynapse):
+class NonSpikingModulationSynapse(NonSpikingSynapse):
     def __init__(self, name: str = 'Modulate', **kwargs) -> None:
         """
         Modulation synapse, where the relativeReversalPotential is set to 0

@@ -14,9 +14,10 @@ from typing import Dict, Any, List, Type, TypeVar
 from numbers import Number
 import copy
 from graphviz import Digraph
+import warnings
 
 from sns_toolbox.design.neurons import Neuron
-from sns_toolbox.design.synapses import NonSpikingSynapse
+from sns_toolbox.design.connections import NonSpikingSynapse, Synapse, SpikingSynapse
 from sns_toolbox.design.__utilities__ import validColor, setTextColor
 
 """
@@ -28,143 +29,289 @@ class Network:
     def __init__(self, name: str = 'Network', R: float = 20.0) -> None:
         """
         Constructor for base network class
-        :param name: Name for this network
+        :param name:    Name for this network
+        :param R:       Range of activity for this network (mV)
+        :return:    None
         """
         self.params: Dict[str, Any] = {}
         if isinstance(name,str):
             self.params['name'] = name
         else:
             raise TypeError('Name must be a string')
-        self.params['R'] = R
-        self.neurons: List[Neuron] = []
-        self.synapses: List[NonSpikingSynapse] = []
+        if isinstance(R,Number):
+            if R > 0:
+                self.params['R'] = R
+            else:
+                raise ValueError('R must be > 0')
+        else:
+            raise TypeError('R must be a number')
+        self.inputs = []
+        self.inputConns = []
+        self.populations = []
+        self.outputs = []
+        self.outputConns = []
+        self.synapses = []
         self.graph = Digraph(filename=(self.params['name']+'.gv'))
 
-    def getNumNeurons(self) -> int:
+    def addPopulation(self,neuronType: Neuron,numNeurons: int,name: str='Population',color=None):
         """
-        Get the number of neurons in the whole network
-        :return: length of the neuron list
+        Add a neural population to the network
+        :param neuronType:  Type of neuron to add
+        :param numNeurons:  Number of that neuron to include in the population
+        :param name:        Name of the population
+        :param color:       Color of the population in the rendered image
+        :return:            None
         """
-        return len(self.neurons)
-
-    def getNumSynapses(self) -> int:
-        """
-        Get the number of synapses in the whole network
-        :return: length of the synapse list
-        """
-        return len(self.synapses)
-
-    def addNeuron(self, neuron: Neuron, suffix: str = None, color: str = None) -> None:
-        if isinstance(neuron,Neuron):
-            self.neurons.append(copy.deepcopy(neuron))
+        if not isinstance(neuronType,Neuron):
+            raise TypeError('Input type is not a neuron')
+        if isinstance(numNeurons,int):
+            if numNeurons <= 0:
+                raise ValueError('numNeurons must be > 0')
         else:
-            raise TypeError('Neuron must be of type (or inherit from) NonSpikingNeuron')
-        if suffix is not None:
-            if isinstance(suffix,str):
-                self.neurons[self.getNumNeurons() - 1].params['name'] += suffix
-            else:
-                raise TypeError('Suffix must be a string')
-        if validColor(color):
-            self.neurons[self.getNumNeurons() - 1].params['color'] = color
-            self.neurons[self.getNumNeurons() - 1].params['fontColor'] = setTextColor(
-                self.neurons[self.getNumNeurons() - 1].params['color'])
-        self.graph.node(str(self.getNumNeurons() - 1), self.neurons[self.getNumNeurons() - 1].params['name'],
+            raise TypeError('numNeurons must be an integer greater than 0')
+        if not isinstance(name,str):
+            raise TypeError('Name must be a string')
+        if color is None:
+            color = neuronType.color
+        elif not validColor(color):
+            warnings.warn('Specified color is not in the standard SVG set. Defaulting to base type color.')
+            color = neuronType.color
+        fontColor = setTextColor(color)
+        self.populations.append({'type': neuronType,
+                                 'number': int(numNeurons),
+                                 'name': name,
+                                 'color': color})
+        if numNeurons > 1:
+            self.graph.node(str(len(self.populations)-1), name,
+                            style='filled',
+                            shape='doublecircle',   # Populations with multiple neurons are marked with an outline
+                            fillcolor=color,
+                            fontcolor=fontColor)
+        else:
+            self.graph.node(str(len(self.populations) - 1), name,
+                            style='filled',
+                            fillcolor=color,
+                            fontcolor=fontColor)
+
+    def addNeuron(self,neuronType,name='Neuron',color=None):
+        """
+        Add a neuron to the network. Note that this is just a special case of addPopulation, which makes a population of
+        1 neuron.
+        :param neuronType:  Type of neuron to add
+        :param name:        Name of the neuron
+        :param color:       Color of the neuron in the visual render
+        :return:    None
+        """
+        self.addPopulation(neuronType,numNeurons=1,name=name,color=color)
+
+    def addInput(self,numElements: int,name: str='Input',color='white'):
+        """
+        Add an input source to the network
+        :param numElements: Number of elements in the input
+        :param name:        Name of the input node
+        :param color:       Color of the input node in the visual render
+        :return:    None
+        """
+        if isinstance(numElements,int):
+            if numElements <= 0:
+                raise ValueError('numElements must be an integer greater than 0')
+        else:
+            raise TypeError('numElements must be an integer greater than 0')
+        if not isinstance(name,str):
+            raise TypeError('Name must be a string')
+        if not validColor(color):
+            warnings.warn('Specified color is not in the standard SVG set. Defaulting to white.')
+            color = 'white'
+        fontColor = setTextColor(color)
+        self.inputs.append({'name': name,
+                            'numberElements': numElements})
+        self.graph.node('In'+str(len(self.inputs) - 1), name,
                         style='filled',
-                        fillcolor=self.neurons[self.getNumNeurons() - 1].params['color'],
-                        fontcolor=self.neurons[self.getNumNeurons() - 1].params['fontColor'])
+                        shape='invhouse',
+                        fillcolor=color,
+                        fontcolor=fontColor)
 
-    def addSynapse(self, synapse: NonSpikingSynapse, source: int,
-                   destination: int, viewLabel: bool = False, offset: int = 0) -> None:
-        if isinstance(synapse,NonSpikingSynapse):
-            self.synapses.append(copy.deepcopy(synapse))
+    def addOutput(self,numElements: int,name: str = 'Output',color='white'):
+        """
+        Add an output node to the network
+        :param numElements: Number of elements to output
+        :param name:        Name of the node
+        :param color:       Color of the output in the visual render
+        :return: None
+        """
+        if isinstance(numElements,int):
+            if numElements<=0:
+                raise ValueError('Number of elements must be a positive integer')
         else:
-            raise TypeError('Synapse must be of type (or inherit from) NonSpikingSynapse')
+            raise TypeError('Number of elements must be a positive integer')
+        if not isinstance(name,str):
+            raise TypeError('Name must be a string')
+        if not validColor(color):
+            warnings.warn('Specified color is not in the standard SVG set. Defaulting to white.')
+            color = 'white'
+        fontColor = setTextColor(color)
+        self.outputs.append({'name': name,
+                            'numberElements': numElements})
+        self.graph.node('Out'+str(len(self.inputs) - 1), name,
+                        style='filled',
+                        shape='house',
+                        fillcolor=color,
+                        fontcolor=fontColor)
+
+    def addInputConnection(self,weight: Number,source: int, dest: int, viewWeight: bool = False):
+        """
+        Add a weighted connection from an input node to a population in the network
+        :param weight:      Weight of the connection
+        :param source:      Index of source input node
+        :param dest:        Index of destination population
+        :param viewWeight:  Flag for the weight to be visually displayed
+        :return:
+        """
+        if not isinstance(weight,Number):
+            raise TypeError('Weight must be a number')
+        if not isinstance(source,int):
+            raise TypeError('Source index must be an integer')
+        if source > (len(self.inputs)-1):
+            raise ValueError('Source index is out of range')
+        if not isinstance(dest,int):
+            raise TypeError('Destination index must be an integer')
+        if dest > (len(self.populations)-1):
+            raise ValueError('Destination index is out of range')
+        if not isinstance(viewWeight,bool):
+            raise TypeError('viewWeight must be a boolean')
+        self.inputConns.append({'weight': weight,
+                                'source': source,
+                                'destination': dest,
+                                'view': viewWeight})
+        if viewWeight:
+            label = str(weight)
+        else:
+            label = None
+        self.graph.edge('In'+str(source),str(dest),label=label)
+
+    def addOutputConnection(self,weight: float,source: int, dest: int, viewWeight: bool = False):
+        """
+        Add a weighted connection from a population in the network to an output node
+        :param weight:      Weight of the connection
+        :param source:      Index of the source neuron in the network
+        :param dest:        Index of the destination output node
+        :param viewWeight:  Boolean flag for viewing the weight in the rendered graph
+        :return: None
+        """
+        if not isinstance(weight,Number):
+            raise TypeError('Weight must be a number')
+        if not isinstance(source,int):
+            raise TypeError('Source index must be an integer')
+        if source > (len(self.populations)-1):
+            raise ValueError('Source index is out of range')
+        if not isinstance(dest,int):
+            raise TypeError('Destination index must be an integer')
+        if dest > (len(self.outputs)-1):
+            raise ValueError('Destination index is out of range')
+        if not isinstance(viewWeight,bool):
+            raise TypeError('viewWeight must be a boolean')
+        self.outputConns.append({'weight': weight,
+                                 'source': source,
+                                 'destination': dest,
+                                 'view': viewWeight})
+        if viewWeight:
+            label = str(weight)
+        else:
+            label = None
+        self.graph.edge(str(source),'Out'+str(dest),label=label)
+
+    def addSynapse(self, synapseType: Synapse, source: int,
+                   destination: int, name: str = None, viewLabel: bool = False) -> None:
+        """
+        Add a synaptic connection between two populations in the network
+        :param synapseType: Type of synapse to add
+        :param source:      Index of source population in the network
+        :param destination: Index of destination population in the network
+        :param name:        Name of synapse
+        :param viewLabel:   Flag to render the name on the output graph
+        :return: None
+        """
+        if not isinstance(synapseType,Synapse):
+            raise TypeError('Synapse type must be of type Synapse (or inherit from it)')
         if not isinstance(source,int):
             raise TypeError('Source index must be an integer')
         if not isinstance(destination,int):
             raise TypeError('Destination index must be an integer')
-        if not isinstance(offset,int):
-            raise TypeError('Index offset must be an integer')
         if not isinstance(viewLabel,bool):
             raise TypeError('viewLabel must be of type bool')
-        if source > self.getNumNeurons()-1:
+        if source > (len(self.populations)-1):
             raise ValueError('Source index is outside of network size')
         if source < 0:
             raise ValueError('Source index must be >= 0')
-        if destination > self.getNumNeurons()-1:
+        if destination > (len(self.populations)-1):
             raise ValueError('Destination index is outside of network size')
         if destination < 0:
             raise ValueError('Destination index must be >= 0')
-        if (source + offset) > self.getNumNeurons()-1:
-            raise ValueError('Offset makes source index out of range')
-        if (offset + destination) > self.getNumNeurons()-1:
-            raise ValueError('Offset makes destination index out of range')
-        self.synapses[self.getNumSynapses() - 1].params['source'] = source + offset
-        self.synapses[self.getNumSynapses() - 1].params['destination'] = destination + offset
-        if viewLabel:
-            self.synapses[self.getNumSynapses() - 1].params['label'] = self.synapses[
-                self.getNumSynapses() - 1].params['name']
+        if name is None:
+            label = synapseType.name
         else:
-            self.synapses[self.getNumSynapses() - 1].params['label'] = None
-        if self.synapses[self.getNumSynapses() - 1].params['relativeReversalPotential'] > 0:
+            if isinstance(name,str):
+                label = name
+            else:
+                raise TypeError('Name must be a string')
+        self.synapses.append({'name': label,
+                              'source': source,
+                              'destination': destination,
+                              'type': synapseType,
+                              'view': viewLabel})
+        if synapseType.params['relativeReversalPotential'] > 0:
             style = 'invempty'
-        elif self.synapses[self.getNumSynapses() - 1].params['relativeReversalPotential'] < 0:
+        elif synapseType.params['relativeReversalPotential'] < 0:
             style = 'dot'
         else:
             style = 'odot'
-        self.graph.edge(str(self.synapses[self.getNumSynapses() - 1].params['source']),
-                        str(self.synapses[self.getNumSynapses() - 1].params['destination']), arrowhead=style,
-                        label=self.synapses[self.getNumSynapses() - 1].params['label'])
+        if viewLabel:
+            self.graph.edge(str(source),
+                            str(destination), arrowhead=style,
+                            label=label)
+        else:
+            self.graph.edge(str(source),
+                            str(destination), arrowhead=style)
 
     def addNetwork(self, network: 'Network', color: str = None) -> None:
+        """
+        Add an existing topology of inputs, outputs, and populations to the network
+        :param network: Network to copy over
+        :param color:   Color to render nodes in the network
+        :return: None
+        """
         if not isinstance(network, Network):
-            raise TypeError('Network needs to be of type NonSpikingNetwork')
-        numNeurons = self.getNumNeurons()
-        for neuron in network.neurons:
-            self.addNeuron(neuron=neuron, color=color)
-        for synapse in network.synapses:
-            if synapse.params['label'] is None:
-                self.addSynapse(synapse=synapse, source=synapse.params['source'],
-                                destination=synapse.params['destination'], offset=numNeurons)
-            else:
-                self.addSynapse(synapse=synapse, source=synapse.params['source'],
-                                destination=synapse.params['destination'], offset=numNeurons, viewLabel=True)
-
-    def renderGraph(self, format: str = 'png', view: bool = False) -> None:
-        self.graph.format = format
-        self.graph.render(view=view)
-
-class BetterNetwork:
-    def __init__(self, name: str = 'Network', R: float = 20.0) -> None:
-        """
-        Constructor for base network class
-        :param name: Name for this network
-        """
-        self.params: Dict[str, Any] = {}
-        if isinstance(name,str):
-            self.params['name'] = name
-        else:
-            raise TypeError('Name must be a string')
-        self.params['R'] = R
-        self.inputs = []
-        self.populations = []
-        self.outputs = []
-        self.graph = Digraph(filename=(self.params['name']+'.gv'))
-
-    def addPopulation(self,neuronType,numNeurons,name='Population',color='white'):
-        self.populations.append({'type':neuronType,
-                                 'number':numNeurons,
-                                 'name':name,
-                                 'color':color})
+            raise TypeError('Network must be of type Network')
         if not validColor(color):
+            warnings.warn('Specified color is not in the standard SVG set. Defaulting to white.')
             color = 'white'
-        fontColor = setTextColor(color)
-        self.graph.node(str(len(self.populations)-1), name,
-                        style='filled',
-                        fillcolor=color,
-                        fontcolor=fontColor)
+
+        numInputs = len(self.inputs)
+        numPopulations = len(self.populations)
+        numOutputs = len(self.outputs)
+
+        for population in network.populations:
+            self.addPopulation(neuronType=population['type'],numNeurons=population['number'],name=population['name'],color=color)
+        for inp in network.inputs:
+            self.addInput(name=inp['name'],numElements=inp['numberElements'],color=color)
+        for out in network.outputs:
+            self.addOutput(numElements=out['numberElements'],name=out['name'],color=color)
+        for inConn in network.inputConns:
+            self.addInputConnection(inConn['weight'],inConn['source']+numInputs,inConn['destination']+numPopulations,viewWeight=inConn['view'])
+        for outConn in network.outputConns:
+            self.addOutputConnection(outConn['weight'],outConn['source']+numPopulations,outConn['destination']+numOutputs,viewWeight=outConn['view'])
+        for synapse in network.synapses:
+            self.addSynapse(synapseType=synapse['type'],source=synapse['source']+numPopulations,destination=synapse['destination']+numPopulations,viewLabel=synapse['view'])
 
     def renderGraph(self, imgFormat: str = 'png', view: bool = False) -> None:
+        """
+        Render an image of the network in the form of a directed graph (DG)
+        :param imgFormat:   File extension of the resulting image
+        :param view:        Flag to view the image
+        :return: None
+        """
+        if not isinstance(view,bool):
+            raise TypeError('View must be a boolean')
         self.graph.format = imgFormat
         self.graph.render(view=view)
 

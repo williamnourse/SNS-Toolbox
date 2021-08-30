@@ -15,7 +15,7 @@ import warnings
 
 from sns_toolbox.design import __utilities__
 from sns_toolbox.design import neurons
-from sns_toolbox.design import synapses
+from sns_toolbox.design import connections
 from sns_toolbox.design import networks
 
 """
@@ -167,21 +167,21 @@ SYNAPSES TESTS
 
 class TestSynapse(unittest.TestCase):
     def test_construct_default(self):
-        testSynapse = synapses.Synapse()
+        testSynapse = connections.Synapse()
         self.assertEqual(testSynapse.params['name'],'Synapse','Should be Synapse')
 
     def test_construct_valid(self):
-        testSynapse = synapses.Synapse(name='Name')
+        testSynapse = connections.Synapse(name='Name')
         self.assertEqual(testSynapse.params['name'],'Name','Should be Name')
 
     def test_construct_invalid(self):
         with self.assertRaises(TypeError):
-            testSynapse = synapses.Synapse(name=5)
+            testSynapse = connections.Synapse(name=5)
 
 
 class TestNonSpikingSynapse(unittest.TestCase):
     def test_construct_default(self):
-        testSynapse = synapses.NonSpikingSynapse()
+        testSynapse = connections.NonSpikingSynapse()
         with self.subTest():
             self.assertEqual(testSynapse.params['name'],'Synapse','Should be Synapse')
         with self.subTest():
@@ -192,7 +192,7 @@ class TestNonSpikingSynapse(unittest.TestCase):
             self.assertEqual(testSynapse.params['R'],20.0,'Should be 20.0')
 
     def test_construct_valid(self):
-        testSynapse = synapses.NonSpikingSynapse(name='Name',maxConductance=2.0,relativeReversalPotential=2.0,R=2.0)
+        testSynapse = connections.NonSpikingSynapse(name='Name', maxConductance=2.0, relativeReversalPotential=2.0, R=2.0)
         with self.subTest():
             self.assertEqual(testSynapse.params['name'], 'Name', 'Should be Name')
         with self.subTest():
@@ -205,40 +205,40 @@ class TestNonSpikingSynapse(unittest.TestCase):
     def test_construct_invalid(self):
         with self.subTest():
             with self.assertRaises(TypeError):
-                testSynapse = synapses.NonSpikingSynapse(name=5)
+                testSynapse = connections.NonSpikingSynapse(name=5)
         with self.subTest():
             with self.assertRaises(TypeError):
-                testSynapse = synapses.NonSpikingSynapse(maxConductance='foo')
+                testSynapse = connections.NonSpikingSynapse(maxConductance='foo')
         with self.subTest():
             with self.assertRaises(TypeError):
-                testSynapse = synapses.NonSpikingSynapse(relativeReversalPotential='foo')
+                testSynapse = connections.NonSpikingSynapse(relativeReversalPotential='foo')
         with self.subTest():
             with self.assertRaises(TypeError):
-                testSynapse = synapses.NonSpikingSynapse(R='foo')
+                testSynapse = connections.NonSpikingSynapse(R='foo')
         with self.subTest():
             with self.assertRaises(ValueError):
-                testSynapse = synapses.NonSpikingSynapse(maxConductance=0)
+                testSynapse = connections.NonSpikingSynapse(maxConductance=0)
         with self.subTest():
             with self.assertRaises(ValueError):
-                testSynapse = synapses.NonSpikingSynapse(R=0)
+                testSynapse = connections.NonSpikingSynapse(R=0)
         with self.subTest():
             with self.assertRaises(ValueError):
-                testSynapse = synapses.NonSpikingSynapse(maxConductance=-1)
+                testSynapse = connections.NonSpikingSynapse(maxConductance=-1)
         with self.subTest():
             with self.assertRaises(ValueError):
-                testSynapse = synapses.NonSpikingSynapse(R=-1)
+                testSynapse = connections.NonSpikingSynapse(R=-1)
 
 
 class TestTransmissionSynapse(unittest.TestCase):
     def test_construct_default(self):
-        testSynapse = synapses.TransmissionSynapse()
+        testSynapse = connections.NonSpikingTransmissionSynapse()
         with self.subTest():
             self.assertEqual(((1.0*20.0)/(40.0-1.0*20.0)),testSynapse.params['maxConductance'],'Should be 1.0')
         with self.subTest():
             self.assertEqual('Transmit',testSynapse.params['name'],'Should be Transmit')
 
     def test_construct_valid(self):
-        testSynapse = synapses.TransmissionSynapse(gain=1.5,name='Name')
+        testSynapse = connections.NonSpikingTransmissionSynapse(gain=1.5, name='Name')
         with self.subTest():
             self.assertEqual(((1.5 * 20.0) / (40.0 - 1.5 * 20.0)), testSynapse.params['maxConductance'],
                              'Should be 3.0')
@@ -248,21 +248,21 @@ class TestTransmissionSynapse(unittest.TestCase):
     def test_construct_invalid(self):
         with self.subTest():
             with self.assertRaises(TypeError): # not a number
-                testSynapse = synapses.TransmissionSynapse(gain='foo')
+                testSynapse = connections.NonSpikingTransmissionSynapse(gain='foo')
         with self.subTest():
             with self.assertRaises(ValueError): # = 0
-                testSynapse = synapses.TransmissionSynapse(gain=0)
+                testSynapse = connections.NonSpikingTransmissionSynapse(gain=0)
         with self.subTest():
             with self.assertRaises(ValueError):  # < 0
-                testSynapse = synapses.TransmissionSynapse(gain=-1)
+                testSynapse = connections.NonSpikingTransmissionSynapse(gain=-1)
         with self.subTest():
             with self.assertRaises(ValueError): # gain causes gMax < 0
-                testSynapse = synapses.TransmissionSynapse(gain=3.0)
+                testSynapse = connections.NonSpikingTransmissionSynapse(gain=3.0)
 
 
 class TestModulationSynapse(unittest.TestCase):
     def test_construct_default(self):
-        testSynapse = synapses.ModulationSynapse()
+        testSynapse = connections.NonSpikingModulationSynapse()
         with self.subTest():
             self.assertEqual(0.0,testSynapse.params['relativeReversalPotential'],'Should be 0.0')
         with self.subTest():
@@ -357,7 +357,7 @@ class TestNonSpikingNetwork(unittest.TestCase):
         testNeuron = neurons.NonSpikingNeuron()  # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
         testNetwork.addNeuron(testNeuron)
         testNetwork.addNeuron(testNeuron,suffix='2')
-        testSynapse = synapses.NonSpikingSynapse()
+        testSynapse = connections.NonSpikingSynapse()
         testNetwork.addSynapse(testSynapse,0,1)
         with self.subTest():
             self.assertNotEqual(testNetwork.synapses[0],testSynapse)
@@ -373,7 +373,7 @@ class TestNonSpikingNetwork(unittest.TestCase):
         testNeuron = neurons.NonSpikingNeuron()  # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
         testNetwork.addNeuron(testNeuron)
         testNetwork.addNeuron(testNeuron, suffix='2')
-        testSynapse = synapses.NonSpikingSynapse()
+        testSynapse = connections.NonSpikingSynapse()
         testNetwork.addSynapse(testSynapse, 0, 0,viewLabel=True,offset=1)
         with self.subTest():
             self.assertEqual(testNetwork.synapses[0].params['source'],1,'Should be 1')
@@ -387,7 +387,7 @@ class TestNonSpikingNetwork(unittest.TestCase):
         testNeuron = neurons.NonSpikingNeuron()  # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
         testNetwork.addNeuron(testNeuron)
         testNetwork.addNeuron(testNeuron, suffix='2')
-        testSynapse = synapses.NonSpikingSynapse()
+        testSynapse = connections.NonSpikingSynapse()
         with self.subTest():
             with self.assertRaises(TypeError):
                 testNetwork.addSynapse(10,0,1)
@@ -429,7 +429,7 @@ class TestNonSpikingNetwork(unittest.TestCase):
         sourceNetwork.addNeuron(testNeuron)
         sourceNetwork.addNeuron(testNeuron)
         testNetwork.addNeuron(testNeuron)
-        testSynapse = synapses.NonSpikingSynapse()
+        testSynapse = connections.NonSpikingSynapse()
         sourceNetwork.addSynapse(testSynapse, 0, 1,viewLabel=True)
         testNetwork.addNetwork(sourceNetwork)
         with self.subTest():
