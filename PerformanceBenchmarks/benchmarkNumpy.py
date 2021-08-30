@@ -341,26 +341,29 @@ TESTING
 dt = 0.001
 perIn = 0.08
 perOut = 0.12
-numSamples = 100
+numSizeSamples = 100
+numSpikeSamples = 1
+numConnSamples = 100
 numSteps = 1000
-networkSize = np.logspace(1,5,num=numSamples)
-percentSpiking = np.linspace(0.0,1.0,num=numSamples)
-probConnectivity = np.logspace(0, 1, num=numSamples) / 10
+networkSize = np.logspace(1,5,num=numSizeSamples)
+# percentSpiking = np.linspace(0.0,1.0,num=numSpikeSamples)
+percentSpiking = [0]
+probConnectivity = np.logspace(0, 1, num=numConnSamples) / 10
 parameters = {'networkSize': networkSize,
               'percentSpiking': percentSpiking,
               'probConnectivity': probConnectivity}
 
 # Testing data (all)
-timeData = np.zeros([numSamples,numSamples,numSamples,numSteps])
+timeData = np.zeros([numSizeSamples,numSpikeSamples,numConnSamples,numSteps])
 data = {'dim1': 'networkSize',
         'dim2': 'percentSpiking',
         'dim3': 'probConnectivity'}
 start = time.time()
 # Collection loop (all)
-for size in range(numSamples):
-    for perSpike in range(numSamples):
-        for probConn in range(numSamples):
-            print('All: Size %d/%d, Percent Spiking %d/%d, Percent Connectivity %d/%d' % ((size+1), numSamples, (perSpike+1), numSamples, (probConn + 1), numSamples))
+for size in range(numSizeSamples):
+    for perSpike in range(numSpikeSamples):
+        for probConn in range(numConnSamples):
+            print('All: Size %d/%d, Percent Spiking %d/%d, Percent Connectivity %d/%d' % ((size+1), numSizeSamples, (perSpike+1), numSpikeSamples, (probConn + 1), numConnSamples))
             print('Running for %f seconds'%(time.time()-start))
             (inputConnectivity,inputVals,Ulast,timeFactorMembrane,Gm,Ib,thetaLast, timeFactorThreshold, theta0, m,
              refCtr,refPeriod,GmaxNon,GmaxSpk,
@@ -387,16 +390,16 @@ parameters = {'networkSize': networkSize,
               'probConnectivity': probConnectivity}
 
 # Testing data (no ref)
-timeData = np.zeros([numSamples,numSamples,numSamples,numSteps])
+timeData = np.zeros([numSizeSamples,numSpikeSamples,numConnSamples,numSteps])
 data = {'dim1': 'networkSize',
         'dim2': 'percentSpiking',
         'dim3': 'probConnectivity'}
 
 # Collection loop (no ref)
-for size in range(numSamples):
-    for perSpike in range(numSamples):
-        for probConn in range(numSamples):
-            print('No Ref: Size %d/%d, Percent Spiking %d/%d, Percent Connectivity %d/%d' % ((size+1), numSamples, (perSpike+1), numSamples, (probConn + 1), numSamples))
+for size in range(numSizeSamples):
+    for perSpike in range(numSpikeSamples):
+        for probConn in range(numConnSamples):
+            print('No Ref: Size %d/%d, Percent Spiking %d/%d, Percent Connectivity %d/%d' % ((size+1), numSizeSamples, (perSpike+1), numSpikeSamples, (probConn + 1), numSizeSamples))
             print('Running for %f seconds' % (time.time() - start))
             (inputConnectivity,inputVals,Ulast,timeFactorMembrane,Gm,Ib,thetaLast, timeFactorThreshold, theta0, m,
              GmaxNon,GmaxSpk,
@@ -420,14 +423,14 @@ parameters = {'networkSize': networkSize,
               'probConnectivity': probConnectivity}
 
 # Testing data (no spike)
-timeData = np.zeros([numSamples,numSamples,numSteps])
+timeData = np.zeros([numSizeSamples,numConnSamples,numSteps])
 data = {'dim1': 'networkSize',
         'dim2': 'probConnectivity'}
 
 # Collection loop (no spike)
-for size in range(numSamples):
-    for probConn in range(numSamples):
-        print('No Spike: Size %d/%d, Percent Spiking 0/0, Percent Connectivity %d/%d' % ((size+1), numSamples, (probConn + 1), numSamples))
+for size in range(numSizeSamples):
+    for probConn in range(numSpikeSamples):
+        print('No Spike: Size %d/%d, Percent Spiking 0/0, Percent Connectivity %d/%d' % ((size+1), numSizeSamples, (probConn + 1), numConnSamples))
         print('Running for %f seconds' % (time.time() - start))
         (inputConnectivity,inputVals,Ulast,timeFactorMembrane,Gm,Ib,
          GmaxNon,DelE,outputConnectivity) = constructNoSpike(dt, int(networkSize[size]),probConnectivity[probConn],perIn,perOut)
