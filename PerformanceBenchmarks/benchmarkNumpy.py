@@ -349,41 +349,33 @@ networkSize = np.logspace(1,4,num=numSizeSamples)
 # percentSpiking = np.linspace(0.0,1.0,num=numSpikeSamples)
 percentSpiking = [0]
 probConnectivity = np.logspace(0, 1, num=numConnSamples) / 10
+start = time.time()
+
 parameters = {'networkSize': networkSize,
-              'percentSpiking': percentSpiking,
               'probConnectivity': probConnectivity}
 
-# Testing data (all)
-timeData = np.zeros([numSizeSamples,numSpikeSamples,numConnSamples,numSteps])
+# Testing data (no spike)
+timeData = np.zeros([numSizeSamples,numConnSamples,numSteps])
 data = {'dim1': 'networkSize',
-        'dim2': 'percentSpiking',
-        'dim3': 'probConnectivity'}
-start = time.time()
-# Collection loop (all)
+        'dim2': 'probConnectivity'}
+
+# Collection loop (no spike)
 for size in range(numSizeSamples):
-    for perSpike in range(numSpikeSamples):
-        for probConn in range(numConnSamples):
-            print('All: Size %d/%d, Percent Spiking %d/%d, Percent Connectivity %d/%d' % ((size+1), numSizeSamples, (perSpike+1), numSpikeSamples, (probConn + 1), numConnSamples))
-            print('Running for %f seconds'%(time.time()-start))
-            (inputConnectivity,inputVals,Ulast,timeFactorMembrane,Gm,Ib,thetaLast, timeFactorThreshold, theta0, m,
-             refCtr,refPeriod,GmaxNon,GmaxSpk,
-             Gspike,timeFactorSynapse,DelE,outputConnectivity) = constructAll(dt, int(networkSize[size]),
-                                                                              probConnectivity[probConn], perIn, perOut,
-                                                                              percentSpiking[perSpike])
-            tStep = np.zeros(numSteps)
-            for step in range(numSteps):
-                # print('     %d'%step)
-                (_,Ulast,thetaLast,Gspike,refCtr,_,tStep[step]) = stepAll(inputConnectivity,inputVals,Ulast,
-                                                                          timeFactorMembrane,Gm,Ib,thetaLast,
-                                                                          timeFactorThreshold,theta0,m,refCtr,
-                                                                          refPeriod,GmaxNon,GmaxSpk,Gspike,
-                                                                          timeFactorSynapse,DelE,
-                                                                          outputConnectivity)
-            timeData[size][perSpike][probConn][:] = tStep
+    for probConn in range(numConnSamples):
+        print('No Spike: Size %d/%d, Percent Spiking 0/0, Percent Connectivity %d/%d' % ((size+1), numSizeSamples, (probConn + 1), numConnSamples))
+        print('Running for %f seconds' % (time.time() - start))
+        (inputConnectivity,inputVals,Ulast,timeFactorMembrane,Gm,Ib,
+         GmaxNon,DelE,outputConnectivity) = constructNoSpike(dt, int(networkSize[size]),probConnectivity[probConn],perIn,perOut)
+        tStep = np.zeros(numSteps)
+        for step in range(numSteps):
+            # print('     %d'%step)
+            (_,Ulast,_,tStep[step]) = stepNoSpike(inputConnectivity,inputVals,Ulast,
+                                                  timeFactorMembrane,Gm,Ib,GmaxNon,DelE,outputConnectivity)
+        timeData[size][probConn][:] = tStep
 
 data['data'] = timeData
-numpyAllTest = {'params': parameters,'data': data}
-pickle.dump(numpyAllTest, open('dataNumpyAll.p','wb'))
+numpyNoSpikeTest = {'params': parameters,'data': data}
+pickle.dump(numpyNoSpikeTest, open('dataNumpyNoSpike.p','wb'))
 
 parameters = {'networkSize': networkSize,
               'percentSpiking': percentSpiking,
@@ -420,27 +412,39 @@ numpyNoRefTest = {'params': parameters,'data': data}
 pickle.dump(numpyNoRefTest, open('dataNumpyNoRef.p','wb'))
 
 parameters = {'networkSize': networkSize,
+              'percentSpiking': percentSpiking,
               'probConnectivity': probConnectivity}
 
-# Testing data (no spike)
-timeData = np.zeros([numSizeSamples,numConnSamples,numSteps])
+# Testing data (all)
+timeData = np.zeros([numSizeSamples,numSpikeSamples,numConnSamples,numSteps])
 data = {'dim1': 'networkSize',
-        'dim2': 'probConnectivity'}
+        'dim2': 'percentSpiking',
+        'dim3': 'probConnectivity'}
 
-# Collection loop (no spike)
+# Collection loop (all)
 for size in range(numSizeSamples):
-    for probConn in range(numSpikeSamples):
-        print('No Spike: Size %d/%d, Percent Spiking 0/0, Percent Connectivity %d/%d' % ((size+1), numSizeSamples, (probConn + 1), numConnSamples))
-        print('Running for %f seconds' % (time.time() - start))
-        (inputConnectivity,inputVals,Ulast,timeFactorMembrane,Gm,Ib,
-         GmaxNon,DelE,outputConnectivity) = constructNoSpike(dt, int(networkSize[size]),probConnectivity[probConn],perIn,perOut)
-        tStep = np.zeros(numSteps)
-        for step in range(numSteps):
-            # print('     %d'%step)
-            (_,Ulast,_,tStep[step]) = stepNoSpike(inputConnectivity,inputVals,Ulast,
-                                                                 timeFactorMembrane,Gm,Ib,GmaxNon,DelE,outputConnectivity)
-        timeData[size][probConn][:] = tStep
+    for perSpike in range(numSpikeSamples):
+        for probConn in range(numConnSamples):
+            print('All: Size %d/%d, Percent Spiking %d/%d, Percent Connectivity %d/%d' % ((size+1), numSizeSamples, (perSpike+1), numSpikeSamples, (probConn + 1), numConnSamples))
+            print('Running for %f seconds'%(time.time()-start))
+            (inputConnectivity,inputVals,Ulast,timeFactorMembrane,Gm,Ib,thetaLast, timeFactorThreshold, theta0, m,
+             refCtr,refPeriod,GmaxNon,GmaxSpk,
+             Gspike,timeFactorSynapse,DelE,outputConnectivity) = constructAll(dt, int(networkSize[size]),
+                                                                              probConnectivity[probConn], perIn, perOut,
+                                                                              percentSpiking[perSpike])
+            tStep = np.zeros(numSteps)
+            for step in range(numSteps):
+                # print('     %d'%step)
+                (_,Ulast,thetaLast,Gspike,refCtr,_,tStep[step]) = stepAll(inputConnectivity,inputVals,Ulast,
+                                                                          timeFactorMembrane,Gm,Ib,thetaLast,
+                                                                          timeFactorThreshold,theta0,m,refCtr,
+                                                                          refPeriod,GmaxNon,GmaxSpk,Gspike,
+                                                                          timeFactorSynapse,DelE,
+                                                                          outputConnectivity)
+            timeData[size][perSpike][probConn][:] = tStep
 
 data['data'] = timeData
-numpyNoSpikeTest = {'params': parameters,'data': data}
-pickle.dump(numpyNoSpikeTest, open('dataNumpyNoSpike.p','wb'))
+numpyAllTest = {'params': parameters,'data': data}
+pickle.dump(numpyAllTest, open('dataNumpyAll.p','wb'))
+
+
