@@ -345,7 +345,7 @@ numSizeSamples = 100
 numSpikeSamples = 1
 numConnSamples = 100
 numSteps = 1000
-networkSize = np.logspace(1,5,num=numSizeSamples)
+networkSize = np.logspace(1,4,num=numSizeSamples)
 # percentSpiking = np.linspace(0.0,1.0,num=numSpikeSamples)
 percentSpiking = [0]
 probConnectivity = np.logspace(0, 1, num=numConnSamples) / 10
