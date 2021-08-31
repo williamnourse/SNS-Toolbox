@@ -104,19 +104,14 @@ class Network:
         """
         self.addPopulation(neuronType,numNeurons=1,name=name,color=color)
 
-    def addInput(self,numElements: int,name: str='Input',color='white'):
+    def addInput(self,name: str = 'Input',color='white'):
         """
         Add an input source to the network
-        :param numElements: Number of elements in the input
         :param name:        Name of the input node
         :param color:       Color of the input node in the visual render
         :return:    None
         """
-        if isinstance(numElements,int):
-            if numElements <= 0:
-                raise ValueError('numElements must be an integer greater than 0')
-        else:
-            raise TypeError('numElements must be an integer greater than 0')
+
         if not isinstance(name,str):
             raise TypeError('Name must be a string')
         if not validColor(color):
@@ -124,26 +119,20 @@ class Network:
             color = 'white'
         fontColor = setTextColor(color)
         self.inputs.append({'name': name,
-                            'numberElements': numElements})
+                            'color': color})
         self.graph.node('In'+str(len(self.inputs) - 1), name,
                         style='filled',
                         shape='invhouse',
                         fillcolor=color,
                         fontcolor=fontColor)
 
-    def addOutput(self,numElements: int,name: str = 'Output',color='white'):
+    def addOutput(self,name: str = 'Output',color='white'):
         """
         Add an output node to the network
-        :param numElements: Number of elements to output
         :param name:        Name of the node
         :param color:       Color of the output in the visual render
         :return: None
         """
-        if isinstance(numElements,int):
-            if numElements<=0:
-                raise ValueError('Number of elements must be a positive integer')
-        else:
-            raise TypeError('Number of elements must be a positive integer')
         if not isinstance(name,str):
             raise TypeError('Name must be a string')
         if not validColor(color):
@@ -151,7 +140,7 @@ class Network:
             color = 'white'
         fontColor = setTextColor(color)
         self.outputs.append({'name': name,
-                            'numberElements': numElements})
+                            'color': color})
         self.graph.node('Out'+str(len(self.inputs) - 1), name,
                         style='filled',
                         shape='house',
@@ -282,26 +271,41 @@ class Network:
         """
         if not isinstance(network, Network):
             raise TypeError('Network must be of type Network')
-        if not validColor(color):
-            warnings.warn('Specified color is not in the standard SVG set. Defaulting to white.')
-            color = 'white'
+
 
         numInputs = len(self.inputs)
         numPopulations = len(self.populations)
         numOutputs = len(self.outputs)
 
-        for population in network.populations:
-            self.addPopulation(neuronType=population['type'],numNeurons=population['number'],name=population['name'],color=color)
-        for inp in network.inputs:
-            self.addInput(name=inp['name'],numElements=inp['numberElements'],color=color)
-        for out in network.outputs:
-            self.addOutput(numElements=out['numberElements'],name=out['name'],color=color)
-        for inConn in network.inputConns:
-            self.addInputConnection(inConn['weight'],inConn['source']+numInputs,inConn['destination']+numPopulations,viewWeight=inConn['view'])
-        for outConn in network.outputConns:
-            self.addOutputConnection(outConn['weight'],outConn['source']+numPopulations,outConn['destination']+numOutputs,viewWeight=outConn['view'])
-        for synapse in network.synapses:
-            self.addSynapse(synapseType=synapse['type'],source=synapse['source']+numPopulations,destination=synapse['destination']+numPopulations,viewLabel=synapse['view'])
+        if color is None:
+            for population in network.populations:
+                self.addPopulation(neuronType=population['type'],numNeurons=population['number'],name=population['name'],color=population['color'])
+            for inp in network.inputs:
+                self.addInput(name=inp['name'],color=inp['color'])
+            for out in network.outputs:
+                self.addOutput(name=out['name'],color=out['color'])
+            for inConn in network.inputConns:
+                self.addInputConnection(inConn['weight'],inConn['source']+numInputs,inConn['destination']+numPopulations,viewWeight=inConn['view'])
+            for outConn in network.outputConns:
+                self.addOutputConnection(outConn['weight'],outConn['source']+numPopulations,outConn['destination']+numOutputs,viewWeight=outConn['view'])
+            for synapse in network.synapses:
+                self.addSynapse(synapseType=synapse['type'],source=synapse['source']+numPopulations,destination=synapse['destination']+numPopulations,viewLabel=synapse['view'])
+        else:
+            if not validColor(color):
+                warnings.warn('Specified color is not in the standard SVG set. Defaulting to white.')
+                color = 'white'
+            for population in network.populations:
+                self.addPopulation(neuronType=population['type'],numNeurons=population['number'],name=population['name'],color=color)
+            for inp in network.inputs:
+                self.addInput(name=inp['name'],color=color)
+            for out in network.outputs:
+                self.addOutput(name=out['name'],color=color)
+            for inConn in network.inputConns:
+                self.addInputConnection(inConn['weight'],inConn['source']+numInputs,inConn['destination']+numPopulations,viewWeight=inConn['view'])
+            for outConn in network.outputConns:
+                self.addOutputConnection(outConn['weight'],outConn['source']+numPopulations,outConn['destination']+numOutputs,viewWeight=outConn['view'])
+            for synapse in network.synapses:
+                self.addSynapse(synapseType=synapse['type'],source=synapse['source']+numPopulations,destination=synapse['destination']+numPopulations,viewLabel=synapse['view'])
 
     def renderGraph(self, imgFormat: str = 'png', view: bool = False) -> None:
         """
