@@ -17,31 +17,33 @@ NETWORK STEP
 Update all of the neural states for 1 timestep
 """
 
-def stepAll(inputConnectivity,inputVals,Ulast,timeFactorMembrane,Gm,Ib,thetaLast,timeFactorThreshold,theta0,m,refCtr,
-            refPeriod,GmaxNon,GmaxSpk,Gspike,timeFactorSynapse,DelE,outputConnectivity,R=20):
+def stepAll(inputConnectivity, inputVals, Ulast, timeFactorMembrane, Gm, Ib, thetaLast, timeFactorThreshold, theta0, m, refCtr,
+            refPeriod, GmaxNon, GmaxSpk, Gspike, timeFactorSynapse, DelE, outputVoltageConnectivity,
+            outputSpikeConnectivity, R=20):
     """
     All components are present
-    :param inputConnectivity:   Matrix describing routing of input currents
-    :param inputVals:           Value of input currents (nA)
-    :param Ulast:               Vector of neural states at the previous timestep (mV)
-    :param timeFactorMembrane:  Vector of constant parameters for each neuron (dt/Cm)
-    :param Gm:                  Vector of membrane conductances (uS)
-    :param Ib:                  Vector of bias currents (nA)
-    :param thetaLast:           Firing threshold at the previous timestep (mV)
-    :param timeFactorThreshold: Vector of constant parameters for each neuron (dt/tauTheta)
-    :param theta0:              Vector of initial firing thresholds (mV)
-    :param m:                   Vector of threshold adaptation ratios
-    :param refCtr:              Vector to store remaining timesteps in the refractory period
-    :param refPeriod:           Vector of refractory periods
-    :param GmaxNon:             Matrix of maximum nonspiking synaptic conductances (uS)
-    :param GmaxSpk:             Matrix of maximum spiking synaptic conductances (uS)
-    :param Gspike:              Matrix of spiking synaptic conductances (uS)
-    :param timeFactorSynapse:   Matrix of constant parameters for each synapse (dt/tauSyn)
-    :param DelE:                Matrix of synaptic reversal potentials
-    :param outputConnectivity:  Matrix describing routes to output nodes
-    :param R:                   Neural range (mV)
+    :param inputConnectivity:           Matrix describing routing of input currents
+    :param inputVals:                   Value of input currents (nA)
+    :param Ulast:                       Vector of neural states at the previous timestep (mV)
+    :param timeFactorMembrane:          Vector of constant parameters for each neuron (dt/Cm)
+    :param Gm:                          Vector of membrane conductances (uS)
+    :param Ib:                          Vector of bias currents (nA)
+    :param thetaLast:                   Firing threshold at the previous timestep (mV)
+    :param timeFactorThreshold:         Vector of constant parameters for each neuron (dt/tauTheta)
+    :param theta0:                      Vector of initial firing thresholds (mV)
+    :param m:                           Vector of threshold adaptation ratios
+    :param refCtr:                      Vector to store remaining timesteps in the refractory period
+    :param refPeriod:                   Vector of refractory periods
+    :param GmaxNon:                     Matrix of maximum nonspiking synaptic conductances (uS)
+    :param GmaxSpk:                     Matrix of maximum spiking synaptic conductances (uS)
+    :param Gspike:                      Matrix of spiking synaptic conductances (uS)
+    :param timeFactorSynapse:           Matrix of constant parameters for each synapse (dt/tauSyn)
+    :param DelE:                        Matrix of synaptic reversal potentials
+    :param outputVoltageConnectivity:   Matrix describing routes to output nodes
+    :param outputSpikeConnectivity:     Matrix describing routes to output nodes
+    :param R:                           Neural range (mV)
 
-    :return: U, Ulast, thetaLast, Gspike, refCtr, outputNodes
+    :return: U, Ulast, thetaLast, Gspike, refCtr, outputVoltages
     """
     start = time.time()
 
@@ -56,36 +58,38 @@ def stepAll(inputConnectivity,inputVals,Ulast,timeFactorMembrane,Gm,Ib,thetaLast
     Gspike = np.maximum(Gspike, (-spikes) * GmaxSpk)  # Update the conductance of synapses which spiked
     U = U * (spikes + 1)  # Reset the membrane voltages of neurons which spiked
     refCtr = np.maximum(0, refCtr - spikes * (refPeriod + 1) - 1)  # Update refractory periods
-    outputNodes = np.matmul(outputConnectivity,U)  # Copy desired neural quantities to output nodes
+    outputVoltages = np.matmul(outputVoltageConnectivity, U)  # Copy desired neural quantities to output nodes
+    outputSpikes = np.matmul(outputSpikeConnectivity, spikes)  # Copy desired neural quantities to output nodes
     Ulast = np.copy(U)  # Copy the current membrane voltage to be the past value
     thetaLast = np.copy(theta)  # Copy the current threshold value to be the past value
 
     end = time.time()
-    return U, Ulast, thetaLast, Gspike, refCtr, outputNodes, end-start
+    return U, Ulast, thetaLast, Gspike, refCtr, outputVoltages, outputSpikes, end-start
 
-def stepNoRef(inputConnectivity,inputVals,Ulast,timeFactorMembrane,Gm,Ib,thetaLast,timeFactorThreshold,theta0,m,GmaxNon,
-              GmaxSpk,Gspike,timeFactorSynapse,DelE,outputConnectivity,R=20):
+def stepNoRef(inputConnectivity, inputVals, Ulast, timeFactorMembrane, Gm, Ib, thetaLast, timeFactorThreshold, theta0, m, GmaxNon,
+              GmaxSpk, Gspike, timeFactorSynapse, DelE, outputVoltageConnectivity, outputSpikeConnectivity, R=20):
     """
     There is no refractory period
-    :param inputConnectivity:   Matrix describing routing of input currents
-    :param inputVals:           Value of input currents (nA)
-    :param Ulast:               Vector of neural states at the previous timestep (mV)
-    :param timeFactorMembrane:  Vector of constant parameters for each neuron (dt/Cm)
-    :param Gm:                  Vector of membrane conductances (uS)
-    :param Ib:                  Vector of bias currents (nA)
-    :param thetaLast:           Firing threshold at the previous timestep (mV)
-    :param timeFactorThreshold: Vector of constant parameters for each neuron (dt/tauTheta)
-    :param theta0:              Vector of initial firing thresholds (mV)
-    :param m:                   Vector of threshold adaptation ratios
-    :param GmaxNon:             Matrix of maximum nonspiking synaptic conductances (uS)
-    :param GmaxSpk:             Matrix of maximum spiking synaptic conductances (uS)
-    :param Gspike:              Matrix of spiking synaptic conductances (uS)
-    :param timeFactorSynapse:   Matrix of constant parameters for each synapse (dt/tauSyn)
-    :param DelE:                Matrix of synaptic reversal potentials
-    :param outputConnectivity:  Matrix describing routes to output nodes
-    :param R:                   Range of neural activity (mV)
+    :param inputConnectivity:           Matrix describing routing of input currents
+    :param inputVals:                   Value of input currents (nA)
+    :param Ulast:                       Vector of neural states at the previous timestep (mV)
+    :param timeFactorMembrane:          Vector of constant parameters for each neuron (dt/Cm)
+    :param Gm:                          Vector of membrane conductances (uS)
+    :param Ib:                          Vector of bias currents (nA)
+    :param thetaLast:                   Firing threshold at the previous timestep (mV)
+    :param timeFactorThreshold:         Vector of constant parameters for each neuron (dt/tauTheta)
+    :param theta0:                      Vector of initial firing thresholds (mV)
+    :param m:                           Vector of threshold adaptation ratios
+    :param GmaxNon:                     Matrix of maximum nonspiking synaptic conductances (uS)
+    :param GmaxSpk:                     Matrix of maximum spiking synaptic conductances (uS)
+    :param Gspike:                      Matrix of spiking synaptic conductances (uS)
+    :param timeFactorSynapse:           Matrix of constant parameters for each synapse (dt/tauSyn)
+    :param DelE:                        Matrix of synaptic reversal potentials
+    :param outputVoltageConnectivity:   Matrix describing routes to output nodes
+    :param outputSpikeConnectivity:     Matrix describing routes to output nodes
+    :param R:                           Range of neural activity (mV)
 
-    :return: U, Ulast, thetaLast, Gspike, outputNodes
+    :return: U, Ulast, thetaLast, Gspike, outputVoltages, outputSpikes
     """
     start = time.time()
 
@@ -99,12 +103,13 @@ def stepNoRef(inputConnectivity,inputVals,Ulast,timeFactorMembrane,Gm,Ib,thetaLa
     spikes = np.sign(np.minimum(0, theta - U))  # Compute which neurons have spiked
     Gspike = np.maximum(Gspike, (-spikes) * GmaxSpk)  # Update the conductance of synapses which spiked
     U = U * (spikes + 1)  # Reset the membrane voltages of neurons which spiked
-    outputNodes = np.matmul(outputConnectivity,U)  # Copy desired neural quantities to output nodes
+    outputVoltages = np.matmul(outputVoltageConnectivity, U)  # Copy desired neural quantities to output nodes
+    outputSpikes = np.matmul(outputSpikeConnectivity, spikes)  # Copy desired neural quantities to output nodes
     Ulast = np.copy(U)  # Copy the current membrane voltage to be the past value
     thetaLast = np.copy(theta)  # Copy the current threshold value to be the past value
 
     end = time.time()
-    return U, Ulast, thetaLast, Gspike, outputNodes,end-start
+    return U, Ulast, thetaLast, Gspike, outputVoltages, outputSpikes, end - start
 
 def stepNoSpike(inputConnectivity,inputVals,Ulast,timeFactorMembrane,Gm,Ib,GmaxNon,DelE,outputConnectivity,R=20):
     """
@@ -210,12 +215,13 @@ def constructAll(dt, numNeurons, probConn, perIn, perOut, perSpike, seed=0):
     numOutputs = int(perOut*numNeurons)
     if numOutputs == 0:
         numOutputs = 1
-    outputConnectivity = np.zeros([numOutputs,numNeurons])
+    outputVoltageConnectivity = np.zeros([numOutputs,numNeurons])
     for i in range(numOutputs):
         outputConnectivity[i][i] = 1
+    outputSpikeConnectivity = np.copy(outputVoltageConnectivity)
 
     return (inputConnectivity,inputVals,Ulast,timeFactorMembrane,Gm,Ib,thetaLast,timeFactorThreshold,theta0,m,refCtr,
-            refPeriod,GmaxNon,GmaxSpk,Gspike,timeFactorSynapse,DelE,outputConnectivity)
+            refPeriod,GmaxNon,GmaxSpk,Gspike,timeFactorSynapse,DelE,outputVoltageConnectivity,outputSpikeConnectivity)
 
 def constructNoRef(dt,numNeurons,perConn,perIn,perOut,perSpike,seed=0):
     """
@@ -277,12 +283,13 @@ def constructNoRef(dt,numNeurons,perConn,perIn,perOut,perSpike,seed=0):
 
     # Outputs
     numOutputs = int(perOut*numNeurons)
-    outputConnectivity = np.zeros([numOutputs,numNeurons])
+    outputVoltageConnectivity = np.zeros([numOutputs, numNeurons])
     for i in range(numOutputs):
         outputConnectivity[i][i] = 1
+    outputSpikeConnectivity = np.copy(outputVoltageConnectivity)
 
-    return (inputConnectivity,inputVals,Ulast,timeFactorMembrane,Gm,Ib,thetaLast,timeFactorThreshold,theta0,m,GmaxNon,
-            GmaxSpk,Gspike,timeFactorSynapse,DelE,outputConnectivity)
+    return (inputConnectivity, inputVals, Ulast, timeFactorMembrane, Gm, Ib, thetaLast, timeFactorThreshold, theta0, m,
+            GmaxNon, GmaxSpk, Gspike, timeFactorSynapse, DelE, outputVoltageConnectivity, outputSpikeConnectivity)
 
 def constructNoSpike(dt,numNeurons,perConn,perIn,perOut,seed=0):
     """
@@ -395,16 +402,17 @@ for size in range(numSizeSamples):
             print('Running for %f seconds' % (time.time() - start))
             (inputConnectivity,inputVals,Ulast,timeFactorMembrane,Gm,Ib,thetaLast, timeFactorThreshold, theta0, m,
              GmaxNon,GmaxSpk,
-             Gspike,timeFactorSynapse,DelE,outputConnectivity) = constructNoRef(dt, int(networkSize[size]),
-                                                                                probConnectivity[probConn], perIn,
-                                                                                perOut,percentSpiking[perSpike])
+             Gspike,timeFactorSynapse,DelE,
+             outputVoltageConnectivity,outputSpikeConnectivity) = constructNoRef(dt, int(networkSize[size]),
+                                                                                 probConnectivity[probConn], perIn,
+                                                                                 perOut,percentSpiking[perSpike])
             tStep = np.zeros(numSteps)
             for step in range(numSteps):
                 # print('     %d'%step)
-                (_,Ulast,thetaLast,Gspike,_,tStep[step]) = stepNoRef(inputConnectivity,inputVals,Ulast,
+                (_,Ulast,thetaLast,Gspike,_,_,tStep[step]) = stepNoRef(inputConnectivity,inputVals,Ulast,
                                                                      timeFactorMembrane,Gm,Ib,thetaLast,
                                                                      timeFactorThreshold,theta0,m,GmaxNon,GmaxSpk,
-                                                                     Gspike,timeFactorSynapse,DelE,outputConnectivity)
+                                                                     Gspike,timeFactorSynapse,DelE,outputVoltageConnectivity,outputSpikeConnectivity)
             timeData[size][perSpike][probConn][:] = tStep
 
 data['data'] = timeData
@@ -429,18 +437,18 @@ for size in range(numSizeSamples):
             print('Running for %f seconds'%(time.time()-start))
             (inputConnectivity,inputVals,Ulast,timeFactorMembrane,Gm,Ib,thetaLast, timeFactorThreshold, theta0, m,
              refCtr,refPeriod,GmaxNon,GmaxSpk,
-             Gspike,timeFactorSynapse,DelE,outputConnectivity) = constructAll(dt, int(networkSize[size]),
-                                                                              probConnectivity[probConn], perIn, perOut,
-                                                                              percentSpiking[perSpike])
+             Gspike,timeFactorSynapse,DelE,outputVoltageConnectivity,outputSpikeConnectivity) = constructAll(dt, int(networkSize[size]),
+                                                                                                             probConnectivity[probConn], perIn, perOut,
+                                                                                                             percentSpiking[perSpike])
             tStep = np.zeros(numSteps)
             for step in range(numSteps):
                 # print('     %d'%step)
-                (_,Ulast,thetaLast,Gspike,refCtr,_,tStep[step]) = stepAll(inputConnectivity,inputVals,Ulast,
-                                                                          timeFactorMembrane,Gm,Ib,thetaLast,
-                                                                          timeFactorThreshold,theta0,m,refCtr,
-                                                                          refPeriod,GmaxNon,GmaxSpk,Gspike,
-                                                                          timeFactorSynapse,DelE,
-                                                                          outputConnectivity)
+                (_,Ulast,thetaLast,Gspike,refCtr,_,_,tStep[step]) = stepAll(inputConnectivity,inputVals,Ulast,
+                                                                            timeFactorMembrane,Gm,Ib,thetaLast,
+                                                                            timeFactorThreshold,theta0,m,refCtr,
+                                                                            refPeriod,GmaxNon,GmaxSpk,Gspike,
+                                                                            timeFactorSynapse,DelE,
+                                                                            outputVoltageConnectivity,outputSpikeConnectivity)
             timeData[size][perSpike][probConn][:] = tStep
 
 data['data'] = timeData
