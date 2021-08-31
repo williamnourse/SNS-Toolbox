@@ -126,10 +126,11 @@ class Network:
                         fillcolor=color,
                         fontcolor=fontColor)
 
-    def addOutput(self,name: str = 'Output',color='white'):
+    def addOutput(self,name: str = 'Output',spiking: bool = False,color: str = 'white'):
         """
         Add an output node to the network
         :param name:        Name of the node
+        :param spiking:     Flag for if this node stores voltage or spikes
         :param color:       Color of the output in the visual render
         :return: None
         """
@@ -140,7 +141,8 @@ class Network:
             color = 'white'
         fontColor = setTextColor(color)
         self.outputs.append({'name': name,
-                            'color': color})
+                             'spiking': spiking,
+                             'color': color})
         self.graph.node('Out'+str(len(self.inputs) - 1), name,
                         style='filled',
                         shape='house',
