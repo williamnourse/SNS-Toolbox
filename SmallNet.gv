@@ -1,7 +1,0 @@
-digraph {
-	0 [label=NeuronA fillcolor=blue fontcolor=white shape=doublecircle style=filled]
-	1 [label=NeuronB fillcolor=white fontcolor=black shape=doublecircle style=filled]
-	2 [label=Neuron fillcolor=orange fontcolor=black shape=doublecircle style=filled]
-	0 -> 2 [label=Transmit arrowhead=invempty]
-	1 -> 2 [label=Transmit arrowhead=invempty]
-}

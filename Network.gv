@@ -1,5 +1,0 @@
-digraph {
-	0 [label=NeuronA fillcolor=white fontcolor=black style=filled]
-	1 [label=NeuronB fillcolor=white fontcolor=black style=filled]
-	0 -> 1 [arrowhead=invempty]
-}

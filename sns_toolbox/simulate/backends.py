@@ -3,7 +3,7 @@ Simulation backends for nonspiking networks. Each of these are python-based, and
 Network. They can then be run for a step, with the inputs being a vector of neural states and applied currents and the
 output being the next step of neural states.
 William Nourse
-May 26, 2021
+August 31, 2021
 I've heard that you're a low-down Yankee liar
 """
 
@@ -16,15 +16,17 @@ from typing import Any
 import numpy as np
 import torch
 from scipy.sparse import csr_matrix, lil_matrix
+import sys
 
 from sns_toolbox.design.networks import Network
+from sns_toolbox.design.neurons import NonSpikingNeuron, SpikingNeuron
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 BASE CLASS
 """
 
-class NonSpikingBackend:
+class Backend:
     """
     Base-level class for all simulation backends. Each will do the following:
         - Construct a representation of a given network using the desired backend technique
@@ -38,25 +40,130 @@ class NonSpikingBackend:
         :param dt:      Simulation time constant
         """
         self.dt = dt
+        self.numPopulations = network.getNumPopulations()
         self.numNeurons = network.getNumNeurons()
         self.numSynapses = network.getNumSynapses()
+        self.numInputs = network.getNumInputs()
+        self.numOutputs = network.getNumOutputs()
         self.R = network.params['R']
 
-    def forward(self, statesLast: Any, appliedCurrents: Any) -> Any:
+    def forward(self, inputs) -> Any:
         """
         Compute the next neural states based on previous neural states
-        :param statesLast:    Input neural voltages (states)
-        :param appliedCurrents: External applied currents at the current step
-        :return:                The next neural voltages
+        :param inputs:    Input currents into the network
+        :return:          The next neural voltages
         """
         raise NotImplementedError
+
+"""
+########################################################################################################################
+NUMPY BACKEND
+
+Simulating the network using numpy vectors and matrices. Note that this is not sparse, so memory may explode for large networks
+"""
+
+class SNS_Numpy(Backend):
+    def __init__(self,network: Network, **kwargs):
+        super().__init__(network,**kwargs)
+
+        """Inputs"""
+        self.inputConnectivity = np.zeros([self.numNeurons, self.numInputs])    # initialize connectivity matrix
+        for conn in network.inputConns:                 # iterate over the connections in the network
+            wt = conn['weight']                         # get the weight
+            source = conn['source']                     # get the source
+            dest = conn['destination']                  # get the destination
+            self.inputConnectivity[dest][source] = wt   # set the weight in the correct source and destination
+
+        """Neurons"""
+        # Initialize the vectors
+        self.U = np.zeros(self.numNeurons)
+        self.Ulast = np.zeros(self.numNeurons)
+        self.spikes = np.zeros(self.numNeurons)
+        Cm = np.zeros(self.numNeurons)
+        self.Gm = np.zeros(self.numNeurons)
+        self.Ib = np.zeros(self.numNeurons)
+        self.theta0 = np.zeros(self.numNeurons)
+        self.theta = np.zeros(self.numNeurons)
+        self.thetaLast = np.zeros(self.numNeurons)
+        self.m = np.zeros(self.numNeurons)
+        tauTheta = np.zeros(self.numNeurons)
+
+        # iterate over the populations in the network
+        for pop in range(len(network.populations)):
+            numNeurons = network.populations[pop]['number'] # find the number of neurons in the population
+            for num in range(numNeurons):   # for each neuron, copy the parameters over
+                index = pop+num
+                Cm[index] = network.populations[pop]['type'].params['membraneCapacitance']
+                self.Gm[index] = network.populations[pop]['type'].params['membraneConductance']
+                self.Ib[index] = network.populations[pop]['type'].params['bias']
+                if isinstance(network.populations[pop]['type'],SpikingNeuron):  # if the neuron is spiking, copy more
+                    self.theta0[index] = network.populations[pop]['type'].params['thresholdInitialValue']
+                    self.m[index] = network.populations[pop]['type'].params['thresholdProportionalityConstant']
+                    tauTheta[index] = network.populations[pop]['type'].params['thresholdTimeConstant']
+                else:   # otherwise, set to the special values for NonSpiking
+                    self.theta0[index] = sys.float_info.max
+                    self.m[index] = 0
+                    tauTheta[index] = 1
+        # set the derived vectors
+        self.timeFactorMembrane = self.dt/Cm
+        self.timeFactorThreshold = self.dt/tauTheta
+        self.theta = np.copy(self.theta0)
+        self.thetaLast = np.copy(self.theta0)
+
+        """Outputs"""
+        self.outputVoltageConnectivity = np.zeros([self.numOutputs, self.numNeurons])  # initialize connectivity matrix
+        self.outputSpikeConnectivity = np.copy(self.outputVoltageConnectivity)
+        for conn in network.outputConns:  # iterate over the connections in the network
+            wt = conn['weight']  # get the weight
+            source = conn['source']  # get the source
+            dest = conn['destination']  # get the destination
+            if network.outputs[dest]['spiking']:
+                self.outputSpikeConnectivity[dest][source] = wt  # set the weight in the correct source and destination
+            else:
+                self.outputVoltageConnectivity[dest][source] = wt  # set the weight in the correct source and destination
+
+        # # Synapses
+        # GmaxNon = np.zeros([numNeurons, numNeurons])
+        # GmaxSpk = np.zeros([numNeurons, numNeurons])
+        # Gspike = np.zeros([numNeurons, numNeurons])
+        # DelE = np.zeros([numNeurons, numNeurons])
+        # tauSyn = np.zeros([numNeurons, numNeurons]) + 1
+        # numSyn = int(perConn * numNeurons * numNeurons)
+        # np.random.seed(seed)
+        # for row in range(numNeurons):
+        #     for col in range(numNeurons):
+        #         rand = np.random.uniform()
+        #         if rand < probConn:
+        #             DelE[row][col] = 100
+        #             if theta0[col] < sys.float_info.max:
+        #                 GmaxSpk[row][col] = 1
+        #             else:
+        #                 GmaxNon[row][col] = 1
+        #             tauSyn[row][col] = 2
+        # timeFactorSynapse = dt / tauSyn
+
+    def forward(self, inputs) -> Any:
+        self.Ulast = np.copy(self.U)
+        self.thetaLast = np.copy(self.theta)
+        Iapp = np.matmul(self.inputConnectivity, inputs)  # Apply external current sources to their destinations
+        # Gnon = np.maximum(0, np.minimum(GmaxNon * Ulast / R, GmaxNon))
+        # Gspike = Gspike * (1 - timeFactorSynapse)
+        # Gsyn = Gnon + Gspike
+        # Isyn = np.sum(Gsyn * DelE, axis=1) - Ulast * np.sum(Gsyn, axis=1)
+        self.U = self.Ulast + self.timeFactorMembrane * (-self.Gm * self.Ulast + self.Ib + Iapp)  # Update membrane potential
+        self.theta = self.thetaLast + self.timeFactorThreshold * (-self.thetaLast + self.theta0 + self.m * self.Ulast)  # Update the firing thresholds
+        self.spikes = np.sign(np.minimum(0, self.theta - self.U))  # Compute which neurons have spiked
+        #Gspike = np.maximum(Gspike, (-spikes) * GmaxSpk)  # Update the conductance of synapses which spiked
+        self.U = self.U * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
+
+        return np.matmul(self.outputVoltageConnectivity, self.U) + np.matmul(self.outputSpikeConnectivity, -self.spikes)
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 MANUAL BACKEND
 """
 
-class SNS_Manual(NonSpikingBackend):
+class SNS_Manual(Backend):
     """
     This is the most straightforward (smooth-brain) approach to simulating a system of non-spiking neurons. Each
     Diff Eq and Synapses is evaluated one-by-one at each timestep. Simplest to keep track of, but (probably) quite
@@ -121,7 +228,7 @@ class SNS_Manual(NonSpikingBackend):
 SCIPY
 """
 
-class SNS_SciPy(NonSpikingBackend):
+class SNS_SciPy(Backend):
     """
     This is the simplest approach to simulating large networks using sparse matrices. Whether it scales to methods run
     on GPUs remains to be seen, but should definitely use less memory than the naive, manual approach.
@@ -190,7 +297,7 @@ class SNS_SciPy(NonSpikingBackend):
 PYTORCH SPARSE
 """
 
-class SNS_Pytorch(NonSpikingBackend):
+class SNS_Pytorch(Backend):
     def __init__(self, network: Network, device: torch.device = None, **kwargs):
         super().__init__(network,**kwargs)
 

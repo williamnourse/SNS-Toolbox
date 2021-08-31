@@ -53,7 +53,37 @@ class Network:
         self.synapses = []
         self.graph = Digraph(filename=(self.params['name']+'.gv'))
 
-    def addPopulation(self,neuronType: Neuron,numNeurons: int,name: str='Population',color=None):
+    def getNumNeurons(self):
+        """
+        Calculate the number of neurons in the network
+        :return: numNeurons
+        """
+        numNeurons = 0
+        for pop in self.populations:
+            numNeurons += pop['number']
+        return numNeurons
+
+    def getNumSynapses(self):
+        """
+        Calculate the number of synapses in the network. This will need to be overhauled for populations with multiple neurons
+        :return: numSynapses
+        """
+        numSynapses = len(self.synapses)
+        return numSynapses
+
+    def getNumPopulations(self):
+        numPop = len(self.populations)
+        return numPop
+
+    def getNumInputs(self):
+        numIn = len(self.inputs)
+        return numIn
+
+    def getNumOutputs(self):
+        numOut = len(self.outputs)
+        return numOut
+
+    def addPopulation(self,neuronType: Neuron,numNeurons: int,name: str = None,color=None):
         """
         Add a neural population to the network
         :param neuronType:  Type of neuron to add
@@ -69,7 +99,9 @@ class Network:
                 raise ValueError('numNeurons must be > 0')
         else:
             raise TypeError('numNeurons must be an integer greater than 0')
-        if not isinstance(name,str):
+        if name is None:
+            name = neuronType.name
+        elif not isinstance(name,str):
             raise TypeError('Name must be a string')
         if color is None:
             color = neuronType.color
@@ -93,7 +125,7 @@ class Network:
                             fillcolor=color,
                             fontcolor=fontColor)
 
-    def addNeuron(self,neuronType,name='Neuron',color=None):
+    def addNeuron(self,neuronType,name=None,color=None):
         """
         Add a neuron to the network. Note that this is just a special case of addPopulation, which makes a population of
         1 neuron.
@@ -136,6 +168,8 @@ class Network:
         """
         if not isinstance(name,str):
             raise TypeError('Name must be a string')
+        if not isinstance(spiking,bool):
+            raise TypeError('Spiking flag must be a boolean')
         if not validColor(color):
             warnings.warn('Specified color is not in the standard SVG set. Defaulting to white.')
             color = 'white'
@@ -143,11 +177,18 @@ class Network:
         self.outputs.append({'name': name,
                              'spiking': spiking,
                              'color': color})
-        self.graph.node('Out'+str(len(self.inputs) - 1), name,
-                        style='filled',
-                        shape='house',
-                        fillcolor=color,
-                        fontcolor=fontColor)
+        if spiking:
+            self.graph.node('Out'+str(len(self.outputs) - 1), name,
+                            style='filled',
+                            shape='triangle',
+                            fillcolor=color,
+                            fontcolor=fontColor)
+        else:
+            self.graph.node('Out' + str(len(self.outputs) - 1), name,
+                            style='filled',
+                            shape='house',
+                            fillcolor=color,
+                            fontcolor=fontColor)
 
     def addInputConnection(self,weight: Number,source: int, dest: int, viewWeight: bool = False):
         """
@@ -285,7 +326,7 @@ class Network:
             for inp in network.inputs:
                 self.addInput(name=inp['name'],color=inp['color'])
             for out in network.outputs:
-                self.addOutput(name=out['name'],color=out['color'])
+                self.addOutput(name=out['name'],color=out['color'],spiking=out['spiking'])
             for inConn in network.inputConns:
                 self.addInputConnection(inConn['weight'],inConn['source']+numInputs,inConn['destination']+numPopulations,viewWeight=inConn['view'])
             for outConn in network.outputConns:
@@ -301,7 +342,7 @@ class Network:
             for inp in network.inputs:
                 self.addInput(name=inp['name'],color=color)
             for out in network.outputs:
-                self.addOutput(name=out['name'],color=color)
+                self.addOutput(name=out['name'],color=color,spiking=out['spiking'])
             for inConn in network.inputConns:
                 self.addInputConnection(inConn['weight'],inConn['source']+numInputs,inConn['destination']+numPopulations,viewWeight=inConn['view'])
             for outConn in network.outputConns:

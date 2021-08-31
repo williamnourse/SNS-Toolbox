@@ -1,0 +1,21 @@
+digraph {
+	0 [label="m=0" fillcolor=blueviolet fontcolor=white style=filled]
+	1 [label="m<0" fillcolor=blueviolet fontcolor=white style=filled]
+	2 [label="m>0" fillcolor=blueviolet fontcolor=white style=filled]
+	In0 [label=I0 fillcolor=blueviolet fontcolor=white shape=invhouse style=filled]
+	Out0 [label=O0V fillcolor=blueviolet fontcolor=white shape=house style=filled]
+	Out1 [label=O1S fillcolor=blueviolet fontcolor=white shape=triangle style=filled]
+	Out2 [label=O2V fillcolor=blueviolet fontcolor=white shape=house style=filled]
+	Out3 [label=O3S fillcolor=blueviolet fontcolor=white shape=triangle style=filled]
+	Out4 [label=O4V fillcolor=blueviolet fontcolor=white shape=house style=filled]
+	Out5 [label=O5S fillcolor=blueviolet fontcolor=white shape=triangle style=filled]
+	In0 -> 0
+	In0 -> 1
+	In0 -> 2
+	0 -> Out0
+	0 -> Out1
+	1 -> Out2
+	1 -> Out3
+	2 -> Out4
+	2 -> Out5
+}
