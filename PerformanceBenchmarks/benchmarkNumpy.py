@@ -350,7 +350,7 @@ perIn = 0.08
 perOut = 0.12
 numSizeSamples = 100
 numSpikeSamples = 1
-numConnSamples = 100
+numConnSamples = 10
 numSteps = 1000
 networkSize = np.logspace(1,4,num=numSizeSamples)
 # percentSpiking = np.linspace(0.0,1.0,num=numSpikeSamples)
