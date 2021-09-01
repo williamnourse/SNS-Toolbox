@@ -18,4 +18,23 @@ digraph {
 	1 -> Out3
 	2 -> Out4
 	2 -> Out5
+	3 [label=NS0 fillcolor=darkgoldenrod fontcolor=black style=filled]
+	4 [label=NS1 fillcolor=darkgoldenrod fontcolor=black style=filled]
+	5 [label=NS2 fillcolor=darkgoldenrod fontcolor=black style=filled]
+	6 [label=NS3 fillcolor=darkgoldenrod fontcolor=black style=filled]
+	In1 [label=I1 fillcolor=darkgoldenrod fontcolor=black shape=invhouse style=filled]
+	Out6 [label=O6V fillcolor=darkgoldenrod fontcolor=black shape=house style=filled]
+	Out7 [label=O7V fillcolor=darkgoldenrod fontcolor=black shape=house style=filled]
+	Out8 [label=O8V fillcolor=darkgoldenrod fontcolor=black shape=house style=filled]
+	Out9 [label=O9V fillcolor=darkgoldenrod fontcolor=black shape=house style=filled]
+	In1 -> 3
+	In1 -> 4
+	In1 -> 5
+	3 -> Out6
+	4 -> Out7
+	5 -> Out8
+	6 -> Out9
+	4 -> 3 [arrowhead=odot]
+	4 -> 5 [arrowhead=dot]
+	4 -> 6 [arrowhead=invempty]
 }

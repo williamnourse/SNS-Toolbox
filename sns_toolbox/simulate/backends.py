@@ -20,6 +20,7 @@ import sys
 
 from sns_toolbox.design.networks import Network
 from sns_toolbox.design.neurons import NonSpikingNeuron, SpikingNeuron
+from sns_toolbox.design.connections import SpikingSynapse, NonSpikingSynapse
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -89,10 +90,12 @@ class SNS_Numpy(Backend):
         tauTheta = np.zeros(self.numNeurons)
 
         # iterate over the populations in the network
+        popsAndNrns = []
+        index = 0
         for pop in range(len(network.populations)):
             numNeurons = network.populations[pop]['number'] # find the number of neurons in the population
+            popsAndNrns.append([])
             for num in range(numNeurons):   # for each neuron, copy the parameters over
-                index = pop+num
                 Cm[index] = network.populations[pop]['type'].params['membraneCapacitance']
                 self.Gm[index] = network.populations[pop]['type'].params['membraneConductance']
                 self.Ib[index] = network.populations[pop]['type'].params['bias']
@@ -104,11 +107,42 @@ class SNS_Numpy(Backend):
                     self.theta0[index] = sys.float_info.max
                     self.m[index] = 0
                     tauTheta[index] = 1
+                popsAndNrns[pop].append(index)
+                index += 1
         # set the derived vectors
         self.timeFactorMembrane = self.dt/Cm
         self.timeFactorThreshold = self.dt/tauTheta
         self.theta = np.copy(self.theta0)
         self.thetaLast = np.copy(self.theta0)
+
+        """Synapses"""
+        # initialize the matrices
+        self.GmaxNon = np.zeros([self.numNeurons, self.numNeurons])
+        self.GmaxSpk = np.zeros([self.numNeurons, self.numNeurons])
+        self.Gspike = np.zeros([self.numNeurons, self.numNeurons])
+        self.DelE = np.zeros([self.numNeurons, self.numNeurons])
+        self.tauSyn = np.zeros([self.numNeurons, self.numNeurons])+1
+
+        # iterate over the synapses in the network
+        for syn in range(len(network.synapses)):
+            sourcePop = network.synapses[syn]['source']
+            destPop = network.synapses[syn]['destination']
+            Gmax = network.synapses[syn]['type'].params['maxConductance']
+            delE = network.synapses[syn]['type'].params['relativeReversalPotential']
+
+            if isinstance(network.synapses[syn]['type'],SpikingSynapse):
+                tauS = network.synapses[syn]['type'].params['synapticTimeConstant']
+                for source in popsAndNrns[sourcePop]:
+                    for dest in popsAndNrns[destPop]:
+                        self.GmaxSpk[dest][source] = Gmax
+                        self.DelE[dest][source] = delE
+                        self.tauSyn[dest][source] = tauS
+            else:
+                for source in popsAndNrns[sourcePop]:
+                    for dest in popsAndNrns[destPop]:
+                        self.GmaxNon[dest][source] = Gmax
+                        self.DelE[dest][source] = delE
+        self.timeFactorSynapse = self.dt/self.tauSyn
 
         """Outputs"""
         self.outputVoltageConnectivity = np.zeros([self.numOutputs, self.numNeurons])  # initialize connectivity matrix
@@ -121,39 +155,29 @@ class SNS_Numpy(Backend):
                 self.outputSpikeConnectivity[dest][source] = wt  # set the weight in the correct source and destination
             else:
                 self.outputVoltageConnectivity[dest][source] = wt  # set the weight in the correct source and destination
-
-        # # Synapses
-        # GmaxNon = np.zeros([numNeurons, numNeurons])
-        # GmaxSpk = np.zeros([numNeurons, numNeurons])
-        # Gspike = np.zeros([numNeurons, numNeurons])
-        # DelE = np.zeros([numNeurons, numNeurons])
-        # tauSyn = np.zeros([numNeurons, numNeurons]) + 1
-        # numSyn = int(perConn * numNeurons * numNeurons)
-        # np.random.seed(seed)
-        # for row in range(numNeurons):
-        #     for col in range(numNeurons):
-        #         rand = np.random.uniform()
-        #         if rand < probConn:
-        #             DelE[row][col] = 100
-        #             if theta0[col] < sys.float_info.max:
-        #                 GmaxSpk[row][col] = 1
-        #             else:
-        #                 GmaxNon[row][col] = 1
-        #             tauSyn[row][col] = 2
-        # timeFactorSynapse = dt / tauSyn
+        print('Input Connectivity:')
+        print(self.inputConnectivity)
+        print('GmaxNon:')
+        print(self.GmaxNon)
+        print('DelE:')
+        print(self.DelE)
+        print('Output Voltage Connectivity')
+        print(self.outputVoltageConnectivity)
+        print('Output Spike Connectivity:')
+        print(self.outputSpikeConnectivity)
 
     def forward(self, inputs) -> Any:
         self.Ulast = np.copy(self.U)
         self.thetaLast = np.copy(self.theta)
         Iapp = np.matmul(self.inputConnectivity, inputs)  # Apply external current sources to their destinations
-        # Gnon = np.maximum(0, np.minimum(GmaxNon * Ulast / R, GmaxNon))
-        # Gspike = Gspike * (1 - timeFactorSynapse)
-        # Gsyn = Gnon + Gspike
-        # Isyn = np.sum(Gsyn * DelE, axis=1) - Ulast * np.sum(Gsyn, axis=1)
-        self.U = self.Ulast + self.timeFactorMembrane * (-self.Gm * self.Ulast + self.Ib + Iapp)  # Update membrane potential
+        Gnon = np.maximum(0, np.minimum(self.GmaxNon * self.Ulast / self.R, self.GmaxNon))
+        self.Gspike = self.Gspike * (1 - self.timeFactorSynapse)
+        Gsyn = Gnon + self.Gspike
+        Isyn = np.sum(Gsyn * self.DelE, axis=1) - self.Ulast * np.sum(Gsyn, axis=1)
+        self.U = self.Ulast + self.timeFactorMembrane * (-self.Gm * self.Ulast + self.Ib + Isyn + Iapp)  # Update membrane potential
         self.theta = self.thetaLast + self.timeFactorThreshold * (-self.thetaLast + self.theta0 + self.m * self.Ulast)  # Update the firing thresholds
         self.spikes = np.sign(np.minimum(0, self.theta - self.U))  # Compute which neurons have spiked
-        #Gspike = np.maximum(Gspike, (-spikes) * GmaxSpk)  # Update the conductance of synapses which spiked
+        self.Gspike = np.maximum(self.Gspike, (-self.spikes) * self.GmaxSpk)  # Update the conductance of synapses which spiked
         self.U = self.U * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
 
         return np.matmul(self.outputVoltageConnectivity, self.U) + np.matmul(self.outputSpikeConnectivity, -self.spikes)
