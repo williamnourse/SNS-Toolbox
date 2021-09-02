@@ -217,7 +217,7 @@ def constructAll(dt, numNeurons, probConn, perIn, perOut, perSpike, seed=0):
         numOutputs = 1
     outputVoltageConnectivity = np.zeros([numOutputs,numNeurons])
     for i in range(numOutputs):
-        outputConnectivity[i][i] = 1
+        outputVoltageConnectivity[i][i] = 1
     outputSpikeConnectivity = np.copy(outputVoltageConnectivity)
 
     return (inputConnectivity,inputVals,Ulast,timeFactorMembrane,Gm,Ib,thetaLast,timeFactorThreshold,theta0,m,refCtr,
@@ -285,7 +285,7 @@ def constructNoRef(dt,numNeurons,perConn,perIn,perOut,perSpike,seed=0):
     numOutputs = int(perOut*numNeurons)
     outputVoltageConnectivity = np.zeros([numOutputs, numNeurons])
     for i in range(numOutputs):
-        outputConnectivity[i][i] = 1
+        outputVoltageConnectivity[i][i] = 1
     outputSpikeConnectivity = np.copy(outputVoltageConnectivity)
 
     return (inputConnectivity, inputVals, Ulast, timeFactorMembrane, Gm, Ib, thetaLast, timeFactorThreshold, theta0, m,
