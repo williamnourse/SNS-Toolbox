@@ -28,19 +28,19 @@ spikeExcite = SpikingSynapse(name='Excitatory Spiking')
 
 # Network with different m values
 netVaryM = Network(name='Different Ms')
-netVaryM.addNeuron(spike0)
-netVaryM.addNeuron(spikeL0)
-netVaryM.addNeuron(spikeG0)
+netVaryM.addNeuron(spike0,name='m=0')
+netVaryM.addNeuron(spikeL0,name='m<0')
+netVaryM.addNeuron(spikeG0,name='m>0')
 netVaryM.addInput(name='I0', color='brown')
-netVaryM.addInputConnection(1, 0, 0)
-netVaryM.addInputConnection(1, 0, 1)
-netVaryM.addInputConnection(1, 0, 2)
-netVaryM.addOutput(0,name='O0V', color='cadetblue')
-netVaryM.addOutput(0,name='O1S', color='chartreuse', spiking=True)
-netVaryM.addOutput(1,name='O2V', color='cadetblue')
-netVaryM.addOutput(1,name='O3S', color='chartreuse', spiking=True)
-netVaryM.addOutput(2,name='O4V', color='cadetblue')
-netVaryM.addOutput(2,name='O5S', color='chartreuse', spiking=True)
+netVaryM.addInputConnection(1, 'I0', 'm=0')
+netVaryM.addInputConnection(1, 'I0', 'm<0')
+netVaryM.addInputConnection(1, 'I0', 'm>0')
+netVaryM.addOutput('m=0',name='O0V', color='cadetblue')
+netVaryM.addOutput('m=0',name='O1S', color='chartreuse', spiking=True)
+netVaryM.addOutput('m<0',name='O2V', color='cadetblue')
+netVaryM.addOutput('m<0',name='O3S', color='chartreuse', spiking=True)
+netVaryM.addOutput('m>0',name='O4V', color='cadetblue')
+netVaryM.addOutput('m>0',name='O5S', color='chartreuse', spiking=True)
 netVaryM.renderGraph(view=False)
 
 # Basic NonSpiking Neurons
@@ -92,10 +92,9 @@ SIMULATION
 """
 
 dt = 0.01
-model = SNS_Numpy(totalNet,dt=dt)
+model = SNS_Numpy(totalNet,dt=dt,debug=False)
 tMax = 100
 t = np.arange(0,tMax,dt)
-print(len(t))
 inputs = np.zeros([len(t),totalNet.getNumInputs()])+10
 data = np.zeros([len(t),totalNet.getNumOutputsActual()])
 for i in range(len(t)):

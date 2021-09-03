@@ -53,7 +53,7 @@ class Network:
         self.synapses = []
         self.graph = Digraph(filename=(self.params['name']+'.gv'))
 
-    def getNumNeurons(self):
+    def getNumNeurons(self) -> int:
         """
         Calculate the number of neurons in the network
         :return: numNeurons
@@ -63,7 +63,7 @@ class Network:
             numNeurons += pop['number']
         return numNeurons
 
-    def getNumSynapses(self):
+    def getNumSynapses(self) -> int:
         """
         Calculate the number of synapses in the network. This will need to be overhauled for populations with multiple neurons
         :return: numSynapses
@@ -71,19 +71,19 @@ class Network:
         numSynapses = len(self.synapses)
         return numSynapses
 
-    def getNumPopulations(self):
+    def getNumPopulations(self) -> int:
         numPop = len(self.populations)
         return numPop
 
-    def getNumInputs(self):
+    def getNumInputs(self) -> int:
         numIn = len(self.inputs)
         return numIn
 
-    def getNumOutputs(self):
+    def getNumOutputs(self) -> int:
         numOut = len(self.outputs)
         return numOut
 
-    def getNumOutputsActual(self):
+    def getNumOutputsActual(self) -> int:
         index = 0
         for out in range(self.getNumOutputs()):
             sourcePop = self.outputs[out]['source']
@@ -92,7 +92,23 @@ class Network:
                 index += 1
         return index
 
-    def addPopulation(self,neuronType: Neuron,numNeurons: int,name: str = None,color=None):
+    def getPopulationIndex(self,name: str) -> int:
+        if not isinstance(name,str):
+            raise TypeError('Name must be a valid string')
+        for index in range(len(self.populations)):
+            if self.populations[index]['name'] == name:
+                return index
+        raise ValueError('Population not found by name \'%s\'' % str(name))
+
+    def getInputIndex(self,name: str) -> int:
+        if not isinstance(name,str):
+            raise TypeError('Name must be a valid string')
+        for index in range(len(self.inputs)):
+            if self.inputs[index]['name'] == name:
+                return index
+        raise ValueError('Input not found by name \'%s\'' % str(name))
+
+    def addPopulation(self,neuronType: Neuron,numNeurons: int,name: str = None,color=None) -> None:
         """
         Add a neural population to the network
         :param neuronType:  Type of neuron to add
@@ -118,7 +134,7 @@ class Network:
             warnings.warn('Specified color is not in the standard SVG set. Defaulting to base type color.')
             color = neuronType.color
         fontColor = setTextColor(color)
-        self.populations.append({'type': neuronType,
+        self.populations.append({'type': copy.deepcopy(neuronType),
                                  'number': int(numNeurons),
                                  'name': name,
                                  'color': color})
@@ -134,7 +150,7 @@ class Network:
                             fillcolor=color,
                             fontcolor=fontColor)
 
-    def addNeuron(self,neuronType,name=None,color=None):
+    def addNeuron(self,neuronType,name=None,color=None) -> None:
         """
         Add a neuron to the network. Note that this is just a special case of addPopulation, which makes a population of
         1 neuron.
@@ -145,7 +161,7 @@ class Network:
         """
         self.addPopulation(neuronType,numNeurons=1,name=name,color=color)
 
-    def addInput(self,name: str = 'Input',color='white'):
+    def addInput(self,name: str = 'Input',color='white') -> None:
         """
         Add an input source to the network
         :param name:        Name of the input node
@@ -167,7 +183,7 @@ class Network:
                         fillcolor=color,
                         fontcolor=fontColor)
 
-    def addOutput(self,source: int,weight: float = 1.0,name: str = 'Output',spiking: bool = False,color: str = 'white',viewWeight: bool = False):
+    def addOutput(self,source: Any,weight: float = 1.0,name: str = 'Output',spiking: bool = False,color: str = 'white',viewWeight: bool = False) -> None:
         """
         Add an output node to the network
         :param source:      Source this output is connected to
@@ -179,13 +195,15 @@ class Network:
         """
         if not isinstance(weight,Number):
             raise TypeError('Weight must be a number')
-        if source > (len(self.populations)-1):
-            raise ValueError('Source index is out of range')
         if isinstance(source,int):
             if source < 0:
                 raise ValueError('Source must be an integer greater than or equal to 0')
+        elif isinstance(source,str):
+            source = self.getPopulationIndex(source)
         else:
-            raise TypeError('Source must be an integer greater than 0')
+            raise TypeError('Source must be an integer greater than 0 or a name')
+        if source > (len(self.populations)-1):
+            raise ValueError('Source index is out of range')
         if not isinstance(name,str):
             raise TypeError('Name must be a string')
         if not isinstance(spiking,bool):
@@ -218,7 +236,7 @@ class Network:
             label = None
         self.graph.edge(str(source),'Out'+str(len(self.outputs)-1),label=label)
 
-    def addInputConnection(self,weight: Number,source: int, dest: int, viewWeight: bool = False):
+    def addInputConnection(self,weight: Number,source: Any, dest: Any, viewWeight: bool = False) -> None:
         """
         Add a weighted connection from an input node to a population in the network
         :param weight:      Weight of the connection
@@ -230,11 +248,17 @@ class Network:
         if not isinstance(weight,Number):
             raise TypeError('Weight must be a number')
         if not isinstance(source,int):
-            raise TypeError('Source index must be an integer')
+            if isinstance(source,str):
+                source = self.getInputIndex(source)
+            else:
+                raise TypeError('Source index must be an integer or name')
         if source > (len(self.inputs)-1):
             raise ValueError('Source index is out of range')
         if not isinstance(dest,int):
-            raise TypeError('Destination index must be an integer')
+            if isinstance(dest, str):
+                dest = self.getPopulationIndex(dest)
+            else:
+                raise TypeError('Destination index must be an integer or name')
         if dest > (len(self.populations)-1):
             raise ValueError('Destination index is out of range')
         if not isinstance(viewWeight,bool):
@@ -248,37 +272,6 @@ class Network:
         else:
             label = None
         self.graph.edge('In'+str(source),str(dest),label=label)
-
-    def addOutputConnection(self,weight: float,source: int, dest: int, viewWeight: bool = False):
-        """
-        Add a weighted connection from a population in the network to an output node
-        :param weight:      Weight of the connection
-        :param source:      Index of the source neuron in the network
-        :param dest:        Index of the destination output node
-        :param viewWeight:  Boolean flag for viewing the weight in the rendered graph
-        :return: None
-        """
-        if not isinstance(weight,Number):
-            raise TypeError('Weight must be a number')
-        if not isinstance(source,int):
-            raise TypeError('Source index must be an integer')
-        if source > (len(self.populations)-1):
-            raise ValueError('Source index is out of range')
-        if not isinstance(dest,int):
-            raise TypeError('Destination index must be an integer')
-        if dest > (len(self.outputs)-1):
-            raise ValueError('Destination index is out of range')
-        if not isinstance(viewWeight,bool):
-            raise TypeError('viewWeight must be a boolean')
-        self.outputConns.append({'weight': weight,
-                                 'source': source,
-                                 'destination': dest,
-                                 'view': viewWeight})
-        if viewWeight:
-            label = str(weight)
-        else:
-            label = None
-        self.graph.edge(str(source),'Out'+str(dest),label=label)
 
     def addSynapse(self, synapseType: Synapse, source: int,
                    destination: int, name: str = None, viewLabel: bool = False) -> None:
@@ -294,7 +287,10 @@ class Network:
         if not isinstance(synapseType,Synapse):
             raise TypeError('Synapse type must be of type Synapse (or inherit from it)')
         if not isinstance(source,int):
-            raise TypeError('Source index must be an integer')
+            if isinstance(source,str):
+                source = self.getPopulationIndex(source)
+            else:
+                raise TypeError('Source index must be an integer or name')
         if not isinstance(destination,int):
             raise TypeError('Destination index must be an integer')
         if not isinstance(viewLabel,bool):
@@ -303,6 +299,11 @@ class Network:
             raise ValueError('Source index is outside of network size')
         if source < 0:
             raise ValueError('Source index must be >= 0')
+        if not isinstance(destination,int):
+            if isinstance(destination,str):
+                destination = self.getPopulationIndex(destination)
+            else:
+                raise TypeError('Destination index must be an integer or name')
         if destination > (len(self.populations)-1):
             raise ValueError('Destination index is outside of network size')
         if destination < 0:
@@ -317,7 +318,7 @@ class Network:
         self.synapses.append({'name': label,
                               'source': source,
                               'destination': destination,
-                              'type': synapseType,
+                              'type': copy.deepcopy(synapseType),
                               'view': viewLabel})
         if synapseType.params['relativeReversalPotential'] > 0:
             style = 'invempty'

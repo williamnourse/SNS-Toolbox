@@ -34,7 +34,7 @@ class Backend:
         - Take in (some form of) a vector of input states and applied currents, and compute the result for the next
           timestep
     """
-    def __init__(self, network: Network, dt: float = 0.1) -> None:
+    def __init__(self, network: Network, dt: float = 0.1, debug: bool = False) -> None:
         """
         Construct the backend based on the network design
         :param network: NonSpikingNetwork to serve as a design template
@@ -47,6 +47,7 @@ class Backend:
         self.numInputs = network.getNumInputs()
         self.numOutputs = network.getNumOutputs()
         self.R = network.params['R']
+        self.debug = debug
 
     def forward(self, inputs) -> Any:
         """
@@ -68,6 +69,8 @@ class SNS_Numpy(Backend):
         super().__init__(network,**kwargs)
 
         """Neurons"""
+        if self.debug:
+            print('BUILDING NEURONS')
         # Initialize the vectors
         self.U = np.zeros(self.numNeurons)
         self.Ulast = np.zeros(self.numNeurons)
@@ -113,6 +116,8 @@ class SNS_Numpy(Backend):
         self.thetaLast = np.copy(self.theta0)
 
         """Inputs"""
+        if self.debug:
+            print('BUILDING INPUTS')
         self.inputConnectivity = np.zeros([self.numNeurons, self.numInputs])  # initialize connectivity matrix
         for conn in network.inputConns:  # iterate over the connections in the network
             wt = conn['weight']  # get the weight
@@ -122,6 +127,8 @@ class SNS_Numpy(Backend):
                 self.inputConnectivity[dest][source] = wt  # set the weight in the correct source and destination
 
         """Synapses"""
+        if self.debug:
+            print('BUILDING SYNAPSES')
         # initialize the matrices
         self.GmaxNon = np.zeros([self.numNeurons, self.numNeurons])
         self.GmaxSpk = np.zeros([self.numNeurons, self.numNeurons])
@@ -151,6 +158,8 @@ class SNS_Numpy(Backend):
         self.timeFactorSynapse = self.dt/self.tauSyn
 
         """Outputs"""
+        if self.debug:
+            print('BUILDING OUTPUTS')
         # Figure out how many outputs there actually are, since an output has as many elements as its input population
         outputs = []
         index = 0
@@ -173,18 +182,30 @@ class SNS_Numpy(Backend):
                     self.outputSpikeConnectivity[outputs[out][i]][popsAndNrns[sourcePop][i]] = wt  # set the weight in the correct source and destination
                 else:
                     self.outputVoltageConnectivity[outputs[out][i]][popsAndNrns[sourcePop][i]] = wt  # set the weight in the correct source and destination
-        print('Input Connectivity:')
-        print(self.inputConnectivity)
-        print('GmaxNon:')
-        print(self.GmaxNon)
-        print('GmaxSpike:')
-        print(self.GmaxSpk)
-        print('DelE:')
-        print(self.DelE)
-        print('Output Voltage Connectivity')
-        print(self.outputVoltageConnectivity)
-        print('Output Spike Connectivity:')
-        print(self.outputSpikeConnectivity)
+        if self.debug:
+            print('Input Connectivity:')
+            print(self.inputConnectivity)
+            print('GmaxNon:')
+            print(self.GmaxNon)
+            print('GmaxSpike:')
+            print(self.GmaxSpk)
+            print('DelE:')
+            print(self.DelE)
+            print('Output Voltage Connectivity')
+            print(self.outputVoltageConnectivity)
+            print('Output Spike Connectivity:')
+            print(self.outputSpikeConnectivity)
+            print('U:')
+            print(self.U)
+            print('Ulast:')
+            print(self.Ulast)
+            print('theta0:')
+            print(self.theta0)
+            print('ThetaLast:')
+            print(self.thetaLast)
+            print('Theta')
+            print(self.theta)
+            print('\nDONE BUILDING')
 
     def forward(self, inputs) -> Any:
         self.Ulast = np.copy(self.U)
