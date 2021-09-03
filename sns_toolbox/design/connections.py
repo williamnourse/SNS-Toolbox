@@ -57,6 +57,7 @@ class NonSpikingSynapse(Synapse):
 class SpikingSynapse(Synapse):
     def __init__(self,maxConductance: float = 1.0,
                  relativeReversalPotential: float = 40.0,
+                 synapticTimeConstant: float = 1.0,
                  R: float = 20.0,
                  **kwargs: Any) -> None:
         """
@@ -79,6 +80,13 @@ class SpikingSynapse(Synapse):
             self.params['relativeReversalPotential'] = relativeReversalPotential
         else:
             raise TypeError('relativeReversalPotential (deltaEsyn) must be a number (int, float, double, etc.')
+        if isinstance(synapticTimeConstant,numbers.Number):
+            if synapticTimeConstant > 0:
+                self.params['synapticTimeConstant'] = synapticTimeConstant
+            else:
+                raise ValueError('Synaptic time constant (tauS) must be greater than 0')
+        else:
+            raise TypeError('Synaptic time constant (tauS) must be a number (int, float, double, etc.) greater than 0')
         if isinstance(R,numbers.Number):
             if R > 0:
                 self.params['R'] = R

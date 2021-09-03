@@ -67,14 +67,6 @@ class SNS_Numpy(Backend):
     def __init__(self,network: Network, **kwargs):
         super().__init__(network,**kwargs)
 
-        """Inputs"""
-        self.inputConnectivity = np.zeros([self.numNeurons, self.numInputs])    # initialize connectivity matrix
-        for conn in network.inputConns:                 # iterate over the connections in the network
-            wt = conn['weight']                         # get the weight
-            source = conn['source']                     # get the source
-            dest = conn['destination']                  # get the destination
-            self.inputConnectivity[dest][source] = wt   # set the weight in the correct source and destination
-
         """Neurons"""
         # Initialize the vectors
         self.U = np.zeros(self.numNeurons)
@@ -95,25 +87,39 @@ class SNS_Numpy(Backend):
         for pop in range(len(network.populations)):
             numNeurons = network.populations[pop]['number'] # find the number of neurons in the population
             popsAndNrns.append([])
+            Ulast = 0.0
             for num in range(numNeurons):   # for each neuron, copy the parameters over
                 Cm[index] = network.populations[pop]['type'].params['membraneCapacitance']
                 self.Gm[index] = network.populations[pop]['type'].params['membraneConductance']
                 self.Ib[index] = network.populations[pop]['type'].params['bias']
+                self.Ulast[index] = Ulast
                 if isinstance(network.populations[pop]['type'],SpikingNeuron):  # if the neuron is spiking, copy more
                     self.theta0[index] = network.populations[pop]['type'].params['thresholdInitialValue']
+                    Ulast += network.populations[pop]['type'].params['thresholdInitialValue']/numNeurons
                     self.m[index] = network.populations[pop]['type'].params['thresholdProportionalityConstant']
                     tauTheta[index] = network.populations[pop]['type'].params['thresholdTimeConstant']
                 else:   # otherwise, set to the special values for NonSpiking
                     self.theta0[index] = sys.float_info.max
                     self.m[index] = 0
                     tauTheta[index] = 1
+                    Ulast += self.R/numNeurons
                 popsAndNrns[pop].append(index)
                 index += 1
+        self.U = np.copy(self.Ulast)
         # set the derived vectors
         self.timeFactorMembrane = self.dt/Cm
         self.timeFactorThreshold = self.dt/tauTheta
         self.theta = np.copy(self.theta0)
         self.thetaLast = np.copy(self.theta0)
+
+        """Inputs"""
+        self.inputConnectivity = np.zeros([self.numNeurons, self.numInputs])  # initialize connectivity matrix
+        for conn in network.inputConns:  # iterate over the connections in the network
+            wt = conn['weight']  # get the weight
+            source = conn['source']  # get the source
+            destPop = conn['destination']  # get the destination
+            for dest in popsAndNrns[destPop]:
+                self.inputConnectivity[dest][source] = wt  # set the weight in the correct source and destination
 
         """Synapses"""
         # initialize the matrices
@@ -134,31 +140,45 @@ class SNS_Numpy(Backend):
                 tauS = network.synapses[syn]['type'].params['synapticTimeConstant']
                 for source in popsAndNrns[sourcePop]:
                     for dest in popsAndNrns[destPop]:
-                        self.GmaxSpk[dest][source] = Gmax
+                        self.GmaxSpk[dest][source] = Gmax/len(popsAndNrns[sourcePop])
                         self.DelE[dest][source] = delE
                         self.tauSyn[dest][source] = tauS
             else:
                 for source in popsAndNrns[sourcePop]:
                     for dest in popsAndNrns[destPop]:
-                        self.GmaxNon[dest][source] = Gmax
+                        self.GmaxNon[dest][source] = Gmax/len(popsAndNrns[sourcePop])
                         self.DelE[dest][source] = delE
         self.timeFactorSynapse = self.dt/self.tauSyn
 
         """Outputs"""
+        # Figure out how many outputs there actually are, since an output has as many elements as its input population
+        outputs = []
+        index = 0
+        for out in range(len(network.outputs)):
+            sourcePop = network.outputs[out]['source']
+            numSourceNeurons = network.populations[sourcePop]['number']
+            outputs.append([])
+            for num in range(numSourceNeurons):
+                outputs[out].append(index)
+                index += 1
+        self.numOutputs = index
+
         self.outputVoltageConnectivity = np.zeros([self.numOutputs, self.numNeurons])  # initialize connectivity matrix
         self.outputSpikeConnectivity = np.copy(self.outputVoltageConnectivity)
-        for conn in network.outputConns:  # iterate over the connections in the network
-            wt = conn['weight']  # get the weight
-            source = conn['source']  # get the source
-            dest = conn['destination']  # get the destination
-            if network.outputs[dest]['spiking']:
-                self.outputSpikeConnectivity[dest][source] = wt  # set the weight in the correct source and destination
-            else:
-                self.outputVoltageConnectivity[dest][source] = wt  # set the weight in the correct source and destination
+        for out in range(len(network.outputs)):  # iterate over the connections in the network
+            wt = network.outputs[out]['weight']  # get the weight
+            sourcePop = network.outputs[out]['source']  # get the source
+            for i in range(len(popsAndNrns[sourcePop])):
+                if network.outputs[out]['spiking']:
+                    self.outputSpikeConnectivity[outputs[out][i]][popsAndNrns[sourcePop][i]] = wt  # set the weight in the correct source and destination
+                else:
+                    self.outputVoltageConnectivity[outputs[out][i]][popsAndNrns[sourcePop][i]] = wt  # set the weight in the correct source and destination
         print('Input Connectivity:')
         print(self.inputConnectivity)
         print('GmaxNon:')
         print(self.GmaxNon)
+        print('GmaxSpike:')
+        print(self.GmaxSpk)
         print('DelE:')
         print(self.DelE)
         print('Output Voltage Connectivity')

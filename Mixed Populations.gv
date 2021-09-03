@@ -1,0 +1,20 @@
+digraph {
+	In0 [label=I2 fillcolor=darkgoldenrod fontcolor=black shape=invhouse style=filled]
+	0 [label=S3 fillcolor=darkmagenta fontcolor=white shape=doublecircle style=filled]
+	1 [label=NS4 fillcolor=darkolivegreen fontcolor=white shape=doublecircle style=filled]
+	2 [label=S2 fillcolor=darkorange fontcolor=black shape=doublecircle style=filled]
+	Out0 [label=O10V fillcolor=darkorchid fontcolor=black shape=house style=filled]
+	0 -> Out0
+	Out1 [label=O11S fillcolor=darkred fontcolor=white shape=triangle style=filled]
+	0 -> Out1
+	Out2 [label=O12S fillcolor=darksalmon fontcolor=black shape=house style=filled]
+	2 -> Out2
+	Out3 [label=O13S fillcolor=darkseagreen fontcolor=black shape=triangle style=filled]
+	2 -> Out3
+	Out4 [label=O14V fillcolor=darkslateblue fontcolor=white shape=house style=filled]
+	1 -> Out4
+	In0 -> 0
+	In0 -> 1
+	0 -> 2 [arrowhead=invempty]
+	1 -> 2 [arrowhead=odot]
+}

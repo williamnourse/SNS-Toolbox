@@ -7,15 +7,15 @@ digraph {
 	In0 -> 1
 	In0 -> 2
 	Out0 [label=O0V fillcolor=cadetblue fontcolor=black shape=house style=filled]
-	Out1 [label=O1S fillcolor=chartreuse fontcolor=black shape=triangle style=filled]
-	Out2 [label=O2V fillcolor=cadetblue fontcolor=black shape=house style=filled]
-	Out3 [label=O3S fillcolor=chartreuse fontcolor=black shape=triangle style=filled]
-	Out4 [label=O4V fillcolor=cadetblue fontcolor=black shape=house style=filled]
-	Out5 [label=O5S fillcolor=chartreuse fontcolor=black shape=triangle style=filled]
 	0 -> Out0
+	Out1 [label=O1S fillcolor=chartreuse fontcolor=black shape=triangle style=filled]
 	0 -> Out1
+	Out2 [label=O2V fillcolor=cadetblue fontcolor=black shape=house style=filled]
 	1 -> Out2
+	Out3 [label=O3S fillcolor=chartreuse fontcolor=black shape=triangle style=filled]
 	1 -> Out3
+	Out4 [label=O4V fillcolor=cadetblue fontcolor=black shape=house style=filled]
 	2 -> Out4
+	Out5 [label=O5S fillcolor=chartreuse fontcolor=black shape=triangle style=filled]
 	2 -> Out5
 }

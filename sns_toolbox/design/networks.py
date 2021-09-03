@@ -83,6 +83,15 @@ class Network:
         numOut = len(self.outputs)
         return numOut
 
+    def getNumOutputsActual(self):
+        index = 0
+        for out in range(self.getNumOutputs()):
+            sourcePop = self.outputs[out]['source']
+            numSourceNeurons = self.populations[sourcePop]['number']
+            for num in range(numSourceNeurons):
+                index += 1
+        return index
+
     def addPopulation(self,neuronType: Neuron,numNeurons: int,name: str = None,color=None):
         """
         Add a neural population to the network
@@ -158,14 +167,25 @@ class Network:
                         fillcolor=color,
                         fontcolor=fontColor)
 
-    def addOutput(self,name: str = 'Output',spiking: bool = False,color: str = 'white'):
+    def addOutput(self,source: int,weight: float = 1.0,name: str = 'Output',spiking: bool = False,color: str = 'white',viewWeight: bool = False):
         """
         Add an output node to the network
+        :param source:      Source this output is connected to
+        :param weight:      Weight of the connection
         :param name:        Name of the node
         :param spiking:     Flag for if this node stores voltage or spikes
         :param color:       Color of the output in the visual render
         :return: None
         """
+        if not isinstance(weight,Number):
+            raise TypeError('Weight must be a number')
+        if source > (len(self.populations)-1):
+            raise ValueError('Source index is out of range')
+        if isinstance(source,int):
+            if source < 0:
+                raise ValueError('Source must be an integer greater than or equal to 0')
+        else:
+            raise TypeError('Source must be an integer greater than 0')
         if not isinstance(name,str):
             raise TypeError('Name must be a string')
         if not isinstance(spiking,bool):
@@ -175,8 +195,11 @@ class Network:
             color = 'white'
         fontColor = setTextColor(color)
         self.outputs.append({'name': name,
+                             'source': source,
+                             'weight': weight,
                              'spiking': spiking,
-                             'color': color})
+                             'color': color,
+                             'view': viewWeight})
         if spiking:
             self.graph.node('Out'+str(len(self.outputs) - 1), name,
                             style='filled',
@@ -189,6 +212,11 @@ class Network:
                             shape='house',
                             fillcolor=color,
                             fontcolor=fontColor)
+        if viewWeight:
+            label = str(weight)
+        else:
+            label = None
+        self.graph.edge(str(source),'Out'+str(len(self.outputs)-1),label=label)
 
     def addInputConnection(self,weight: Number,source: int, dest: int, viewWeight: bool = False):
         """
@@ -326,11 +354,9 @@ class Network:
             for inp in network.inputs:
                 self.addInput(name=inp['name'],color=inp['color'])
             for out in network.outputs:
-                self.addOutput(name=out['name'],color=out['color'],spiking=out['spiking'])
+                self.addOutput(source=out['source']+numPopulations,weight=out['weight'],name=out['name'],color=out['color'],spiking=out['spiking'],viewWeight=out['view'])
             for inConn in network.inputConns:
                 self.addInputConnection(inConn['weight'],inConn['source']+numInputs,inConn['destination']+numPopulations,viewWeight=inConn['view'])
-            for outConn in network.outputConns:
-                self.addOutputConnection(outConn['weight'],outConn['source']+numPopulations,outConn['destination']+numOutputs,viewWeight=outConn['view'])
             for synapse in network.synapses:
                 self.addSynapse(synapseType=synapse['type'],source=synapse['source']+numPopulations,destination=synapse['destination']+numPopulations,viewLabel=synapse['view'])
         else:
@@ -342,11 +368,10 @@ class Network:
             for inp in network.inputs:
                 self.addInput(name=inp['name'],color=color)
             for out in network.outputs:
-                self.addOutput(name=out['name'],color=color,spiking=out['spiking'])
+                self.addOutput(source=out['source']+numPopulations, weight=out['weight'], name=out['name'], color=color,
+                               spiking=out['spiking'], viewWeight=out['view'])
             for inConn in network.inputConns:
                 self.addInputConnection(inConn['weight'],inConn['source']+numInputs,inConn['destination']+numPopulations,viewWeight=inConn['view'])
-            for outConn in network.outputConns:
-                self.addOutputConnection(outConn['weight'],outConn['source']+numPopulations,outConn['destination']+numOutputs,viewWeight=outConn['view'])
             for synapse in network.synapses:
                 self.addSynapse(synapseType=synapse['type'],source=synapse['source']+numPopulations,destination=synapse['destination']+numPopulations,viewLabel=synapse['view'])
 
