@@ -6,11 +6,12 @@ Everything is priced in
 """
 import matplotlib.pyplot as plt
 import numpy as np
+import torch
 
 from sns_toolbox.design.neurons import NonSpikingNeuron, SpikingNeuron
 from sns_toolbox.design.connections import NonSpikingSynapse, SpikingSynapse
 from sns_toolbox.design.networks import Network
-from sns_toolbox.simulate.backends import SNS_Numpy
+from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch
 
 """
 ########################################################################################################################
@@ -92,13 +93,17 @@ SIMULATION
 """
 
 dt = 0.01
-model = SNS_Numpy(totalNet,dt=dt,debug=False)
+model = SNS_Torch(totalNet,dt=dt,debug=False)
 tMax = 100
 t = np.arange(0,tMax,dt)
 inputs = np.zeros([len(t),totalNet.getNumInputs()])+10
 data = np.zeros([len(t),totalNet.getNumOutputsActual()])
+inputs = torch.from_numpy(inputs).to('cuda')
+data = torch.from_numpy(data).to('cuda')
 for i in range(len(t)):
-    data[i][:] = model.forward(inputs[i][:])
+    data[i,:] = model.forward(inputs[i,:])
+
+data = data.cpu().numpy()
 """
 ########################################################################################################################
 PLOTTING

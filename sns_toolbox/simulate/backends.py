@@ -225,68 +225,205 @@ class SNS_Numpy(Backend):
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-MANUAL BACKEND
+PYTORCH DENSE
 """
 
-class SNS_Manual(Backend):
-    """
-    This is the most straightforward (smooth-brain) approach to simulating a system of non-spiking neurons. Each
-    Diff Eq and Synapses is evaluated one-by-one at each timestep. Simplest to keep track of, but (probably) quite
-    slow at scale. Note that this method stores a dense matrix of synaptic parameters, which has problematic scaling
-    for memory requirements!
-    """
-    def __init__(self, network: Network, **kwargs) -> None:
-        """
-        Initialize the backend
+class SNS_Torch(Backend):
+    def __init__(self, network: Network, **kwargs):
+        super().__init__(network, **kwargs)
 
-        :param network: NonspikingNetwork to serve as a design template
-        :param kwargs:  Other parameters passed to the base class (dt)
-        """
-        super().__init__(network,**kwargs)
-        # Network Parameters
-        self.statesNext = np.zeros(self.numNeurons)
+        """Neurons"""
+        if self.debug:
+            print('BUILDING NEURONS')
+        # Initialize the vectors
+        self.U = torch.from_numpy(np.zeros(self.numNeurons))
+        self.Ulast = torch.from_numpy(np.zeros(self.numNeurons))
+        self.spikes = torch.from_numpy(np.zeros(self.numNeurons))
+        Cm = torch.from_numpy(np.zeros(self.numNeurons))
+        self.Gm = torch.from_numpy(np.zeros(self.numNeurons))
+        self.Ib = torch.from_numpy(np.zeros(self.numNeurons))
+        self.theta0 = torch.from_numpy(np.zeros(self.numNeurons))
+        self.theta = torch.from_numpy(np.zeros(self.numNeurons))
+        self.thetaLast = torch.from_numpy(np.zeros(self.numNeurons))
+        self.m = torch.from_numpy(np.zeros(self.numNeurons))
+        tauTheta = torch.from_numpy(np.zeros(self.numNeurons))
 
-        # Neural Parameters
-        self.Cm = np.zeros(self.numNeurons)
-        self.Gm = np.zeros(self.numNeurons)
-        self.Ibias = np.zeros(self.numNeurons)
+        # iterate over the populations in the network
+        popsAndNrns = []
+        index = 0
+        for pop in range(len(network.populations)):
+            numNeurons = network.populations[pop]['number']  # find the number of neurons in the population
+            popsAndNrns.append([])
+            Ulast = 0.0
+            for num in range(numNeurons):  # for each neuron, copy the parameters over
+                Cm[index] = network.populations[pop]['type'].params['membraneCapacitance']
+                self.Gm[index] = network.populations[pop]['type'].params['membraneConductance']
+                self.Ib[index] = network.populations[pop]['type'].params['bias']
+                self.Ulast[index] = Ulast
+                if isinstance(network.populations[pop]['type'], SpikingNeuron):  # if the neuron is spiking, copy more
+                    self.theta0[index] = network.populations[pop]['type'].params['thresholdInitialValue']
+                    Ulast += network.populations[pop]['type'].params['thresholdInitialValue'] / numNeurons
+                    self.m[index] = network.populations[pop]['type'].params['thresholdProportionalityConstant']
+                    tauTheta[index] = network.populations[pop]['type'].params['thresholdTimeConstant']
+                else:  # otherwise, set to the special values for NonSpiking
+                    self.theta0[index] = sys.float_info.max
+                    self.m[index] = 0
+                    tauTheta[index] = 1
+                    Ulast += self.R / numNeurons
+                popsAndNrns[pop].append(index)
+                index += 1
+        self.U = self.Ulast.clone()
+        # set the derived vectors
+        self.timeFactorMembrane = self.dt / Cm
+        self.timeFactorThreshold = self.dt / tauTheta
+        self.theta = self.theta0.clone()
+        self.thetaLast = self.theta0.clone()
 
-        for i in range(self.numNeurons):
-            self.Cm[i] = network.neurons[i].params['membraneCapacitance']
-            self.Gm[i] = network.neurons[i].params['membraneConductance']
-            self.Ibias[i] = network.neurons[i].params['bias']
+        """Inputs"""
+        if self.debug:
+            print('BUILDING INPUTS')
+        self.inputConnectivity = torch.from_numpy(np.zeros([self.numNeurons, self.numInputs]))  # initialize connectivity matrix
+        for conn in network.inputConns:  # iterate over the connections in the network
+            wt = conn['weight']  # get the weight
+            source = conn['source']  # get the source
+            destPop = conn['destination']  # get the destination
+            for dest in popsAndNrns[destPop]:
+                self.inputConnectivity[dest,source] = wt  # set the weight in the correct source and destination
 
-        # Synaptic Parameters
-        self.gMax = np.zeros([self.numNeurons, self.numNeurons])
-        self.delE = np.zeros([self.numNeurons, self.numNeurons])
-        self.Gsyn = np.zeros([self.numNeurons,self.numNeurons])
+        """Synapses"""
+        if self.debug:
+            print('BUILDING SYNAPSES')
+        # initialize the matrices
+        self.GmaxNon = torch.from_numpy(np.zeros([self.numNeurons, self.numNeurons]))
+        self.zeros = self.GmaxNon.clone()
+        self.GmaxSpk = torch.from_numpy(np.zeros([self.numNeurons, self.numNeurons]))
+        self.Gspike = torch.from_numpy(np.zeros([self.numNeurons, self.numNeurons]))
+        self.DelE = torch.from_numpy(np.zeros([self.numNeurons, self.numNeurons]))
+        self.tauSyn = torch.from_numpy(np.zeros([self.numNeurons, self.numNeurons]))+1
 
-        for i in range(self.numSynapses):
-            source = network.synapses[i].params['source']
-            dest = network.synapses[i].params['destination']
-            self.gMax[dest,source] = network.synapses[i].params['maxConductance']
-            self.delE[dest,source] = network.synapses[i].params['relativeReversalPotential']
+        # iterate over the synapses in the network
+        for syn in range(len(network.synapses)):
+            sourcePop = network.synapses[syn]['source']
+            destPop = network.synapses[syn]['destination']
+            Gmax = network.synapses[syn]['type'].params['maxConductance']
+            delE = network.synapses[syn]['type'].params['relativeReversalPotential']
 
-    def forward(self, statesLast: np.ndarray, appliedCurrents: np.ndarray) -> np.ndarray:
-        """
-        Compute the next neural states
-        :param statesLast:      Neural states at the last timestep
-        :param appliedCurrents: External currents at the current timestep
-        :return:                Neural states at the current timestep
-        """
-        for source in range(self.numNeurons):
-            for dest in range(self.numNeurons):
-                self.Gsyn[dest,source] = self.gMax[dest,source] * max(0, min(1, statesLast[source] / self.R))
-                #print('Made it')
+            if isinstance(network.synapses[syn]['type'], SpikingSynapse):
+                tauS = network.synapses[syn]['type'].params['synapticTimeConstant']
+                for source in popsAndNrns[sourcePop]:
+                    for dest in popsAndNrns[destPop]:
+                        self.GmaxSpk[dest,source] = Gmax / len(popsAndNrns[sourcePop])
+                        self.DelE[dest,source] = delE
+                        self.tauSyn[dest,source] = tauS
+            else:
+                for source in popsAndNrns[sourcePop]:
+                    for dest in popsAndNrns[destPop]:
+                        self.GmaxNon[dest,source] = Gmax / len(popsAndNrns[sourcePop])
+                        self.DelE[dest,source] = delE
+        self.timeFactorSynapse = self.dt / self.tauSyn
 
-        for i in range(self.numNeurons):
-            Isyn = 0
-            for pre in range(self.numNeurons):
-                Isyn += (self.Gsyn[i,pre] * (self.delE[i,pre] - statesLast[i]))
+        """Outputs"""
+        if self.debug:
+            print('BUILDING OUTPUTS')
+        # Figure out how many outputs there actually are, since an output has as many elements as its input population
+        outputs = []
+        index = 0
+        for out in range(len(network.outputs)):
+            sourcePop = network.outputs[out]['source']
+            numSourceNeurons = network.populations[sourcePop]['number']
+            outputs.append([])
+            for num in range(numSourceNeurons):
+                outputs[out].append(index)
+                index += 1
+        self.numOutputs = index
 
-            self.statesNext[i] = statesLast[i] + self.dt/self.Cm[i] * (-self.Gm[i]*statesLast[i] + self.Ibias[i] + Isyn + appliedCurrents[i])
+        self.outputVoltageConnectivity = torch.from_numpy(np.zeros([self.numOutputs, self.numNeurons]))  # initialize connectivity matrix
+        self.outputSpikeConnectivity = self.outputVoltageConnectivity.clone()
+        for out in range(len(network.outputs)):  # iterate over the connections in the network
+            wt = network.outputs[out]['weight']  # get the weight
+            sourcePop = network.outputs[out]['source']  # get the source
+            for i in range(len(popsAndNrns[sourcePop])):
+                if network.outputs[out]['spiking']:
+                    self.outputSpikeConnectivity[outputs[out][i]][popsAndNrns[sourcePop][i]] = wt  # set the weight in the correct source and destination
+                else:
+                    self.outputVoltageConnectivity[outputs[out][i]][popsAndNrns[sourcePop][i]] = wt  # set the weight in the correct source and destination
 
-        return self.statesNext
+        """Debug Prints"""
+        if self.debug:
+            print('Input Connectivity:')
+            print(self.inputConnectivity)
+            print('GmaxNon:')
+            print(self.GmaxNon)
+            print('GmaxSpike:')
+            print(self.GmaxSpk)
+            print('DelE:')
+            print(self.DelE)
+            print('Output Voltage Connectivity')
+            print(self.outputVoltageConnectivity)
+            print('Output Spike Connectivity:')
+            print(self.outputSpikeConnectivity)
+            print('U:')
+            print(self.U)
+            print('Ulast:')
+            print(self.Ulast)
+            print('theta0:')
+            print(self.theta0)
+            print('ThetaLast:')
+            print(self.thetaLast)
+            print('Theta')
+            print(self.theta)
+            print('\nDONE BUILDING')
+
+        """Move the tensors to the appropriate device"""
+        if torch.cuda.is_available():
+            if self.debug:
+                print("CUDA Device found, using GPU")
+            self.device = 'cuda'
+        else:
+            self.device = 'cpu'
+
+        self.Ulast = self.Ulast.to(self.device)
+        self.U = self.U.to(self.device)
+        self.theta = self.theta.to(self.device)
+        self.thetaLast = self.thetaLast.to(self.device)
+        self.inputConnectivity = self.inputConnectivity.to(self.device)
+        self.GmaxNon = self.GmaxNon.to(self.device)
+        self.GmaxSpk = self.GmaxSpk.to(self.device)
+        self.timeFactorSynapse = self.timeFactorSynapse.to(self.device)
+        self.Gspike = self.Gspike.to(self.device)
+        self.DelE = self.DelE.to(self.device)
+        self.timeFactorMembrane = self.timeFactorMembrane.to(self.device)
+        self.Gm = self.Gm.to(self.device)
+        self.Ib = self.Ib.to(self.device)
+        self.theta0 = self.theta0.to(self.device)
+        self.timeFactorThreshold = self.timeFactorThreshold.to(self.device)
+        self.m = self.m.to(self.device)
+        self.spikes = self.spikes.to(self.device)
+        self.zeros = self.zeros.to(self.device)
+        self.zeros1d = torch.from_numpy(np.zeros(self.numNeurons)).to(self.device)
+        self.outputSpikeConnectivity = self.outputSpikeConnectivity.to(self.device)
+        self.outputVoltageConnectivity = self.outputVoltageConnectivity.to(self.device)
+
+    def forward(self, inputs) -> Any:
+        self.Ulast = self.U.clone()
+        self.thetaLast = self.theta.clone()
+        # Iapp = torch.matmul(self.inputConnectivity, torch.from_numpy(inputs).to(self.device))  # Apply external current sources to their destinations
+        Iapp = torch.matmul(self.inputConnectivity, inputs)  # Apply external current sources to their destinations
+        Gnon = torch.maximum(self.zeros, torch.minimum(self.GmaxNon * self.Ulast / self.R, self.GmaxNon))
+        self.Gspike = self.Gspike * (1 - self.timeFactorSynapse)
+        Gsyn = Gnon + self.Gspike
+        Isyn = torch.sum(Gsyn * self.DelE, dim=1) - self.Ulast * torch.sum(Gsyn, dim=1)
+        self.U = self.Ulast + self.timeFactorMembrane * (
+                    -self.Gm * self.Ulast + self.Ib + Isyn + Iapp)  # Update membrane potential
+        self.theta = self.thetaLast + self.timeFactorThreshold * (
+                    -self.thetaLast + self.theta0 + self.m * self.Ulast)  # Update the firing thresholds
+        self.spikes = torch.sign(torch.minimum(self.zeros1d, self.theta - self.U))  # Compute which neurons have spiked
+        self.Gspike = torch.maximum(self.Gspike,
+                                 (-self.spikes) * self.GmaxSpk)  # Update the conductance of synapses which spiked
+        self.U = self.U * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
+        out = torch.matmul(self.outputVoltageConnectivity, self.U) + torch.matmul(self.outputSpikeConnectivity, -self.spikes)
+        # return out.cpu().numpy()
+        return out
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -356,41 +493,3 @@ class SNS_SciPy(Backend):
         statesNext = statesLast + self.timeFactor.multiply(-(statesLast @ self.GmArr) + self.Ibias + Isyn + appliedCurrents)
 
         return statesNext
-
-"""
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-PYTORCH SPARSE
-"""
-
-class SNS_Pytorch(Backend):
-    def __init__(self, network: Network, device: torch.device = None, **kwargs):
-        super().__init__(network,**kwargs)
-
-        # Neural parameters
-        Cm = np.zeros(self.numNeurons)
-        Gm = np.zeros(self.numNeurons)
-        Ibias = np.zeros(self.numNeurons)
-
-        for i in range(self.numNeurons):
-            Cm[i] = network.neurons[i].params['membraneCapacitance']
-            Gm[i] = network.neurons[i].params['membraneConductance']
-            Ibias[i] = network.neurons[i].params['bias']
-
-        GmRow = np.array(list(range(self.numNeurons)))
-        self.Ibias = torch.as_tensor(Ibias)#.to_sparse()
-        self.GmArr = torch.sparse_coo_tensor([GmRow,GmRow],Gm,[self.numNeurons,self.numNeurons])
-        self.timeFactor = torch.as_tensor(self.dt / Cm)#.to_sparse()
-
-        # Synapse parameters
-        sources = []
-        destinations = []
-        gMaxVals = []
-        delEVals = []
-        for i in range(self.numSynapses):
-            sources.append(network.synapses[i].params['source'])
-            destinations.append(network.synapses[i].params['destination'])
-            gMaxVals.append(network.synapses[i].params['maxConductance'])
-            delEVals.append(network.synapses[i].params['relativeReversalPotential'])
-
-        self.gMax = torch.sparse_coo_tensor([destinations,sources],gMaxVals,[self.numNeurons,self.numNeurons])
-        self.delE = torch.sparse_coo_tensor([destinations,sources],delEVals,[self.numNeurons,self.numNeurons])
