@@ -11,7 +11,7 @@ import torch
 from sns_toolbox.design.neurons import NonSpikingNeuron, SpikingNeuron
 from sns_toolbox.design.connections import NonSpikingSynapse, SpikingSynapse
 from sns_toolbox.design.networks import Network
-from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch
+from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch, SNS_Torch_Sparse
 
 """
 ########################################################################################################################
@@ -85,7 +85,7 @@ totalNet = Network(name='Total Network')
 totalNet.addNetwork(netVaryM, color='blueviolet')
 totalNet.addNetwork(netNonSpike,color='darkgoldenrod')
 totalNet.addNetwork(netPop,color='darkslategrey')
-totalNet.renderGraph(view=True)
+totalNet.renderGraph(view=False)
 
 """
 ########################################################################################################################
@@ -93,7 +93,7 @@ SIMULATION
 """
 
 dt = 0.01
-model = SNS_Torch(totalNet,dt=dt,debug=False)
+model = SNS_Torch_Sparse(totalNet,dt=dt,debug=False)
 tMax = 100
 t = np.arange(0,tMax,dt)
 inputs = np.zeros([len(t),totalNet.getNumInputs()])+10
