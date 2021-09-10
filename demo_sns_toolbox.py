@@ -7,11 +7,12 @@ Everything is priced in
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
+import time
 
 from sns_toolbox.design.neurons import NonSpikingNeuron, SpikingNeuron
 from sns_toolbox.design.connections import NonSpikingSynapse, SpikingSynapse
 from sns_toolbox.design.networks import Network
-from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch, SNS_Torch_Sparse
+from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch
 
 """
 ########################################################################################################################
@@ -93,17 +94,25 @@ SIMULATION
 """
 
 dt = 0.01
-model = SNS_Torch_Sparse(totalNet,dt=dt,debug=False)
 tMax = 100
 t = np.arange(0,tMax,dt)
 inputs = np.zeros([len(t),totalNet.getNumInputs()])+10
 data = np.zeros([len(t),totalNet.getNumOutputsActual()])
-inputs = torch.from_numpy(inputs).to('cuda')
-data = torch.from_numpy(data).to('cuda')
+numpy = True
+if numpy:
+    model = SNS_Numpy(totalNet, dt=dt, debug=False)
+else:
+    device = 'cpu'
+    model = SNS_Torch(totalNet,dt=dt,debug=False,device=device)
+    inputs = torch.from_numpy(inputs).to(device)
+    data = torch.from_numpy(data).to(device)
+start = time.time()
 for i in range(len(t)):
     data[i,:] = model.forward(inputs[i,:])
-
-data = data.cpu().numpy()
+end = time.time()
+print('%f sec'%(end-start))
+if not numpy:
+    data = data.cpu().numpy()
 """
 ########################################################################################################################
 PLOTTING

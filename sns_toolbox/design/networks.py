@@ -273,8 +273,8 @@ class Network:
             label = None
         self.graph.edge('In'+str(source),str(dest),label=label)
 
-    def addSynapse(self, synapseType: Synapse, source: int,
-                   destination: int, name: str = None, viewLabel: bool = False) -> None:
+    def addSynapse(self, synapseType: Synapse, source: Any,
+                   destination: Any, name: str = None, viewLabel: bool = False) -> None:
         """
         Add a synaptic connection between two populations in the network
         :param synapseType: Type of synapse to add
@@ -292,7 +292,10 @@ class Network:
             else:
                 raise TypeError('Source index must be an integer or name')
         if not isinstance(destination,int):
-            raise TypeError('Destination index must be an integer')
+            if isinstance(destination, str):
+                destination = self.getPopulationIndex(destination)
+            else:
+                raise TypeError('Destination index must be an integer or name')
         if not isinstance(viewLabel,bool):
             raise TypeError('viewLabel must be of type bool')
         if source > (len(self.populations)-1):
