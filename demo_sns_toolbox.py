@@ -12,12 +12,14 @@ import time
 from sns_toolbox.design.neurons import NonSpikingNeuron, SpikingNeuron
 from sns_toolbox.design.connections import NonSpikingSynapse, SpikingSynapse
 from sns_toolbox.design.networks import Network
-from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch
+from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch, SNS_Torch_Large
 
 """
 ########################################################################################################################
 DESIGN
 """
+render = False
+
 # Neuron and Synapse Types
 nonSpike = NonSpikingNeuron(name='NonSpiking', color='antiquewhite')
 spike0 = SpikingNeuron(name='m=0', color='aqua')
@@ -43,7 +45,7 @@ netVaryM.addOutput('m<0',name='O2V', color='cadetblue')
 netVaryM.addOutput('m<0',name='O3S', color='chartreuse', spiking=True)
 netVaryM.addOutput('m>0',name='O4V', color='cadetblue')
 netVaryM.addOutput('m>0',name='O5S', color='chartreuse', spiking=True)
-netVaryM.renderGraph(view=False)
+netVaryM.renderGraph(view=render)
 
 # Basic NonSpiking Neurons
 netNonSpike = Network(name='Simple NonSpiking')
@@ -62,7 +64,7 @@ netNonSpike.addInputConnection(2,0,2)
 netNonSpike.addSynapse(nonMod,1,0)
 netNonSpike.addSynapse(nonInhibit,1,2)
 netNonSpike.addSynapse(nonExcite,1,3)
-netNonSpike.renderGraph(view=False)
+netNonSpike.renderGraph(view=render)
 
 # Mixing Populations
 netPop = Network(name='Mixed Populations')
@@ -79,14 +81,14 @@ netPop.addInputConnection(1,0,0)
 netPop.addInputConnection(1,0,1)
 netPop.addSynapse(spikeExcite,0,2)
 netPop.addSynapse(nonMod,1,2)
-netPop.renderGraph(view=False)
+netPop.renderGraph(view=render)
 
 # Network which will be simulated, containing all other networks
 totalNet = Network(name='Total Network')
 totalNet.addNetwork(netVaryM, color='blueviolet')
 totalNet.addNetwork(netNonSpike,color='darkgoldenrod')
 totalNet.addNetwork(netPop,color='darkslategrey')
-totalNet.renderGraph(view=False)
+totalNet.renderGraph(view=render)
 
 """
 ########################################################################################################################
@@ -98,12 +100,12 @@ tMax = 100
 t = np.arange(0,tMax,dt)
 inputs = np.zeros([len(t),totalNet.getNumInputs()])+10
 data = np.zeros([len(t),totalNet.getNumOutputsActual()])
-numpy = True
+numpy = False
 if numpy:
     model = SNS_Numpy(totalNet, dt=dt, debug=False)
 else:
-    device = 'cpu'
-    model = SNS_Torch(totalNet,dt=dt,debug=False,device=device)
+    device = 'cuda'
+    model = SNS_Torch_Large(totalNet,dt=dt,debug=True)
     inputs = torch.from_numpy(inputs).to(device)
     data = torch.from_numpy(data).to(device)
 start = time.time()

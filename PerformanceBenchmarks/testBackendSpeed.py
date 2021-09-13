@@ -13,15 +13,16 @@ import pickle
 from sns_toolbox.design.neurons import SpikingNeuron
 from sns_toolbox.design.connections import SpikingSynapse
 from sns_toolbox.design.networks import Network
-from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch
+from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch, SNS_Torch_Large
 
 """
 ########################################################################################################################
 NEURON AND SYNAPSE DEFINITIONS
 """
-
+current = 10.0
 globalStart = time.time()
-spikeL0 = SpikingNeuron(name='m<0',thresholdProportionalityConstant=-1,color='aquamarine')
+spike = SpikingNeuron(name='m<0',thresholdProportionalityConstant=-1,color='aquamarine')
+spikeBias = SpikingNeuron(name='bias',thresholdProportionalityConstant=-1,color='aquamarine',bias=current)
 spikeExcite = SpikingSynapse(name='Excitatory Spiking')
 print('Finished type definition. Running for %f sec'%(time.time()-globalStart))
 
@@ -29,10 +30,8 @@ print('Finished type definition. Running for %f sec'%(time.time()-globalStart))
 ########################################################################################################################
 TEST SETUP
 """
-
-current = 10.0
-numSamples = 5
-numNeurons = np.logspace(1,2,num=numSamples)
+numSamples = 100
+numNeurons = np.logspace(1,4,num=numSamples)
 dt = 0.01
 tMax = 100
 t = np.arange(0,tMax,dt)
@@ -40,17 +39,25 @@ npTimes = np.zeros([numSamples,len(t)])
 torchCPUTimes = np.zeros([numSamples,len(t)])
 torchGPUTimes = np.zeros([numSamples,len(t)])
 torchGPUTransferTimes = np.zeros([numSamples,len(t)])
+torchGPUSparseTimes = np.zeros([numSamples,len(t)])
 
 print('Finished test setup. Running for %f sec'%(time.time()-globalStart))
 
 for num in range(numSamples):
     print('%i Neurons. Running for %f sec' % (numNeurons[num],time.time() - globalStart))
     net = Network()
-    net.addPopulation(spikeL0,int(numNeurons[num]),name='self')
-    net.addSynapse(spikeExcite,'self','self')
+    numIns = int(0.08 * numNeurons[num]) + 1
+    numOuts = int(0.12 * numNeurons[num])
+    numSyn = int(np.sqrt(numNeurons[num]))
+    numRest = int(numNeurons[num]) - numIns - numSyn - numOuts
+    net.addPopulation(spike, numIns, name='ins')  # in puppy, numInputs = 8% of network
+    net.addPopulation(spikeBias, numOuts, name='outs')  # in puppy, numOutputs = 12% of network
+    net.addPopulation(spikeBias, numSyn, name='connected')  # in puppy, numSyn = numNeurons
+    net.addPopulation(spikeBias, numRest, name='rest')  # rest of the network
+    net.addSynapse(spikeExcite, 'connected', 'connected')
     net.addInput('Input')
-    net.addInputConnection(1.0,'Input','self')
-    net.addOutput('self')
+    net.addInputConnection(1.0, 'Input', 'ins')
+    net.addOutput('outs')
 
     # Numpy
     npModel = SNS_Numpy(net,dt=dt)
@@ -72,55 +79,95 @@ for num in range(numSamples):
         torchCPUTimes[num, i] = stepStop - stepStart
     print('Finished Torch CPU. Running for %f sec' % (time.time() - globalStart))
 
-    # Torch GPU
-    # print('Before network created')
-    # print('GPU Memory Allocated: %d , Reserved: %d'%(torch.cuda.memory_allocated(),torch.cuda.memory_reserved()))
-    torchGPUModel = SNS_Torch(net, dt=dt, device='cuda')
-    torchGPUInput = torch.tensor([current],dtype=torch.float64,device='cuda')
-    # print('CUDA Model Made')
-    # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
-    for i in range(len(t)):
-        stepStart = time.time()
-        _ = torchGPUModel.forward(torchGPUInput)
-        stepStop = time.time()
-        torchGPUTimes[num, i] = stepStop - stepStart
-    del torchGPUModel
-    del torchGPUInput
-    del _
-    # print('CUDA Models deleted')
-    # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
-    torch.cuda.empty_cache()
-    # print('CUDA cache cleared')
-    # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
-    print('Finished Torch GPU. Running for %f sec' % (time.time() - globalStart))
+    try:
+        # Torch GPU
+        # print('Before network created')
+        # print('GPU Memory Allocated: %d , Reserved: %d'%(torch.cuda.memory_allocated(),torch.cuda.memory_reserved()))
+        torchGPUModel = SNS_Torch(net, dt=dt, device='cuda')
+        torchGPUInput = torch.tensor([current],dtype=torch.float64,device='cuda')
+        # print('CUDA Model Made')
+        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
+        for i in range(len(t)):
+            stepStart = time.time()
+            _ = torchGPUModel.forward(torchGPUInput)
+            stepStop = time.time()
+            torchGPUTimes[num, i] = stepStop - stepStart
+        del torchGPUModel
+        del torchGPUInput
+        del _
+        # print('CUDA Models deleted')
+        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
+        torch.cuda.empty_cache()
+        # print('CUDA cache cleared')
+        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
+        print('Finished Torch GPU. Running for %f sec' % (time.time() - globalStart))
+    except:
+        print('Torch GPU Cuda compilation failed. Running for %f sec' % (time.time() - globalStart))
+        for i in range(len(t)):
+            torchGPUTimes[num, i] = 0
 
-    # Torch GPU with memory transfer at each step
-    # print('Before network created')
-    # print('GPU Memory Allocated: %d , Reserved: %d'%(torch.cuda.memory_allocated(),torch.cuda.memory_reserved()))
-    torchGPUTransferModel = SNS_Torch(net, dt=dt, device='cuda')
-    torchGPUTransferInput = torch.tensor([current], dtype=torch.float64, device='cpu')
-    # print('CUDA Model Made')
-    # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
-    for i in range(len(t)):
-        stepStart = time.time()
-        a = torchGPUTransferModel.forward(torchGPUTransferInput.cuda())
-        _ = a.cpu()
-        stepStop = time.time()
-        torchGPUTransferTimes[num, i] = stepStop - stepStart
-    del torchGPUTransferModel
-    del torchGPUTransferInput
-    del a
-    # print('CUDA Models deleted')
-    # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
-    torch.cuda.empty_cache()
-    # print('CUDA cache cleared')
-    # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
-    print('Finished Torch GPU with memory transfer. Running for %f sec' % (time.time() - globalStart))
+    try:
+        # Torch GPU with memory transfer at each step
+        # print('Before network created')
+        # print('GPU Memory Allocated: %d , Reserved: %d'%(torch.cuda.memory_allocated(),torch.cuda.memory_reserved()))
+        torchGPUTransferModel = SNS_Torch(net, dt=dt, device='cuda')
+        torchGPUTransferInput = torch.tensor([current], dtype=torch.float64, device='cpu')
+        # print('CUDA Model Made')
+        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
+        for i in range(len(t)):
+            stepStart = time.time()
+            a = torchGPUTransferModel.forward(torchGPUTransferInput.cuda())
+            _ = a.cpu()
+            stepStop = time.time()
+            torchGPUTransferTimes[num, i] = stepStop - stepStart
+        del torchGPUTransferModel
+        del torchGPUTransferInput
+        del a
+        # print('CUDA Models deleted')
+        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
+        torch.cuda.empty_cache()
+        # print('CUDA cache cleared')
+        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
+        print('Finished Torch GPU with memory transfer. Running for %f sec' % (time.time() - globalStart))
+    except:
+        print('GPU Memory Transfer Cuda compilation failed. Running for %f sec' % (time.time() - globalStart))
+        for i in range(len(t)):
+            torchGPUTransferTimes[num, i] = 0
 
-data = {'numNeurons': numNeurons,
-        'numpy': npTimes,
-        'torchCPU': torchCPUTimes,
-        'torchGPU': torchGPUTimes,
-        'torchGPUTransfer': torchGPUTransferTimes}
-pickle.dump(data, open('dataBackendTimes.p','wb'))
+    try:
+        # Torch Sparse GPU
+        # print('Before network created')
+        # print('GPU Memory Allocated: %d , Reserved: %d'%(torch.cuda.memory_allocated(),torch.cuda.memory_reserved()))
+        dtype = torch.float64
+        torchGPUSparseModel = SNS_Torch_Large(net, dt=dt,dtype=dtype)
+        torchGPUSparseInput = torch.tensor([current],dtype=dtype,device='cpu')
+        # print('CUDA Model Made')
+        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
+        for i in range(len(t)):
+            stepStart = time.time()
+            _ = torchGPUSparseModel.forward(torchGPUSparseInput)
+            stepStop = time.time()
+            torchGPUSparseTimes[num, i] = stepStop - stepStart
+        del torchGPUSparseModel
+        del torchGPUSparseInput
+        del _
+        # print('CUDA Models deleted')
+        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
+        torch.cuda.empty_cache()
+        # print('CUDA cache cleared')
+        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
+        print('Finished Torch Sparse GPU. Running for %f sec' % (time.time() - globalStart))
+    except:
+        print('Sparse Cuda compilation failed. Running for %f sec' % (time.time() - globalStart))
+        for i in range(len(t)):
+            torchGPUTimes[num, i] = 0
+
+
+    data = {'numNeurons': numNeurons,
+            'numpy': npTimes,
+            'torchCPU': torchCPUTimes,
+            'torchGPU': torchGPUTimes,
+            'torchGPUTransfer': torchGPUTransferTimes,
+            'torchGPUSparse': torchGPUSparseTimes}
+    pickle.dump(data, open('dataBackendTimes.p','wb'))
 print('Finished test loop. Running for %f sec'%(time.time()-globalStart))

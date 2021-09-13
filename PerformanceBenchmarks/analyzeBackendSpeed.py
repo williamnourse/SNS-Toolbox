@@ -28,6 +28,10 @@ torchGPUTransferRawTimes = data['torchGPUTransfer']
 torchGPUTransferAvgTimes = np.mean(torchGPUTransferRawTimes,axis=1)*1000
 torchGPUTransferVar = np.std(torchGPURawTimes,axis=1)*1000
 
+torchGPUSparseRawTimes = data['torchGPUSparse']
+torchGPUSparseAvgTimes = np.mean(torchGPUSparseRawTimes,axis=1)*1000
+torchGPUSparseVar = np.std(torchGPUSparseRawTimes,axis=1)*1000
+
 
 """
 ########################################################################################################################
@@ -44,6 +48,8 @@ plt.plot(numNeurons,torchGPUAvgTimes,color='C2',label='Torch GPU')
 plt.fill_between(numNeurons,torchGPUAvgTimes-torchGPUVar,torchGPUAvgTimes+torchGPUVar,color='C2',alpha=0.2)
 plt.plot(numNeurons,torchGPUTransferAvgTimes,color='C3',label='Torch GPU Transfer')
 plt.fill_between(numNeurons,torchGPUTransferAvgTimes-torchGPUTransferVar,torchGPUTransferAvgTimes+torchGPUTransferVar,color='C3',alpha=0.2)
+plt.plot(numNeurons,torchGPUSparseAvgTimes,color='C4',label='Torch GPU Sparse')
+plt.fill_between(numNeurons,torchGPUSparseAvgTimes-torchGPUSparseVar,torchGPUSparseAvgTimes+torchGPUSparseVar,color='C3',alpha=0.2)
 plt.xlabel('Number of Neurons')
 plt.ylabel('Step Time (ms)')
 plt.yscale('log')
