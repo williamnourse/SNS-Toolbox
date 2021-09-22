@@ -169,5 +169,5 @@ for num in range(numSamples):
             'torchGPU': torchGPUTimes,
             'torchGPUTransfer': torchGPUTransferTimes,
             'torchGPUSparse': torchGPUSparseTimes}
-    pickle.dump(data, open('dataBackendTimes.p','wb'))
+    pickle.dump(data, open('dataBackendTimesLessPts.p','wb'))
 print('Finished test loop. Running for %f sec'%(time.time()-globalStart))

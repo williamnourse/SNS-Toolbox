@@ -54,6 +54,7 @@ plt.xlabel('Number of Neurons')
 plt.ylabel('Step Time (ms)')
 plt.yscale('log')
 plt.xscale('log')
+plt.xlim([10,3000])
 plt.title('Average Simulation Step Time as a Function of Network Size')
 plt.legend()
 
