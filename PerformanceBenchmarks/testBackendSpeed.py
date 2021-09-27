@@ -33,7 +33,7 @@ TEST SETUP
 numSamples = 100
 numNeurons = np.logspace(1,4,num=numSamples)
 dt = 0.01
-tMax = 100
+tMax = 10
 t = np.arange(0,tMax,dt)
 npTimes = np.zeros([numSamples,len(t)])
 torchCPUTimes = np.zeros([numSamples,len(t)])
@@ -63,6 +63,7 @@ for num in range(numSamples):
     npModel = SNS_Numpy(net,dt=dt)
     npInput = np.array([current])
     for i in range(len(t)):
+        print('%i Neurons Numpy Step %i/%i'%(numNeurons[num],i+1,len(t)))
         stepStart = time.time()
         _ = npModel.forward(npInput)
         stepStop = time.time()
@@ -73,6 +74,7 @@ for num in range(numSamples):
     torchCPUModel = SNS_Torch(net,dt=dt,device='cpu')
     torchCPUInput = torch.tensor([current],dtype=torch.float64,device='cpu')
     for i in range(len(t)):
+        print('%i Neurons Torch CPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
         stepStart = time.time()
         _ = torchCPUModel.forward(torchCPUInput)
         stepStop = time.time()
@@ -88,6 +90,7 @@ for num in range(numSamples):
         # print('CUDA Model Made')
         # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
         for i in range(len(t)):
+            print('%i Neurons Torch GPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
             stepStart = time.time()
             _ = torchGPUModel.forward(torchGPUInput)
             stepStop = time.time()
@@ -115,6 +118,7 @@ for num in range(numSamples):
         # print('CUDA Model Made')
         # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
         for i in range(len(t)):
+            print('%i Neurons Torch GPU Transfer Step %i/%i'%(numNeurons[num],i+1,len(t)))
             stepStart = time.time()
             a = torchGPUTransferModel.forward(torchGPUTransferInput.cuda())
             _ = a.cpu()
@@ -144,6 +148,7 @@ for num in range(numSamples):
         # print('CUDA Model Made')
         # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
         for i in range(len(t)):
+            print('%i Neurons Torch Sparse Step %i/%i'%(numNeurons[num],i+1,len(t)))
             stepStart = time.time()
             _ = torchGPUSparseModel.forward(torchGPUSparseInput)
             stepStop = time.time()

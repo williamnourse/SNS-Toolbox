@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pickle
 
+# this can be found inside 'performanceData.zip'
 data = pickle.load(open('dataBackendTimes.p', 'rb'))
 numNeurons = data['numNeurons']
 

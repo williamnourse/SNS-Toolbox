@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 ########################################################################################################################
 ALL COMPONENTS
 """
+# this can be found inside 'performanceData.zip'
 output = pickle.load(open('dataNumpyAll.p','rb'))
 params = output['params']
 networkSize = params['networkSize']
@@ -32,6 +33,7 @@ for size in range(len(rawDataAll)):
 ########################################################################################################################
 NO REFRACTORY PERIOD
 """
+# this can be found inside 'performanceData.zip'
 output = pickle.load(open('dataNumpyNoRef.p','rb'))
 params = output['params']
 networkSize = params['networkSize']
@@ -51,6 +53,7 @@ for size in range(len(rawDataNoRef)):
 ########################################################################################################################
 NO SPIKING
 """
+# this can be found inside 'performanceData.zip'
 output = pickle.load(open('dataNumpyNoSpike.p','rb'))
 params = output['params']
 networkSize = params['networkSize']
