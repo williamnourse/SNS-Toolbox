@@ -105,7 +105,9 @@ if numpy:
     model = SNS_Numpy(totalNet, dt=dt, debug=False)
 else:
     device = 'cuda'
-    model = SNS_Torch_Large(totalNet,dt=dt,debug=True)
+    print(time.time())
+    model = SNS_Torch(totalNet,dt=dt,debug=False)
+    print(time.time())
     inputs = torch.from_numpy(inputs).to(device)
     data = torch.from_numpy(data).to(device)
 start = time.time()

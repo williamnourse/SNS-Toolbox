@@ -26,6 +26,7 @@ BASE CLASS
 """
 
 class Network:
+    # Initialization and utilities
     def __init__(self, name: str = 'Network', R: float = 20.0) -> None:
         """
         Constructor for base network class
@@ -108,6 +109,19 @@ class Network:
                 return index
         raise ValueError('Input not found by name \'%s\'' % str(name))
 
+    def renderGraph(self, imgFormat: str = 'png', view: bool = False) -> None:
+        """
+        Render an image of the network in the form of a directed graph (DG)
+        :param imgFormat:   File extension of the resulting image
+        :param view:        Flag to view the image
+        :return: None
+        """
+        if not isinstance(view,bool):
+            raise TypeError('View must be a boolean')
+        self.graph.format = imgFormat
+        self.graph.render(view=view)
+
+    # Construction
     def addPopulation(self,neuronType: Neuron,numNeurons: int,name: str = None,color=None) -> None:
         """
         Add a neural population to the network
@@ -379,17 +393,15 @@ class Network:
             for synapse in network.synapses:
                 self.addSynapse(synapseType=synapse['type'],source=synapse['source']+numPopulations,destination=synapse['destination']+numPopulations,viewLabel=synapse['view'])
 
-    def renderGraph(self, imgFormat: str = 'png', view: bool = False) -> None:
-        """
-        Render an image of the network in the form of a directed graph (DG)
-        :param imgFormat:   File extension of the resulting image
-        :param view:        Flag to view the image
-        :return: None
-        """
-        if not isinstance(view,bool):
-            raise TypeError('View must be a boolean')
-        self.graph.format = imgFormat
-        self.graph.render(view=view)
+    def copy(self):
+        newNet = Network(name=self.params['name'],R=self.params['R'])
+        newNet.addNetwork(self)
+
+        return newNet
+
+    # Modification
+
+    # Deletion
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
