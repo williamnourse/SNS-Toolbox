@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../EvolutionarySNS/.idea/EvolutionarySNS.iml" filepath="$PROJECT_DIR$/../EvolutionarySNS/.idea/EvolutionarySNS.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/SNS-Toolbox.iml" filepath="$PROJECT_DIR$/.idea/SNS-Toolbox.iml" />
     </modules>
   </component>

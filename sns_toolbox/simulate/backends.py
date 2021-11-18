@@ -15,8 +15,6 @@ IMPORTS
 from typing import Any
 import numpy as np
 import torch
-# from scipy.sparse import csr_matrix, lil_matrix
-# import multiprocessing
 import sys
 
 from sns_toolbox.design.networks import Network
