@@ -10,9 +10,11 @@ setup(
     author_email='nourse@case.edu',
     description='Tools for designing Synthetic Nervous Systems, and simulating them on various software/hardware backends',
     setup_requires=['wheel'],
+    python_requires='>=3.5',
     install_requires=['graphviz',
                       'torch',
-                      'numpy>=1.17'],
+                      'numpy>=1.17',
+                      'matplotlib>=3.0'],
 
     classifiers=[
         'Development Status :: 3 - Alpha',

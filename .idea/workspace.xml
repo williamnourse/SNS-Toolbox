@@ -3,33 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="0111e928-7c50-48e1-a867-c8c018c660a0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DesignExperiments/SpikeResetEfficiency/analyzeSpikeResetMechanismSpeed.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DesignExperiments/SpikeResetEfficiency/numberNeurons.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DesignExperiments/SpikeResetEfficiency/percentSpiking.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DesignExperiments/SpikeResetEfficiency/resetMethodComparisonData.p" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DesignExperiments/SpikeResetEfficiency/testSpikeResetMechanismSpeed.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DesignExperiments/ThresholdEfficiency/analyzeSpikeMethodSpeed.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DesignExperiments/ThresholdEfficiency/network_size_linear.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DesignExperiments/ThresholdEfficiency/network_size_log.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DesignExperiments/ThresholdEfficiency/percent_allocation_1000neurons.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DesignExperiments/ThresholdEfficiency/percent_allocation_10neurons.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DesignExperiments/ThresholdEfficiency/spikingMethodComparisonData.p" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DesignExperiments/ThresholdEfficiency/testSpikeMethodSpeed.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/GeNNExperiments/PyGennNonSpiking.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/GeNNExperiments/tutorialGeNN.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/PerformanceBenchmarks/10PanelVarySizeConnectivity.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/PerformanceBenchmarks/3PanelCompareMechanism.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/PerformanceBenchmarks/AvgStepTime_10_10000_Neurons.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/PerformanceBenchmarks/AvgStepTime_10_3000_Neurons.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/PerformanceBenchmarks/analyzeBackendSpeed.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/PerformanceBenchmarks/analyzeBackendSpeedSmall.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/PerformanceBenchmarks/analyzeNumpy.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/PerformanceBenchmarks/benchmarkNumpy.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/PerformanceBenchmarks/performanceData.zip" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/PerformanceBenchmarks/reportSmall.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/PerformanceBenchmarks/testBackendSpeed.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/PerformanceBenchmarks/testMaxGPUNetSize.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/PerformanceBenchmarks/testMaxRealisticGPUNetSize.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
