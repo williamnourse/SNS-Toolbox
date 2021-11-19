@@ -13,8 +13,7 @@ setup(
     python_requires='>=3.5',
     install_requires=['graphviz',
                       'torch',
-                      'numpy>=1.17',
-                      'matplotlib>=3.0'],
+                      'numpy>=1.17'],
 
     classifiers=[
         'Development Status :: 3 - Alpha',
