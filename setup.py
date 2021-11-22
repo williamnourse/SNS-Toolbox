@@ -1,9 +1,9 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='sns_toolbox',
     version='0.9',
-    packages=['sns_toolbox'],
+    packages=find_packages(),
     url='https://github.com/wnourse05/SNS-Toolbox',
     license='Apache v2.0',
     author='William Nourse',
