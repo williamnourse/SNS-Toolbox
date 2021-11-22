@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="0111e928-7c50-48e1-a867-c8c018c660a0" name="Changes" comment="" />
+    <list default="true" id="0111e928-7c50-48e1-a867-c8c018c660a0" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -28,6 +30,13 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/sns_toolbox/simulate" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/sns_toolbox/simulate" />
+      <recent name="$PROJECT_DIR$/sns_toolbox/design" />
+    </key>
   </component>
   <component name="RunManager" selected="Python.tutorialGeNN">
     <configuration name="analyzeBackendSpeed" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
