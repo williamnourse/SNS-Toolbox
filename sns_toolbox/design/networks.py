@@ -119,7 +119,7 @@ class Network:
         if not isinstance(view,bool):
             raise TypeError('View must be a boolean')
         self.graph.format = imgFormat
-        self.graph.render(view=view)
+        self.graph.render(view=view,cleanup=True)
 
     # Construction
     def addPopulation(self,neuronType: Neuron,numNeurons: int,name: str = None,color=None) -> None:
