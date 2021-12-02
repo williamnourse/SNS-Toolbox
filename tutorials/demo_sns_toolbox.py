@@ -100,7 +100,7 @@ tMax = 100
 t = np.arange(0,tMax,dt)
 inputs = np.zeros([len(t),totalNet.getNumInputs()])+10
 data = np.zeros([len(t),totalNet.getNumOutputsActual()])
-numpy = False
+numpy = True
 if numpy:
     model = SNS_Numpy(totalNet, dt=dt, debug=False)
 else:

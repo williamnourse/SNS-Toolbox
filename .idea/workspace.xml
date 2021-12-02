@@ -3,8 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="0111e928-7c50-48e1-a867-c8c018c660a0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sns_toolbox/design/__utilities__.py" beforeDir="false" afterPath="$PROJECT_DIR$/sns_toolbox/design/__utilities__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tutorials/tutorial_1_network_design.py" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/tutorial_1_network_design.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorials/demo_sns_toolbox.py" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/demo_sns_toolbox.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorials/tutorial_2_simulation.py" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/tutorial_2_simulation.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -153,8 +153,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.tutorial_2_simulation" />
-        <item itemvalue="Python.tutorial_1_network_design" />
         <item itemvalue="Python.demo_sns_toolbox" />
+        <item itemvalue="Python.tutorial_1_network_design" />
         <item itemvalue="Python.tutorialGeNN" />
         <item itemvalue="Python.analyzeBackendSpeed" />
       </list>
