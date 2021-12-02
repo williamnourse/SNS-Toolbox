@@ -27,7 +27,7 @@ neuron_type = NonSpikingNeuron(name='Neuron',           # Name displayed in a re
 3. Create a network, and add multiple copies of our neuron to it
 """
 # Create the network
-net = Network() # Optional parameters are a name and the value of 'R', in mV
+net = Network(name='Tutorial 1 Network') # Optional parameters are a name and the value of 'R', in mV
 
 # Add neurons to the network
 net.addNeuron(neuron_type,name='Neuron 1',color='blue')

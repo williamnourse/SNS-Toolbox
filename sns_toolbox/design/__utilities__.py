@@ -39,8 +39,8 @@ SETOFVALIDCOLORS = {'aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 
 
 # Standard SVG colors which need white text instead of black for good visibility
 COLORSWHITETEXT = {'black', 'blue', 'blueviolet', 'brown', 'darkblue', 'darkmagenta', 'darkolivegreen', 'darkred',
-          'darkslateblue', 'darkslategray', 'darkslategrey', 'darkviolet', 'dimgray', 'dimgrey', 'gray', 'grey', 'green',
-          'indigo', 'maroon', 'mediumblue', 'midnightblue', 'navy', 'olive', 'purple', 'saddlebrown', 'teal'}
+          'darkslateblue', 'darkslategray', 'darkslategrey', 'darkviolet', 'dimgray', 'dimgrey', 'indigo', 'maroon',
+                   'mediumblue', 'midnightblue', 'navy', 'olive', 'purple', 'saddlebrown', 'teal'}
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
