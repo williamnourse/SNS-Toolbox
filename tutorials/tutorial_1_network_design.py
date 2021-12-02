@@ -8,7 +8,6 @@ November 29 2021
 """
 1. Import necessary packages and modules/classes
 """
-import sns_toolbox
 from sns_toolbox.design.neurons import NonSpikingNeuron
 from sns_toolbox.design.networks import Network
 from sns_toolbox.design.connections import NonSpikingSynapse

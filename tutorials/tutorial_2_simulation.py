@@ -7,7 +7,6 @@ December 1st, 2021
 
 """Imports"""
 # Import packages and modules for designing the network
-import sns_toolbox
 from sns_toolbox.design.neurons import NonSpikingNeuron
 from sns_toolbox.design.connections import NonSpikingSynapse
 from sns_toolbox.design.networks import Network
@@ -75,7 +74,7 @@ inputs = np.zeros([len(t),1])+20.0  # Input vector must be 2d, even if second di
 data = np.zeros([len(t),5])
 
 # Compile the network to use the Numpy CPU backend (if you want to see what's happening, set debug to true)
-model = SNS_Numpy(net,debug=False)
+model = SNS_Numpy(net,dt=dt,debug=False)
 
 """Simulate the network"""
 # At every step, apply the current input to a forward pass of the network and store the results in 'data'
