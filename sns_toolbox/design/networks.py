@@ -451,6 +451,8 @@ class DivisionNetwork(Network):
         modulation = NonSpikingModulationSynapse(ratio)
         self.addSynapse(modulation,1,2)
 
+# TODO: Differentiation
+
 # TODO: Integration
 
 # TODO: Adaptation
