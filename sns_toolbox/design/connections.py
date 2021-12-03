@@ -12,6 +12,7 @@ IMPORTS
 
 from typing import Dict, Any
 import numbers
+import math
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -103,6 +104,7 @@ SPECIFIC MODELS
 class NonSpikingTransmissionSynapse(NonSpikingSynapse):
     def __init__(self, gain: float = 1.0,
                  name: str = 'Transmit',
+                 R=20.0,
                  **kwargs) -> None:
         """
         Transmission synapse, where (given some gain) the maximum conductunce is
@@ -112,17 +114,19 @@ class NonSpikingTransmissionSynapse(NonSpikingSynapse):
         """
         super().__init__(name=name, **kwargs)  # Call to constructor of parent class
         if isinstance(gain,numbers.Number):
-            if gain <= 0:
-                raise ValueError('Gain must be greater than 0')
+            if gain == 0:
+                raise ValueError('Gain must be nonzero')
+            elif math.copysign(1,gain) != math.copysign(1,self.params['relativeReversalPotential']):    # sign of gain and DeltaE don't match
+                raise ValueError('Gain of '+str(gain)+' and Relative Reversal Potential must have the same sign')
             else:
                 try:
-                    self.params['maxConductance'] = (gain*self.params['R'])/(self.params['relativeReversalPotential']-gain*self.params['R'])
+                    self.params['maxConductance'] = (gain*R)/(self.params['relativeReversalPotential']-gain*R)
                 except ZeroDivisionError:
-                    raise ValueError('Gain causes division by 0, decrease gain or increase relativeReversalPotential')
+                    raise ValueError('Gain of '+str(gain)+' causes division by 0, decrease gain or increase relativeReversalPotential')
                 if self.params['maxConductance'] < 0:
-                    raise ValueError('Gain causes maxConductance to be negative, decrease gain or increase relativeReversalPotential')
+                    raise ValueError('Gain of '+str(gain)+' causes maxConductance to be negative, decrease gain or increase relativeReversalPotential')
         else:
-            raise TypeError('Gain must be a number (int, float, double, etc.)')
+            raise TypeError('Gain of '+str(gain)+' must be a number (int, float, double, etc.)')
 
 class NonSpikingModulationSynapse(NonSpikingSynapse):
     def __init__(self, name: str = 'Modulate', **kwargs) -> None:

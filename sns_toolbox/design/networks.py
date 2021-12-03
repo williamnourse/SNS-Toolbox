@@ -16,8 +16,8 @@ import copy
 from graphviz import Digraph
 import warnings
 
-from sns_toolbox.design.neurons import Neuron
-from sns_toolbox.design.connections import NonSpikingSynapse, Synapse, SpikingSynapse
+from sns_toolbox.design.neurons import Neuron, NonSpikingNeuron
+from sns_toolbox.design.connections import NonSpikingSynapse, Synapse, SpikingSynapse, NonSpikingTransmissionSynapse
 from sns_toolbox.design.__utilities__ import validColor, setTextColor
 
 """
@@ -408,10 +408,24 @@ class Network:
 SPECIFIC MODELS
 """
 
-# TODO: Addition/Subtraction
+class AdditionNetwork(Network):
+    def __init__(self,gains,add_del_e=100,sub_del_e=-40,neuron_type=NonSpikingNeuron(),name='Add',**kwargs):
+        super().__init__(**kwargs)
+        num_inputs = len(gains)
+        self.addNeuron(neuronType=neuron_type,name=name+'Sum')
+        for i in range(num_inputs):
+            self.addNeuron(neuron_type,name=name+'Src'+str(i))
+            gain = gains[i]
+            if gain > 0:
+                conn = NonSpikingTransmissionSynapse(gain=gain,relativeReversalPotential=add_del_e)
+            else:
+                conn = NonSpikingTransmissionSynapse(gain=gain, relativeReversalPotential=sub_del_e)
+            self.addSynapse(conn,i+1,name+'Sum')
 
 # TODO: Multiplication
 
 # TODO: Division
 
 # TODO: Integration
+
+# TODO: Adaptation
