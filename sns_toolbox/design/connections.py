@@ -129,11 +129,12 @@ class NonSpikingTransmissionSynapse(NonSpikingSynapse):
             raise TypeError('Gain of '+str(gain)+' must be a number (int, float, double, etc.)')
 
 class NonSpikingModulationSynapse(NonSpikingSynapse):
-    def __init__(self, name: str = 'Modulate', **kwargs) -> None:
+    def __init__(self,ratio, name: str = 'Modulate', **kwargs) -> None:
         """
         Modulation synapse, where the relativeReversalPotential is set to 0
         :param name: Name of this synapse preset
         """
         super().__init__(name=name,**kwargs)
         self.params['relativeReversalPotential'] = 0.0
+        self.params['maxConductance'] = 1/ratio - 1
 
