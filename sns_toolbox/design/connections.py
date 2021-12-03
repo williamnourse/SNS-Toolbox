@@ -57,7 +57,7 @@ class NonSpikingSynapse(Synapse):
 
 class SpikingSynapse(Synapse):
     def __init__(self,maxConductance: float = 1.0,
-                 relativeReversalPotential: float = 40.0,
+                 relativeReversalPotential: float = 194.0,
                  synapticTimeConstant: float = 1.0,
                  R: float = 20.0,
                  **kwargs: Any) -> None:

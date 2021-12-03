@@ -17,7 +17,7 @@ from graphviz import Digraph
 import warnings
 
 from sns_toolbox.design.neurons import Neuron, NonSpikingNeuron
-from sns_toolbox.design.connections import Synapse, NonSpikingTransmissionSynapse, NonSpikingModulationSynapse
+from sns_toolbox.design.connections import Synapse, NonSpikingSynapse, NonSpikingTransmissionSynapse, NonSpikingModulationSynapse
 from sns_toolbox.design.__utilities__ import validColor, setTextColor
 
 """
@@ -422,9 +422,22 @@ class AdditionNetwork(Network):
                 conn = NonSpikingTransmissionSynapse(gain=gain, relativeReversalPotential=sub_del_e,R=self.params['R'])
             self.addSynapse(conn,i+1,name+'Sum')
 
-# TODO: Multiplication
+class MultiplicationNetwork(Network):
+    def __init__(self,neuron_type=NonSpikingNeuron(),name='Multiply'):
+        super().__init__()
+        self.addNeuron(neuron_type,name=name+'0')
+        self.addNeuron(neuron_type,name=name+'1')
+        self.addNeuron(neuron_type,name=name+'Inter')
+        self.addNeuron(neuron_type,name=name+'Result')
 
-# TODO: Division
+        transmit = NonSpikingTransmissionSynapse(gain=1.0,R=self.params['R'])
+        conductance = -self.params['R']/-1.0
+        modulate_special = NonSpikingSynapse(maxConductance=conductance,relativeReversalPotential=-1.0)
+
+        self.addSynapse(transmit,name+'0',name+'Result')
+        self.addSynapse(modulate_special,name+'1',name+'Inter')
+        self.addSynapse(modulate_special,name+'Inter',name+'Result')
+
 class DivisionNetwork(Network):
     def __init__(self,gain,ratio,name='Divide',neuron_type=NonSpikingNeuron(),**kwargs):
         super().__init__(**kwargs)
