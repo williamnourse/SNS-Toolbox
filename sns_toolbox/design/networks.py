@@ -175,8 +175,8 @@ class Network:
         """
         self.addPopulation(neuronType,numNeurons=1,name=name,color=color)
 
-    def addInput(self, dest, offset: Number = 0.0, linear: Number = 1.0, quadratic: Number = 0.0, cubic: Number = 0.0,
-                 name: str = 'Input', color='white') -> None:
+    def addInput(self, dest: Any, offset: Number = 0.0, linear: Number = 1.0, quadratic: Number = 0.0,
+                 cubic: Number = 0.0, name: str = 'Input', color='white') -> None:
         """
         Add an input source to the network
         :param dest:        Destination this input connects to
@@ -216,18 +216,20 @@ class Network:
                         fontcolor=fontColor)
         self.graph.edge('In'+str(len(self.inputs) - 1), str(dest))
 
-    def addOutput(self,source: Any,weight: float = 1.0,name: str = 'Output',spiking: bool = False,color: str = 'white',viewWeight: bool = False) -> None:
+    def addOutput(self,source: Any, offset: Number = 0.0, linear: Number = 1.0, quadratic: Number = 0.0,
+                  cubic: Number = 0.0, name: str = 'Output',spiking: bool = False,color: str = 'white') -> None:
         """
         Add an output node to the network
         :param source:      Source this output is connected to
-        :param weight:      Weight of the connection
+        :param offset:      Constant offset of output values in polynomial map
+        :param linear:      Linear gain of output values in polynomial map
+        :param quadratic:   Quadratic (^2) gain of output values in polynomial map
+        :param cubic:       Cubic (^3) gain of output values in polynomial map
         :param name:        Name of the node
         :param spiking:     Flag for if this node stores voltage or spikes
         :param color:       Color of the output in the visual render
         :return: None
         """
-        if not isinstance(weight,Number):
-            raise TypeError('Weight must be a number')
         if isinstance(source,int):
             if source < 0:
                 raise ValueError('Source must be an integer greater than or equal to 0')
@@ -247,10 +249,12 @@ class Network:
         fontColor = setTextColor(color)
         self.outputs.append({'name': name,
                              'source': source,
-                             'weight': weight,
+                             'offset': offset,
+                             'linear': linear,
+                             'quadratic': quadratic,
+                             'cubic': cubic,
                              'spiking': spiking,
-                             'color': color,
-                             'view': viewWeight})
+                             'color': color})
         if spiking:
             self.graph.node('Out'+str(len(self.outputs) - 1), name,
                             style='filled',
@@ -263,48 +267,8 @@ class Network:
                             shape='house',
                             fillcolor=color,
                             fontcolor=fontColor)
-        if viewWeight:
-            label = str(weight)
-        else:
-            label = None
-        self.graph.edge(str(source),'Out'+str(len(self.outputs)-1),label=label)
 
-    # def addInputConnection(self,weight: Number,source: Any, dest: Any, viewWeight: bool = False) -> None:
-    #     """
-    #     Add a weighted connection from an input node to a population in the network
-    #     :param weight:      Weight of the connection
-    #     :param source:      Index of source input node
-    #     :param dest:        Index of destination population
-    #     :param viewWeight:  Flag for the weight to be visually displayed
-    #     :return:
-    #     """
-    #     if not isinstance(weight,Number):
-    #         raise TypeError('Weight must be a number')
-    #     if not isinstance(source,int):
-    #         if isinstance(source,str):
-    #             source = self.getInputIndex(source)
-    #         else:
-    #             raise TypeError('Source index must be an integer or name')
-    #     if source > (len(self.inputs)-1):
-    #         raise ValueError('Source index is out of range')
-    #     if not isinstance(dest,int):
-    #         if isinstance(dest, str):
-    #             dest = self.getPopulationIndex(dest)
-    #         else:
-    #             raise TypeError('Destination index must be an integer or name')
-    #     if dest > (len(self.populations)-1):
-    #         raise ValueError('Destination index is out of range')
-    #     if not isinstance(viewWeight,bool):
-    #         raise TypeError('viewWeight must be a boolean')
-    #     self.inputConns.append({'weight': weight,
-    #                             'source': source,
-    #                             'destination': dest,
-    #                             'view': viewWeight})
-    #     if viewWeight:
-    #         label = str(weight)
-    #     else:
-    #         label = None
-    #     self.graph.edge('In'+str(source),str(dest),label=label)
+        self.graph.edge(str(source),'Out'+str(len(self.outputs)-1))
 
     def addSynapse(self, synapseType: Synapse, source: Any,
                    destination: Any, name: str = None, viewLabel: bool = False) -> None:
@@ -394,10 +358,9 @@ class Network:
                               offset=inp['offset'], linear=inp['linear'], quadratic=inp['quadratic'],
                               cubic=inp['cubic'])
             for out in network.outputs:
-                self.addOutput(source=out['source']+numPopulations, weight=out['weight'], name=out['name'],
-                               color=out['color'], spiking=out['spiking'], viewWeight=out['view'])
-            # for inConn in network.inputConns:
-            #     self.addInputConnection(inConn['weight'],inConn['source']+numInputs,inConn['destination']+numPopulations,viewWeight=inConn['view'])
+                self.addOutput(source=out['source']+numPopulations, offset=out['offset'], linear=out['linear'],
+                               quadratic=out['quadratic'],cubic=out['cubic'], name=out['name'], color=out['color'],
+                               spiking=out['spiking'])
             for synapse in network.synapses:
                 self.addSynapse(synapseType=synapse['type'], source=synapse['source']+numPopulations,
                                 destination=synapse['destination']+numPopulations, viewLabel=synapse['view'])
@@ -413,10 +376,9 @@ class Network:
                               offset=inp['offset'], linear=inp['linear'], quadratic=inp['quadratic'],
                               cubic=inp['cubic'])
             for out in network.outputs:
-                self.addOutput(source=out['source']+numPopulations, weight=out['weight'], name=out['name'], color=color,
-                               spiking=out['spiking'], viewWeight=out['view'])
-            # for inConn in network.inputConns:
-            #     self.addInputConnection(inConn['weight'],inConn['source']+numInputs,inConn['destination']+numPopulations,viewWeight=inConn['view'])
+                self.addOutput(source=out['source'] + numPopulations, offset=out['offset'], linear=out['linear'],
+                               quadratic=out['quadratic'], cubic=out['cubic'], name=out['name'], color=color,
+                               spiking=out['spiking'])
             for synapse in network.synapses:
                 self.addSynapse(synapseType=synapse['type'], source=synapse['source']+numPopulations,
                                 destination=synapse['destination']+numPopulations, viewLabel=synapse['view'])

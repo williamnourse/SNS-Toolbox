@@ -182,14 +182,30 @@ class SNS_Numpy(Backend):
 
         self.outputVoltageConnectivity = np.zeros([self.numOutputs, self.numNeurons])  # initialize connectivity matrix
         self.outputSpikeConnectivity = np.copy(self.outputVoltageConnectivity)
+        self.out_offset = np.zeros(self.numOutputs)
+        self.out_linear = np.zeros(self.numOutputs)
+        self.out_quad = np.zeros(self.numOutputs)
+        self.out_cubic = np.zeros(self.numOutputs)
+        self.outputs_raw = np.zeros(self.numOutputs)
         for out in range(len(network.outputs)):  # iterate over the connections in the network
-            wt = network.outputs[out]['weight']  # get the weight
             sourcePop = network.outputs[out]['source']  # get the source
+            if network.outputs[out]['spiking']:
+                self.out_linear[out] = 1.0
+            else:
+                self.out_offset[out] = network.outputs[out]['offset']
+                self.out_linear[out] = network.outputs[out]['linear']
+                self.out_quad[out] = network.outputs[out]['quadratic']
+                self.out_cubic[out] = network.outputs[out]['cubic']
             for i in range(len(popsAndNrns[sourcePop])):
                 if network.outputs[out]['spiking']:
-                    self.outputSpikeConnectivity[outputs[out][i]][popsAndNrns[sourcePop][i]] = wt  # set the weight in the correct source and destination
+                    self.outputSpikeConnectivity[outputs[out][i]][popsAndNrns[sourcePop][i]] = 1.0  # set the weight in the correct source and destination
+                    self.out_linear[outputs[out][i]] = 1.0
                 else:
-                    self.outputVoltageConnectivity[outputs[out][i]][popsAndNrns[sourcePop][i]] = wt  # set the weight in the correct source and destination
+                    self.outputVoltageConnectivity[outputs[out][i]][popsAndNrns[sourcePop][i]] = 1.0  # set the weight in the correct source and destination
+                    self.out_offset[outputs[out][i]] = network.outputs[out]['offset']
+                    self.out_linear[outputs[out][i]] = network.outputs[out]['linear']
+                    self.out_quad[outputs[out][i]] = network.outputs[out]['quadratic']
+                    self.out_cubic[outputs[out][i]] = network.outputs[out]['cubic']
         if self.debug:
             print('Input Connectivity:')
             print(self.inputConnectivity)
@@ -229,8 +245,10 @@ class SNS_Numpy(Backend):
         self.spikes = np.sign(np.minimum(0, self.theta - self.U))  # Compute which neurons have spiked
         self.Gspike = np.maximum(self.Gspike, (-self.spikes) * self.GmaxSpk)  # Update the conductance of synapses which spiked
         self.U = self.U * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
+        self.outputs_raw = np.matmul(self.outputVoltageConnectivity, self.U) + np.matmul(self.outputSpikeConnectivity, -self.spikes)
 
-        return np.matmul(self.outputVoltageConnectivity, self.U) + np.matmul(self.outputSpikeConnectivity, -self.spikes)
+        return self.out_cubic*(self.outputs_raw**3) + self.out_quad*(self.outputs_raw**2)\
+            + self.out_linear*self.outputs_raw + self.out_offset
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
