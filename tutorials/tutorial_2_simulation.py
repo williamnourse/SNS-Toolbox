@@ -48,8 +48,8 @@ net.addSynapse(synapse_excitatory,'SourceNrn','Dest3')
 net.addSynapse(synapse_modulatory,'Dest1','Dest3')
 
 # Add an input source to apply stimulus to the Source Neuron
-net.addInput(name='Input',color='white')
-net.addInputConnection(1.0,'Input','SourceNrn')
+net.addInput(dest='SourceNrn',name='Input',color='white')
+# net.addInputConnection(1.0,'Input','SourceNrn')
 
 # Add output monitors so we can view the state of each neuron in the network
 net.addOutput('SourceNrn',name='OutSourceNrn',color='grey')
@@ -64,7 +64,7 @@ net.renderGraph(view=True)
 """Prep the Simulation"""
 # Set simulation parameters
 dt = 0.01
-tMax = 10
+tMax = 50
 
 # Initialize a vector of timesteps
 t = np.arange(0,tMax,dt)
@@ -74,7 +74,7 @@ inputs = np.zeros([len(t),1])+20.0  # Input vector must be 2d, even if second di
 data = np.zeros([len(t),5])
 
 # Compile the network to use the Numpy CPU backend (if you want to see what's happening, set debug to true)
-model = SNS_Numpy(net,dt=dt,debug=False)
+model = SNS_Numpy(net,dt=dt,debug=True)
 
 """Simulate the network"""
 # At every step, apply the current input to a forward pass of the network and store the results in 'data'

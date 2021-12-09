@@ -120,12 +120,19 @@ class SNS_Numpy(Backend):
         if self.debug:
             print('BUILDING INPUTS')
         self.inputConnectivity = np.zeros([self.numNeurons, self.numInputs])  # initialize connectivity matrix
-        for conn in network.inputConns:  # iterate over the connections in the network
-            wt = conn['weight']  # get the weight
-            source = conn['source']  # get the source
-            destPop = conn['destination']  # get the destination
+        self.in_offset = np.zeros(self.numInputs)
+        self.in_linear = np.zeros(self.numInputs)
+        self.in_quad = np.zeros(self.numInputs)
+        self.in_cubic = np.zeros(self.numInputs)
+        self.inputs_mapped = np.zeros(self.numInputs)
+        for inp in range(network.getNumInputs()):  # iterate over the connections in the network
+            self.in_offset[inp] = network.inputs[inp]['offset']
+            self.in_linear[inp] = network.inputs[inp]['linear']
+            self.in_quad[inp] = network.inputs[inp]['quadratic']
+            self.in_cubic[inp] = network.inputs[inp]['cubic']
+            destPop = network.inputs[inp]['destination']  # get the destination
             for dest in popsAndNrns[destPop]:
-                self.inputConnectivity[dest][source] = wt  # set the weight in the correct source and destination
+                self.inputConnectivity[dest][inp] = 1.0  # set the weight in the correct source and destination
 
         """Synapses"""
         if self.debug:
@@ -211,7 +218,8 @@ class SNS_Numpy(Backend):
     def forward(self, inputs) -> Any:
         self.Ulast = np.copy(self.U)
         self.thetaLast = np.copy(self.theta)
-        Iapp = np.matmul(self.inputConnectivity, inputs)  # Apply external current sources to their destinations
+        self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
+        Iapp = np.matmul(self.inputConnectivity, self.inputs_mapped)  # Apply external current sources to their destinations
         Gnon = np.maximum(0, np.minimum(self.GmaxNon * self.Ulast / self.R, self.GmaxNon))
         self.Gspike = self.Gspike * (1 - self.timeFactorSynapse)
         Gsyn = Gnon + self.Gspike
