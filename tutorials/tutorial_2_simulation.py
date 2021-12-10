@@ -19,55 +19,55 @@ from sns_toolbox.simulate.backends import SNS_Numpy
 """Design the network"""
 # Define a non-spiking neuron and excitatory/inhibitory synapses as in tutorial_1
 neuron_type = NonSpikingNeuron()
-synapse_excitatory = NonSpikingSynapse(maxConductance=1.0,relativeReversalPotential=50.0)
-synapse_inhibitory = NonSpikingSynapse(maxConductance=1.0,relativeReversalPotential=-40.0)
+synapse_excitatory = NonSpikingSynapse(max_conductance=1.0, relative_reversal_potential=50.0)
+synapse_inhibitory = NonSpikingSynapse(max_conductance=1.0, relative_reversal_potential=-40.0)
 
 # Define a modulatory synapse (relative reversal potential is 0)
-synapse_modulatory = NonSpikingSynapse(maxConductance=1.0,relativeReversalPotential=0.0)
+synapse_modulatory = NonSpikingSynapse(max_conductance=1.0, relative_reversal_potential=0.0)
 
 # Create a network
 net = Network(name='Tutorial 2 Network',R=20.0)
 
 # Make a neuron to receive external input
-net.addNeuron(neuron_type,name='SourceNrn',color='black')
+net.add_neuron(neuron_type, name='SourceNrn', color='black')
 
 # Make a neuron which is excited by the source neuron
-net.addNeuron(neuron_type,name='Dest1',color='blue')
-net.addSynapse(synapse_excitatory,'SourceNrn','Dest1')
+net.add_neuron(neuron_type, name='Dest1', color='blue')
+net.add_synapse(synapse_excitatory, 'SourceNrn', 'Dest1')
 
 # Make 2 neurons. One is excited by the source and excites the other, the other inhibits the first
-net.addNeuron(neuron_type,name='Dest2',color='orange')
-net.addNeuron(neuron_type,name='Dest2In',color='green')
-net.addSynapse(synapse_excitatory,'SourceNrn','Dest2')
-net.addSynapse(synapse_excitatory,'Dest2','Dest2In')
-net.addSynapse(synapse_inhibitory,'Dest2In','Dest2')
+net.add_neuron(neuron_type, name='Dest2', color='orange')
+net.add_neuron(neuron_type, name='Dest2In', color='green')
+net.add_synapse(synapse_excitatory, 'SourceNrn', 'Dest2')
+net.add_synapse(synapse_excitatory, 'Dest2', 'Dest2In')
+net.add_synapse(synapse_inhibitory, 'Dest2In', 'Dest2')
 
 # Make one more neuron. This neuron will be both excited by the source neuron and modulated by Dest1
-net.addNeuron(neuron_type,name='Dest3',color='red')
-net.addSynapse(synapse_excitatory,'SourceNrn','Dest3')
-net.addSynapse(synapse_modulatory,'Dest1','Dest3')
+net.add_neuron(neuron_type, name='Dest3', color='red')
+net.add_synapse(synapse_excitatory, 'SourceNrn', 'Dest3')
+net.add_synapse(synapse_modulatory, 'Dest1', 'Dest3')
 
 # Add an input source to apply stimulus to the Source Neuron
-net.addInput(dest='SourceNrn',name='Input',color='white')
+net.add_input(dest='SourceNrn', name='Input', color='white')
 # net.addInputConnection(1.0,'Input','SourceNrn')
 
 # Add output monitors so we can view the state of each neuron in the network
-net.addOutput('SourceNrn',name='OutSourceNrn',color='grey')
-net.addOutput('Dest1',name='OutDest1',color='grey')
-net.addOutput('Dest2',name='OutDest2',color='grey')
-net.addOutput('Dest2In',name='OutDest2In',color='grey')
-net.addOutput('Dest3',name='OutDest3',color='grey')
+net.add_output('SourceNrn', name='OutSourceNrn', color='grey')
+net.add_output('Dest1', name='OutDest1', color='grey')
+net.add_output('Dest2', name='OutDest2', color='grey')
+net.add_output('Dest2In', name='OutDest2In', color='grey')
+net.add_output('Dest3', name='OutDest3', color='grey')
 
 # View the graph of our network, to make sure everything is as we designed it
-net.renderGraph(view=True)
+net.render_graph(view=True)
 
 """Prep the Simulation"""
 # Set simulation parameters
 dt = 0.01
-tMax = 50
+t_max = 50
 
 # Initialize a vector of timesteps
-t = np.arange(0,tMax,dt)
+t = np.arange(0, t_max, dt)
 
 # Initialize vectors which store the input to our network, and for data to be written to during simulation from outputs
 inputs = np.zeros([len(t),1])+20.0  # Input vector must be 2d, even if second dimension is 1

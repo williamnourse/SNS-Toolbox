@@ -37,13 +37,13 @@ def stepAll(inputConnectivity, inputVals, Ulast, timeFactorMembrane, Gm, Ib, the
     :param GmaxNon:                     Matrix of maximum nonspiking synaptic conductances (uS)
     :param GmaxSpk:                     Matrix of maximum spiking synaptic conductances (uS)
     :param Gspike:                      Matrix of spiking synaptic conductances (uS)
-    :param timeFactorSynapse:           Matrix of constant parameters for each synapse (dt/tauSyn)
+    :param timeFactorSynapse:           Matrix of constant parameters for each synapse (dt/tau_syn)
     :param DelE:                        Matrix of synaptic reversal potentials
     :param outputVoltageConnectivity:   Matrix describing routes to output nodes
     :param outputSpikeConnectivity:     Matrix describing routes to output nodes
     :param R:                           Neural range (mV)
 
-    :return: U, Ulast, thetaLast, Gspike, refCtr, outputVoltages
+    :return: u, u_last, theta_last, g_spike, refCtr, outputVoltages
     """
     start = time.time()
 
@@ -83,13 +83,13 @@ def stepNoRef(inputConnectivity, inputVals, Ulast, timeFactorMembrane, Gm, Ib, t
     :param GmaxNon:                     Matrix of maximum nonspiking synaptic conductances (uS)
     :param GmaxSpk:                     Matrix of maximum spiking synaptic conductances (uS)
     :param Gspike:                      Matrix of spiking synaptic conductances (uS)
-    :param timeFactorSynapse:           Matrix of constant parameters for each synapse (dt/tauSyn)
+    :param timeFactorSynapse:           Matrix of constant parameters for each synapse (dt/tau_syn)
     :param DelE:                        Matrix of synaptic reversal potentials
     :param outputVoltageConnectivity:   Matrix describing routes to output nodes
     :param outputSpikeConnectivity:     Matrix describing routes to output nodes
     :param R:                           Range of neural activity (mV)
 
-    :return: U, Ulast, thetaLast, Gspike, outputVoltages, outputSpikes
+    :return: u, u_last, theta_last, g_spike, outputVoltages, outputSpikes
     """
     start = time.time()
 
@@ -125,7 +125,7 @@ def stepNoSpike(inputConnectivity,inputVals,Ulast,timeFactorMembrane,Gm,Ib,GmaxN
     :param outputConnectivity:  Matrix describing routes to output nodes
     :param R:                   Range of neural activity (mV)
 
-    :return: U, Ulast, outputNodes
+    :return: u, u_last, outputNodes
     """
     start = time.time()
 
@@ -371,13 +371,13 @@ start = time.time()
 #     for probConn in range(numConnSamples):
 #         print('No Spike: Size %d/%d, Percent Spiking 0/0, Percent Connectivity %d/%d' % ((size+1), numSizeSamples, (probConn + 1), numConnSamples))
 #         print('Running for %f seconds' % (time.time() - start))
-#         (inputConnectivity,inputVals,Ulast,timeFactorMembrane,Gm,Ib,
-#          GmaxNon,DelE,outputConnectivity) = constructNoSpike(dt, int(networkSize[size]),probConnectivity[probConn],perIn,perOut)
+#         (input_connectivity,inputVals,u_last,time_factor_membrane,g_m,i_b,
+#          g_max_non,del_e,outputConnectivity) = constructNoSpike(dt, int(networkSize[size]),probConnectivity[probConn],perIn,perOut)
 #         tStep = np.zeros(numSteps)
 #         for step in range(numSteps):
 #             # print('     %d'%step)
-#             (_,Ulast,_,tStep[step]) = stepNoSpike(inputConnectivity,inputVals,Ulast,
-#                                                   timeFactorMembrane,Gm,Ib,GmaxNon,DelE,outputConnectivity)
+#             (_,u_last,_,tStep[step]) = stepNoSpike(input_connectivity,inputVals,u_last,
+#                                                   time_factor_membrane,g_m,i_b,g_max_non,del_e,outputConnectivity)
 #         timeData[size][probConn][:] = tStep
 #
 # data['data'] = timeData

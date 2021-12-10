@@ -14,7 +14,7 @@ from typing import Dict, Any
 import warnings
 import numbers
 
-from sns_toolbox.design.__utilities__ import validColor, setTextColor
+from sns_toolbox.design.__utilities__ import valid_color, set_text_color
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -24,20 +24,20 @@ BASE CLASS
 class Neuron:
     def __init__(self, name: str = 'Neuron',
                  color: str = 'white',
-                 membraneCapacitance: float = 5.0,
-                 membraneConductance: float = 1.0,
+                 membrane_capacitance: float = 5.0,
+                 membrane_conductance: float = 1.0,
                  bias: float = 0.0) -> None:
         """
         Constructor for base Neuron class
         :param name:    Name of this neuron preset
         :param color:   Background fill color for the neuron, taken from the standard SVG colors
-        :param membraneCapacitance: (nF)
-        :param membraneConductance: (uS)
+        :param membrane_capacitance: (nF)
+        :param membrane_conductance: (uS)
         :param bias:                Bias current (nA)
         """
         # TODO: Type checking
         self.params: Dict[str, Any] = {}
-        if validColor(color):
+        if valid_color(color):
             self.color = color
         else:
             warnings.warn('Specified color is not in the standard SVG set. Defaulting to white.')
@@ -46,12 +46,12 @@ class Neuron:
             self.name = name
         else:
             raise TypeError('Neuron name must be a string')
-        if isinstance(membraneCapacitance,numbers.Number):
-            self.params['membraneCapacitance'] = membraneCapacitance
+        if isinstance(membrane_capacitance, numbers.Number):
+            self.params['membrane_capacitance'] = membrane_capacitance
         else:
             raise TypeError('Membrane capacitance must be a number (int, float, double, etc.)')
-        if isinstance(membraneConductance,numbers.Number):
-            self.params['membraneConductance'] = membraneConductance
+        if isinstance(membrane_conductance, numbers.Number):
+            self.params['membrane_conductance'] = membrane_conductance
         else:
             raise TypeError('Membrane conductance must be a number (int, float, double, etc.')
         if isinstance(bias,numbers.Number):
@@ -68,22 +68,22 @@ class NonSpikingNeuron(Neuron):
     def __init__(self, **kwargs) -> None:
         """
         Classic non-spiking neuron model, whose dynamics are as follows:
-        membraneCapacitance*dU/dt = -membraneConductance*U + bias + synaptic + external
+        membrane_capacitance*dU/dt = -membrane_conductance*u + bias + synaptic + external
         """
         super().__init__(**kwargs)
 
 class SpikingNeuron(Neuron):
-    def __init__(self, thresholdTimeConstant: float = 5.0,
-                 thresholdInitialValue: float = 1.0,
-                 thresholdProportionalityConstant: float = 0.0,
+    def __init__(self, threshold_time_constant: float = 5.0,
+                 threshold_initial_value: float = 1.0,
+                 threshold_proportionality_constant: float = 0.0,
                  **kwargs) -> None:
         """
         Generalized leaky integrate-and-fire neuron model, whose dynamics are as follows:
-        membraneCapacitance*dU/dt = -membraneConductance*U + bias + synaptic + external
-        thresholdTimeConstant*dTheta/dt = -Theta + thresholdInitialValue + thresholdProportionalityConstant*U
-        if U > Theta, U->0
+        membrane_capacitance*dU/dt = -membrane_conductance*u + bias + synaptic + external
+        threshold_time_constant*dTheta/dt = -Theta + threshold_initial_value + threshold_proportionality_constant*u
+        if u > Theta, u->0
         """
         super().__init__(**kwargs)
-        self.params['thresholdTimeConstant'] = thresholdTimeConstant
-        self.params['thresholdInitialValue'] = thresholdInitialValue
-        self.params['thresholdProportionalityConstant'] = thresholdProportionalityConstant
+        self.params['threshold_time_constant'] = threshold_time_constant
+        self.params['threshold_initial_value'] = threshold_initial_value
+        self.params['threshold_proportionality_constant'] = threshold_proportionality_constant

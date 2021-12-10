@@ -16,42 +16,42 @@ from sns_toolbox.simulate.plotting import spike_raster_plot
 
 """Define our types"""
 neuron_type = SpikingNeuron()
-synapse_type_d0 = SpikingSynapse(transmissionDelay=0)   # Transmission delay of 0 dt
-synapse_type_d5 = SpikingSynapse(transmissionDelay=5)   # Transmission delay of 5 dt
-synapse_type_d10 = SpikingSynapse(transmissionDelay=10)   # Transmission delay of 10 dt
-synapse_type_d20 = SpikingSynapse(transmissionDelay=20)   # Transmission delay of 20 dt
+synapse_type_d0 = SpikingSynapse(transmission_delay=0)   # Transmission delay of 0 dt
+synapse_type_d5 = SpikingSynapse(transmission_delay=5)   # Transmission delay of 5 dt
+synapse_type_d10 = SpikingSynapse(transmission_delay=10)   # Transmission delay of 10 dt
+synapse_type_d20 = SpikingSynapse(transmission_delay=20)   # Transmission delay of 20 dt
 
 """Create our network"""
 net = Network(name='Tutorial 5 Network')
 
-net.addNeuron(neuron_type,name='Source',color='blue')
-net.addNeuron(neuron_type,name='D0',color='orange')
-net.addNeuron(neuron_type,name='D5',color='green')
-net.addNeuron(neuron_type,name='D10',color='red')
-net.addNeuron(neuron_type,name='D20',color='purple')
+net.add_neuron(neuron_type, name='Source', color='blue')
+net.add_neuron(neuron_type, name='D0', color='orange')
+net.add_neuron(neuron_type, name='D5', color='green')
+net.add_neuron(neuron_type, name='D10', color='red')
+net.add_neuron(neuron_type, name='D20', color='purple')
 
-net.addSynapse(synapse_type_d0,'Source','D0')
-net.addSynapse(synapse_type_d5,'Source','D5')
-net.addSynapse(synapse_type_d10,'Source','D10')
-net.addSynapse(synapse_type_d20,'Source','D20')
+net.add_synapse(synapse_type_d0, 'Source', 'D0')
+net.add_synapse(synapse_type_d5, 'Source', 'D5')
+net.add_synapse(synapse_type_d10, 'Source', 'D10')
+net.add_synapse(synapse_type_d20, 'Source', 'D20')
 
-net.addOutput('Source',name='OSS',spiking=True)
-net.addOutput('D0',name='O0S',spiking=True)
-net.addOutput('D5',name='O5S',spiking=True)
-net.addOutput('D10',name='O10S',spiking=True)
-net.addOutput('D20',name='O20S',spiking=True)
+net.add_output('Source', name='OSS', spiking=True)
+net.add_output('D0', name='O0S', spiking=True)
+net.add_output('D5', name='O5S', spiking=True)
+net.add_output('D10', name='O10S', spiking=True)
+net.add_output('D20', name='O20S', spiking=True)
 
-net.addInput('Source')
+net.add_input('Source')
 
-net.renderGraph(view=True)
+net.render_graph(view=True)
 
 """Simulate the network"""
 dt = 0.01
-tMax = 10
-t = np.arange(0,tMax,dt)
-inputs = np.zeros([len(t),net.getNumInputs()])          # getNumInputs() gets the number of input nodes in a network
+t_max = 10
+t = np.arange(0, t_max, dt)
+inputs = np.zeros([len(t), net.get_num_inputs()])          # getNumInputs() gets the number of input nodes in a network
 inputs[0:100] = 20.0
-data = np.zeros([len(t),net.getNumOutputsActual()])    # getNumOutputsActual gets the number of accessible output
+data = np.zeros([len(t), net.get_num_outputs_actual()])    # getNumOutputsActual gets the number of accessible output
                                                             # nodes in a network (since this net has populations, each
                                                             # population has n output nodes)
 # Compile to numpy

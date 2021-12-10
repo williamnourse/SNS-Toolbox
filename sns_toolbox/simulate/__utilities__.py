@@ -8,7 +8,7 @@ You called the guy 'Snot'?
 import torch
 
 
-def sendVars(variables, device):
+def send_vars(variables, device):
     for var in variables:
         var = var.to(device)
     torch.cuda.empty_cache()

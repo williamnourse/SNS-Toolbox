@@ -25,44 +25,44 @@ UTILITIES TESTS
 
 class TestValidColor(unittest.TestCase):
     def test_color_in_set(self):
-        self.assertEqual(True, __utilities__.validColor('khaki'), 'Should be True')
+        self.assertEqual(True, __utilities__.valid_color('khaki'), 'Should be True')
 
     def test_color_not_in_set(self):
-        self.assertEqual(False, __utilities__.validColor('not a color'), 'Should be False')
+        self.assertEqual(False, __utilities__.valid_color('not a color'), 'Should be False')
 
     def test_input_not_string(self):
-        self.assertEqual(False, __utilities__.validColor(5), 'Should be False')
+        self.assertEqual(False, __utilities__.valid_color(5), 'Should be False')
 
     def test_input_none(self):
-        self.assertEqual(False, __utilities__.validColor(), 'Should be False')
+        self.assertEqual(False, __utilities__.valid_color(), 'Should be False')
 
     def test_color_in_set_uppercase(self):
-        self.assertEqual(False, __utilities__.validColor('ROYALblue'), 'Should be False')
+        self.assertEqual(False, __utilities__.valid_color('ROYALblue'), 'Should be False')
 
     def test_color_tuple(self):
-        self.assertEqual(False, __utilities__.validColor(['navy','olive']))
+        self.assertEqual(False, __utilities__.valid_color(['navy', 'olive']))
 
 
 class TestSetTextColor(unittest.TestCase):
     def test_color_with_white_text(self):
-        self.assertEqual('white', __utilities__.setTextColor('brown'), 'Should be white')
+        self.assertEqual('white', __utilities__.set_text_color('brown'), 'Should be white')
 
     def test_color_with_black_text(self):
-        self.assertEqual('black', __utilities__.setTextColor('white'), 'Should be black')
+        self.assertEqual('black', __utilities__.set_text_color('white'), 'Should be black')
 
     def test_uppercase_white_text(self):
-        self.assertEqual('black', __utilities__.setTextColor('Brown'), 'Should be black')
+        self.assertEqual('black', __utilities__.set_text_color('Brown'), 'Should be black')
 
     def test_not_string(self):
         warnings.simplefilter('ignore',category=UserWarning)
-        self.assertEqual('black', __utilities__.setTextColor(5), 'Should be black')
+        self.assertEqual('black', __utilities__.set_text_color(5), 'Should be black')
 
     def test_color_tuple(self):
         warnings.simplefilter('ignore', category=UserWarning)
-        self.assertEqual('black', __utilities__.setTextColor(['black','blue']), 'Should be black')
+        self.assertEqual('black', __utilities__.set_text_color(['black', 'blue']), 'Should be black')
 
     def test_input_none(self):
-        self.assertEqual('black', __utilities__.setTextColor(), 'Should be black')
+        self.assertEqual('black', __utilities__.set_text_color(), 'Should be black')
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -77,7 +77,7 @@ class TestNeuron(unittest.TestCase):
         with self.subTest():    # Color
             self.assertEqual(testNeuron.params['color'], 'white', 'Should be white')
         with self.subTest():    # Membrane Capacitance
-            self.assertEqual(testNeuron.params['membraneCapacitance'],5.0,'Should be 5.0')
+            self.assertEqual(testNeuron.params['membrane_capacitance'],5.0,'Should be 5.0')
         with self.subTest():    # Membrane Conductance
             self.assertEqual(testNeuron.params['fontColor'],'black','Should be black')
         with self.subTest():    # Bias current
@@ -86,15 +86,15 @@ class TestNeuron(unittest.TestCase):
     def test_construct_valid(self):
         testNeuron = neurons.Neuron(name='Name',
                                     color='blue',
-                                    membraneCapacitance=2.0,
-                                    membraneConductance=2.0,
+                                    membrane_capacitance=2.0,
+                                    membrane_conductance=2.0,
                                     bias=2.0)
         with self.subTest():  # Name
             self.assertEqual(testNeuron.params['name'], 'Name', 'Should be Name')
         with self.subTest():  # Color
             self.assertEqual(testNeuron.params['color'], 'blue', 'Should be blue')
         with self.subTest():  # Membrane Capacitance
-            self.assertEqual(testNeuron.params['membraneCapacitance'], 2.0, 'Should be 2.0')
+            self.assertEqual(testNeuron.params['membrane_capacitance'], 2.0, 'Should be 2.0')
         with self.subTest():  # Membrane Conductance
             self.assertEqual(testNeuron.params['fontColor'], 'white', 'Should be white')
         with self.subTest():  # Bias current
@@ -106,10 +106,10 @@ class TestNeuron(unittest.TestCase):
                 testNeuron = neurons.Neuron(name=1)
         with self.subTest():
             with self.assertRaises(TypeError):
-                testNeuron = neurons.Neuron(membraneCapacitance='foo')
+                testNeuron = neurons.Neuron(membrane_capacitance='foo')
         with self.subTest():
             with self.assertRaises(TypeError):
-                testNeuron = neurons.Neuron(membraneConductance='foo')
+                testNeuron = neurons.Neuron(membrane_conductance='foo')
         with self.subTest():
             with self.assertRaises(TypeError):
                 testNeuron = neurons.Neuron(bias='foo')
@@ -123,7 +123,7 @@ class TestNonSpikingNeuron(unittest.TestCase):
         with self.subTest():    # Color
             self.assertEqual(testNeuron.params['color'], 'white', 'Should be white')
         with self.subTest():    # Membrane Capacitance
-            self.assertEqual(testNeuron.params['membraneCapacitance'],5.0,'Should be 5.0')
+            self.assertEqual(testNeuron.params['membrane_capacitance'],5.0,'Should be 5.0')
         with self.subTest():    # Membrane Conductance
             self.assertEqual(testNeuron.params['fontColor'],'black','Should be black')
         with self.subTest():    # Bias current
@@ -140,7 +140,7 @@ class TestNonSpikingNeuron(unittest.TestCase):
         with self.subTest():  # Color
             self.assertEqual(testNeuron.params['color'], 'blue', 'Should be blue')
         with self.subTest():  # Membrane Capacitance
-            self.assertEqual(testNeuron.params['membraneCapacitance'], 2.0, 'Should be 2.0')
+            self.assertEqual(testNeuron.params['membrane_capacitance'], 2.0, 'Should be 2.0')
         with self.subTest():  # Membrane Conductance
             self.assertEqual(testNeuron.params['fontColor'], 'white', 'Should be white')
         with self.subTest():  # Bias current
@@ -185,20 +185,20 @@ class TestNonSpikingSynapse(unittest.TestCase):
         with self.subTest():
             self.assertEqual(testSynapse.params['name'],'Synapse','Should be Synapse')
         with self.subTest():
-            self.assertEqual(testSynapse.params['maxConductance'],1.0,'Should be 1.0')
+            self.assertEqual(testSynapse.params['max_conductance'],1.0,'Should be 1.0')
         with self.subTest():
-            self.assertEqual(testSynapse.params['relativeReversalPotential'],40.0,'Should be 40.0')
+            self.assertEqual(testSynapse.params['relative_reversal_potential'],40.0,'Should be 40.0')
         with self.subTest():
             self.assertEqual(testSynapse.params['R'],20.0,'Should be 20.0')
 
     def test_construct_valid(self):
-        testSynapse = connections.NonSpikingSynapse(name='Name', maxConductance=2.0, relativeReversalPotential=2.0, R=2.0)
+        testSynapse = connections.NonSpikingSynapse(name='Name', max_conductance=2.0, relative_reversal_potential=2.0, R=2.0)
         with self.subTest():
             self.assertEqual(testSynapse.params['name'], 'Name', 'Should be Name')
         with self.subTest():
-            self.assertEqual(testSynapse.params['maxConductance'], 2.0, 'Should be 2.0')
+            self.assertEqual(testSynapse.params['max_conductance'], 2.0, 'Should be 2.0')
         with self.subTest():
-            self.assertEqual(testSynapse.params['relativeReversalPotential'], 2.0, 'Should be 2.0')
+            self.assertEqual(testSynapse.params['relative_reversal_potential'], 2.0, 'Should be 2.0')
         with self.subTest():
             self.assertEqual(testSynapse.params['R'], 2.0, 'Should be 2.0')
 
@@ -208,22 +208,22 @@ class TestNonSpikingSynapse(unittest.TestCase):
                 testSynapse = connections.NonSpikingSynapse(name=5)
         with self.subTest():
             with self.assertRaises(TypeError):
-                testSynapse = connections.NonSpikingSynapse(maxConductance='foo')
+                testSynapse = connections.NonSpikingSynapse(max_conductance='foo')
         with self.subTest():
             with self.assertRaises(TypeError):
-                testSynapse = connections.NonSpikingSynapse(relativeReversalPotential='foo')
+                testSynapse = connections.NonSpikingSynapse(relative_reversal_potential='foo')
         with self.subTest():
             with self.assertRaises(TypeError):
                 testSynapse = connections.NonSpikingSynapse(R='foo')
         with self.subTest():
             with self.assertRaises(ValueError):
-                testSynapse = connections.NonSpikingSynapse(maxConductance=0)
+                testSynapse = connections.NonSpikingSynapse(max_conductance=0)
         with self.subTest():
             with self.assertRaises(ValueError):
                 testSynapse = connections.NonSpikingSynapse(R=0)
         with self.subTest():
             with self.assertRaises(ValueError):
-                testSynapse = connections.NonSpikingSynapse(maxConductance=-1)
+                testSynapse = connections.NonSpikingSynapse(max_conductance=-1)
         with self.subTest():
             with self.assertRaises(ValueError):
                 testSynapse = connections.NonSpikingSynapse(R=-1)
@@ -233,14 +233,14 @@ class TestTransmissionSynapse(unittest.TestCase):
     def test_construct_default(self):
         testSynapse = connections.NonSpikingTransmissionSynapse()
         with self.subTest():
-            self.assertEqual(((1.0*20.0)/(40.0-1.0*20.0)),testSynapse.params['maxConductance'],'Should be 1.0')
+            self.assertEqual(((1.0*20.0)/(40.0-1.0*20.0)),testSynapse.params['max_conductance'],'Should be 1.0')
         with self.subTest():
             self.assertEqual('Transmit',testSynapse.params['name'],'Should be Transmit')
 
     def test_construct_valid(self):
         testSynapse = connections.NonSpikingTransmissionSynapse(gain=1.5, name='Name')
         with self.subTest():
-            self.assertEqual(((1.5 * 20.0) / (40.0 - 1.5 * 20.0)), testSynapse.params['maxConductance'],
+            self.assertEqual(((1.5 * 20.0) / (40.0 - 1.5 * 20.0)), testSynapse.params['max_conductance'],
                              'Should be 3.0')
         with self.subTest():
             self.assertEqual('Name', testSynapse.params['name'], 'Should be Name')
@@ -264,7 +264,7 @@ class TestModulationSynapse(unittest.TestCase):
     def test_construct_default(self):
         testSynapse = connections.NonSpikingModulationSynapse()
         with self.subTest():
-            self.assertEqual(0.0,testSynapse.params['relativeReversalPotential'],'Should be 0.0')
+            self.assertEqual(0.0,testSynapse.params['relative_reversal_potential'],'Should be 0.0')
         with self.subTest():
             self.assertEqual('Modulate',testSynapse.params['name'],'Should be Modulate')
 
@@ -300,26 +300,26 @@ class TestNonSpikingNetwork(unittest.TestCase):
 
     def test_getNumNeurons_empty(self):
         testNetwork = networks.Network()
-        self.assertEqual(testNetwork.getNumNeurons(),0,'Should be 0')
+        self.assertEqual(testNetwork.get_num_neurons(), 0, 'Should be 0')
 
     def test_getNumNeurons_not_empty(self):
         testNetwork = networks.Network()
         testNetwork.neurons = [1,2]
-        self.assertEqual(testNetwork.getNumNeurons(),2,'Should be 2')
+        self.assertEqual(testNetwork.get_num_neurons(), 2, 'Should be 2')
 
     def test_getNumSynapses_empty(self):
         testNetwork = networks.Network()
-        self.assertEqual(testNetwork.getNumSynapses(),0,'Should be 0')
+        self.assertEqual(testNetwork.get_num_synapses(), 0, 'Should be 0')
 
     def test_getNumSynapses_not_empty(self):
         testNetwork = networks.Network()
         testNetwork.synapses = [1,2]
-        self.assertEqual(testNetwork.getNumSynapses(),2,'Should be 2')
+        self.assertEqual(testNetwork.get_num_synapses(), 2, 'Should be 2')
 
     def test_addNeuron_default(self):
         testNetwork = networks.Network()
         testNeuron = neurons.NonSpikingNeuron() # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
-        testNetwork.addNeuron(testNeuron)
+        testNetwork.add_neuron(testNeuron)
         with self.subTest():
             self.assertEqual(testNetwork.neurons[0].params['name'],'Neuron','Should be Neuron')
         with self.subTest():
@@ -330,13 +330,13 @@ class TestNonSpikingNetwork(unittest.TestCase):
     def test_addNeuron_copy(self):
         testNetwork = networks.Network()
         testNeuron = neurons.NonSpikingNeuron()  # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
-        testNetwork.addNeuron(testNeuron)
+        testNetwork.add_neuron(testNeuron)
         self.assertNotEqual(testNeuron,testNetwork.neurons[0])
 
     def test_addNeuron_valid(self):
         testNetwork = networks.Network()
         testNeuron = neurons.NonSpikingNeuron()  # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
-        testNetwork.addNeuron(testNeuron,suffix='Test',color='indianred')
+        testNetwork.add_neuron(testNeuron, suffix='Test', color='indianred')
         with self.subTest():
             self.assertEqual(testNetwork.neurons[0].params['name'],'NeuronTest', 'Should be NeuronTest')
         with self.subTest():
@@ -347,18 +347,18 @@ class TestNonSpikingNetwork(unittest.TestCase):
         testNeuron = neurons.NonSpikingNeuron()  # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
         with self.subTest():
             with self.assertRaises(TypeError):
-                testNetwork.addNeuron(testNeuron,suffix=5)
+                testNetwork.add_neuron(testNeuron, suffix=5)
         with self.subTest():
             with self.assertRaises(TypeError):
-                testNetwork.addNeuron(5)
+                testNetwork.add_neuron(5)
 
     def test_addSynapse_default(self):
         testNetwork = networks.Network()
         testNeuron = neurons.NonSpikingNeuron()  # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
-        testNetwork.addNeuron(testNeuron)
-        testNetwork.addNeuron(testNeuron,suffix='2')
+        testNetwork.add_neuron(testNeuron)
+        testNetwork.add_neuron(testNeuron, suffix='2')
         testSynapse = connections.NonSpikingSynapse()
-        testNetwork.addSynapse(testSynapse,0,1)
+        testNetwork.add_synapse(testSynapse, 0, 1)
         with self.subTest():
             self.assertNotEqual(testNetwork.synapses[0],testSynapse)
         with self.subTest():
@@ -371,10 +371,10 @@ class TestNonSpikingNetwork(unittest.TestCase):
     def test_addSynapse_valid(self):
         testNetwork = networks.Network()
         testNeuron = neurons.NonSpikingNeuron()  # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
-        testNetwork.addNeuron(testNeuron)
-        testNetwork.addNeuron(testNeuron, suffix='2')
+        testNetwork.add_neuron(testNeuron)
+        testNetwork.add_neuron(testNeuron, suffix='2')
         testSynapse = connections.NonSpikingSynapse()
-        testNetwork.addSynapse(testSynapse, 0, 0,viewLabel=True,offset=1)
+        testNetwork.add_synapse(testSynapse, 0, 0, view_label=True, offset=1)
         with self.subTest():
             self.assertEqual(testNetwork.synapses[0].params['source'],1,'Should be 1')
         with self.subTest():
@@ -385,53 +385,53 @@ class TestNonSpikingNetwork(unittest.TestCase):
     def test_addSynapse_invalid(self):
         testNetwork = networks.Network()
         testNeuron = neurons.NonSpikingNeuron()  # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
-        testNetwork.addNeuron(testNeuron)
-        testNetwork.addNeuron(testNeuron, suffix='2')
+        testNetwork.add_neuron(testNeuron)
+        testNetwork.add_neuron(testNeuron, suffix='2')
         testSynapse = connections.NonSpikingSynapse()
         with self.subTest():
             with self.assertRaises(TypeError):
-                testNetwork.addSynapse(10,0,1)
+                testNetwork.add_synapse(10, 0, 1)
         with self.subTest():
             with self.assertRaises(TypeError):
-                testNetwork.addSynapse(testSynapse,'foo',1)
+                testNetwork.add_synapse(testSynapse, 'foo', 1)
         with self.subTest():
             with self.assertRaises(TypeError):
-                testNetwork.addSynapse(testSynapse,0,'bar')
+                testNetwork.add_synapse(testSynapse, 0, 'bar')
         with self.subTest():
             with self.assertRaises(TypeError):
-                testNetwork.addSynapse(testSynapse,0,1,offset=2.2)
+                testNetwork.add_synapse(testSynapse, 0, 1, offset=2.2)
         with self.subTest():
             with self.assertRaises(TypeError):
-                testNetwork.addSynapse(testSynapse,0,1,viewLabel='bad')
+                testNetwork.add_synapse(testSynapse, 0, 1, view_label='bad')
         with self.subTest():
             with self.assertRaises(ValueError):
-                testNetwork.addSynapse(testSynapse,10,1)
+                testNetwork.add_synapse(testSynapse, 10, 1)
         with self.subTest():
             with self.assertRaises(ValueError):
-                testNetwork.addSynapse(testSynapse,-1,1)
+                testNetwork.add_synapse(testSynapse, -1, 1)
         with self.subTest():
             with self.assertRaises(ValueError):
-                testNetwork.addSynapse(testSynapse,0,10)
+                testNetwork.add_synapse(testSynapse, 0, 10)
         with self.subTest():
             with self.assertRaises(ValueError):
-                testNetwork.addSynapse(testSynapse,0,-1)
+                testNetwork.add_synapse(testSynapse, 0, -1)
         with self.subTest():
             with self.assertRaises(ValueError):
-                testNetwork.addSynapse(testSynapse,0,1,offset=10)
+                testNetwork.add_synapse(testSynapse, 0, 1, offset=10)
         with self.subTest():
             with self.assertRaises(ValueError):
-                testNetwork.addSynapse(testSynapse,0,1,offset=1)
+                testNetwork.add_synapse(testSynapse, 0, 1, offset=1)
 
     def test_addNetwork_default(self):
         testNetwork = networks.Network()
         sourceNetwork = networks.Network()
         testNeuron = neurons.NonSpikingNeuron()  # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
-        sourceNetwork.addNeuron(testNeuron)
-        sourceNetwork.addNeuron(testNeuron)
-        testNetwork.addNeuron(testNeuron)
+        sourceNetwork.add_neuron(testNeuron)
+        sourceNetwork.add_neuron(testNeuron)
+        testNetwork.add_neuron(testNeuron)
         testSynapse = connections.NonSpikingSynapse()
-        sourceNetwork.addSynapse(testSynapse, 0, 1,viewLabel=True)
-        testNetwork.addNetwork(sourceNetwork)
+        sourceNetwork.add_synapse(testSynapse, 0, 1, view_label=True)
+        testNetwork.add_network(sourceNetwork)
         with self.subTest():
             self.assertEqual(len(testNetwork.neurons),3,'Should be 3')
         with self.subTest():
@@ -453,10 +453,10 @@ class TestNonSpikingNetwork(unittest.TestCase):
         testNetwork = networks.Network()
         sourceNetwork = networks.Network()
         testNeuron = neurons.NonSpikingNeuron()  # Defaults: name-Neuron, color-white, memCap-5.0, memCond-1.0, bias-0.0
-        sourceNetwork.addNeuron(testNeuron)
-        sourceNetwork.addNeuron(testNeuron)
-        testNetwork.addNeuron(testNeuron)
-        testNetwork.addNetwork(sourceNetwork,color='navy')
+        sourceNetwork.add_neuron(testNeuron)
+        sourceNetwork.add_neuron(testNeuron)
+        testNetwork.add_neuron(testNeuron)
+        testNetwork.add_network(sourceNetwork, color='navy')
         with self.subTest():
             self.assertEqual(testNetwork.neurons[0].params['color'],'white','Should be white')
         with self.subTest():
@@ -467,7 +467,7 @@ class TestNonSpikingNetwork(unittest.TestCase):
     def test_addNetwork_invalid(self):
         testNetwork = networks.Network()
         with self.assertRaises(TypeError):
-            testNetwork.addNetwork('foo')
+            testNetwork.add_network('foo')
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

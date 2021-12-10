@@ -19,7 +19,7 @@ NEURON AND SYNAPSE DEFINITIONS
 """
 
 globalStart = time.time()
-spikeL0 = SpikingNeuron(name='m<0',thresholdProportionalityConstant=-1,color='aquamarine')
+spikeL0 = SpikingNeuron(name='m<0', threshold_proportionality_constant=-1, color='aquamarine')
 spikeExcite = SpikingSynapse(name='Excitatory Spiking')
 print('Finished type definition. Running for %f sec'%(time.time()-globalStart))
 
@@ -31,7 +31,7 @@ TEST SETUP
 current = 10.0
 numSamples = 3
 numNeurons = np.logspace(1,4,num=numSamples)
-# numNeurons = np.linspace(7224,7244,num=numSamples)
+# num_neurons = np.linspace(7224,7244,num=numSamples)
 dt = 0.01
 
 print('Finished test setup. Running for %f sec'%(time.time()-globalStart))
@@ -39,11 +39,11 @@ print('Finished test setup. Running for %f sec'%(time.time()-globalStart))
 for num in range(numSamples):
     print('\n%i Neurons. Running for %f sec' % (numNeurons[num],time.time() - globalStart))
     net = Network()
-    net.addPopulation(spikeL0,int(numNeurons[num]),name='self')
-    net.addSynapse(spikeExcite,'self','self')
-    net.addInput('Input')
+    net.add_population(spikeL0, int(numNeurons[num]), name='self')
+    net.add_synapse(spikeExcite, 'self', 'self')
+    net.add_input('Input')
     net.addInputConnection(1.0,'Input','self')
-    net.addOutput('self')
+    net.add_output('self')
 
     # Torch GPU
     # print('Before network created')

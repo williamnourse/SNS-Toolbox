@@ -3,9 +3,26 @@
   <component name="ChangeListManager">
     <list default="true" id="0111e928-7c50-48e1-a867-c8c018c660a0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/benchmarking/backendSpeed/analyze_backend_speed.py" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarking/backendSpeed/analyze_backend_speed.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/benchmarking/backendSpeed/analyze_backend_speed_small.py" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarking/backendSpeed/analyze_backend_speed_small.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/benchmarking/backendSpeed/test_backend_speed.py" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarking/backendSpeed/test_backend_speed.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/benchmarking/networkSizing/test_max_gpu_net_size.py" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarking/networkSizing/test_max_gpu_net_size.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/benchmarking/networkSizing/test_max_realistic_gpu_net_size.py" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarking/networkSizing/test_max_realistic_gpu_net_size.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/benchmarking/spikeResetEfficiency/test_spike_reset_mechanism_speed.py" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarking/spikeResetEfficiency/test_spike_reset_mechanism_speed.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/benchmarking/thresholdVaryConnectivity/test_thresholds_varying_connectivity.py" beforeDir="false" afterPath="$PROJECT_DIR$/benchmarking/thresholdVaryConnectivity/test_thresholds_varying_connectivity.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sns_toolbox/design/__utilities__.py" beforeDir="false" afterPath="$PROJECT_DIR$/sns_toolbox/design/__utilities__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sns_toolbox/design/connections.py" beforeDir="false" afterPath="$PROJECT_DIR$/sns_toolbox/design/connections.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sns_toolbox/design/networks.py" beforeDir="false" afterPath="$PROJECT_DIR$/sns_toolbox/design/networks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sns_toolbox/design/neurons.py" beforeDir="false" afterPath="$PROJECT_DIR$/sns_toolbox/design/neurons.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sns_toolbox/design/test_design.py" beforeDir="false" afterPath="$PROJECT_DIR$/sns_toolbox/design/test_design.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sns_toolbox/simulate/__utilities__.py" beforeDir="false" afterPath="$PROJECT_DIR$/sns_toolbox/simulate/__utilities__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sns_toolbox/simulate/backends.py" beforeDir="false" afterPath="$PROJECT_DIR$/sns_toolbox/simulate/backends.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorials/demo_sns_toolbox.py" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/demo_sns_toolbox.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorials/tutorial_1_network_design.py" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/tutorial_1_network_design.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorials/tutorial_2_simulation.py" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/tutorial_2_simulation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tutorials/tutorial_3_spiking_networks.py" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/tutorial_3_spiking_networks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorials/tutorial_4_subnetworks.py" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/tutorial_4_subnetworks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorials/tutorial_5_spiking_transmission_delay.py" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/tutorial_5_spiking_transmission_delay.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

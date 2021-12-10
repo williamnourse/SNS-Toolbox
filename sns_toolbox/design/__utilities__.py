@@ -47,7 +47,7 @@ COLORSWHITETEXT = {'black', 'blue', 'blueviolet', 'brown', 'darkblue', 'darkmage
 FUNCTIONS
 """
 
-def validColor(color: str = None) -> bool:
+def valid_color(color: str = None) -> bool:
     if isinstance(color, str):
         if color in SETOFVALIDCOLORS:
             return True
@@ -56,7 +56,7 @@ def validColor(color: str = None) -> bool:
     else:
         return False
 
-def setTextColor(color: str = None) -> str:
+def set_text_color(color: str = None) -> str:
     if isinstance(color, str):
         if color in COLORSWHITETEXT:
             return 'white'

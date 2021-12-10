@@ -29,20 +29,20 @@ neuron_type = NonSpikingNeuron(name='Neuron',           # Name displayed in a re
 net = Network(name='Tutorial 1 Network') # Optional parameters are a name and the value of 'R', in mV
 
 # Add neurons to the network
-net.addNeuron(neuron_type,name='Neuron 1',color='blue')
-net.addNeuron(neuron_type,name='Neuron 2',color='black')
+net.add_neuron(neuron_type, name='Neuron 1', color='blue')
+net.add_neuron(neuron_type, name='Neuron 2', color='black')
 
 """
 4. Define some synapse types
 """
 synapse_excitatory = NonSpikingSynapse()    # default parameters lead to strong excitation
-synapse_inhibitory = NonSpikingSynapse(relativeReversalPotential=-40.0) # make an inhibitory synapse
+synapse_inhibitory = NonSpikingSynapse(relative_reversal_potential=-40.0) # make an inhibitory synapse
 
 """
 5. Use our synapse types to connect the neurons in the network
 """
-net.addSynapse(synapse_excitatory,'Neuron 1','Neuron 2')    # Add an excitatory synapse from neuron 1 to neuron 2
-net.addSynapse(synapse_inhibitory,'Neuron 2', 'Neuron 1')   # Add an inhibitory synapse back from 2 to 1
+net.add_synapse(synapse_excitatory, 'Neuron 1', 'Neuron 2')    # Add an excitatory synapse from neuron 1 to neuron 2
+net.add_synapse(synapse_inhibitory, 'Neuron 2', 'Neuron 1')   # Add an inhibitory synapse back from 2 to 1
 
 # This can also be done using indices in the order the neurons were added to the network
 # net.addSynapse(synapse_excitatory,0,1)
@@ -51,4 +51,4 @@ net.addSynapse(synapse_inhibitory,'Neuron 2', 'Neuron 1')   # Add an inhibitory 
 """
 6. View our network as a visual graph
 """
-net.renderGraph(view=True)
+net.render_graph(view=True)

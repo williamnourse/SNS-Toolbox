@@ -26,8 +26,8 @@ def iterative(numSteps,Ulast,timeFactorMembrane,Gm,Ib,thetaLast,timeFactorThresh
             if U[j]>theta[j]:
                 U[j] = 0
                 spikes[j] = 1.0
-        # spikes = np.sign(np.minimum(0, theta - U))
-        # U = U * (spikes + 1)
+        # spikes = np.sign(np.minimum(0, theta - u))
+        # u = u * (spikes + 1)
 
         Ulast = np.copy(U)
         thetaLast = np.copy(theta)

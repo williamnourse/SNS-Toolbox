@@ -21,8 +21,8 @@ NEURON AND SYNAPSE DEFINITIONS
 """
 current = 10.0
 globalStart = time.time()
-spike = SpikingNeuron(name='m<0',thresholdProportionalityConstant=-1,color='aquamarine')
-spikeBias = SpikingNeuron(name='bias',thresholdProportionalityConstant=-1,color='aquamarine',bias=current)
+spike = SpikingNeuron(name='m<0', threshold_proportionality_constant=-1, color='aquamarine')
+spikeBias = SpikingNeuron(name='bias', threshold_proportionality_constant=-1, color='aquamarine', bias=current)
 spikeExcite = SpikingSynapse(name='Excitatory Spiking')
 print('Finished type definition. Running for %f sec'%(time.time()-globalStart))
 
@@ -50,14 +50,14 @@ for num in range(numSamples):
     numOuts = int(0.12 * numNeurons[num])
     numSyn = int(np.sqrt(numNeurons[num]))
     numRest = int(numNeurons[num]) - numIns - numSyn - numOuts
-    net.addPopulation(spike, numIns, name='ins')  # in puppy, numInputs = 8% of network
-    net.addPopulation(spikeBias, numOuts, name='outs')  # in puppy, numOutputs = 12% of network
-    net.addPopulation(spikeBias, numSyn, name='connected')  # in puppy, numSyn = numNeurons
-    net.addPopulation(spikeBias, numRest, name='rest')  # rest of the network
-    net.addSynapse(spikeExcite, 'connected', 'connected')
-    net.addInput('Input')
+    net.add_population(spike, numIns, name='ins')  # in puppy, num_inputs = 8% of network
+    net.add_population(spikeBias, numOuts, name='outs')  # in puppy, num_outputs = 12% of network
+    net.add_population(spikeBias, numSyn, name='connected')  # in puppy, numSyn = num_neurons
+    net.add_population(spikeBias, numRest, name='rest')  # rest of the network
+    net.add_synapse(spikeExcite, 'connected', 'connected')
+    net.add_input('Input')
     net.addInputConnection(1.0, 'Input', 'ins')
-    net.addOutput('outs')
+    net.add_output('outs')
 
     # Numpy
     npModel = SNS_Numpy(net,dt=dt)
@@ -168,7 +168,7 @@ for num in range(numSamples):
             torchGPUTimes[num, i] = 0
 
 
-    data = {'numNeurons': numNeurons,
+    data = {'num_neurons': numNeurons,
             'numpy': npTimes,
             'torchCPU': torchCPUTimes,
             'torchGPU': torchGPUTimes,
