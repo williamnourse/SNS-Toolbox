@@ -16,10 +16,10 @@ from sns_toolbox.design.connections import NonSpikingSynapse
 2. Define a neuron type. In a network we can have many different types, but for now we're just going to use one
 """
 # All of the following parameters are the default values for a non-spiking neuron
-neuron_type = NonSpikingNeuron(name='Neuron',           # Name displayed in a render of the network
-                               color='white',           # Fill color for the rendered neuron
-                               membraneCapacitance=5.0, # Membrane capacitance in nF
-                               membraneConductance=1.0, # Membrane conductance in uS
+neuron_type = NonSpikingNeuron(name='Neuron',  # Name displayed in a render of the network
+                               color='white',  # Fill color for the rendered neuron
+                               membrane_capacitance=5.0,  # Membrane capacitance in nF
+                               membrane_conductance=1.0,  # Membrane conductance in uS
                                bias=0.0)                # Tonic applied current in nA
 
 """
