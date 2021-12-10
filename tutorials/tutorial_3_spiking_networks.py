@@ -28,7 +28,7 @@ spike_m_greater_0 = SpikingNeuron(name='m > 0', color='forestgreen',
                                   thresholdProportionalityConstant=1.0)
 
 # Create a spiking synapse
-synapse_spike = SpikingSynapse(synapticTimeConstant=1.0)    # Default value (ms)
+synapse_spike = SpikingSynapse(timeConstant=1.0)    # Default value (ms)
 
 # Create a network with different m values
 net = Network(name='Tutorial 3 Network Neurons')

@@ -56,9 +56,10 @@ class NonSpikingSynapse(Synapse):
             raise TypeError('relativeReversalPotential (deltaEsyn) must be a number (int, float, double, etc.')
 
 class SpikingSynapse(Synapse):
-    def __init__(self,maxConductance: float = 1.0,
+    def __init__(self, maxConductance: float = 1.0,
                  relativeReversalPotential: float = 194.0,
-                 synapticTimeConstant: float = 1.0,
+                 timeConstant: float = 1.0,
+                 transmissionDelay: int = 0,
                  R: float = 20.0,
                  **kwargs: Any) -> None:
         """
@@ -81,9 +82,9 @@ class SpikingSynapse(Synapse):
             self.params['relativeReversalPotential'] = relativeReversalPotential
         else:
             raise TypeError('relativeReversalPotential (deltaEsyn) must be a number (int, float, double, etc.')
-        if isinstance(synapticTimeConstant,numbers.Number):
-            if synapticTimeConstant > 0:
-                self.params['synapticTimeConstant'] = synapticTimeConstant
+        if isinstance(timeConstant,numbers.Number):
+            if timeConstant > 0:
+                self.params['synapticTimeConstant'] = timeConstant
             else:
                 raise ValueError('Synaptic time constant (tauS) must be greater than 0')
         else:
@@ -95,6 +96,13 @@ class SpikingSynapse(Synapse):
                 raise ValueError('R must be greater than 0')
         else:
             raise TypeError('R must be a number (int, float, double, etc.')
+        if isinstance(transmissionDelay,int):
+            if transmissionDelay >= 0:
+                self.params['synapticTransmissionDelay'] = transmissionDelay
+            else:
+                raise ValueError('Synaptic transmission delay must be greater than or equal to zero')
+        else:
+            raise TypeError('Synaptic transmission delay must be an integer')
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
