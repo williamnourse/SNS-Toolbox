@@ -7,7 +7,7 @@ December 3rd 2021
 from sns_toolbox.design.networks import Network #, AdditionNetwork (This would import the code that we remake here
 from sns_toolbox.design.neurons import NonSpikingNeuron
 from sns_toolbox.design.connections import NonSpikingTransmissionSynapse
-from sns_toolbox.design.networks import DivisionNetwork, MultiplicationNetwork
+from sns_toolbox.design.networks import DivisionNetwork, MultiplicationNetwork, DifferentiatorNetwork
 
 # Let's define a custom functional subnetwork 'preset', in this case a network which takes a weighted sum of inputs
 
@@ -37,5 +37,8 @@ net.add_network(div_net, color='orange')
 
 mult_net = MultiplicationNetwork()
 net.add_network(mult_net, color='green')
+
+diff_net = DifferentiatorNetwork()
+net.add_network(diff_net,color='red')
 
 net.render_graph(view=True)

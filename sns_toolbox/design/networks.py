@@ -441,8 +441,26 @@ class DivisionNetwork(Network):
         modulation = NonSpikingModulationSynapse(ratio)
         self.add_synapse(modulation, 1, 2)
 
-# TODO: Differentiation
+class DifferentiatorNetwork(Network):
+    def __init__(self,slew_rate=1.0,name='Differentiate',tau_fast=1.0,**kwargs):
+        super().__init__(**kwargs)
+        fast_neuron_type = NonSpikingNeuron(membrane_capacitance=tau_fast,membrane_conductance=1.0)
+        tau_slow = tau_fast + self.params['R']/slew_rate
+        slow_neuron_type = NonSpikingNeuron(membrane_capacitance=tau_slow,membrane_conductance=1.0)
+        add_synapse = NonSpikingTransmissionSynapse(gain=1.0,R=self.params['R'],relative_reversal_potential=40.0)
+        sub_synapse = NonSpikingTransmissionSynapse(gain=-1.0,R=self.params['R'],relative_reversal_potential=-40.0)
+
+        self.add_neuron(neuron_type=fast_neuron_type,name='Uin')
+        self.add_neuron(neuron_type=fast_neuron_type,name='Ufast')
+        self.add_neuron(neuron_type=slow_neuron_type,name='Uslow')
+        self.add_neuron(neuron_type=fast_neuron_type,name='Uout')
+
+        self.add_synapse(add_synapse,'Uin','Ufast')
+        self.add_synapse(add_synapse, 'Uin', 'Uslow')
+        self.add_synapse(add_synapse, 'Ufast', 'Uout')
+        self.add_synapse(sub_synapse, 'Uslow', 'Uout')
 
 # TODO: Integration
+
 
 # TODO: Adaptation
