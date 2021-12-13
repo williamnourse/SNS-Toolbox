@@ -8,6 +8,7 @@ from sns_toolbox.design.networks import Network #, AdditionNetwork (This would i
 from sns_toolbox.design.neurons import NonSpikingNeuron
 from sns_toolbox.design.connections import NonSpikingTransmissionSynapse
 from sns_toolbox.design.networks import DivisionNetwork, MultiplicationNetwork, DifferentiatorNetwork
+from sns_toolbox.design.networks import IntegratorNetwork, AdaptationNetwork
 
 # Let's define a custom functional subnetwork 'preset', in this case a network which takes a weighted sum of inputs
 
@@ -19,7 +20,7 @@ class AdditionNetwork(Network): # inherit from the general 'Network' class
         for i in range(num_inputs):
             self.add_neuron(neuron_type, name=name + 'Src' + str(i))  # Add each of the input neurons
             gain = gains[i]
-            if gain > 0:    # create synapses differently depending on whether the gain is positive or negative
+            if gain > 0:    # create synapses differently depending on whether the integration_gain is positive or negative
                 conn = NonSpikingTransmissionSynapse(gain=gain, relative_reversal_potential=add_del_e, R=self.params['R'])
             else:
                 conn = NonSpikingTransmissionSynapse(gain=gain, relative_reversal_potential=sub_del_e, R=self.params['R'])
@@ -40,5 +41,11 @@ net.add_network(mult_net, color='green')
 
 diff_net = DifferentiatorNetwork()
 net.add_network(diff_net,color='red')
+
+int_net = IntegratorNetwork()
+net.add_network(int_net,color='purple')
+
+adapt_net = AdaptationNetwork()
+net.add_network(adapt_net)
 
 net.render_graph(view=True)

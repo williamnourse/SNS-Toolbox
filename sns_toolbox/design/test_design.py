@@ -256,7 +256,7 @@ class TestTransmissionSynapse(unittest.TestCase):
             with self.assertRaises(ValueError):  # < 0
                 testSynapse = connections.NonSpikingTransmissionSynapse(gain=-1)
         with self.subTest():
-            with self.assertRaises(ValueError): # gain causes gMax < 0
+            with self.assertRaises(ValueError): # integration_gain causes gMax < 0
                 testSynapse = connections.NonSpikingTransmissionSynapse(gain=3.0)
 
 

@@ -115,24 +115,24 @@ class NonSpikingTransmissionSynapse(NonSpikingSynapse):
                  R=20.0,
                  **kwargs) -> None:
         """
-        Transmission synapse, where (given some gain) the maximum conductunce is
-        max_conductance = (gain*R)/(relative_reversal_potential - gain*R)
-        :param gain:    Transmission gain
+        Transmission synapse, where (given some integration_gain) the maximum conductunce is
+        max_conductance = (integration_gain*R)/(relative_reversal_potential - integration_gain*R)
+        :param gain:    Transmission integration_gain
         :param name:    Name of this synapse preset
         """
         super().__init__(name=name, **kwargs)  # Call to constructor of parent class
         if isinstance(gain,numbers.Number):
             if gain == 0:
                 raise ValueError('Gain must be nonzero')
-            elif math.copysign(1,gain) != math.copysign(1,self.params['relative_reversal_potential']):    # sign of gain and DeltaE don't match
+            elif math.copysign(1,gain) != math.copysign(1,self.params['relative_reversal_potential']):    # sign of integration_gain and DeltaE don't match
                 raise ValueError('Gain of '+str(gain)+' and Relative Reversal Potential must have the same sign')
             else:
                 try:
                     self.params['max_conductance'] = (gain*R)/(self.params['relative_reversal_potential']-gain*R)
                 except ZeroDivisionError:
-                    raise ValueError('Gain of '+str(gain)+' causes division by 0, decrease gain or increase relative_reversal_potential')
+                    raise ValueError('Gain of '+str(gain)+' causes division by 0, decrease integration_gain or increase relative_reversal_potential')
                 if self.params['max_conductance'] < 0:
-                    raise ValueError('Gain of '+str(gain)+' causes max_conductance to be negative, decrease gain or increase relative_reversal_potential')
+                    raise ValueError('Gain of '+str(gain)+' causes max_conductance to be negative, decrease integration_gain or increase relative_reversal_potential')
         else:
             raise TypeError('Gain of '+str(gain)+' must be a number (int, float, double, etc.)')
 

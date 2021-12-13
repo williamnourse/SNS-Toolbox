@@ -3,7 +3,10 @@
   <component name="ChangeListManager">
     <list default="true" id="0111e928-7c50-48e1-a867-c8c018c660a0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sns_toolbox/design/connections.py" beforeDir="false" afterPath="$PROJECT_DIR$/sns_toolbox/design/connections.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sns_toolbox/design/networks.py" beforeDir="false" afterPath="$PROJECT_DIR$/sns_toolbox/design/networks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sns_toolbox/design/test_design.py" beforeDir="false" afterPath="$PROJECT_DIR$/sns_toolbox/design/test_design.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorials/Tutorial 4 Network.gv.png" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/Tutorial 4 Network.gv.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tutorials/tutorial_4_subnetworks.py" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/tutorial_4_subnetworks.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

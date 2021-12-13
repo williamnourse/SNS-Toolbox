@@ -181,9 +181,9 @@ class Network:
         Add an input source to the network
         :param dest:        Destination this input connects to
         :param offset:      Constant offset of input values in polynomial map
-        :param linear:      Linear gain of input values in polynomial map
-        :param quadratic:   Quadratic (^2) gain of input values in polynomial map
-        :param cubic:       Cubic (^3) gain of input values in polynomial map
+        :param linear:      Linear integration_gain of input values in polynomial map
+        :param quadratic:   Quadratic (^2) integration_gain of input values in polynomial map
+        :param cubic:       Cubic (^3) integration_gain of input values in polynomial map
         :param name:        Name of the input node
         :param color:       Color of the input node in the visual render
         :return:    None
@@ -222,9 +222,9 @@ class Network:
         Add an output node to the network
         :param source:      Source this output is connected to
         :param offset:      Constant offset of output values in polynomial map
-        :param linear:      Linear gain of output values in polynomial map
-        :param quadratic:   Quadratic (^2) gain of output values in polynomial map
-        :param cubic:       Cubic (^3) gain of output values in polynomial map
+        :param linear:      Linear integration_gain of output values in polynomial map
+        :param quadratic:   Quadratic (^2) integration_gain of output values in polynomial map
+        :param cubic:       Cubic (^3) integration_gain of output values in polynomial map
         :param name:        Name of the node
         :param spiking:     Flag for if this node stores voltage or spikes
         :param color:       Color of the output in the visual render
@@ -400,7 +400,7 @@ SPECIFIC MODELS
 
 class AdditionNetwork(Network):
     def __init__(self,gains,add_del_e=100,sub_del_e=-40,neuron_type=NonSpikingNeuron(),name='Add',**kwargs):
-        super().__init__(**kwargs)
+        super().__init__(name=name,**kwargs)
         num_inputs = len(gains)
         self.add_neuron(neuron_type=neuron_type, name=name + 'Sum')
         for i in range(num_inputs):
@@ -413,8 +413,8 @@ class AdditionNetwork(Network):
             self.add_synapse(conn, i + 1, name + 'Sum')
 
 class MultiplicationNetwork(Network):
-    def __init__(self,neuron_type=NonSpikingNeuron(),name='Multiply'):
-        super().__init__()
+    def __init__(self,neuron_type=NonSpikingNeuron(),name='Multiply',**kwargs):
+        super().__init__(name=name,**kwargs)
         self.add_neuron(neuron_type, name=name + '0')
         self.add_neuron(neuron_type, name=name + '1')
         self.add_neuron(neuron_type, name=name + 'Inter')
@@ -430,7 +430,7 @@ class MultiplicationNetwork(Network):
 
 class DivisionNetwork(Network):
     def __init__(self,gain,ratio,name='Divide',neuron_type=NonSpikingNeuron(),**kwargs):
-        super().__init__(**kwargs)
+        super().__init__(name=name,**kwargs)
         self.add_neuron(neuron_type, name=name + 'Transmit')
         self.add_neuron(neuron_type, name=name + 'Modulate')
         self.add_neuron(neuron_type, name=name + 'Results')
@@ -443,7 +443,7 @@ class DivisionNetwork(Network):
 
 class DifferentiatorNetwork(Network):
     def __init__(self,slew_rate=1.0,name='Differentiate',tau_fast=1.0,**kwargs):
-        super().__init__(**kwargs)
+        super().__init__(name=name,**kwargs)
         fast_neuron_type = NonSpikingNeuron(membrane_capacitance=tau_fast,membrane_conductance=1.0)
         tau_slow = tau_fast + self.params['R']/slew_rate
         slow_neuron_type = NonSpikingNeuron(membrane_capacitance=tau_slow,membrane_conductance=1.0)
@@ -460,7 +460,45 @@ class DifferentiatorNetwork(Network):
         self.add_synapse(add_synapse, 'Ufast', 'Uout')
         self.add_synapse(sub_synapse, 'Uslow', 'Uout')
 
-# TODO: Integration
+class IntegratorNetwork(Network):
+    def __init__(self, integration_gain=0.1, relative_reversal_potential=-40.0, name='Integrator', **kwargs):
+        super().__init__(name=name,**kwargs)
+        membrane_capacitance = 1/(2 * integration_gain)
+        if relative_reversal_potential < 0.0:
+            synaptic_conductance = -self.params['R']/relative_reversal_potential
+        else:
+            raise ValueError('Relative reversal potential (Delta E) must be less than zero for an integrator')
+
+        neuron_type = NonSpikingNeuron(membrane_capacitance=membrane_capacitance,membrane_conductance=1.0,
+                                       bias=self.params['R'])
+        synapse_type = NonSpikingSynapse(max_conductance=synaptic_conductance,
+                                         relative_reversal_potential=relative_reversal_potential)
+
+        self.add_neuron(neuron_type,name='Uint')
+        self.add_neuron(neuron_type)
+
+        self.add_synapse(synapse_type,0,1)
+        self.add_synapse(synapse_type,1,0)
 
 
 # TODO: Adaptation
+class AdaptationNetwork(Network):
+    def __init__(self,ratio=0.5,name='Adaptation',neuron_type=NonSpikingNeuron(),**kwargs):
+        super().__init__(name=name,**kwargs)
+        relative_reversal_potential = 2*(self.params['R']**2 + 1)/self.params['R']
+        conductance_fast_slow = self.params['R']/(relative_reversal_potential - self.params['R'])
+        conductance_slow_fast = (self.params['R']*(ratio-1)*(relative_reversal_potential - self.params['R'] +
+                                                             ratio*self.params['R']))/(ratio *
+                                                                                       relative_reversal_potential *
+                                                                                       (-relative_reversal_potential -
+                                                                                        ratio*self.params['R']))
+        fast_slow = NonSpikingSynapse(max_conductance=conductance_fast_slow,
+                                      relative_reversal_potential=relative_reversal_potential)
+        slow_fast = NonSpikingSynapse(max_conductance=conductance_slow_fast,
+                                      relative_reversal_potential=-relative_reversal_potential)
+
+        self.add_neuron(neuron_type,name='Uadapt')
+        self.add_neuron(neuron_type)
+
+        self.add_synapse(fast_slow,0,1)
+        self.add_synapse(slow_fast,1,0)
