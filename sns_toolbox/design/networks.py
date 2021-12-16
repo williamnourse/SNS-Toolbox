@@ -15,6 +15,7 @@ from numbers import Number
 import copy
 from graphviz import Digraph
 import warnings
+import numpy as np
 
 from sns_toolbox.design.neurons import Neuron, NonSpikingNeuron
 from sns_toolbox.design.connections import Synapse, NonSpikingSynapse, NonSpikingTransmissionSynapse, NonSpikingModulationSynapse
@@ -133,7 +134,7 @@ class Network:
         """
         if not isinstance(neuron_type, Neuron):
             raise TypeError('Input type is not a neuron')
-        if isinstance(num_neurons, int):
+        if isinstance(num_neurons, (int,np.integer)):
             if num_neurons <= 0:
                 raise ValueError('num_neurons must be > 0')
         else:

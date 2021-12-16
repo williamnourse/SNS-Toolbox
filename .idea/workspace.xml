@@ -3,11 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="0111e928-7c50-48e1-a867-c8c018c660a0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sns_toolbox/design/connections.py" beforeDir="false" afterPath="$PROJECT_DIR$/sns_toolbox/design/connections.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sns_toolbox/design/networks.py" beforeDir="false" afterPath="$PROJECT_DIR$/sns_toolbox/design/networks.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sns_toolbox/design/test_design.py" beforeDir="false" afterPath="$PROJECT_DIR$/sns_toolbox/design/test_design.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tutorials/Tutorial 4 Network.gv.png" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/Tutorial 4 Network.gv.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tutorials/tutorial_4_subnetworks.py" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/tutorial_4_subnetworks.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,6 +20,14 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -50,8 +54,8 @@
       <recent name="$PROJECT_DIR$/tutorials" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.tutorial_4_subnetworks">
-    <configuration name="tutorial_1_network_design" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.backend_component_comparison">
+    <configuration name="analyze_backend_component_comparison" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SNS-Toolbox" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -59,11 +63,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tutorials" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/benchmarking/backendComponentComparison" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tutorials/tutorial_1_network_design.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/benchmarking/backendComponentComparison/analyze_backend_component_comparison.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -72,7 +76,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="tutorial_2_simulation" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="backend_component_comparison" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="SNS-Toolbox" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -80,11 +84,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/tutorials" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/benchmarking/backendComponentComparison" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tutorials/tutorial_2_simulation.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/benchmarking/backendComponentComparison/backend_component_comparison.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -158,11 +162,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.tutorial_4_subnetworks" />
+        <item itemvalue="Python.backend_component_comparison" />
+        <item itemvalue="Python.analyze_backend_component_comparison" />
         <item itemvalue="Python.tutorial_5_spiking_transmission_delay" />
+        <item itemvalue="Python.tutorial_4_subnetworks" />
         <item itemvalue="Python.tutorial_3_spiking_networks" />
-        <item itemvalue="Python.tutorial_2_simulation" />
-        <item itemvalue="Python.tutorial_1_network_design" />
       </list>
     </recent_temporary>
   </component>
