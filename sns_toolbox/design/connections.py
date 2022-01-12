@@ -130,7 +130,7 @@ class PatternConnection:
         self.positive_reversal_potential = positive_reversal_potential
         self.negative_reversal_potential = negative_reversal_potential
 
-        if len(gain_matrix[0]) > 1: # 2D kernel
+        if hasattr(gain_matrix[0],'__iter__'): # 2D kernel
             for row in range(len(gain_matrix)):
                 cond_values = []
                 del_e_values = []
