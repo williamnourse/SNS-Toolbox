@@ -104,6 +104,62 @@ class SpikingSynapse(Synapse):
         else:
             raise TypeError('Synaptic transmission delay must be an integer')
 
+class PatternConnection:
+    def __init__(self,gain_matrix,
+                 name: str = 'Pattern',
+                 R: float = 20.0,
+                 positive_reversal_potential: float = 160.0,
+                 negative_reversal_potential: float = -80.0,
+                 wrap: bool = False):
+        """
+        Connection pattern between two neural populations (i.e. a kernel)
+        :param gain_matrix: Matrix (or vector for 1D kernels) of synaptic gains
+        :param name:    Name of this connection type
+        :param R:   Voltage range of neural activity (mV)
+        :param positive_reversal_potential: Reversal potential for synapses with positive gain (mV)
+        :param negative_reversal_potential: Reversal potential for synapses with negative gain (mV)
+        :param wrap:    Flag for if connections should wrap from one end of the population to the other
+        """
+
+        self.params = {'R': R,
+                       'name': name,
+                       'wrap': wrap,
+                       'maxConductance': [],
+                       'relativeReversalPotential': []}
+
+        self.positive_reversal_potential = positive_reversal_potential
+        self.negative_reversal_potential = negative_reversal_potential
+
+        if len(gain_matrix[0]) > 1: # 2D kernel
+            for row in range(len(gain_matrix)):
+                cond_values = []
+                del_e_values = []
+                for col in range(len(gain_matrix[0])):
+                    max_conductance, relative_reversal_potential = self.__calc_synaptic_parameters__(gain_matrix[row][col])
+                    cond_values.append(max_conductance)
+                    del_e_values.append(relative_reversal_potential)
+                self.params['maxConductance'].append(cond_values)
+                self.params['relativeReversalPotential'].append(del_e_values)
+        else:   # 1D kernel
+            for i in range(len(gain_matrix)):
+                max_conductance, relative_reversal_potential = self.__calc_synaptic_parameters__(gain_matrix[i])
+                self.params['maxConductance'].append(max_conductance)
+                self.params['relativeReversalPotential'].append(relative_reversal_potential)
+
+    def __calc_synaptic_parameters__(self,gain):
+        if gain == 0.0:
+            return 0.0, 0.0
+        else:
+            if gain > 0.0:
+                relative_reversal_potential = self.positive_reversal_potential
+            else:
+                relative_reversal_potential = self.negative_reversal_potential
+            max_conductance = gain*self.params['R']/(relative_reversal_potential-gain*self.params['R'])
+
+            return max_conductance, relative_reversal_potential
+
+
+
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SPECIFIC MODELS
@@ -112,10 +168,10 @@ SPECIFIC MODELS
 class NonSpikingTransmissionSynapse(NonSpikingSynapse):
     def __init__(self, gain: float = 1.0,
                  name: str = 'Transmit',
-                 R=20.0,
+                 R: float = 20.0,
                  **kwargs) -> None:
         """
-        Transmission synapse, where (given some integration_gain) the maximum conductunce is
+        Transmission synapse, where (given some integration_gain) the maximum conductance is
         max_conductance = (integration_gain*R)/(relative_reversal_potential - integration_gain*R)
         :param gain:    Transmission integration_gain
         :param name:    Name of this synapse preset
