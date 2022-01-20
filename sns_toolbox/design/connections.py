@@ -18,20 +18,44 @@ import math
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 BASE CLASS
 """
-
-class Synapse:
-    def __init__(self, name: str = 'Synapse') -> None:
+class Connection:
+    def __init__(self, max_conductance, relative_reversal_potential, name: str = 'Connection'):
         """
-        Constructor for the base class of all synapses
-        :param name: Name of this synapse preset
+        Constructor for the base class of all connections
+        :param name:    Name of this connection type
         """
         self.params: Dict[str, Any] = {}
-        if isinstance(name,str):
-            self.name = name
+        self.params['spiking'] = False
+        self.params['pattern'] = False
+        self.params['max_conductance'] = max_conductance
+        self.params['relative_reversal_potential'] = relative_reversal_potential
+        if isinstance(name, str):
+            self.params['name'] = name
         else:
             raise TypeError('Name should be a string')
 
-class NonSpikingSynapse(Synapse):
+class NonSpikingConnection(Connection):
+    def __init__(self, max_conductance, relative_reversal_potential, name: str = 'Non-Spiking Connection') -> None:
+        """
+        Constructor for the base class of all non-spiking connections
+        :param name: Name of this connection preset
+        """
+        super().__init__(max_conductance, relative_reversal_potential, name)
+        self.params['pattern'] = False
+        self.params['spiking'] = False
+
+class SpikingConnection(Connection):
+    def __init__(self, max_conductance, relative_reversal_potential, time_constant, transmission_delay, R,
+                 name: str = 'Spiking Connection') -> None:
+        """
+        Constructor for the base class of all spiking connections
+        :param name: Name of this connection preset
+        """
+        super().__init__(max_conductance, relative_reversal_potential, name)
+        self.params['pattern'] = False
+        self.params['spiking'] = True
+
+class NonSpikingSynapse(NonSpikingConnection):
     def __init__(self, max_conductance: float = 1.0,
                  relative_reversal_potential: float = 40.0,
                  **kwargs: Any) -> None:
@@ -42,18 +66,14 @@ class NonSpikingSynapse(Synapse):
         :param max_conductance:              uS
         :param relative_reversal_potential:   mV
         """
-        super().__init__(**kwargs)  # Call to constructor of parent class
         if isinstance(max_conductance, numbers.Number):
-            if max_conductance > 0:
-                self.params['max_conductance'] = max_conductance
-            else:
+            if max_conductance <= 0:
                 raise ValueError('max_conductance (gMax) must be greater than 0')
         else:
             raise TypeError('max_conductance (gMax) must be a number (int, float, double, etc.')
-        if isinstance(relative_reversal_potential, numbers.Number):
-            self.params['relative_reversal_potential'] = relative_reversal_potential
-        else:
+        if not isinstance(relative_reversal_potential, numbers.Number):
             raise TypeError('relative_reversal_potential (deltaEsyn) must be a number (int, float, double, etc.')
+        super().__init__(max_conductance, relative_reversal_potential,**kwargs)  # Call to constructor of parent class
 
 class SpikingSynapse(Synapse):
     def __init__(self, max_conductance: float = 1.0,
@@ -70,18 +90,15 @@ class SpikingSynapse(Synapse):
         :param relative_reversal_potential:   mV
         :param R:                           mV
         """
-        super().__init__(**kwargs)  # Call to constructor of parent class
         if isinstance(max_conductance, numbers.Number):
-            if max_conductance > 0:
-                self.params['max_conductance'] = max_conductance
-            else:
+            if max_conductance <= 0:
                 raise ValueError('max_conductance (gMax) must be greater than 0')
         else:
             raise TypeError('max_conductance (gMax) must be a number (int, float, double, etc.')
-        if isinstance(relative_reversal_potential, numbers.Number):
-            self.params['relative_reversal_potential'] = relative_reversal_potential
-        else:
+        if not isinstance(relative_reversal_potential, numbers.Number):
             raise TypeError('relative_reversal_potential (deltaEsyn) must be a number (int, float, double, etc.')
+        super().__init__(max_conductance, relative_reversal_potential, **kwargs)  # Call to constructor of parent class
+
         if isinstance(time_constant, numbers.Number):
             if time_constant > 0:
                 self.params['synapticTimeConstant'] = time_constant
