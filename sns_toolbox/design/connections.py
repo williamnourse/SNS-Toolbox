@@ -54,6 +54,7 @@ class SpikingConnection(Connection):
         super().__init__(max_conductance, relative_reversal_potential, name)
         self.params['pattern'] = False
         self.params['spiking'] = True
+        self.params['synapticTimeConstant'] = time_constant
 
 class NonSpikingSynapse(NonSpikingConnection):
     def __init__(self, max_conductance: float = 1.0,
@@ -75,7 +76,7 @@ class NonSpikingSynapse(NonSpikingConnection):
             raise TypeError('relative_reversal_potential (deltaEsyn) must be a number (int, float, double, etc.')
         super().__init__(max_conductance, relative_reversal_potential,**kwargs)  # Call to constructor of parent class
 
-class SpikingSynapse(Synapse):
+class SpikingSynapse(SpikingConnection):
     def __init__(self, max_conductance: float = 1.0,
                  relative_reversal_potential: float = 194.0,
                  time_constant: float = 1.0,
@@ -121,7 +122,7 @@ class SpikingSynapse(Synapse):
         else:
             raise TypeError('Synaptic transmission delay must be an integer')
 
-class PatternConnection:
+class NonSpikingPatternConnection(NonSpikingConnection):
     def __init__(self,gain_matrix,
                  name: str = 'Pattern',
                  R: float = 20.0,
