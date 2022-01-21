@@ -326,10 +326,10 @@ class Network:
             else:
                 raise TypeError('Name must be a string')
         self.connections.append({'name': label,
-                              'source': source,
-                              'destination': destination,
-                              'type': copy.deepcopy(connection_type),
-                              'view': view_label})
+                                 'source': source,
+                                 'destination': destination,
+                                 'type': copy.deepcopy(connection_type),
+                                 'view': view_label})
         if connection_type.params['pattern'] is False:
             if connection_type.params['relative_reversal_potential'] > 0:
                 style = 'invempty'
@@ -340,8 +340,8 @@ class Network:
         else:
             if self.populations[source]['number'] == 1:
                 raise TypeError('Pattern connections are not supported for source populations of size 1')
-            elif self.populations[source]['number'] != self.populations[destination]['number']:
-                raise TypeError('Pattern connections are not currently supported for populations of different size')
+            elif self.populations[source]['shape'] != self.populations[destination]['shape']:
+                raise TypeError('Pattern connections are not currently supported for populations of different shape')
             style = 'vee'
         if view_label:
             self.graph.edge(str(source),

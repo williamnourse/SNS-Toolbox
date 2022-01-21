@@ -98,7 +98,7 @@ class SpikingSynapse(SpikingConnection):
             raise TypeError('max_conductance (gMax) must be a number (int, float, double, etc.')
         if not isinstance(relative_reversal_potential, numbers.Number):
             raise TypeError('relative_reversal_potential (deltaEsyn) must be a number (int, float, double, etc.')
-        super().__init__(max_conductance, relative_reversal_potential, **kwargs)  # Call to constructor of parent class
+        super().__init__(max_conductance, relative_reversal_potential, time_constant, transmission_delay, R, **kwargs)  # Call to constructor of parent class
 
         if isinstance(time_constant, numbers.Number):
             if time_constant > 0:
