@@ -159,16 +159,16 @@ class NonSpikingPatternConnection(NonSpikingConnection):
                                                                                                                    self.params['R'])
                     cond_values.append(calc_max_conductance)
                     del_e_values.append(calc_relative_reversal_potential)
-                self.params['maxConductance'].append(cond_values)
-                self.params['relativeReversalPotential'].append(del_e_values)
+                self.params['max_conductance'].append(cond_values)
+                self.params['relative_reversal_potential'].append(del_e_values)
         else:   # 1D kernel
             for i in range(len(gain_matrix)):
                 calc_max_conductance, calc_relative_reversal_potential = __calc_synaptic_parameters_from_gain__(gain_matrix[i],
                                                                                                                 positive_reversal_potential,
                                                                                                                 negative_reversal_potential,
                                                                                                                 self.params['R'])
-                self.params['maxConductance'].append(calc_max_conductance)
-                self.params['relativeReversalPotential'].append(calc_relative_reversal_potential)
+                self.params['max_conductance'].append(calc_max_conductance)
+                self.params['relative_reversal_potential'].append(calc_relative_reversal_potential)
 
 class SpikingPatternConnection(SpikingConnection):
     def __init__(self,gain_matrix,
@@ -223,16 +223,16 @@ class SpikingPatternConnection(SpikingConnection):
                                                                                                                            max_frequency)
                     cond_values.append(calc_max_conductance)
                     del_e_values.append(calc_relative_reversal_potential)
-                self.params['maxConductance'].append(cond_values)
-                self.params['relativeReversalPotential'].append(del_e_values)
+                self.params['max_conductance'].append(cond_values)
+                self.params['relative_reversal_potential'].append(del_e_values)
         else:   # 1D kernel
             for i in range(len(gain_matrix)):
                 calc_max_conductance, calc_relative_reversal_potential = __calc_synaptic_parameters_from_gain__(gain_matrix[i],
                                                                                                                 positive_reversal_potential,
                                                                                                                 negative_reversal_potential,
                                                                                                                 self.params['R'])
-                self.params['maxConductance'].append(calc_max_conductance)
-                self.params['relativeReversalPotential'].append(calc_relative_reversal_potential)
+                self.params['max_conductance'].append(calc_max_conductance)
+                self.params['relative_reversal_potential'].append(calc_relative_reversal_potential)
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

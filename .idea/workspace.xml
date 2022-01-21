@@ -4,6 +4,7 @@
     <list default="true" id="0111e928-7c50-48e1-a867-c8c018c660a0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sns_toolbox/design/connections.py" beforeDir="false" afterPath="$PROJECT_DIR$/sns_toolbox/design/connections.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tutorials/tutorial_6_connectivity_patterns.py" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/tutorial_6_connectivity_patterns.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,6 +45,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/sns_toolbox/simulate" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -163,8 +165,8 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.tutorial_6_connectivity_patterns" />
-        <item itemvalue="Python.tutorial_3_spiking_networks" />
         <item itemvalue="Python.tutorial_1_network_design" />
+        <item itemvalue="Python.tutorial_3_spiking_networks" />
         <item itemvalue="Python.retina_neuron_frequency_response" />
         <item itemvalue="Python.fully_spiking_model" />
       </list>
