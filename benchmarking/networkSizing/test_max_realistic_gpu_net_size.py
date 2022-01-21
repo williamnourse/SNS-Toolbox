@@ -33,7 +33,7 @@ TEST SETUP
 
 numSamples = 10
 numNeurons = np.logspace(1,3,num=numSamples)
-# num_neurons = np.linspace(10000,100000,num=numSamples)
+# shape = np.linspace(10000,100000,num=numSamples)
 dt = 0.01
 
 print('Finished test setup. Running for %f sec'%(time.time()-globalStart))
@@ -47,9 +47,9 @@ for num in range(numSamples):
     numRest = int(numNeurons[num]) - numIns - numSyn - numOuts
     net.add_population(spike, numIns, name='ins')  # in puppy, num_inputs = 8% of network
     net.add_population(spikeBias, numOuts, name='outs')  # in puppy, num_outputs = 12% of network
-    net.add_population(spikeBias, numSyn, name='connected')  # in puppy, numSyn = num_neurons
+    net.add_population(spikeBias, numSyn, name='connected')  # in puppy, numSyn = shape
     net.add_population(spikeBias, numRest, name='rest')  # rest of the network
-    net.add_synapse(spikeExcite, 'connected', 'connected')
+    net.add_connection(spikeExcite, 'connected', 'connected')
     net.add_input('Input')
     net.addInputConnection(1.0,'Input','ins')
     net.add_output('outs')

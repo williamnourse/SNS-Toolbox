@@ -31,7 +31,7 @@ TEST SETUP
 current = 10.0
 numSamples = 3
 numNeurons = np.logspace(1,4,num=numSamples)
-# num_neurons = np.linspace(7224,7244,num=numSamples)
+# shape = np.linspace(7224,7244,num=numSamples)
 dt = 0.01
 
 print('Finished test setup. Running for %f sec'%(time.time()-globalStart))
@@ -40,7 +40,7 @@ for num in range(numSamples):
     print('\n%i Neurons. Running for %f sec' % (numNeurons[num],time.time() - globalStart))
     net = Network()
     net.add_population(spikeL0, int(numNeurons[num]), name='self')
-    net.add_synapse(spikeExcite, 'self', 'self')
+    net.add_connection(spikeExcite, 'self', 'self')
     net.add_input('Input')
     net.addInputConnection(1.0,'Input','self')
     net.add_output('self')

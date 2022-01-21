@@ -283,7 +283,7 @@ class TestNonSpikingNetwork(unittest.TestCase):
         with self.subTest():
             self.assertEqual(testNetwork.neurons,[],'Should be empty list')
         with self.subTest():
-            self.assertEqual(testNetwork.synapses,[],'Should be empty list')
+            self.assertEqual(testNetwork.connections, [], 'Should be empty list')
 
     def test_construct_valid(self):
         testNetwork = networks.Network(name='Name')
@@ -292,7 +292,7 @@ class TestNonSpikingNetwork(unittest.TestCase):
         with self.subTest():
             self.assertEqual(testNetwork.neurons, [], 'Should be empty list')
         with self.subTest():
-            self.assertEqual(testNetwork.synapses, [], 'Should be empty list')
+            self.assertEqual(testNetwork.connections, [], 'Should be empty list')
 
     def test_construct_invalid(self):
         with self.assertRaises(TypeError):
@@ -309,12 +309,12 @@ class TestNonSpikingNetwork(unittest.TestCase):
 
     def test_getNumSynapses_empty(self):
         testNetwork = networks.Network()
-        self.assertEqual(testNetwork.get_num_synapses(), 0, 'Should be 0')
+        self.assertEqual(testNetwork.get_num_connections(), 0, 'Should be 0')
 
     def test_getNumSynapses_not_empty(self):
         testNetwork = networks.Network()
-        testNetwork.synapses = [1,2]
-        self.assertEqual(testNetwork.get_num_synapses(), 2, 'Should be 2')
+        testNetwork.connections = [1, 2]
+        self.assertEqual(testNetwork.get_num_connections(), 2, 'Should be 2')
 
     def test_addNeuron_default(self):
         testNetwork = networks.Network()
@@ -358,15 +358,15 @@ class TestNonSpikingNetwork(unittest.TestCase):
         testNetwork.add_neuron(testNeuron)
         testNetwork.add_neuron(testNeuron, suffix='2')
         testSynapse = connections.NonSpikingSynapse()
-        testNetwork.add_synapse(testSynapse, 0, 1)
+        testNetwork.add_connection(testSynapse, 0, 1)
         with self.subTest():
-            self.assertNotEqual(testNetwork.synapses[0],testSynapse)
+            self.assertNotEqual(testNetwork.connections[0], testSynapse)
         with self.subTest():
-            self.assertEqual(testNetwork.synapses[0].params['source'],0,'Should be 0')
+            self.assertEqual(testNetwork.connections[0].params['source'], 0, 'Should be 0')
         with self.subTest():
-            self.assertEqual(testNetwork.synapses[0].params['destination'], 1, 'Should be 1')
+            self.assertEqual(testNetwork.connections[0].params['destination'], 1, 'Should be 1')
         with self.subTest():
-            self.assertEqual(testNetwork.synapses[0].params['label'],None,'Should be None')
+            self.assertEqual(testNetwork.connections[0].params['label'], None, 'Should be None')
 
     def test_addSynapse_valid(self):
         testNetwork = networks.Network()
@@ -374,13 +374,13 @@ class TestNonSpikingNetwork(unittest.TestCase):
         testNetwork.add_neuron(testNeuron)
         testNetwork.add_neuron(testNeuron, suffix='2')
         testSynapse = connections.NonSpikingSynapse()
-        testNetwork.add_synapse(testSynapse, 0, 0, view_label=True, offset=1)
+        testNetwork.add_connection(testSynapse, 0, 0, view_label=True, offset=1)
         with self.subTest():
-            self.assertEqual(testNetwork.synapses[0].params['source'],1,'Should be 1')
+            self.assertEqual(testNetwork.connections[0].params['source'], 1, 'Should be 1')
         with self.subTest():
-            self.assertEqual(testNetwork.synapses[0].params['destination'], 1, 'Should be 2')
+            self.assertEqual(testNetwork.connections[0].params['destination'], 1, 'Should be 2')
         with self.subTest():
-            self.assertEqual(testNetwork.synapses[0].params['label'],'Synapse','Should be Synapse')
+            self.assertEqual(testNetwork.connections[0].params['label'], 'Synapse', 'Should be Synapse')
 
     def test_addSynapse_invalid(self):
         testNetwork = networks.Network()
@@ -390,37 +390,37 @@ class TestNonSpikingNetwork(unittest.TestCase):
         testSynapse = connections.NonSpikingSynapse()
         with self.subTest():
             with self.assertRaises(TypeError):
-                testNetwork.add_synapse(10, 0, 1)
+                testNetwork.add_connection(10, 0, 1)
         with self.subTest():
             with self.assertRaises(TypeError):
-                testNetwork.add_synapse(testSynapse, 'foo', 1)
+                testNetwork.add_connection(testSynapse, 'foo', 1)
         with self.subTest():
             with self.assertRaises(TypeError):
-                testNetwork.add_synapse(testSynapse, 0, 'bar')
+                testNetwork.add_connection(testSynapse, 0, 'bar')
         with self.subTest():
             with self.assertRaises(TypeError):
-                testNetwork.add_synapse(testSynapse, 0, 1, offset=2.2)
+                testNetwork.add_connection(testSynapse, 0, 1, offset=2.2)
         with self.subTest():
             with self.assertRaises(TypeError):
-                testNetwork.add_synapse(testSynapse, 0, 1, view_label='bad')
+                testNetwork.add_connection(testSynapse, 0, 1, view_label='bad')
         with self.subTest():
             with self.assertRaises(ValueError):
-                testNetwork.add_synapse(testSynapse, 10, 1)
+                testNetwork.add_connection(testSynapse, 10, 1)
         with self.subTest():
             with self.assertRaises(ValueError):
-                testNetwork.add_synapse(testSynapse, -1, 1)
+                testNetwork.add_connection(testSynapse, -1, 1)
         with self.subTest():
             with self.assertRaises(ValueError):
-                testNetwork.add_synapse(testSynapse, 0, 10)
+                testNetwork.add_connection(testSynapse, 0, 10)
         with self.subTest():
             with self.assertRaises(ValueError):
-                testNetwork.add_synapse(testSynapse, 0, -1)
+                testNetwork.add_connection(testSynapse, 0, -1)
         with self.subTest():
             with self.assertRaises(ValueError):
-                testNetwork.add_synapse(testSynapse, 0, 1, offset=10)
+                testNetwork.add_connection(testSynapse, 0, 1, offset=10)
         with self.subTest():
             with self.assertRaises(ValueError):
-                testNetwork.add_synapse(testSynapse, 0, 1, offset=1)
+                testNetwork.add_connection(testSynapse, 0, 1, offset=1)
 
     def test_addNetwork_default(self):
         testNetwork = networks.Network()
@@ -430,12 +430,12 @@ class TestNonSpikingNetwork(unittest.TestCase):
         sourceNetwork.add_neuron(testNeuron)
         testNetwork.add_neuron(testNeuron)
         testSynapse = connections.NonSpikingSynapse()
-        sourceNetwork.add_synapse(testSynapse, 0, 1, view_label=True)
+        sourceNetwork.add_connection(testSynapse, 0, 1, view_label=True)
         testNetwork.add_network(sourceNetwork)
         with self.subTest():
             self.assertEqual(len(testNetwork.neurons),3,'Should be 3')
         with self.subTest():
-            self.assertEqual(len(testNetwork.synapses),1,'Should be 1')
+            self.assertEqual(len(testNetwork.connections), 1, 'Should be 1')
         with self.subTest():
             self.assertEqual(testNetwork.neurons[0].params['color'],'white','Should be white')
         with self.subTest():
@@ -443,11 +443,11 @@ class TestNonSpikingNetwork(unittest.TestCase):
         with self.subTest():
             self.assertEqual(testNetwork.neurons[2].params['color'],'white','Should be white')
         with self.subTest():
-            self.assertEqual(testNetwork.synapses[0].params['source'],1,'Should be 1')
+            self.assertEqual(testNetwork.connections[0].params['source'], 1, 'Should be 1')
         with self.subTest():
-            self.assertEqual(testNetwork.synapses[0].params['destination'],2,'Should be 2')
+            self.assertEqual(testNetwork.connections[0].params['destination'], 2, 'Should be 2')
         with self.subTest():
-            self.assertNotEqual(testNetwork.synapses[0].params['label'],None,'Should be Synapse')
+            self.assertNotEqual(testNetwork.connections[0].params['label'], None, 'Should be Synapse')
 
     def test_addNetwork_valid(self):
         testNetwork = networks.Network()

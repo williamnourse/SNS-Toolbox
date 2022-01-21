@@ -1,5 +1,5 @@
 """
-Create a network with excitatory, inhibitory, and modulatory synapses. Add input sources and output monitors, and
+Create a network with excitatory, inhibitory, and modulatory connections. Add input sources and output monitors, and
 simulate using numpy.
 William Nourse
 December 1st, 2021
@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 from sns_toolbox.simulate.backends import SNS_Numpy
 
 """Design the network"""
-# Define a non-spiking neuron and excitatory/inhibitory synapses as in tutorial_1
+# Define a non-spiking neuron and excitatory/inhibitory connections as in tutorial_1
 neuron_type = NonSpikingNeuron()
 synapse_excitatory = NonSpikingSynapse(max_conductance=1.0, relative_reversal_potential=50.0)
 synapse_inhibitory = NonSpikingSynapse(max_conductance=1.0, relative_reversal_potential=-40.0)
@@ -33,19 +33,19 @@ net.add_neuron(neuron_type, name='SourceNrn', color='black')
 
 # Make a neuron which is excited by the source neuron
 net.add_neuron(neuron_type, name='Dest1', color='blue')
-net.add_synapse(synapse_excitatory, 'SourceNrn', 'Dest1')
+net.add_connection(synapse_excitatory, 'SourceNrn', 'Dest1')
 
 # Make 2 neurons. One is excited by the source and excites the other, the other inhibits the first
 net.add_neuron(neuron_type, name='Dest2', color='orange')
 net.add_neuron(neuron_type, name='Dest2In', color='green')
-net.add_synapse(synapse_excitatory, 'SourceNrn', 'Dest2')
-net.add_synapse(synapse_excitatory, 'Dest2', 'Dest2In')
-net.add_synapse(synapse_inhibitory, 'Dest2In', 'Dest2')
+net.add_connection(synapse_excitatory, 'SourceNrn', 'Dest2')
+net.add_connection(synapse_excitatory, 'Dest2', 'Dest2In')
+net.add_connection(synapse_inhibitory, 'Dest2In', 'Dest2')
 
 # Make one more neuron. This neuron will be both excited by the source neuron and modulated by Dest1
 net.add_neuron(neuron_type, name='Dest3', color='red')
-net.add_synapse(synapse_excitatory, 'SourceNrn', 'Dest3')
-net.add_synapse(synapse_modulatory, 'Dest1', 'Dest3')
+net.add_connection(synapse_excitatory, 'SourceNrn', 'Dest3')
+net.add_connection(synapse_modulatory, 'Dest1', 'Dest3')
 
 # Add an input source to apply stimulus to the Source Neuron
 net.add_input(dest='SourceNrn', name='Input', color='white')

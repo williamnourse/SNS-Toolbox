@@ -43,7 +43,7 @@ class Backend:
         self.dt = dt
         self.num_populations = network.get_num_populations()
         self.num_neurons = network.get_num_neurons()
-        self.num_synapses = network.get_num_synapses()
+        self.num_synapses = network.get_num_connections()
         self.num_inputs = network.get_num_inputs()
         self.num_outputs = network.get_num_outputs()
         self.R = network.params['R']
@@ -151,16 +151,16 @@ class SNS_Numpy(Backend):
         self.spike_delay_inds = np.zeros([self.num_neurons ** 2])
         self.delayed_spikes = np.zeros([self.num_neurons, self.num_neurons])
 
-        # iterate over the synapses in the network
-        for syn in range(len(network.synapses)):
-            source_pop = network.synapses[syn]['source']
-            dest_pop = network.synapses[syn]['destination']
-            g_max = network.synapses[syn]['type'].params['max_conductance']
-            del_e = network.synapses[syn]['type'].params['relative_reversal_potential']
+        # iterate over the connections in the network
+        for syn in range(len(network.connections)):
+            source_pop = network.connections[syn]['source']
+            dest_pop = network.connections[syn]['destination']
+            g_max = network.connections[syn]['type'].params['max_conductance']
+            del_e = network.connections[syn]['type'].params['relative_reversal_potential']
 
-            if isinstance(network.synapses[syn]['type'],SpikingSynapse):
-                tau_s = network.synapses[syn]['type'].params['synapticTimeConstant']
-                delay = network.synapses[syn]['type'].params['synapticTransmissionDelay']
+            if isinstance(network.connections[syn]['type'], SpikingSynapse):
+                tau_s = network.connections[syn]['type'].params['synapticTimeConstant']
+                delay = network.connections[syn]['type'].params['synapticTransmissionDelay']
                 for source in pops_and_nrns[source_pop]:
                     for dest in pops_and_nrns[dest_pop]:
                         self.g_max_spike[dest][source] = g_max / len(pops_and_nrns[source_pop])
@@ -266,7 +266,7 @@ class SNS_Numpy(Backend):
         # Update a matrix with all of the appropriately delayed spike values
         self.delayed_spikes[self.spike_rows, self.spike_cols] = self.spike_buffer[self.buffer_steps, self.buffer_nrns]
 
-        self.g_spike = np.maximum(self.g_spike, (-self.delayed_spikes) * self.g_max_spike)  # Update the conductance of synapses which spiked
+        self.g_spike = np.maximum(self.g_spike, (-self.delayed_spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
         self.u = self.u * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
         self.outputs_raw = np.matmul(self.output_voltage_connectivity, self.u) + np.matmul(self.output_spike_connectivity, -self.spikes)
 
@@ -352,15 +352,15 @@ class SNS_Numpy_No_Delay(Backend):
         self.del_e = np.zeros([self.num_neurons, self.num_neurons])
         self.tau_syn = np.zeros([self.num_neurons, self.num_neurons]) + 1
 
-        # iterate over the synapses in the network
-        for syn in range(len(network.synapses)):
-            source_pop = network.synapses[syn]['source']
-            dest_pop = network.synapses[syn]['destination']
-            g_max = network.synapses[syn]['type'].params['max_conductance']
-            del_e = network.synapses[syn]['type'].params['relative_reversal_potential']
+        # iterate over the connections in the network
+        for syn in range(len(network.connections)):
+            source_pop = network.connections[syn]['source']
+            dest_pop = network.connections[syn]['destination']
+            g_max = network.connections[syn]['type'].params['max_conductance']
+            del_e = network.connections[syn]['type'].params['relative_reversal_potential']
 
-            if isinstance(network.synapses[syn]['type'],SpikingSynapse):
-                tau_s = network.synapses[syn]['type'].params['synapticTimeConstant']
+            if isinstance(network.connections[syn]['type'], SpikingSynapse):
+                tau_s = network.connections[syn]['type'].params['synapticTimeConstant']
                 for source in pops_and_nrns[source_pop]:
                     for dest in pops_and_nrns[dest_pop]:
                         self.g_max_spike[dest][source] = g_max / len(pops_and_nrns[source_pop])
@@ -451,7 +451,7 @@ class SNS_Numpy_No_Delay(Backend):
         self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + self.i_b + i_syn + i_app)  # Update membrane potential
         self.theta = self.theta_last + self.time_factor_threshold * (-self.theta_last + self.theta_0 + self.m * self.u_last)  # Update the firing thresholds
         self.spikes = np.sign(np.minimum(0, self.theta - self.u))  # Compute which neurons have spiked
-        self.g_spike = np.maximum(self.g_spike, (-self.spikes) * self.g_max_spike)  # Update the conductance of synapses which spiked
+        self.g_spike = np.maximum(self.g_spike, (-self.spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
         self.u = self.u * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
         self.outputs_raw = np.matmul(self.output_voltage_connectivity, self.u) + np.matmul(self.output_spike_connectivity, -self.spikes)
 
@@ -515,12 +515,12 @@ class SNS_Numpy_Non_Spiking(Backend):
         self.g_max = np.zeros([self.num_neurons, self.num_neurons])
         self.del_e = np.zeros([self.num_neurons, self.num_neurons])
 
-        # iterate over the synapses in the network
-        for syn in range(len(network.synapses)):
-            source_pop = network.synapses[syn]['source']
-            dest_pop = network.synapses[syn]['destination']
-            g_max = network.synapses[syn]['type'].params['max_conductance']
-            del_e = network.synapses[syn]['type'].params['relative_reversal_potential']
+        # iterate over the connections in the network
+        for syn in range(len(network.connections)):
+            source_pop = network.connections[syn]['source']
+            dest_pop = network.connections[syn]['destination']
+            g_max = network.connections[syn]['type'].params['max_conductance']
+            del_e = network.connections[syn]['type'].params['relative_reversal_potential']
 
             for source in pops_and_nrns[source_pop]:
                 for dest in pops_and_nrns[dest_pop]:
@@ -670,15 +670,15 @@ class SNS_Torch(Backend):
         self.del_e = torch.from_numpy(np.zeros([self.num_neurons, self.num_neurons]))
         self.tau_syn = torch.from_numpy(np.zeros([self.num_neurons, self.num_neurons])) + 1
 
-        # iterate over the synapses in the network
-        for syn in range(len(network.synapses)):
-            source_pop = network.synapses[syn]['source']
-            dest_pop = network.synapses[syn]['destination']
-            g_max = network.synapses[syn]['type'].params['max_conductance']
-            del_e = network.synapses[syn]['type'].params['relative_reversal_potential']
+        # iterate over the connections in the network
+        for syn in range(len(network.connections)):
+            source_pop = network.connections[syn]['source']
+            dest_pop = network.connections[syn]['destination']
+            g_max = network.connections[syn]['type'].params['max_conductance']
+            del_e = network.connections[syn]['type'].params['relative_reversal_potential']
 
-            if isinstance(network.synapses[syn]['type'], SpikingSynapse):
-                tau_s = network.synapses[syn]['type'].params['synapticTimeConstant']
+            if isinstance(network.connections[syn]['type'], SpikingSynapse):
+                tau_s = network.connections[syn]['type'].params['synapticTimeConstant']
                 for source in pops_and_nrns[source_pop]:
                     for dest in pops_and_nrns[dest_pop]:
                         self.g_max_spike[dest, source] = g_max / len(pops_and_nrns[source_pop])
@@ -796,7 +796,7 @@ class SNS_Torch(Backend):
                 -self.theta_last + self.theta_0 + self.m * self.u_last)  # Update the firing thresholds
         self.spikes = torch.sign(torch.minimum(self.zero, self.theta - self.u))  # Compute which neurons have spiked
         self.g_spike = torch.maximum(self.g_spike,
-                                     (-self.spikes) * self.g_max_spike)  # Update the conductance of synapses which spiked
+                                     (-self.spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
         self.u = self.u * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
         self.out = torch.matmul(self.output_voltage_connectivity, self.u) + torch.matmul(self.output_spike_connectivity, -self.spikes)
         # return out.cpu().numpy()
@@ -883,7 +883,7 @@ class SNS_Torch_Large(Backend):
         # initialize the matrices
         self.tauSyn = (torch.from_numpy(np.zeros([self.num_neurons, self.num_neurons])) + 1).to(dtype)
 
-        # iterate over the synapses in the network
+        # iterate over the connections in the network
         non_rows = []
         non_cols = []
         non_vals = []
@@ -895,14 +895,14 @@ class SNS_Torch_Large(Backend):
         del_e_cols = []
         del_e_vals = []
         ones = []
-        for syn in range(len(network.synapses)):
-            source_pop = network.synapses[syn]['source']
-            dest_pop = network.synapses[syn]['destination']
-            g_max = network.synapses[syn]['type'].params['max_conductance']
-            del_e = network.synapses[syn]['type'].params['relative_reversal_potential']
+        for syn in range(len(network.connections)):
+            source_pop = network.connections[syn]['source']
+            dest_pop = network.connections[syn]['destination']
+            g_max = network.connections[syn]['type'].params['max_conductance']
+            del_e = network.connections[syn]['type'].params['relative_reversal_potential']
 
-            if isinstance(network.synapses[syn]['type'], SpikingSynapse):
-                tau_s = network.synapses[syn]['type'].params['synapticTimeConstant']
+            if isinstance(network.connections[syn]['type'], SpikingSynapse):
+                tau_s = network.connections[syn]['type'].params['synapticTimeConstant']
                 for source in pops_and_nrns[source_pop]:
                     for dest in pops_and_nrns[dest_pop]:
                         self.tauSyn[dest,source] = tau_s
@@ -947,7 +947,7 @@ class SNS_Torch_Large(Backend):
                 index += 1
         self.num_outputs = index
 
-        # self.output_voltage_connectivity = torch.from_numpy(np.zeros([self.num_outputs, self.num_neurons]))  # initialize connectivity matrix
+        # self.output_voltage_connectivity = torch.from_numpy(np.zeros([self.num_outputs, self.shape]))  # initialize connectivity matrix
         # self.output_spike_connectivity = self.output_voltage_connectivity.clone()
         volt_rows = []
         volt_cols = []
@@ -1052,7 +1052,7 @@ class SNS_Torch_Large(Backend):
         [self.zero, self.theta, self.u] = send_vars([self.zero, self.theta, self.u], 'cpu')
 
         [self.g_spike, self.g_max_spike] = send_vars([self.g_spike, self.g_max_spike], self.device)
-        self.g_spike = torch.maximum(self.g_spike.to_dense(), (-self.spikes) * self.g_max_spike.to_dense()).to_sparse()  # Update the conductance of synapses which spiked, sparse version unsupported
+        self.g_spike = torch.maximum(self.g_spike.to_dense(), (-self.spikes) * self.g_max_spike.to_dense()).to_sparse()  # Update the conductance of connections which spiked, sparse version unsupported
         [self.g_spike, self.g_max_spike] = send_vars([self.g_spike, self.g_max_spike], 'cpu')
 
         [self.u] = send_vars([self.u], self.device)

@@ -18,7 +18,7 @@ import warnings
 import numpy as np
 
 from sns_toolbox.design.neurons import Neuron, NonSpikingNeuron
-from sns_toolbox.design.connections import Synapse, NonSpikingSynapse, NonSpikingTransmissionSynapse, NonSpikingModulationSynapse
+from sns_toolbox.design.connections import Connection, NonSpikingSynapse, NonSpikingTransmissionSynapse, NonSpikingModulationSynapse
 from sns_toolbox.design.__utilities__ import valid_color, set_text_color
 
 """
@@ -52,25 +52,25 @@ class Network:
         self.populations = []
         self.outputs = []
         self.outputConns = []
-        self.synapses = []
+        self.connections = []
         self.graph = Digraph(filename=(self.params['name']+'.gv'))
 
     def get_num_neurons(self) -> int:
         """
         Calculate the number of neurons in the network
-        :return: num_neurons
+        :return: shape
         """
         num_neurons = 0
         for pop in self.populations:
             num_neurons += pop['number']
         return num_neurons
 
-    def get_num_synapses(self) -> int:
+    def get_num_connections(self) -> int:
         """
-        Calculate the number of synapses in the network. This will need to be overhauled for populations with multiple neurons
+        Calculate the number of connections in the network. This will need to be overhauled for populations with multiple neurons
         :return: num_synapses
         """
-        num_synapses = len(self.synapses)
+        num_synapses = len(self.connections)
         return num_synapses
 
     def get_num_populations(self) -> int:
@@ -123,22 +123,30 @@ class Network:
         self.graph.render(view=view,cleanup=True)
 
     # Construction
-    def add_population(self, neuron_type: Neuron, num_neurons: int, name: str = None, color=None) -> None:
+    def add_population(self, neuron_type: Neuron, shape, name: str = None, color=None) -> None:
         """
         Add a neural population to the network
         :param neuron_type:  Type of neuron to add
-        :param num_neurons:  Number of that neuron to include in the population
+        :param shape:  Number of that neuron to include in the population
         :param name:        Name of the population
         :param color:       Color of the population in the rendered image
         :return:            None
         """
         if not isinstance(neuron_type, Neuron):
             raise TypeError('Input type is not a neuron')
-        if isinstance(num_neurons, (int,np.integer)):
-            if num_neurons <= 0:
-                raise ValueError('num_neurons must be > 0')
+        if isinstance(shape, (int, np.integer)):
+            if shape <= 0:
+                raise ValueError('shape must be > 0')
+            total_num_neurons = shape
         else:
-            raise TypeError('num_neurons must be an integer greater than 0')
+            if hasattr(shape, '__iter__'): # population is multidimensional
+                if not isinstance(shape[0], (int, np.integer)):
+                    raise TypeError('Dimensions must use integers')
+                total_num_neurons = 0
+                for i in range(len(shape)):
+                    total_num_neurons += shape[i]
+            else:
+                raise TypeError('shape must be either an integer greater than 0, or a tuple containing the size of each axis in multiple dimensions')
         if name is None:
             name = neuron_type.name
         elif not isinstance(name,str):
@@ -150,10 +158,11 @@ class Network:
             color = neuron_type.color
         font_color = set_text_color(color)
         self.populations.append({'type': copy.deepcopy(neuron_type),
-                                 'number': int(num_neurons),
+                                 'number': int(total_num_neurons),
+                                 'shape': shape,
                                  'name': name,
                                  'color': color})
-        if num_neurons > 1:
+        if total_num_neurons > 1:
             self.graph.node(str(len(self.populations)-1), name,
                             style='filled',
                             shape='doublecircle',   # Populations with multiple neurons are marked with an outline
@@ -174,7 +183,7 @@ class Network:
         :param color:       Color of the neuron in the visual render
         :return:    None
         """
-        self.add_population(neuron_type, num_neurons=1, name=name, color=color)
+        self.add_population(neuron_type, shape=1, name=name, color=color)
 
     def add_input(self, dest: Any, offset: Number = 0.0, linear: Number = 1.0, quadratic: Number = 0.0,
                   cubic: Number = 0.0, name: str = 'Input', color='white') -> None:
@@ -271,19 +280,19 @@ class Network:
 
         self.graph.edge(str(source),'Out'+str(len(self.outputs)-1))
 
-    def add_synapse(self, synapse_type: Synapse, source: Any,
-                    destination: Any, name: str = None, view_label: bool = False) -> None:
+    def add_connection(self, connection_type: Connection, source: Any,
+                       destination: Any, name: str = None, view_label: bool = False) -> None:
         """
         Add a synaptic connection between two populations in the network
-        :param synapse_type: Type of synapse to add
+        :param connection_type: Type of synapse to add
         :param source:      Index of source population in the network
         :param destination: Index of destination population in the network
         :param name:        Name of synapse
         :param view_label:   Flag to render the name on the output graph
         :return: None
         """
-        if not isinstance(synapse_type, Synapse):
-            raise TypeError('Synapse type must be of type Synapse (or inherit from it)')
+        if not isinstance(connection_type, Connection):
+            raise TypeError('Connection type must inherit from type Connection')
         if not isinstance(source,int):
             if isinstance(source,str):
                 source = self.get_population_index(source)
@@ -310,23 +319,30 @@ class Network:
         if destination < 0:
             raise ValueError('Destination index must be >= 0')
         if name is None:
-            label = synapse_type.name
+            label = connection_type.params['name']
         else:
             if isinstance(name,str):
                 label = name
             else:
                 raise TypeError('Name must be a string')
-        self.synapses.append({'name': label,
+        self.connections.append({'name': label,
                               'source': source,
                               'destination': destination,
-                              'type': copy.deepcopy(synapse_type),
+                              'type': copy.deepcopy(connection_type),
                               'view': view_label})
-        if synapse_type.params['relative_reversal_potential'] > 0:
-            style = 'invempty'
-        elif synapse_type.params['relative_reversal_potential'] < 0:
-            style = 'dot'
+        if connection_type.params['pattern'] is False:
+            if connection_type.params['relative_reversal_potential'] > 0:
+                style = 'invempty'
+            elif connection_type.params['relative_reversal_potential'] < 0:
+                style = 'dot'
+            else:
+                style = 'odot'
         else:
-            style = 'odot'
+            if self.populations[source]['number'] == 1:
+                raise TypeError('Pattern connections are not supported for source populations of size 1')
+            elif self.populations[source]['number'] != self.populations[destination]['number']:
+                raise TypeError('Pattern connections are not currently supported for populations of different size')
+            style = 'vee'
         if view_label:
             self.graph.edge(str(source),
                             str(destination), arrowhead=style,
@@ -352,7 +368,7 @@ class Network:
 
         if color is None:
             for population in network.populations:
-                self.add_population(neuron_type=population['type'], num_neurons=population['number'],
+                self.add_population(neuron_type=population['type'], shape=population['number'],
                                     name=population['name'], color=population['color'])
             for inp in network.inputs:
                 self.add_input(dest=inp['destination'] + num_populations, name=inp['name'], color=inp['color'],
@@ -362,15 +378,15 @@ class Network:
                 self.add_output(source=out['source'] + num_populations, offset=out['offset'], linear=out['linear'],
                                 quadratic=out['quadratic'], cubic=out['cubic'], name=out['name'], color=out['color'],
                                 spiking=out['spiking'])
-            for synapse in network.synapses:
-                self.add_synapse(synapse_type=synapse['type'], source=synapse['source'] + num_populations,
-                                 destination=synapse['destination']+num_populations, view_label=synapse['view'])
+            for connection in network.connections:
+                self.add_connection(connection_type=connection['type'], source=connection['source'] + num_populations,
+                                    destination=connection['destination']+num_populations, view_label=connection['view'])
         else:
             if not valid_color(color):
                 warnings.warn('Specified color is not in the standard SVG set. Defaulting to white.')
                 color = 'white'
             for population in network.populations:
-                self.add_population(neuron_type=population['type'], num_neurons=population['number'],
+                self.add_population(neuron_type=population['type'], shape=population['number'],
                                     name=population['name'], color=color)
             for inp in network.inputs:
                 self.add_input(dest=inp['destination'] + num_populations, name=inp['name'], color=color,
@@ -380,9 +396,9 @@ class Network:
                 self.add_output(source=out['source'] + num_populations, offset=out['offset'], linear=out['linear'],
                                 quadratic=out['quadratic'], cubic=out['cubic'], name=out['name'], color=color,
                                 spiking=out['spiking'])
-            for synapse in network.synapses:
-                self.add_synapse(synapse_type=synapse['type'], source=synapse['source'] + num_populations,
-                                 destination=synapse['destination']+num_populations, view_label=synapse['view'])
+            for connection in network.connections:
+                self.add_connection(connection_type=connection['type'], source=connection['source'] + num_populations,
+                                    destination=connection['destination']+num_populations, view_label=connection['view'])
 
     def copy(self):
         new_net = Network(name=self.params['name'],R=self.params['R'])
@@ -407,7 +423,7 @@ class AdditionNetwork(Network):
                 conn = NonSpikingTransmissionSynapse(gain=gain, relative_reversal_potential=add_del_e, R=self.params['R'])
             else:
                 conn = NonSpikingTransmissionSynapse(gain=gain, relative_reversal_potential=sub_del_e, R=self.params['R'])
-            self.add_synapse(conn, i + 1, name + 'Sum')
+            self.add_connection(conn, i + 1, name + 'Sum')
 
 class MultiplicationNetwork(Network):
     def __init__(self,neuron_type=NonSpikingNeuron(),name='Multiply',**kwargs):
@@ -421,9 +437,9 @@ class MultiplicationNetwork(Network):
         conductance = -self.params['R']/-1.0
         modulate_special = NonSpikingSynapse(max_conductance=conductance, relative_reversal_potential=-1.0)
 
-        self.add_synapse(transmit, name + '0', name + 'Result')
-        self.add_synapse(modulate_special, name + '1', name + 'Inter')
-        self.add_synapse(modulate_special, name + 'Inter', name + 'Result')
+        self.add_connection(transmit, name + '0', name + 'Result')
+        self.add_connection(modulate_special, name + '1', name + 'Inter')
+        self.add_connection(modulate_special, name + 'Inter', name + 'Result')
 
 class DivisionNetwork(Network):
     def __init__(self,gain,ratio,name='Divide',neuron_type=NonSpikingNeuron(),**kwargs):
@@ -433,10 +449,10 @@ class DivisionNetwork(Network):
         self.add_neuron(neuron_type, name=name + 'Results')
 
         transmission = NonSpikingTransmissionSynapse(gain,R=self.params['R'])
-        self.add_synapse(transmission, 0, 2)
+        self.add_connection(transmission, 0, 2)
 
         modulation = NonSpikingModulationSynapse(ratio)
-        self.add_synapse(modulation, 1, 2)
+        self.add_connection(modulation, 1, 2)
 
 class DifferentiatorNetwork(Network):
     def __init__(self,slew_rate=1.0,name='Differentiate',tau_fast=1.0,**kwargs):
@@ -452,10 +468,10 @@ class DifferentiatorNetwork(Network):
         self.add_neuron(neuron_type=slow_neuron_type,name='Uslow')
         self.add_neuron(neuron_type=fast_neuron_type,name='Uout')
 
-        self.add_synapse(add_synapse,'Uin','Ufast')
-        self.add_synapse(add_synapse, 'Uin', 'Uslow')
-        self.add_synapse(add_synapse, 'Ufast', 'Uout')
-        self.add_synapse(sub_synapse, 'Uslow', 'Uout')
+        self.add_connection(add_synapse, 'Uin', 'Ufast')
+        self.add_connection(add_synapse, 'Uin', 'Uslow')
+        self.add_connection(add_synapse, 'Ufast', 'Uout')
+        self.add_connection(sub_synapse, 'Uslow', 'Uout')
 
 class IntegratorNetwork(Network):
     def __init__(self, integration_gain=0.1, relative_reversal_potential=-40.0, name='Integrator', **kwargs):
@@ -474,8 +490,8 @@ class IntegratorNetwork(Network):
         self.add_neuron(neuron_type,name='Uint')
         self.add_neuron(neuron_type)
 
-        self.add_synapse(synapse_type,0,1)
-        self.add_synapse(synapse_type,1,0)
+        self.add_connection(synapse_type, 0, 1)
+        self.add_connection(synapse_type, 1, 0)
 
 
 # TODO: Adaptation
@@ -497,5 +513,5 @@ class AdaptationNetwork(Network):
         self.add_neuron(neuron_type,name='Uadapt')
         self.add_neuron(neuron_type)
 
-        self.add_synapse(fast_slow,0,1)
-        self.add_synapse(slow_fast,1,0)
+        self.add_connection(fast_slow, 0, 1)
+        self.add_connection(slow_fast, 1, 0)

@@ -18,8 +18,8 @@ def build_full_spiking_net(num_neurons,dt):
     neuron_type = SpikingNeuron(bias=20.0)
     synapse_type = SpikingSynapse(transmission_delay=5)
 
-    net.add_population(neuron_type,num_neurons=num_neurons)
-    net.add_synapse(synapse_type,0,0)
+    net.add_population(neuron_type, shape=num_neurons)
+    net.add_connection(synapse_type, 0, 0)
     num_inputs = max(1,int(0.1*num_neurons))
     for i in range(num_inputs):
         net.add_input(0)
@@ -36,8 +36,8 @@ def build_full_no_delay_net(num_neurons,dt):
     neuron_type = SpikingNeuron(bias=20.0)
     synapse_type = SpikingSynapse()
 
-    net.add_population(neuron_type, num_neurons=num_neurons)
-    net.add_synapse(synapse_type, 0, 0)
+    net.add_population(neuron_type, shape=num_neurons)
+    net.add_connection(synapse_type, 0, 0)
     num_inputs = max(1, int(0.1 * num_neurons))
     for i in range(num_inputs):
         net.add_input(0)
@@ -54,8 +54,8 @@ def build_full_non_spiking_net(num_neurons,dt):
     neuron_type = NonSpikingNeuron(bias=20.0)
     synapse_type = NonSpikingSynapse()
 
-    net.add_population(neuron_type, num_neurons=num_neurons)
-    net.add_synapse(synapse_type, 0, 0)
+    net.add_population(neuron_type, shape=num_neurons)
+    net.add_connection(synapse_type, 0, 0)
     num_inputs = max(1, int(0.1 * num_neurons))
     for i in range(num_inputs):
         net.add_input(0)
@@ -86,7 +86,7 @@ def build_realistic_spiking_net(num_neurons,dt):
 
     # Synaptic population
     net.add_population(neuron_type,num_connected,name='Pop')
-    net.add_synapse(synapse_type,'Pop','Pop')
+    net.add_connection(synapse_type, 'Pop', 'Pop')
 
     # Rest of the neurons
     net.add_population(neuron_type,num_rest)
@@ -115,7 +115,7 @@ def build_realistic_no_delay_net(num_neurons,dt):
 
     # Synaptic population
     net.add_population(neuron_type,num_connected,name='Pop')
-    net.add_synapse(synapse_type,'Pop','Pop')
+    net.add_connection(synapse_type, 'Pop', 'Pop')
 
     # Rest of the neurons
     net.add_population(neuron_type,num_rest)
@@ -144,7 +144,7 @@ def build_realistic_non_spiking_net(num_neurons,dt):
 
     # Synaptic population
     net.add_population(neuron_type, num_connected, name='Pop')
-    net.add_synapse(synapse_type, 'Pop', 'Pop')
+    net.add_connection(synapse_type, 'Pop', 'Pop')
 
     # Rest of the neurons
     net.add_population(neuron_type, num_rest)

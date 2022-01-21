@@ -1,5 +1,5 @@
 """
-Let's build an example spiking network which showcases synapses with spiking transmission delay
+Let's build an example spiking network which showcases connections with spiking transmission delay
 William Nourse
 December 10th 2021
 """
@@ -30,10 +30,10 @@ net.add_neuron(neuron_type, name='D5', color='green')
 net.add_neuron(neuron_type, name='D10', color='red')
 net.add_neuron(neuron_type, name='D20', color='purple')
 
-net.add_synapse(synapse_type_d0, 'Source', 'D0')
-net.add_synapse(synapse_type_d5, 'Source', 'D5')
-net.add_synapse(synapse_type_d10, 'Source', 'D10')
-net.add_synapse(synapse_type_d20, 'Source', 'D20')
+net.add_connection(synapse_type_d0, 'Source', 'D0')
+net.add_connection(synapse_type_d5, 'Source', 'D5')
+net.add_connection(synapse_type_d10, 'Source', 'D10')
+net.add_connection(synapse_type_d20, 'Source', 'D20')
 
 net.add_output('Source', name='OSS', spiking=True)
 net.add_output('D0', name='O0S', spiking=True)

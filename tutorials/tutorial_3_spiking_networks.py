@@ -57,10 +57,10 @@ net.render_graph(view=False)
 """Define the second network"""
 pop_size = 5
 net_pop = Network(name='Tutorial 3 Network Populations')
-net_pop.add_population(spike_m_equal_0, num_neurons=pop_size, color='red', name='Source')
-net_pop.add_population(spike_m_equal_0, num_neurons=pop_size, color='purple', name='Destination')
+net_pop.add_population(spike_m_equal_0, shape=pop_size, color='red', name='Source')
+net_pop.add_population(spike_m_equal_0, shape=pop_size, color='purple', name='Destination')
 net_pop.add_input(dest='Source', name='I3', color='black')
-net_pop.add_synapse(synapse_spike, 'Source', 'Destination')
+net_pop.add_connection(synapse_spike, 'Source', 'Destination')
 net_pop.add_output('Source', name='O6S', color='grey', spiking=True)
 net_pop.add_output('Source', name='O7V', color='grey', spiking=False)
 net_pop.add_output('Destination', name='O8S', color='grey', spiking=True)

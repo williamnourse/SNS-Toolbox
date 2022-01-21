@@ -20,11 +20,11 @@ class AdditionNetwork(Network): # inherit from the general 'Network' class
         for i in range(num_inputs):
             self.add_neuron(neuron_type, name=name + 'Src' + str(i))  # Add each of the input neurons
             gain = gains[i]
-            if gain > 0:    # create synapses differently depending on whether the integration_gain is positive or negative
+            if gain > 0:    # create connections differently depending on whether the integration_gain is positive or negative
                 conn = NonSpikingTransmissionSynapse(gain=gain, relative_reversal_potential=add_del_e, R=self.params['R'])
             else:
                 conn = NonSpikingTransmissionSynapse(gain=gain, relative_reversal_potential=sub_del_e, R=self.params['R'])
-            self.add_synapse(conn, i + 1, name + 'Sum')    # add the synapse to the network
+            self.add_connection(conn, i + 1, name + 'Sum')    # add the synapse to the network
 
 # Now let's import our network into another one, as we would normally use this functionality
 net = Network(name='Tutorial 4 Network')

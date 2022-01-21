@@ -55,7 +55,7 @@ def stepAll(inputConnectivity, inputVals, Ulast, timeFactorMembrane, Gm, Ib, the
     U = Ulast + timeFactorMembrane * (-Gm * Ulast + Ib + Isyn + Iapp)  # Update membrane potential
     theta = thetaLast + timeFactorThreshold * (-thetaLast + theta0 + m * Ulast)  # Update the firing thresholds
     spikes = np.sign(np.minimum(0, theta + U * (-1 + refCtr)))  # Compute which neurons have spiked
-    Gspike = np.maximum(Gspike, (-spikes) * GmaxSpk)  # Update the conductance of synapses which spiked
+    Gspike = np.maximum(Gspike, (-spikes) * GmaxSpk)  # Update the conductance of connections which spiked
     U = U * (spikes + 1)  # Reset the membrane voltages of neurons which spiked
     refCtr = np.maximum(0, refCtr - spikes * (refPeriod + 1) - 1)  # Update refractory periods
     outputVoltages = np.matmul(outputVoltageConnectivity, U)  # Copy desired neural quantities to output nodes
@@ -101,7 +101,7 @@ def stepNoRef(inputConnectivity, inputVals, Ulast, timeFactorMembrane, Gm, Ib, t
     U = Ulast + timeFactorMembrane * (-Gm * Ulast + Ib + Isyn + Iapp)  # Update membrane potential
     theta = thetaLast + timeFactorThreshold * (-thetaLast + theta0 + m * Ulast)  # Update the firing thresholds
     spikes = np.sign(np.minimum(0, theta - U))  # Compute which neurons have spiked
-    Gspike = np.maximum(Gspike, (-spikes) * GmaxSpk)  # Update the conductance of synapses which spiked
+    Gspike = np.maximum(Gspike, (-spikes) * GmaxSpk)  # Update the conductance of connections which spiked
     U = U * (spikes + 1)  # Reset the membrane voltages of neurons which spiked
     outputVoltages = np.matmul(outputVoltageConnectivity, U)  # Copy desired neural quantities to output nodes
     outputSpikes = np.matmul(outputSpikeConnectivity, spikes)  # Copy desired neural quantities to output nodes

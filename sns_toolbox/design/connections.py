@@ -134,8 +134,8 @@ class NonSpikingPatternConnection(NonSpikingConnection):
         :param gain_matrix: Matrix (or vector for 1D kernels) of synaptic gains
         :param name:    Name of this connection type
         :param R:   Voltage range of neural activity (mV)
-        :param positive_reversal_potential: Reversal potential for synapses with positive gain (mV)
-        :param negative_reversal_potential: Reversal potential for synapses with negative gain (mV)
+        :param positive_reversal_potential: Reversal potential for connections with positive gain (mV)
+        :param negative_reversal_potential: Reversal potential for connections with negative gain (mV)
         :param wrap:    Flag for if connections should wrap from one end of the population to the other
         """
         max_conductance = []
@@ -185,8 +185,8 @@ class SpikingPatternConnection(SpikingConnection):
         :param gain_matrix: Matrix (or vector for 1D kernels) of synaptic gains
         :param name:    Name of this connection type
         :param R:   Voltage range of neural activity (mV)
-        :param positive_reversal_potential: Reversal potential for synapses with positive gain (mV)
-        :param negative_reversal_potential: Reversal potential for synapses with negative gain (mV)
+        :param positive_reversal_potential: Reversal potential for connections with positive gain (mV)
+        :param negative_reversal_potential: Reversal potential for connections with negative gain (mV)
         :param wrap:    Flag for if connections should wrap from one end of the population to the other
         :param max_frequency:   Maximum spiking frequency of the network
         """

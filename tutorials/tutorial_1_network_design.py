@@ -41,8 +41,8 @@ synapse_inhibitory = NonSpikingSynapse(relative_reversal_potential=-40.0) # make
 """
 5. Use our synapse types to connect the neurons in the network
 """
-net.add_synapse(synapse_excitatory, 'Neuron 1', 'Neuron 2')    # Add an excitatory synapse from neuron 1 to neuron 2
-net.add_synapse(synapse_inhibitory, 'Neuron 2', 'Neuron 1')   # Add an inhibitory synapse back from 2 to 1
+net.add_connection(synapse_excitatory, 'Neuron 1', 'Neuron 2')    # Add an excitatory synapse from neuron 1 to neuron 2
+net.add_connection(synapse_inhibitory, 'Neuron 2', 'Neuron 1')   # Add an inhibitory synapse back from 2 to 1
 
 # This can also be done using indices in the order the neurons were added to the network
 # net.addSynapse(synapse_excitatory,0,1)

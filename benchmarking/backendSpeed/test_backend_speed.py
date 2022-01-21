@@ -52,9 +52,9 @@ for num in range(numSamples):
     numRest = int(numNeurons[num]) - numIns - numSyn - numOuts
     net.add_population(spike, numIns, name='ins')  # in puppy, num_inputs = 8% of network
     net.add_population(spikeBias, numOuts, name='outs')  # in puppy, num_outputs = 12% of network
-    net.add_population(spikeBias, numSyn, name='connected')  # in puppy, numSyn = num_neurons
+    net.add_population(spikeBias, numSyn, name='connected')  # in puppy, numSyn = shape
     net.add_population(spikeBias, numRest, name='rest')  # rest of the network
-    net.add_synapse(spikeExcite, 'connected', 'connected')
+    net.add_connection(spikeExcite, 'connected', 'connected')
     net.add_input('Input')
     net.addInputConnection(1.0, 'Input', 'ins')
     net.add_output('outs')
@@ -168,7 +168,7 @@ for num in range(numSamples):
             torchGPUTimes[num, i] = 0
 
 
-    data = {'num_neurons': numNeurons,
+    data = {'shape': numNeurons,
             'numpy': npTimes,
             'torchCPU': torchCPUTimes,
             'torchGPU': torchGPUTimes,
