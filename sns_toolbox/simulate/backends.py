@@ -109,7 +109,7 @@ class Backend:
     def __initialize_vectors_and_matrices__(self) -> None:
         """
         Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
-        following: U[t], U[t-dt], Spikes[t], Cm, Gm, Ibias, Theta0, Theta[t], Theta[t-dt], m, TauTheta.
+        following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
         :return:    None
         """
         raise NotImplementedError
@@ -117,7 +117,7 @@ class Backend:
     def __set_neurons__(self) -> None:
         """
         Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
-        network: Cm, Gm, Ibias, U[-dt], U[0], Theta0, Theta[-dt], Theta[0], TauTheta, m.
+        network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
         :return:
         """
         raise NotImplementedError
@@ -178,10 +178,28 @@ class Backend:
 
     def __forward_pass__(self, inputs) -> Any:
         """
-                Compute the next neural states based on previous neural states
-                :param inputs:    Input currents into the network
-                :return:          The next neural voltages
-                """
+        Compute the next neural states based on previous neural states in the following steps:
+        Ulast = U
+        ThetaLast = Theta
+        MappedInputs = cubic*inputs^3 + quadratic*inputs^2 + linear*inputs + offset
+        IApp = InputConnectivity X MappedInputs
+        GNon = max(0, min(GMaxNon*ULast/R, GMaxNon))
+        GSpike = GSpike * (1-TimeFactorSynapse)
+        GSyn = GNon + GSpike
+        ISyn = ColSum(GSyn*DelE) - ULast*ColSum(GSyn)
+        U = ULast + TimeFactorMembrane*(-Gm*ULast + IBias + ISyn + IApp)
+        Theta = ThetaLast + TimeFactorThreshold*(-ThetaLast + Theta0 + m*ULast)
+        Spikes = Sign(min(0, Theta - U))
+        SpikeBuffer = SpikeBuffer shifted down by 1
+        SpikeBuffer[first row] = Spikes
+        DelayedSpikeMatrix = SpikeBuffer[BufferSteps, BufferedNeurons]
+        GSpike = max(GSpike, -DelayedSpikeMatrix*GMaxSpike)
+        U = U * (Spikes + 1)
+        Outputs = OutputVoltageConnectivity X U + OutputSpikeConnectivity X (-Spikes)
+        MappedOutputs = cubic*Outputs^3 + quadratic*Outputs^2 + linear*Outputs + offset
+        :param inputs:    Input currents into the network
+        :return:          The next neural voltages
+        """
         raise NotImplementedError
 
 """
