@@ -40,14 +40,126 @@ class Backend:
         :param network: NonSpikingNetwork to serve as a design template
         :param dt:      Simulation time constant
         """
+        self.network = network
         self.dt = dt
-        self.num_populations = network.get_num_populations()
-        self.num_neurons = network.get_num_neurons()
-        self.num_synapses = network.get_num_connections()
-        self.num_inputs = network.get_num_inputs()
-        self.num_outputs = network.get_num_outputs()
-        self.R = network.params['R']
         self.debug = debug
+
+        if self.debug:
+            print('#\nGETTING NET PARAMETERS\n#')
+        self.__get_net_params__()
+
+        if self.debug:
+            print('#\nINITIALIZING VARIABLES AND PARAMETERS\n#')
+        self.__initialize_vectors_and_matrices__()
+
+        if self.debug:
+            print('#\nSETTING NEURAL PARAMETERS\n#')
+        self.__set_neurons__()
+
+        if self.debug:
+            print('#\nSETTING INPUT PARAMETERS\n#')
+        self.__set_inputs__()
+
+        if self.debug:
+            print('#\nSETTING CONNECTION PARAMETERS\n#')
+        self.__set_connections__()
+
+        if self.debug:
+            print('#\nCALCULATING TIME FACTORS\n#')
+        self.__calculate_time_factors__()
+
+        if self.debug:
+            print('#\nINITIALIZING PROPAGATION DELAY\n#')
+        self.__initialize_propagation_delay__()
+
+        if self.debug:
+            print('#\nSETTING OUTPUT PARAMETERS\n#')
+        self.__set_outputs__()
+
+        if self.debug:
+            print('#\nALL FINAL PARAMETERS\n#')
+            self.__debug_print__()
+
+    def __get_net_params__(self) -> None:
+        self.num_populations = self.network.get_num_populations()
+        self.num_neurons = self.network.get_num_neurons()
+        self.num_connections = self.network.get_num_connections()
+        self.num_inputs = self.network.get_num_inputs()
+        self.num_outputs = self.network.get_num_outputs()
+        self.R = self.network.params['R']
+
+        if self.debug:
+            print('Number of Populations:')
+            print(self.num_populations)
+            print('Number of Neurons:')
+            print(self.num_neurons)
+            print('Number of Connections')
+            print(self.num_connections)
+            print('Number of Inputs:')
+            print(self.num_inputs)
+            print('Number of Outputs:')
+            print('Network Voltage Range (mV):')
+            print(self.R)
+
+    def __initialize_vectors_and_matrices__(self) -> None:
+        """
+        Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
+        following: U[t], U[t-dt], Spikes[t], Cm, Gm, Ibias, Theta0, Theta[t], Theta[t-dt], m, TauTheta.
+        :return:    None
+        """
+        raise NotImplementedError
+
+    def __set_neurons__(self) -> None:
+        """
+        Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
+        network: Cm, Gm, Ibias, U[-dt], U[0], Theta0, Theta[-dt], Theta[0], TauTheta, m.
+        :return:
+        """
+        raise NotImplementedError
+
+    def __set_inputs__(self) -> None:
+        """
+        Build the input connection matrix, and apply linear mapping coefficients.
+        :return:    None
+        """
+        raise NotImplementedError
+
+    def __set_connections__(self) -> None:
+        """
+        Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+        synapses.
+        :return: None
+        """
+        raise NotImplementedError
+
+    def __calculate_time_factors__(self) -> None:
+        """
+        Precompute the time factors for the membrane voltage, firing threshold, and spiking synapses.
+        :return: None
+        """
+        raise NotImplementedError
+
+    def __initialize_propagation_delay__(self) -> None:
+        """
+        Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
+        :return: None
+        """
+        raise NotImplementedError
+
+    def __set_outputs__(self) -> None:
+        """
+        Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
+        output monitors for each neuron in a population.
+        :return: None
+        """
+        raise NotImplementedError
+
+    def __debug_print__(self) -> None:
+        """
+        Print the values for every vector/matrix which will be used in the forward computation.
+        :return: None
+        """
+        raise NotImplementedError
 
     def forward(self, inputs) -> Any:
         """
