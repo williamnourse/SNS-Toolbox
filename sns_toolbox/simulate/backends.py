@@ -34,12 +34,17 @@ class Backend:
         - Take in (some form of) a vector of input states and applied currents, and compute the result for the next
           timestep
     """
-    def __init__(self, network: Network, dt: float = 0.1, debug: bool = False) -> None:
+    def __init__(self, network: Network, dt: float = 0.1, debug: bool = False, substeps: int = 1) -> None:
         """
         Construct the backend based on the network design
         :param network: NonSpikingNetwork to serve as a design template
         :param dt:      Simulation time constant
+        :param debug: Flag for printing debug information to the console
+        :param substeps: Number of simulation substeps before returning an output vector
         """
+        if substeps <= 0:
+            raise ValueError('Substeps must be a positive integer')
+        self.substeps = substeps
         self.network = network
         self.dt = dt
         self.debug = debug
@@ -167,6 +172,16 @@ class Backend:
         :param inputs:    Input currents into the network
         :return:          The next neural voltages
         """
+        for i in range(self.substeps):
+            out = self.__forward_pass__(inputs)
+        return out
+
+    def __forward_pass__(self, inputs) -> Any:
+        """
+                Compute the next neural states based on previous neural states
+                :param inputs:    Input currents into the network
+                :return:          The next neural voltages
+                """
         raise NotImplementedError
 
 """
