@@ -215,13 +215,6 @@ class SNS_Numpy(Backend):
     def __init__(self,network: Network,**kwargs):
         super().__init__(network,**kwargs)
 
-
-
-
-
-
-
-
     def __initialize_vectors_and_matrices__(self) -> None:
         """
         Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
@@ -253,35 +246,45 @@ class SNS_Numpy(Backend):
         self.spike_delay_inds = np.zeros([self.num_neurons ** 2])
         self.delayed_spikes = np.zeros([self.num_neurons, self.num_neurons])
 
+        self.pops_and_nrns = []
+        index = 0
+        for pop in range(len(self.network.populations)):
+            num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
+            self.pops_and_nrns.append([])
+            for num in range(num_neurons):
+                self.pops_and_nrns[pop].append(index)
+                index += 1
+
     def __set_neurons__(self) -> None:
         """
         Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
         network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
         :return:
         """
-        self.pops_and_nrns = [] # TODO: Move this to a better place...
         index = 0
         for pop in range(len(self.network.populations)):
             num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
-            self.pops_and_nrns.append([])
+            initial_value = self.network.populations[pop]['initial_value']
             u_last = 0.0
             for num in range(num_neurons):  # for each neuron, copy the parameters over
                 self.c_m[index] = self.network.populations[pop]['type'].params['membrane_capacitance']
                 self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
                 self.i_b[index] = self.network.populations[pop]['type'].params['bias']
-                self.u_last[index] = u_last
+                if hasattr(initial_value, '__iter__'):
+                    self.u_last[index] = initial_value[num]
+                else:
+                    self.u_last[index] = initial_value
                 # TODO: Change this part to accommodate new populations
                 if isinstance(self.network.populations[pop]['type'], SpikingNeuron):  # if the neuron is spiking, copy more
                     self.theta_0[index] = self.network.populations[pop]['type'].params['threshold_initial_value']
-                    u_last += self.network.populations[pop]['type'].params['threshold_initial_value'] / num_neurons
+                    # u_last += self.network.populations[pop]['type'].params['threshold_initial_value'] / num_neurons
                     self.m[index] = self.network.populations[pop]['type'].params['threshold_proportionality_constant']
                     self.tau_theta[index] = self.network.populations[pop]['type'].params['threshold_time_constant']
                 else:  # otherwise, set to the special values for NonSpiking
                     self.theta_0[index] = sys.float_info.max
                     self.m[index] = 0
                     self.tau_theta[index] = 1
-                    u_last += self.R / num_neurons
-                self.pops_and_nrns[pop].append(index)
+                    # u_last += self.R / num_neurons
                 index += 1
         self.u = np.copy(self.u_last)
         self.theta = np.copy(self.theta_0)
@@ -457,6 +460,7 @@ class SNS_Numpy(Backend):
         return self.out_cubic*(self.outputs_raw**3) + self.out_quad*(self.outputs_raw**2)\
             + self.out_linear*self.outputs_raw + self.out_offset
 
+# TODO: Redo with inheritance
 class SNS_Numpy_No_Delay(Backend):
     def __init__(self,network: Network,**kwargs):
         super().__init__(network,**kwargs)
@@ -642,6 +646,7 @@ class SNS_Numpy_No_Delay(Backend):
         return self.out_cubic*(self.outputs_raw**3) + self.out_quad*(self.outputs_raw**2)\
             + self.out_linear*self.outputs_raw + self.out_offset
 
+# TODO: Redo with inheritance
 class SNS_Numpy_Non_Spiking(Backend):
     def __init__(self,network: Network,**kwargs):
         super().__init__(network,**kwargs)
@@ -778,7 +783,7 @@ PYTORCH DENSE
 Simulating the network using GPU-compatible tensors.
 Note that this is not sparse, so memory may explode for large networks
 """
-
+# TODO: Redo with inheritance
 class SNS_Torch(Backend):
     # TODO: Add polynomial mapping
     # TODO: Add synaptic transmission delay
@@ -990,7 +995,7 @@ class SNS_Torch(Backend):
 ########################################################################################################################
 PYTORCH SPARSE
 """
-
+# TODO: Redo with inheritance
 class SNS_Torch_Large(Backend):
     # TODO: Add polynomial mapping
     # TODO: Add synaptic transmission delay

@@ -18,10 +18,11 @@ from sns_toolbox.simulate.plotting import spike_raster_plot
 
 """Design the first Network"""
 # Create spiking neurons with different values of 'm'
+threshold_initial_value = 1.0
 spike_m_equal_0 = SpikingNeuron(name='m = 0', color='aqua',
                                 threshold_time_constant=5.0,  # Default value of tau_m (ms)
                                 threshold_proportionality_constant=0.0,  # Default value of m
-                                threshold_initial_value=1.0)  # Default value of theta_0 (mV)
+                                threshold_initial_value=threshold_initial_value)  # Default value of theta_0 (mV)
 spike_m_less_0 = SpikingNeuron(name='m < 0', color='darkorange',
                                threshold_proportionality_constant=-1.0)
 spike_m_greater_0 = SpikingNeuron(name='m > 0', color='forestgreen',
@@ -57,8 +58,9 @@ net.render_graph(view=False)
 """Define the second network"""
 pop_size = 5
 net_pop = Network(name='Tutorial 3 Network Populations')
-net_pop.add_population(spike_m_equal_0, shape=pop_size, color='red', name='Source')
-net_pop.add_population(spike_m_equal_0, shape=pop_size, color='purple', name='Destination')
+initial_values = np.linspace(0.0,threshold_initial_value,num=pop_size)
+net_pop.add_population(spike_m_equal_0, shape=pop_size, color='red', name='Source')#,initial_value=initial_values)
+net_pop.add_population(spike_m_equal_0, shape=pop_size, color='purple', name='Destination')#,initial_value=initial_values)
 net_pop.add_input(dest='Source', name='I3', color='black')
 net_pop.add_connection(synapse_spike, 'Source', 'Destination')
 net_pop.add_output('Source', name='O6S', color='grey', spiking=True)
@@ -127,18 +129,18 @@ spike_raster_plot(t,data.transpose()[:][6:6+pop_size],colors=['red'])
 plt.ylabel('Neuron')
 plt.title('Source Spikes')
 plt.subplot(2, 2, 2)
-spike_raster_plot(t,data.transpose()[:][6+pop_size:],colors=['purple'])
+spike_raster_plot(t,data.transpose()[:][6+2*pop_size:6+3*pop_size],colors=['purple'])
 plt.ylabel('Neuron')
 plt.title('Destination Spikes')
 plt.subplot(2,2,3)
 for i in range(pop_size):
-    plt.plot(t,data.transpose()[:][6+i])
+    plt.plot(t,data.transpose()[:][6+pop_size+i])
 plt.xlabel('t (ms)')
 plt.ylabel('Voltage')
 plt.title('Source Voltage')
 plt.subplot(2, 2, 4)
 for i in range(pop_size):
-    plt.plot(t,data.transpose()[:][6+pop_size+i])
+    plt.plot(t,data.transpose()[:][6+3*pop_size+i])
 plt.xlabel('t (ms)')
 plt.ylabel('Voltage')
 plt.title('Destination Voltage')

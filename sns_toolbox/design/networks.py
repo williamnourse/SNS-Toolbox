@@ -17,7 +17,7 @@ from graphviz import Digraph
 import warnings
 import numpy as np
 
-from sns_toolbox.design.neurons import Neuron, NonSpikingNeuron
+from sns_toolbox.design.neurons import Neuron, NonSpikingNeuron, SpikingNeuron
 from sns_toolbox.design.connections import Connection, NonSpikingSynapse, NonSpikingTransmissionSynapse, NonSpikingModulationSynapse
 from sns_toolbox.design.__utilities__ import valid_color, set_text_color
 
@@ -123,13 +123,15 @@ class Network:
         self.graph.render(view=view,cleanup=True)
 
     # Construction
-    def add_population(self, neuron_type: Neuron, shape, name: str = None, color=None) -> None:
+    def add_population(self, neuron_type: Neuron, shape, name: str = None, color=None, initial_value=None) -> None:
         """
         Add a neural population to the network
         :param neuron_type:  Type of neuron to add
         :param shape:  Number of that neuron to include in the population
         :param name:        Name of the population
         :param color:       Color of the population in the rendered image
+        :param initial_value: Initial value of membrane voltage for each neuron in the population (must be either a
+        single value, or an array matching 'shape'
         :return:            None
         """
         if not isinstance(neuron_type, Neuron):
@@ -157,11 +159,20 @@ class Network:
             warnings.warn('Specified color is not in the standard SVG set. Defaulting to base type color.')
             color = neuron_type.color
         font_color = set_text_color(color)
+        if initial_value is None:
+            if total_num_neurons > 1:
+                if neuron_type is SpikingNeuron:
+                    initial_value = np.linspace(0,neuron_type.params['threshold_initial_value'],num=total_num_neurons)
+                else:
+                    initial_value = np.linspace(0,self.params['R'],num=total_num_neurons)
+            else:
+                initial_value = 0.0
         self.populations.append({'type': copy.deepcopy(neuron_type),
                                  'number': int(total_num_neurons),
                                  'shape': shape,
                                  'name': name,
-                                 'color': color})
+                                 'color': color,
+                                 'initial_value': initial_value})
         if total_num_neurons > 1:
             self.graph.node(str(len(self.populations)-1), name,
                             style='filled',
@@ -174,16 +185,17 @@ class Network:
                             fillcolor=color,
                             fontcolor=font_color)
 
-    def add_neuron(self, neuron_type, name=None, color=None) -> None:
+    def add_neuron(self, neuron_type, name=None, color=None, initial_value=0.0) -> None:
         """
         Add a neuron to the network. Note that this is just a special case of addPopulation, which makes a population of
         1 neuron.
         :param neuron_type:  Type of neuron to add
         :param name:        Name of the neuron
         :param color:       Color of the neuron in the visual render
+        :param initial_value: Initial value of membrane voltage
         :return:    None
         """
-        self.add_population(neuron_type, shape=1, name=name, color=color)
+        self.add_population(neuron_type, shape=1, name=name, color=color, initial_value=initial_value)
 
     def add_input(self, dest: Any, offset: Number = 0.0, linear: Number = 1.0, quadratic: Number = 0.0,
                   cubic: Number = 0.0, name: str = 'Input', color='white') -> None:
