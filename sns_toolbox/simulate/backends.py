@@ -19,7 +19,7 @@ import sys
 
 from sns_toolbox.design.networks import Network
 from sns_toolbox.design.neurons import SpikingNeuron
-from sns_toolbox.design.connections import SpikingSynapse
+from sns_toolbox.design.connections import SpikingSynapse, NonSpikingSynapse, NonSpikingPatternConnection, SpikingPatternConnection
 from sns_toolbox.simulate.__utilities__ import send_vars
 
 """
@@ -276,7 +276,7 @@ class SNS_Numpy(Backend):
                     self.u_last[index] = 0.0
                 else:
                     self.u_last[index] = initial_value
-                
+
                 if isinstance(self.network.populations[pop]['type'], SpikingNeuron):  # if the neuron is spiking, copy more
                     self.theta_0[index] = self.network.populations[pop]['type'].params['threshold_initial_value']
                     self.m[index] = self.network.populations[pop]['type'].params['threshold_proportionality_constant']
@@ -336,11 +336,12 @@ class SNS_Numpy(Backend):
                         self.buffer_steps.append(delay)
                         self.spike_rows.append(dest)
                         self.spike_cols.append(source)
-            else:
+            elif isinstance(self.network.connections[syn]['type'], NonSpikingSynapse):
                 for source in self.pops_and_nrns[source_pop]:
                     for dest in self.pops_and_nrns[dest_pop]:
                         self.g_max_non[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
                         self.del_e[dest][source] = del_e
+
 
     def __calculate_time_factors__(self) -> None:
         """

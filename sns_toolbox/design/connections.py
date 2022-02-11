@@ -121,7 +121,7 @@ class SpikingSynapse(SpikingConnection):
                 raise ValueError('Synaptic transmission delay must be greater than or equal to zero')
         else:
             raise TypeError('Synaptic transmission delay must be an integer')
-
+# TODO: Redo in more elemental form
 class NonSpikingPatternConnection(NonSpikingConnection):
     def __init__(self,gain_matrix,
                  name: str = 'Pattern',
@@ -169,7 +169,7 @@ class NonSpikingPatternConnection(NonSpikingConnection):
                                                                                                                 self.params['R'])
                 self.params['max_conductance'].append(calc_max_conductance)
                 self.params['relative_reversal_potential'].append(calc_relative_reversal_potential)
-
+# TODO: Redo in more elemental form
 class SpikingPatternConnection(SpikingConnection):
     def __init__(self,gain_matrix,
                  transmission_delay_matrix,
