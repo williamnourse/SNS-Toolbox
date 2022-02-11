@@ -272,19 +272,19 @@ class SNS_Numpy(Backend):
                 self.i_b[index] = self.network.populations[pop]['type'].params['bias']
                 if hasattr(initial_value, '__iter__'):
                     self.u_last[index] = initial_value[num]
+                elif initial_value is None:
+                    self.u_last[index] = 0.0
                 else:
                     self.u_last[index] = initial_value
-                # TODO: Change this part to accommodate new populations
+                
                 if isinstance(self.network.populations[pop]['type'], SpikingNeuron):  # if the neuron is spiking, copy more
                     self.theta_0[index] = self.network.populations[pop]['type'].params['threshold_initial_value']
-                    # u_last += self.network.populations[pop]['type'].params['threshold_initial_value'] / num_neurons
                     self.m[index] = self.network.populations[pop]['type'].params['threshold_proportionality_constant']
                     self.tau_theta[index] = self.network.populations[pop]['type'].params['threshold_time_constant']
                 else:  # otherwise, set to the special values for NonSpiking
                     self.theta_0[index] = sys.float_info.max
                     self.m[index] = 0
                     self.tau_theta[index] = 1
-                    # u_last += self.R / num_neurons
                 index += 1
         self.u = np.copy(self.u_last)
         self.theta = np.copy(self.theta_0)

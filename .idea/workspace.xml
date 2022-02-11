@@ -3,9 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="0111e928-7c50-48e1-a867-c8c018c660a0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sns_toolbox/design/networks.py" beforeDir="false" afterPath="$PROJECT_DIR$/sns_toolbox/design/networks.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/sns_toolbox/simulate/backends.py" beforeDir="false" afterPath="$PROJECT_DIR$/sns_toolbox/simulate/backends.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tutorials/tutorial_3_spiking_networks.py" beforeDir="false" afterPath="$PROJECT_DIR$/tutorials/tutorial_3_spiking_networks.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
