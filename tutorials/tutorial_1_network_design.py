@@ -45,7 +45,7 @@ net.add_connection(synapse_excitatory, 'Neuron 1', 'Neuron 2')    # Add an excit
 net.add_connection(synapse_inhibitory, 'Neuron 2', 'Neuron 1')   # Add an inhibitory synapse back from 2 to 1
 
 # This can also be done using indices in the order the neurons were added to the network
-# net.addSynapse(synapse_excitatory,0,1)
+# net.addSynapse(synapse,0,1)
 # net.addSynapse(synapse_inhibitory,1,0)
 
 """

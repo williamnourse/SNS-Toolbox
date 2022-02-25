@@ -342,7 +342,6 @@ class SNS_Numpy(Backend):
                         self.g_max_non[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
                         self.del_e[dest][source] = del_e
 
-
     def __calculate_time_factors__(self) -> None:
         """
         Precompute the time factors for the membrane voltage, firing threshold, and spiking synapses.
