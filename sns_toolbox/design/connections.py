@@ -4,6 +4,7 @@ William Nourse
 May 10, 2021
 He's convinced me, gimme back my dollar!
 """
+import numpy as np
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -342,3 +343,23 @@ def __calc_spiking_synaptic_parameters_from_gain__(gain, positive_reversal_poten
         max_conductance = gain * R / ((relative_reversal_potential - gain * R)*time_constant*max_frequency)
 
         return max_conductance, relative_reversal_potential
+
+def __kernel_connections_1d__(pop_size,kernel):
+    """
+    :param pop_size: number of neurons in the population
+    :param kernel: kernel vector to apply
+    :return: connection matrix
+    """
+    kernel_length = len(kernel)
+    pad_amt = int((kernel_length-1)/2)
+    connection_matrix = np.zeros([pop_size,pop_size])
+    for row in range(pop_size):
+        padded = np.zeros(pop_size + 2 * pad_amt)
+        padded[row:row+kernel_length] = kernel
+        connection_matrix[row,:] = padded[pad_amt:-pad_amt]
+    return connection_matrix
+
+pop_size = 10
+kernel = np.array([1])
+connection_matrix = __kernel_connections_1d__(pop_size,kernel)
+print(connection_matrix)
