@@ -346,6 +346,7 @@ def __calc_spiking_synaptic_parameters_from_gain__(gain, positive_reversal_poten
 
 def __kernel_connections_1d__(pop_size,kernel):
     """
+    Generate a connection matrix from a kernel vector and population size
     :param pop_size: number of neurons in the population
     :param kernel: kernel vector to apply
     :return: connection matrix
@@ -359,7 +360,36 @@ def __kernel_connections_1d__(pop_size,kernel):
         connection_matrix[row,:] = padded[pad_amt:-pad_amt]
     return connection_matrix
 
-pop_size = 10
-kernel = np.array([1])
-connection_matrix = __kernel_connections_1d__(pop_size,kernel)
-print(connection_matrix)
+def __kernel_connections_2d__(pop_shape,kernel):
+    """
+    Generate a connection matrix from a kernel matrix and population shape
+    :param pop_shape: shape of the population
+    :param kernel: kernel matrix to apply
+    :return: connection matrix
+    """
+    kernel_rows = kernel.shape[0]
+    kernel_cols = kernel.shape[1]
+    num_kernel_dims = len(kernel.shape)
+    pop_size = pop_shape[0]*pop_shape[1]
+    pad_dims = []
+    for dim in range(num_kernel_dims):
+        pad_amt = int((kernel.shape[dim] - 1) / 2)
+        pad_dims.append([pad_amt,pad_amt])
+    source_matrix = np.zeros(pop_shape)
+    connection_matrix = np.zeros([pop_size,pop_size])
+    index = 0
+    for row in range(pop_shape[0]):
+        for col in range(pop_shape[1]):
+            padded_matrix = np.pad(source_matrix, pad_dims)
+            padded_matrix[row:row+kernel_rows,col:col+kernel_cols] = kernel
+            pad_rows = pad_dims[0][0]
+            pad_cols = pad_dims[1][0]
+            if pad_cols == 0:
+                subsection = padded_matrix[pad_rows:-pad_rows,:]
+            elif pad_rows == 0:
+                subsection = padded_matrix[:,pad_cols:-pad_cols]
+            else:
+                subsection = padded_matrix[pad_rows:-pad_rows,pad_cols:-pad_cols]
+            connection_matrix[index,:] = subsection.flatten()
+            index += 1
+    return connection_matrix
