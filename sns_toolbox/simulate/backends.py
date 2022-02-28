@@ -265,7 +265,6 @@ class SNS_Numpy(Backend):
         for pop in range(len(self.network.populations)):
             num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
             initial_value = self.network.populations[pop]['initial_value']
-            u_last = 0.0
             for num in range(num_neurons):  # for each neuron, copy the parameters over
                 self.c_m[index] = self.network.populations[pop]['type'].params['membrane_capacitance']
                 self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
