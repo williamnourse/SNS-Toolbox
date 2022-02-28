@@ -136,19 +136,10 @@ class Network:
         """
         if not isinstance(neuron_type, Neuron):
             raise TypeError('Input type is not a neuron')
-        if isinstance(shape, (int, np.integer)):
-            if shape <= 0:
-                raise ValueError('shape must be > 0')
-            total_num_neurons = shape
+        if len(shape) > 1: # population is multidimensional
+            total_num_neurons = shape[0] * shape[1]
         else:
-            if hasattr(shape, '__iter__'): # population is multidimensional
-                if not isinstance(shape[0], (int, np.integer)):
-                    raise TypeError('Dimensions must use integers')
-                total_num_neurons = 0
-                for i in range(len(shape)):
-                    total_num_neurons += shape[i]
-            else:
-                raise TypeError('shape must be either an integer greater than 0, or a tuple containing the size of each axis in multiple dimensions')
+            total_num_neurons = shape[0]
         if name is None:
             name = neuron_type.name
         elif not isinstance(name,str):
@@ -174,11 +165,18 @@ class Network:
                                  'color': color,
                                  'initial_value': initial_value})
         if total_num_neurons > 1:
-            self.graph.node(str(len(self.populations)-1), name,
-                            style='filled, rounded',
-                            shape='rect',   # Populations with multiple neurons are marked with an outline
-                            fillcolor=color,
-                            fontcolor=font_color)
+            if len(shape) > 1:
+                self.graph.node(str(len(self.populations) - 1), name,
+                                style='filled, rounded',
+                                shape='box3d',  # Populations with multiple neurons are marked with an outline
+                                fillcolor=color,
+                                fontcolor=font_color)
+            else:
+                self.graph.node(str(len(self.populations)-1), name,
+                                style='filled, rounded',
+                                shape='rect',   # Populations with multiple neurons are marked with an outline
+                                fillcolor=color,
+                                fontcolor=font_color)
         else:
             self.graph.node(str(len(self.populations) - 1), name,
                             style='filled',
@@ -356,7 +354,37 @@ class Network:
             elif self.populations[source]['shape'] != self.populations[destination]['shape']:
                 raise TypeError('Pattern connections are not currently supported for populations of different shape')
             style = 'vee'
-            # Convert kernels into full matrices
+            # 2d populations
+            if len(self.populations[source]['shape']) > 1:
+                g_max = __kernel_connections_2d__(self.populations[source]['shape'],
+                                                  connection_type.params['max_conductance'])
+                self.connections[-1]['params']['max_conductance'] = g_max
+                del_e = __kernel_connections_2d__(self.populations[source]['shape'],
+                                                  connection_type.params['relative_reversal_potential'])
+                self.connections[-1]['params']['relative_reversal_potential'] = del_e
+                if connection_type.params['spiking']:
+                    time_constant = __kernel_connections_2d__(self.populations[source]['shape'],
+                                                              connection_type.params['synapticTimeConstant'])
+                    self.connections[-1]['params']['synapticTimeConstant'] = time_constant
+                    transmit_delay = __kernel_connections_2d__(self.populations[source]['shape'],
+                                                               connection_type.params['transmissionDelay'])
+                    self.connections[-1]['params']['transmissionDelay'] = transmit_delay
+            # 1d populations
+            else:
+                g_max = __kernel_connections_1d__(self.populations[source]['number'],
+                                                  connection_type.params['max_conductance'])
+                self.connections[-1]['params']['max_conductance'] = g_max
+                del_e = __kernel_connections_1d__(self.populations[source]['number'],
+                                                  connection_type.params['relative_reversal_potential'])
+                self.connections[-1]['params']['relative_reversal_potential'] = del_e
+                if connection_type.params['spiking']:
+                    time_constant = __kernel_connections_1d__(self.populations[source]['number'],
+                                                              connection_type.params['synapticTimeConstant'])
+                    self.connections[-1]['params']['synapticTimeConstant'] = time_constant
+                    transmit_delay = __kernel_connections_1d__(self.populations[source]['number'],
+                                                               connection_type.params['transmissionDelay'])
+                    self.connections[-1]['params']['transmissionDelay'] = transmit_delay
+
         if view_label:
             self.graph.edge(str(source),
                             str(destination), arrowhead=style,
@@ -381,7 +409,7 @@ class Network:
 
         if color is None:
             for population in network.populations:
-                self.add_population(neuron_type=population['type'], shape=population['number'],
+                self.add_population(neuron_type=population['type'], shape=population['shape'],
                                     name=population['name'], color=population['color'])
             for inp in network.inputs:
                 self.add_input(dest=inp['destination'] + num_populations, name=inp['name'], color=inp['color'],

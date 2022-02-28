@@ -324,7 +324,26 @@ class SNS_Numpy(Backend):
             del_e = self.network.connections[syn]['params']['relative_reversal_potential']
 
             if self.network.connections[syn]['params']['pattern']:
-                return
+                pop_size = len(self.pops_and_nrns[source_pop])
+                source_index = self.pops_and_nrns[source_pop][0]
+                dest_index = self.pops_and_nrns[dest_pop][0]
+                if self.network.connections[syn]['params']['spiking']:
+                    tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
+                    delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
+                    self.g_max_spike[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = g_max
+                    self.del_e[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = del_e
+                    self.tau_syn[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = tau_s
+                    self.spike_delays[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = delay
+
+                    for source in self.pops_and_nrns[source_pop]:
+                        for dest in self.pops_and_nrns[dest_pop]:
+                            self.buffer_nrns.append(source)
+                            self.buffer_steps.append(delay)
+                            self.spike_rows.append(dest)
+                            self.spike_cols.append(source)
+                else:
+                    self.g_max_non[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = g_max
+                    self.del_e[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = del_e
             else:
                 if self.network.connections[syn]['params']['spiking']:
                     tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
