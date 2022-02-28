@@ -175,8 +175,8 @@ class Network:
                                  'initial_value': initial_value})
         if total_num_neurons > 1:
             self.graph.node(str(len(self.populations)-1), name,
-                            style='filled',
-                            shape='doublecircle',   # Populations with multiple neurons are marked with an outline
+                            style='filled, rounded',
+                            shape='rect',   # Populations with multiple neurons are marked with an outline
                             fillcolor=color,
                             fontcolor=font_color)
         else:
