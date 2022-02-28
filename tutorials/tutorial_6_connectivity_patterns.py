@@ -21,6 +21,9 @@ neuron_type = NonSpikingNeuron()
 net = Network(name='Tutorial 6 Network')
 net.add_population(neuron_type,[5,5],name='Source')
 net.add_population(neuron_type,[5,5],name='Dest')
+net.add_input('Source',size=25)
+net.add_output('Dest',name='Volt')
+net.add_output('Dest',name='Spike', spiking=True)
 
 net.add_connection(vector_connection,'Source','Dest')
 

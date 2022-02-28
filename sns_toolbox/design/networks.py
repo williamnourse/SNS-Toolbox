@@ -81,6 +81,13 @@ class Network:
         num_in = len(self.inputs)
         return num_in
 
+    def get_num_inputs_actual(self) -> int:
+        index = 0
+        for inp in range(self.get_num_inputs()):
+            size = self.inputs[inp]['size']
+            index += size
+        return index
+
     def get_num_outputs(self) -> int:
         num_out = len(self.outputs)
         return num_out
@@ -90,8 +97,9 @@ class Network:
         for out in range(self.get_num_outputs()):
             source_pop = self.outputs[out]['source']
             num_source_neurons = self.populations[source_pop]['number']
-            for num in range(num_source_neurons):
-                index += 1
+            # for num in range(num_source_neurons):
+            #     index += 1
+            index += num_source_neurons
         return index
 
     def get_population_index(self, name: str) -> int:
@@ -193,13 +201,14 @@ class Network:
         :param initial_value: Initial value of membrane voltage
         :return:    None
         """
-        self.add_population(neuron_type, shape=1, name=name, color=color, initial_value=initial_value)
+        self.add_population(neuron_type, shape=[1], name=name, color=color, initial_value=initial_value)
 
-    def add_input(self, dest: Any, offset: Number = 0.0, linear: Number = 1.0, quadratic: Number = 0.0,
+    def add_input(self, dest: Any, size: int = 1, offset: Number = 0.0, linear: Number = 1.0, quadratic: Number = 0.0,
                   cubic: Number = 0.0, name: str = 'Input', color='white') -> None:
         """
         Add an input source to the network
         :param dest:        Destination this input connects to
+        :param size:        Size of the input data
         :param offset:      Constant offset of input values in polynomial map
         :param linear:      Linear integration_gain of input values in polynomial map
         :param quadratic:   Quadratic (^2) integration_gain of input values in polynomial map
@@ -214,6 +223,10 @@ class Network:
         if not valid_color(color):
             warnings.warn('Specified color is not in the standard SVG set. Defaulting to white.')
             color = 'white'
+        if not isinstance(size,int):
+            raise TypeError('Input size must be an integer greater than zero')
+        if size <= 0:
+            raise ValueError('Input size must be greater than 0')
         if not isinstance(dest, int):
             if isinstance(dest, str):
                 dest = self.get_population_index(dest)
@@ -221,19 +234,29 @@ class Network:
                 raise TypeError('Destination index must be an integer or name')
         if dest > (len(self.populations)-1):
             raise ValueError('Destination index is out of range')
+        if (size > 1) and (self.populations[dest]['number'] != size):
+            raise ValueError('Input vector must be either size 1 or same size as destination population')
         font_color = set_text_color(color)
         self.inputs.append({'name': name,
+                            'size': size,
                             'destination': dest,
                             'offset': offset,
                             'linear': linear,
                             'quadratic': quadratic,
                             'cubic': cubic,
                             'color': color})
-        self.graph.node('In'+str(len(self.inputs) - 1), name,
-                        style='filled',
-                        shape='invhouse',
-                        fillcolor=color,
-                        fontcolor=font_color)
+        if size == 1:
+            self.graph.node('In'+str(len(self.inputs) - 1), name,
+                            style='filled',
+                            shape='invhouse',
+                            fillcolor=color,
+                            fontcolor=font_color)
+        else:
+            self.graph.node('In' + str(len(self.inputs) - 1), name,
+                            style='filled,diagonals',
+                            shape='invhouse',
+                            fillcolor=color,
+                            fontcolor=font_color)
         self.graph.edge('In'+str(len(self.inputs) - 1), str(dest))
 
     def add_output(self, source: Any, offset: Number = 0.0, linear: Number = 1.0, quadratic: Number = 0.0,
@@ -276,17 +299,31 @@ class Network:
                              'spiking': spiking,
                              'color': color})
         if spiking:
-            self.graph.node('Out'+str(len(self.outputs) - 1), name,
-                            style='filled',
-                            shape='triangle',
-                            fillcolor=color,
-                            fontcolor=font_color)
+            if self.populations[source]['number'] == 1:
+                self.graph.node('Out'+str(len(self.outputs) - 1), name,
+                                style='filled',
+                                shape='triangle',
+                                fillcolor=color,
+                                fontcolor=font_color)
+            else:
+                self.graph.node('Out'+str(len(self.outputs) - 1), name,
+                                style='filled,diagonals',
+                                shape='triangle',
+                                fillcolor=color,
+                                fontcolor=font_color)
         else:
-            self.graph.node('Out' + str(len(self.outputs) - 1), name,
-                            style='filled',
-                            shape='house',
-                            fillcolor=color,
-                            fontcolor=font_color)
+            if self.populations[source]['number'] == 1:
+                self.graph.node('Out' + str(len(self.outputs) - 1), name,
+                                style='filled',
+                                shape='house',
+                                fillcolor=color,
+                                fontcolor=font_color)
+            else:
+                self.graph.node('Out' + str(len(self.outputs) - 1), name,
+                                style='filled,diagonals',
+                                shape='house',
+                                fillcolor=color,
+                                fontcolor=font_color)
 
         self.graph.edge(str(source),'Out'+str(len(self.outputs)-1))
 
@@ -414,7 +451,7 @@ class Network:
             for inp in network.inputs:
                 self.add_input(dest=inp['destination'] + num_populations, name=inp['name'], color=inp['color'],
                                offset=inp['offset'], linear=inp['linear'], quadratic=inp['quadratic'],
-                               cubic=inp['cubic'])
+                               cubic=inp['cubic'],size=inp['size'])
             for out in network.outputs:
                 self.add_output(source=out['source'] + num_populations, offset=out['offset'], linear=out['linear'],
                                 quadratic=out['quadratic'], cubic=out['cubic'], name=out['name'], color=out['color'],
@@ -427,12 +464,12 @@ class Network:
                 warnings.warn('Specified color is not in the standard SVG set. Defaulting to white.')
                 color = 'white'
             for population in network.populations:
-                self.add_population(neuron_type=population['type'], shape=population['number'],
+                self.add_population(neuron_type=population['type'], shape=population['shape'],
                                     name=population['name'], color=color)
             for inp in network.inputs:
                 self.add_input(dest=inp['destination'] + num_populations, name=inp['name'], color=color,
                                offset=inp['offset'], linear=inp['linear'], quadratic=inp['quadratic'],
-                               cubic=inp['cubic'])
+                               cubic=inp['cubic'],size=inp['size'])
             for out in network.outputs:
                 self.add_output(source=out['source'] + num_populations, offset=out['offset'], linear=out['linear'],
                                 quadratic=out['quadratic'], cubic=out['cubic'], name=out['name'], color=color,

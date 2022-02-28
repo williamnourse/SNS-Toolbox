@@ -295,20 +295,28 @@ class SNS_Numpy(Backend):
         Build the input connection matrix, and apply linear mapping coefficients.
         :return:    None
         """
-        self.input_connectivity = np.zeros([self.num_neurons, self.num_inputs])  # initialize connectivity matrix
-        self.in_offset = np.zeros(self.num_inputs)
-        self.in_linear = np.zeros(self.num_inputs)
-        self.in_quad = np.zeros(self.num_inputs)
-        self.in_cubic = np.zeros(self.num_inputs)
-        self.inputs_mapped = np.zeros(self.num_inputs)
+        self.input_connectivity = np.zeros([self.num_neurons, self.network.get_num_inputs_actual()])  # initialize connectivity matrix
+        self.in_offset = np.zeros(self.network.get_num_inputs_actual())
+        self.in_linear = np.zeros(self.network.get_num_inputs_actual())
+        self.in_quad = np.zeros(self.network.get_num_inputs_actual())
+        self.in_cubic = np.zeros(self.network.get_num_inputs_actual())
+        self.inputs_mapped = np.zeros(self.network.get_num_inputs_actual())
+        index = 0
         for inp in range(self.network.get_num_inputs()):  # iterate over the connections in the network
-            self.in_offset[inp] = self.network.inputs[inp]['offset']
-            self.in_linear[inp] = self.network.inputs[inp]['linear']
-            self.in_quad[inp] = self.network.inputs[inp]['quadratic']
-            self.in_cubic[inp] = self.network.inputs[inp]['cubic']
+            size = self.network.inputs[inp]['size']
+            self.in_offset[index:index+size] = self.network.inputs[inp]['offset']
+            self.in_linear[index:index+size] = self.network.inputs[inp]['linear']
+            self.in_quad[index:index+size] = self.network.inputs[inp]['quadratic']
+            self.in_cubic[index:index+size] = self.network.inputs[inp]['cubic']
             dest_pop = self.network.inputs[inp]['destination']  # get the destination
-            for dest in self.pops_and_nrns[dest_pop]:
-                self.input_connectivity[dest][inp] = 1.0  # set the weight in the correct source and destination
+            if size == 1:
+                for dest in self.pops_and_nrns[dest_pop]:
+                    self.input_connectivity[dest][inp] = 1.0  # set the weight in the correct source and destination
+                index += 1
+            else:
+                for dest in self.pops_and_nrns[dest_pop]:
+                    self.input_connectivity[dest][index] = 1.0
+                    index += 1
 
     def __set_connections__(self) -> None:
         """
@@ -316,7 +324,6 @@ class SNS_Numpy(Backend):
         synapses.
         :return: None
         """
-        # TODO: Patterned Connections
         for syn in range(len(self.network.connections)):
             source_pop = self.network.connections[syn]['source']
             dest_pop = self.network.connections[syn]['destination']
