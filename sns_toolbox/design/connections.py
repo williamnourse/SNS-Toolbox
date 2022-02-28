@@ -42,20 +42,20 @@ class NonSpikingConnection(Connection):
         :param name: Name of this connection preset
         """
         super().__init__(max_conductance, relative_reversal_potential, name)
-        self.params['pattern'] = False
+
         self.params['spiking'] = False
 
 class SpikingConnection(Connection):
-    def __init__(self, max_conductance, relative_reversal_potential, time_constant, transmission_delay, R,
+    def __init__(self, max_conductance, relative_reversal_potential, time_constant, transmission_delay,
                  name: str = 'Spiking Connection') -> None:
         """
         Constructor for the base class of all spiking connections
         :param name: Name of this connection preset
         """
         super().__init__(max_conductance, relative_reversal_potential, name)
-        self.params['pattern'] = False
         self.params['spiking'] = True
         self.params['synapticTimeConstant'] = time_constant
+        self.params['transmissionDelay'] = transmission_delay
 
 class NonSpikingSynapse(NonSpikingConnection):
     def __init__(self, max_conductance: float = 1.0,
@@ -76,13 +76,13 @@ class NonSpikingSynapse(NonSpikingConnection):
         if not isinstance(relative_reversal_potential, numbers.Number):
             raise TypeError('relative_reversal_potential (deltaEsyn) must be a number (int, float, double, etc.')
         super().__init__(max_conductance, relative_reversal_potential,**kwargs)  # Call to constructor of parent class
+        self.params['pattern'] = False
 
 class SpikingSynapse(SpikingConnection):
     def __init__(self, max_conductance: float = 1.0,
                  relative_reversal_potential: float = 194.0,
                  time_constant: float = 1.0,
                  transmission_delay: int = 0,
-                 R: float = 20.0,
                  **kwargs: Any) -> None:
         """
         Basic non-spiking synapse, where the conductance is defined as the following:
@@ -90,7 +90,6 @@ class SpikingSynapse(SpikingConnection):
         i_syn = Conductance*(relative_reversal_potential - Upost)
         :param max_conductance:              uS
         :param relative_reversal_potential:   mV
-        :param R:                           mV
         """
         if isinstance(max_conductance, numbers.Number):
             if max_conductance <= 0:
@@ -99,8 +98,8 @@ class SpikingSynapse(SpikingConnection):
             raise TypeError('max_conductance (gMax) must be a number (int, float, double, etc.')
         if not isinstance(relative_reversal_potential, numbers.Number):
             raise TypeError('relative_reversal_potential (deltaEsyn) must be a number (int, float, double, etc.')
-        super().__init__(max_conductance, relative_reversal_potential, time_constant, transmission_delay, R, **kwargs)  # Call to constructor of parent class
-
+        super().__init__(max_conductance, relative_reversal_potential, time_constant, transmission_delay, **kwargs)  # Call to constructor of parent class
+        self.params['pattern'] = False
         if isinstance(time_constant, numbers.Number):
             if time_constant > 0:
                 self.params['synapticTimeConstant'] = time_constant
@@ -108,13 +107,7 @@ class SpikingSynapse(SpikingConnection):
                 raise ValueError('Synaptic time constant (tauS) must be greater than 0')
         else:
             raise TypeError('Synaptic time constant (tauS) must be a number (int, float, double, etc.) greater than 0')
-        if isinstance(R,numbers.Number):
-            if R > 0:
-                self.params['R'] = R
-            else:
-                raise ValueError('R must be greater than 0')
-        else:
-            raise TypeError('R must be a number (int, float, double, etc.')
+
         if isinstance(transmission_delay, int):
             if transmission_delay >= 0:
                 self.params['synapticTransmissionDelay'] = transmission_delay
@@ -122,118 +115,48 @@ class SpikingSynapse(SpikingConnection):
                 raise ValueError('Synaptic transmission delay must be greater than or equal to zero')
         else:
             raise TypeError('Synaptic transmission delay must be an integer')
-# TODO: Redo in more elemental form
+
 class NonSpikingPatternConnection(NonSpikingConnection):
-    def __init__(self,gain_matrix,
-                 name: str = 'Pattern',
-                 R: float = 20.0,
-                 positive_reversal_potential: float = 160.0,
-                 negative_reversal_potential: float = -80.0,
-                 wrap: bool = False):
+    def __init__(self, max_conductance_kernel, relative_reversal_potential_kernel, **kwargs: Any) -> None:
         """
-        Connection pattern between two neural populations (i.e. a kernel)
-        :param gain_matrix: Matrix (or vector for 1D kernels) of synaptic gains
-        :param name:    Name of this connection type
-        :param R:   Voltage range of neural activity (mV)
-        :param positive_reversal_potential: Reversal potential for connections with positive gain (mV)
-        :param negative_reversal_potential: Reversal potential for connections with negative gain (mV)
-        :param wrap:    Flag for if connections should wrap from one end of the population to the other
+        Basic non-spiking synapse, where the conductance is defined as the following:
+        Conductance = max_conductance_kernel * max(0, min(1, Upre/R)), and the synaptic current is
+        i_syn = Conductance*(relative_reversal_potential_kernel - Upost)
+        :param max_conductance_kernel:              uS
+        :param relative_reversal_potential_kernel:   mV
         """
-        max_conductance = []
-        relative_reversal_potential = []
-        super().__init__(max_conductance,relative_reversal_potential,name=name)
-        self.params['wrap'] = wrap
-        self.params['R'] = R
+        if max_conductance_kernel.shape != relative_reversal_potential_kernel.shape:
+            raise ValueError('Max Conductance and Relative Reversal Potential must be matrices of the same shape')
+        if np.any(max_conductance_kernel <= 0):
+            raise ValueError('Max Conductance values must be greater than zero')
+        super().__init__(max_conductance_kernel, relative_reversal_potential_kernel, **kwargs)  # Call to constructor of parent class
         self.params['pattern'] = True
 
-        self.positive_reversal_potential = positive_reversal_potential
-        self.negative_reversal_potential = negative_reversal_potential
-
-        if hasattr(gain_matrix[0],'__iter__'): # 2D kernel
-            for row in range(len(gain_matrix)):
-                cond_values = []
-                del_e_values = []
-                for col in range(len(gain_matrix[0])):
-                    calc_max_conductance,calc_relative_reversal_potential = __calc_synaptic_parameters_from_gain__(gain_matrix[row][col],
-                                                                                                                   positive_reversal_potential,
-                                                                                                                   negative_reversal_potential,
-                                                                                                                   self.params['R'])
-                    cond_values.append(calc_max_conductance)
-                    del_e_values.append(calc_relative_reversal_potential)
-                self.params['max_conductance'].append(cond_values)
-                self.params['relative_reversal_potential'].append(del_e_values)
-        else:   # 1D kernel
-            for i in range(len(gain_matrix)):
-                calc_max_conductance, calc_relative_reversal_potential = __calc_synaptic_parameters_from_gain__(gain_matrix[i],
-                                                                                                                positive_reversal_potential,
-                                                                                                                negative_reversal_potential,
-                                                                                                                self.params['R'])
-                self.params['max_conductance'].append(calc_max_conductance)
-                self.params['relative_reversal_potential'].append(calc_relative_reversal_potential)
-# TODO: Redo in more elemental form
 class SpikingPatternConnection(SpikingConnection):
-    def __init__(self,gain_matrix,
-                 transmission_delay_matrix,
-                 name: str = 'Pattern',
-                 R: float = 20.0,
-                 positive_reversal_potential: float = 160.0,
-                 negative_reversal_potential: float = -80.0,
-                 wrap: bool = False,
-                 max_frequency: float = 10.0,
-                 nonlinearity: float = 0.1):
+    def __init__(self, max_conductance_kernel, relative_reversal_potential_kernel, time_constant_kernel,
+                 transmission_delay_kernel, **kwargs: Any) -> None:
         """
-        Connection pattern between two neural populations (i.e. a kernel)
-        :param gain_matrix: Matrix (or vector for 1D kernels) of synaptic gains
-        :param name:    Name of this connection type
-        :param R:   Voltage range of neural activity (mV)
-        :param positive_reversal_potential: Reversal potential for connections with positive gain (mV)
-        :param negative_reversal_potential: Reversal potential for connections with negative gain (mV)
-        :param wrap:    Flag for if connections should wrap from one end of the population to the other
-        :param max_frequency:   Maximum spiking frequency of the network
+        Basic non-spiking synapse, where the conductance is defined as the following:
+        Conductance = max_conductance_kernel * max(0, min(1, Upre/R)), and the synaptic current is
+        i_syn = Conductance*(relative_reversal_potential_kernel - Upost)
+        :param max_conductance_kernel:              uS
+        :param relative_reversal_potential_kernel:   mV
+        :param time_constant_kernel: ms
+        :param transmission_delay_kernel: timesteps
         """
-        max_conductance = []
-        relative_reversal_potential = []
-        if not isinstance(max_frequency, numbers.Number):
-            raise TypeError('Max spiking frequency must be a number (int, float, double, etc.) greater than 0')
-        elif max_frequency <= 0:
-            raise ValueError('Max spiking frequency must be greater than 0')
-        if isinstance(nonlinearity, numbers.Number):
-            if (nonlinearity < 1.0) and (nonlinearity > 0.0):
-                time_constant = -1/(max_frequency*math.log(nonlinearity))
-            else:
-                raise ValueError('Nonlinearity coefficient must be between 0 and 1')
-        else:
-            raise TypeError('Nonlinearity coefficient must be a number (int, float, double, etc.) between 0 and 1')
-        super().__init__(max_conductance,relative_reversal_potential,time_constant,transmission_delay_matrix,R,name=name)
-        self.params['wrap'] = wrap
+        if (max_conductance_kernel.shape != relative_reversal_potential_kernel.shape) or (
+                max_conductance_kernel.shape != time_constant_kernel.shape) or (
+                max_conductance_kernel.shape != transmission_delay_kernel.shape):
+            raise ValueError('Max Conductance, Relative Reversal Potential, Time Constant, and Transmission Delay must be matrices of the same shape')
+        if np.any(max_conductance_kernel <= 0):
+            raise ValueError('Max Conductance values must be greater than zero')
+        if np.any(time_constant_kernel <= 0):
+            raise ValueError('Time constant values must be greater than 0 ms')
+        if np.any(transmission_delay_kernel < 0):
+            raise ValueError('Transmission delays must be non-negative')
+        super().__init__(max_conductance_kernel, relative_reversal_potential_kernel, time_constant_kernel,
+                         transmission_delay_kernel, **kwargs)  # Call to constructor of parent class
         self.params['pattern'] = True
-
-        self.positive_reversal_potential = positive_reversal_potential
-        self.negative_reversal_potential = negative_reversal_potential
-
-        if hasattr(gain_matrix[0],'__iter__'): # 2D kernel
-            for row in range(len(gain_matrix)):
-                cond_values = []
-                del_e_values = []
-                for col in range(len(gain_matrix[0])):
-                    calc_max_conductance,calc_relative_reversal_potential = __calc_spiking_synaptic_parameters_from_gain__(gain_matrix[row][col],
-                                                                                                                           positive_reversal_potential,
-                                                                                                                           negative_reversal_potential,
-                                                                                                                           self.params['R'],
-                                                                                                                           time_constant,
-                                                                                                                           max_frequency)
-                    cond_values.append(calc_max_conductance)
-                    del_e_values.append(calc_relative_reversal_potential)
-                self.params['max_conductance'].append(cond_values)
-                self.params['relative_reversal_potential'].append(del_e_values)
-        else:   # 1D kernel
-            for i in range(len(gain_matrix)):
-                calc_max_conductance, calc_relative_reversal_potential = __calc_synaptic_parameters_from_gain__(gain_matrix[i],
-                                                                                                                positive_reversal_potential,
-                                                                                                                negative_reversal_potential,
-                                                                                                                self.params['R'])
-                self.params['max_conductance'].append(calc_max_conductance)
-                self.params['relative_reversal_potential'].append(calc_relative_reversal_potential)
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -263,7 +186,7 @@ class NonSpikingTransmissionSynapse(NonSpikingSynapse):
                 except ZeroDivisionError:
                     raise ValueError('Gain of '+str(gain)+' causes division by 0, decrease integration_gain or increase relative_reversal_potential')
                 if self.params['max_conductance'] < 0:
-                    raise ValueError('Gain of '+str(gain)+' causes max_conductance to be negative, decrease integration_gain or increase relative_reversal_potential')
+                    raise ValueError('Gain of '+str(gain)+' causes max_conductance to be negative, decrease integration_gain or increase relative_reversal_potential_kernel')
         else:
             raise TypeError('Gain of '+str(gain)+' must be a number (int, float, double, etc.)')
 
@@ -314,6 +237,55 @@ class SpikingTransmissionSynapse(SpikingSynapse):
         else:
             raise TypeError('Gain of '+str(gain)+' must be a number (int, float, double, etc.)')
 
+# TODO: Redo in more elemental form
+class NonSpikingGainPatternConnection(NonSpikingConnection):
+    def __init__(self,gain_matrix,
+                 name: str = 'Pattern',
+                 R: float = 20.0,
+                 positive_reversal_potential: float = 160.0,
+                 negative_reversal_potential: float = -80.0,
+                 wrap: bool = False):
+        """
+        Connection pattern between two neural populations (i.e. a kernel)
+        :param gain_matrix: Matrix (or vector for 1D kernels) of synaptic gains
+        :param name:    Name of this connection type
+        :param R:   Voltage range of neural activity (mV)
+        :param positive_reversal_potential: Reversal potential for connections with positive gain (mV)
+        :param negative_reversal_potential: Reversal potential for connections with negative gain (mV)
+        :param wrap:    Flag for if connections should wrap from one end of the population to the other
+        """
+        max_conductance = []
+        relative_reversal_potential = []
+        super().__init__(max_conductance,relative_reversal_potential,name=name)
+        self.params['wrap'] = wrap
+        self.params['R'] = R
+        self.params['pattern'] = True
+
+        self.positive_reversal_potential = positive_reversal_potential
+        self.negative_reversal_potential = negative_reversal_potential
+
+        if hasattr(gain_matrix[0],'__iter__'): # 2D kernel
+            for row in range(len(gain_matrix)):
+                cond_values = []
+                del_e_values = []
+                for col in range(len(gain_matrix[0])):
+                    calc_max_conductance,calc_relative_reversal_potential = __calc_synaptic_parameters_from_gain__(gain_matrix[row][col],
+                                                                                                                   positive_reversal_potential,
+                                                                                                                   negative_reversal_potential,
+                                                                                                                   self.params['R'])
+                    cond_values.append(calc_max_conductance)
+                    del_e_values.append(calc_relative_reversal_potential)
+                self.params['max_conductance_kernel'].append(cond_values)
+                self.params['relative_reversal_potential_kernel'].append(del_e_values)
+        else:   # 1D kernel
+            for i in range(len(gain_matrix)):
+                calc_max_conductance, calc_relative_reversal_potential = __calc_synaptic_parameters_from_gain__(gain_matrix[i],
+                                                                                                                positive_reversal_potential,
+                                                                                                                negative_reversal_potential,
+                                                                                                                self.params['R'])
+                self.params['max_conductance_kernel'].append(calc_max_conductance)
+                self.params['relative_reversal_potential_kernel'].append(calc_relative_reversal_potential)
+
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 HELPER FUNCTIONS
@@ -343,53 +315,3 @@ def __calc_spiking_synaptic_parameters_from_gain__(gain, positive_reversal_poten
         max_conductance = gain * R / ((relative_reversal_potential - gain * R)*time_constant*max_frequency)
 
         return max_conductance, relative_reversal_potential
-
-def __kernel_connections_1d__(pop_size,kernel):
-    """
-    Generate a connection matrix from a kernel vector and population size
-    :param pop_size: number of neurons in the population
-    :param kernel: kernel vector to apply
-    :return: connection matrix
-    """
-    kernel_length = len(kernel)
-    pad_amt = int((kernel_length-1)/2)
-    connection_matrix = np.zeros([pop_size,pop_size])
-    for row in range(pop_size):
-        padded = np.zeros(pop_size + 2 * pad_amt)
-        padded[row:row+kernel_length] = kernel
-        connection_matrix[row,:] = padded[pad_amt:-pad_amt]
-    return connection_matrix
-
-def __kernel_connections_2d__(pop_shape,kernel):
-    """
-    Generate a connection matrix from a kernel matrix and population shape
-    :param pop_shape: shape of the population
-    :param kernel: kernel matrix to apply
-    :return: connection matrix
-    """
-    kernel_rows = kernel.shape[0]
-    kernel_cols = kernel.shape[1]
-    num_kernel_dims = len(kernel.shape)
-    pop_size = pop_shape[0]*pop_shape[1]
-    pad_dims = []
-    for dim in range(num_kernel_dims):
-        pad_amt = int((kernel.shape[dim] - 1) / 2)
-        pad_dims.append([pad_amt,pad_amt])
-    source_matrix = np.zeros(pop_shape)
-    connection_matrix = np.zeros([pop_size,pop_size])
-    index = 0
-    for row in range(pop_shape[0]):
-        for col in range(pop_shape[1]):
-            padded_matrix = np.pad(source_matrix, pad_dims)
-            padded_matrix[row:row+kernel_rows,col:col+kernel_cols] = kernel
-            pad_rows = pad_dims[0][0]
-            pad_cols = pad_dims[1][0]
-            if pad_cols == 0:
-                subsection = padded_matrix[pad_rows:-pad_rows,:]
-            elif pad_rows == 0:
-                subsection = padded_matrix[:,pad_cols:-pad_cols]
-            else:
-                subsection = padded_matrix[pad_rows:-pad_rows,pad_cols:-pad_cols]
-            connection_matrix[index,:] = subsection.flatten()
-            index += 1
-    return connection_matrix

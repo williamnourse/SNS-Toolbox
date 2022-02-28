@@ -320,27 +320,30 @@ class SNS_Numpy(Backend):
         for syn in range(len(self.network.connections)):
             source_pop = self.network.connections[syn]['source']
             dest_pop = self.network.connections[syn]['destination']
-            g_max = self.network.connections[syn]['type'].params['max_conductance']
-            del_e = self.network.connections[syn]['type'].params['relative_reversal_potential']
+            g_max = self.network.connections[syn]['params']['max_conductance']
+            del_e = self.network.connections[syn]['params']['relative_reversal_potential']
 
-            if isinstance(self.network.connections[syn]['type'], SpikingSynapse):
-                tau_s = self.network.connections[syn]['type'].params['synapticTimeConstant']
-                delay = self.network.connections[syn]['type'].params['synapticTransmissionDelay']
-                for source in self.pops_and_nrns[source_pop]:
-                    for dest in self.pops_and_nrns[dest_pop]:
-                        self.g_max_spike[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
-                        self.del_e[dest][source] = del_e
-                        self.tau_syn[dest][source] = tau_s
-                        self.spike_delays[dest][source] = delay
-                        self.buffer_nrns.append(source)
-                        self.buffer_steps.append(delay)
-                        self.spike_rows.append(dest)
-                        self.spike_cols.append(source)
-            elif isinstance(self.network.connections[syn]['type'], NonSpikingSynapse):
-                for source in self.pops_and_nrns[source_pop]:
-                    for dest in self.pops_and_nrns[dest_pop]:
-                        self.g_max_non[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
-                        self.del_e[dest][source] = del_e
+            if self.network.connections[syn]['params']['pattern']:
+                return
+            else:
+                if self.network.connections[syn]['params']['spiking']:
+                    tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
+                    delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
+                    for source in self.pops_and_nrns[source_pop]:
+                        for dest in self.pops_and_nrns[dest_pop]:
+                            self.g_max_spike[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+                            self.del_e[dest][source] = del_e
+                            self.tau_syn[dest][source] = tau_s
+                            self.spike_delays[dest][source] = delay
+                            self.buffer_nrns.append(source)
+                            self.buffer_steps.append(delay)
+                            self.spike_rows.append(dest)
+                            self.spike_cols.append(source)
+                else:
+                    for source in self.pops_and_nrns[source_pop]:
+                        for dest in self.pops_and_nrns[dest_pop]:
+                            self.g_max_non[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+                            self.del_e[dest][source] = del_e
 
     def __calculate_time_factors__(self) -> None:
         """
