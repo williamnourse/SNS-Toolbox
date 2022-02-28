@@ -8,17 +8,12 @@ from sns_toolbox.design.connections import NonSpikingPatternConnection
 from sns_toolbox.design.networks import Network
 from sns_toolbox.design.neurons import NonSpikingNeuron
 
-vector_kernel = [-0.25,-0.25,1.0,-0.25,-0.25]
-matrix_kernel = [[-0.125,-0.125,-0.125],
-                 [-0.125,1.0,-0.125],
-                 [-0.125,-0.125,-0.125]]
-matrix_kernel_w_zeros = [[0.0,-0.25,0.0],
-                         [-0.25,1.0,-0.25],
-                         [0.0,-0.25,0.0]]
+import numpy as np
 
-vector_connection = NonSpikingPatternConnection(vector_kernel)
-matrix_connection = NonSpikingPatternConnection(matrix_kernel)
-matrix_w_zeros_connection = NonSpikingPatternConnection(matrix_kernel_w_zeros)
+max_conductance_kernel = np.array([0.1, 0.5, 1.0, 0.5, 0.1])
+relative_reversal_potential_kernel = np.array([-0.25,-0.25,1.0,-0.25,-0.25])
+
+vector_connection = NonSpikingPatternConnection(max_conductance_kernel,relative_reversal_potential_kernel)
 
 neuron_type = NonSpikingNeuron()
 net = Network(name='Tutorial 6 Network')
