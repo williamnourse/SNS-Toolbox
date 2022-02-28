@@ -341,7 +341,7 @@ class Network:
                                  'source': source,
                                  'destination': destination,
                                  'params': connection_type.params,
-                                 # 'type': copy.deepcopy(connection_type),
+                                 'type': copy.deepcopy(connection_type),
                                  'view': view_label})
         if connection_type.params['pattern'] is False:
             if connection_type.params['relative_reversal_potential'] > 0:
