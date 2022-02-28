@@ -17,8 +17,8 @@ vector_connection = NonSpikingPatternConnection(max_conductance_kernel,relative_
 
 neuron_type = NonSpikingNeuron()
 net = Network(name='Tutorial 6 Network')
-net.add_population(neuron_type,5,name='Source')
-net.add_population(neuron_type,5,name='Dest')
+net.add_population(neuron_type,[5,5],name='Source')
+net.add_population(neuron_type,[5,5],name='Dest')
 
 net.add_connection(vector_connection,'Source','Dest')
 
