@@ -7,7 +7,7 @@ from sns_toolbox.design.connections import NonSpikingPatternConnection
 from sns_toolbox.design.networks import Network
 from sns_toolbox.design.neurons import NonSpikingNeuron
 
-from sns_toolbox.simulate.backends import SNS_Numpy
+import sns_toolbox.simulate.backends as backends
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -77,7 +77,7 @@ connection_hpf = NonSpikingPatternConnection(g_max_kernel,del_e_kernel) # patter
 net.add_connection(connection_hpf,'Retina','Lamina',name='HPF') # connect the retina to the lamina
 net.add_output('Lamina',linear=255/R,name='Lamina Output')  # add a vector output from the lamina
 
-net.render_graph(view=True) # view the network diagram
+# net.render_graph(view=True) # view the network diagram
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -89,7 +89,7 @@ dt = neuron_type.params['membrane_capacitance']/neuron_type.params['membrane_con
 t_max = 15  # run for 15 ms
 steps = int(t_max/dt)   # number of steps to simulate
 
-model = SNS_Numpy(net,dt=dt,debug=False) # compile using the numpy backend
+model = backends.SNS_Numpy_No_Delay(net,dt=dt,debug=False) # compile using the numpy backend
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
