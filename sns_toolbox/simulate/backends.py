@@ -375,7 +375,7 @@ class SNS_Numpy(Backend):
         Precompute the time factors for the membrane voltage, firing threshold, and spiking synapses.
         :return: None
         """
-        self.time_factor_membrane = self.dt / self.c_m
+        self.time_factor_membrane = self.dt / (self.c_m/self.g_m)
         self.time_factor_threshold = self.dt / self.tau_theta
         self.time_factor_synapse = self.dt / self.tau_syn
 
