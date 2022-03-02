@@ -85,7 +85,7 @@ NETWORK COMPILATION
 """
 
 dt = neuron_type.params['membrane_capacitance']/neuron_type.params['membrane_conductance']  # calculate the ideal dt
-dt = 0.5
+# dt = 0.5
 t_max = 15  # run for 15 ms
 steps = int(t_max/dt)   # number of steps to simulate
 
@@ -118,21 +118,24 @@ for i in range(steps):
     plt.pause(0.001)
 
 plt.ioff()
-plt.figure()
-plt.imshow(img_color)
-plt.axis('off')
-plt.title('Color Original')
-# plt.pause(0.5)
 
-plt.figure()
-plt.imshow(img_color_resized)
-plt.axis('off')
-plt.title('Scaled Down')
-# plt.pause(0.5)
+# plt.figure()
+# plt.imshow(img_color)
+# plt.axis('off')
+# plt.title('Color Original')
+# # plt.pause(0.5)
+#
+# plt.figure()
+# plt.imshow(img_color_resized)
+# plt.axis('off')
+# plt.title('Scaled Down')
+# # plt.pause(0.5)
+#
+# plt.figure()
+# plt.imshow(img_gray, cmap='gray')
+# plt.axis('off')
+# plt.title('Grayscale')
+# # plt.pause(0.5)
 
-plt.figure()
-plt.imshow(img_gray, cmap='gray')
-plt.axis('off')
-plt.title('Grayscale')
-# plt.pause(0.5)
+print('DONE')
 plt.show()
