@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from sns_toolbox.design.neurons import NonSpikingNeuron
 from sns_toolbox.design.networks import Network
 
-from sns_toolbox.simulate.backends import SNS_Numpy
+from sns_toolbox.simulate.backends import __SNS_Numpy_Full__
 
 Iapp = 20.0
 R = 20.0
@@ -36,7 +36,7 @@ net = Network(name='Retina Neuron',R=R)
 net.add_neuron(neuron)
 net.add_input(0)
 net.add_output(0)
-model = SNS_Numpy(net,dt=dt)
+model = __SNS_Numpy_Full__(net, dt=dt)
 
 voltages = np.zeros_like(t)
 ratio = np.zeros_like(w)

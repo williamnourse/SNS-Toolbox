@@ -12,6 +12,9 @@ from sns_toolbox.design.networks import Network
 
 from sns_toolbox.simulate.backends import SNS_Numpy
 
+spiking = True
+delay = True
+
 neuron_type = NonSpikingNeuron()
 slow_neuron_type = NonSpikingNeuron(membrane_capacitance=50.0)
 synapse_excitatory = NonSpikingSynapse(relative_reversal_potential=40.0)
@@ -47,7 +50,7 @@ inputs = np.zeros([len(t),1])+20.0  # Input vector must be 2d, even if second di
 data = np.zeros([len(t),3])
 
 # Compile the network to use the Numpy CPU backend (if you want to see what's happening, set debug to true)
-model = SNS_Numpy(net,dt=dt,debug=True)
+model = SNS_Numpy(net, delay=delay, spiking=spiking, dt=dt, debug=False)
 
 """Simulate the network"""
 # At every step, apply the current input to a forward pass of the network and store the results in 'data'

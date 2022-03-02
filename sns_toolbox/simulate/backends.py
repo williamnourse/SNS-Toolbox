@@ -210,8 +210,16 @@ NUMPY BACKEND
 Simulating the network using numpy vectors and matrices.
 Note that this is not sparse, so memory may explode for large networks
 """
+def SNS_Numpy(network: Network, delay=True, spiking=True, **kwargs):
+    if spiking:
+        if delay:
+            return __SNS_Numpy_Full__(network, **kwargs)
+        else:
+            return __SNS_Numpy_No_Delay__(network, **kwargs)
+    else:
+        return __SNS_Numpy_Non_Spiking__(network, **kwargs)
 
-class SNS_Numpy(Backend):
+class __SNS_Numpy_Full__(Backend):
     def __init__(self,network: Network,**kwargs):
         super().__init__(network,**kwargs)
 
@@ -488,7 +496,7 @@ class SNS_Numpy(Backend):
         return self.out_cubic*(self.outputs_raw**3) + self.out_quad*(self.outputs_raw**2)\
             + self.out_linear*self.outputs_raw + self.out_offset
 
-class SNS_Numpy_No_Delay(SNS_Numpy):
+class __SNS_Numpy_No_Delay__(__SNS_Numpy_Full__):
     def __init__(self, network: Network, **kwargs):
         super().__init__(network, **kwargs)
 
@@ -600,8 +608,7 @@ class SNS_Numpy_No_Delay(SNS_Numpy):
         return self.out_cubic * (self.outputs_raw ** 3) + self.out_quad * (self.outputs_raw ** 2) \
                + self.out_linear * self.outputs_raw + self.out_offset
 
-# TODO: Redo with inheritance
-class SNS_Numpy_Non_Spiking(SNS_Numpy):
+class __SNS_Numpy_Non_Spiking__(__SNS_Numpy_Full__):
     def __init__(self, network: Network, **kwargs):
         super().__init__(network, **kwargs)
 

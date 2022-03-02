@@ -13,7 +13,7 @@ import pickle
 from sns_toolbox.design.neurons import SpikingNeuron
 from sns_toolbox.design.connections import SpikingSynapse
 from sns_toolbox.design.networks import Network
-from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch, SNS_Torch_Large
+from sns_toolbox.simulate.backends import __SNS_Numpy_Full__, SNS_Torch, SNS_Torch_Large
 
 """
 ########################################################################################################################
@@ -60,7 +60,7 @@ for num in range(numSamples):
     net.add_output('outs')
 
     # Numpy
-    npModel = SNS_Numpy(net,dt=dt)
+    npModel = __SNS_Numpy_Full__(net, dt=dt)
     npInput = np.array([current])
     for i in range(len(t)):
         print('%i Neurons Numpy Step %i/%i'%(numNeurons[num],i+1,len(t)))

@@ -11,7 +11,7 @@ from sns_toolbox.design.networks import Network
 from sns_toolbox.design.neurons import NonSpikingNeuron, SpikingNeuron
 from sns_toolbox.design.connections import NonSpikingSynapse, SpikingSynapse
 
-from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Numpy_Non_Spiking, SNS_Numpy_No_Delay
+from sns_toolbox.simulate.backends import __SNS_Numpy_Full__, __SNS_Numpy_Non_Spiking__, __SNS_Numpy_No_Delay__
 
 def build_full_spiking_net(num_neurons,dt):
     net = Network()
@@ -26,7 +26,7 @@ def build_full_spiking_net(num_neurons,dt):
     net.add_output(0)
     net.add_output(0,spiking=True)
 
-    model = SNS_Numpy(net,dt=dt)
+    model = __SNS_Numpy_Full__(net, dt=dt)
 
     return model, num_inputs
 
@@ -44,7 +44,7 @@ def build_full_no_delay_net(num_neurons,dt):
     net.add_output(0)
     net.add_output(0,spiking=True)
 
-    model = SNS_Numpy_No_Delay(net,dt=dt)
+    model = __SNS_Numpy_No_Delay__(net, dt=dt)
 
     return model, num_inputs
 
@@ -62,7 +62,7 @@ def build_full_non_spiking_net(num_neurons,dt):
     net.add_output(0)
     net.add_output(0,spiking=True)
 
-    model = SNS_Numpy_Non_Spiking(net,dt=dt)
+    model = __SNS_Numpy_Non_Spiking__(net, dt=dt)
 
     return model, num_inputs
 
@@ -91,7 +91,7 @@ def build_realistic_spiking_net(num_neurons,dt):
     # Rest of the neurons
     net.add_population(neuron_type,num_rest)
 
-    model = SNS_Numpy(net,dt=dt)
+    model = __SNS_Numpy_Full__(net, dt=dt)
 
     return model, num_inputs
 
@@ -120,7 +120,7 @@ def build_realistic_no_delay_net(num_neurons,dt):
     # Rest of the neurons
     net.add_population(neuron_type,num_rest)
 
-    model = SNS_Numpy_No_Delay(net,dt=dt)
+    model = __SNS_Numpy_No_Delay__(net, dt=dt)
 
     return model, num_inputs
 
@@ -149,7 +149,7 @@ def build_realistic_non_spiking_net(num_neurons,dt):
     # Rest of the neurons
     net.add_population(neuron_type, num_rest)
 
-    model = SNS_Numpy_Non_Spiking(net,dt=dt)
+    model = __SNS_Numpy_Non_Spiking__(net, dt=dt)
 
     return model, num_inputs
 

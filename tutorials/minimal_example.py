@@ -4,6 +4,9 @@ from sns_toolbox.design.networks import Network
 import numpy as np
 from sns_toolbox.simulate.backends import SNS_Numpy
 
+delay = True
+spiking = True
+
 # Design
 neuron_type = NonSpikingNeuron()    # Define a neuron type
 synapse = NonSpikingSynapse()   # Define a non-spiking synapse
@@ -27,7 +30,7 @@ num_steps = 50  # number of simulation steps to execute
 stim_mag = 20.0 # nA
 inputs = np.zeros([num_steps,1])+stim_mag  # Input vector
 # Compile the network to use the Numpy-based CPU backend
-model = SNS_Numpy(net,dt=dt)
+model = SNS_Numpy(net,delay=delay,spiking=spiking, dt=dt)
 # At every step, apply the current input to a forward pass of the network and get the vector of output monitor states
 for i in range(num_steps):
     outputs = model.forward(inputs[i,:])

@@ -14,6 +14,9 @@ from sns_toolbox.design.connections import SpikingSynapse
 from sns_toolbox.simulate.backends import SNS_Numpy
 from sns_toolbox.simulate.plotting import spike_raster_plot
 
+delay = True
+spiking = True
+
 """Define our types"""
 neuron_type = SpikingNeuron()
 synapse_type_d0 = SpikingSynapse(transmission_delay=0)   # Transmission delay of 0 dt
@@ -55,7 +58,7 @@ data = np.zeros([len(t), net.get_num_outputs_actual()])    # getNumOutputsActual
                                                             # nodes in a network (since this net has populations, each
                                                             # population has n output nodes)
 # Compile to numpy
-model = SNS_Numpy(net,dt=dt)
+model = SNS_Numpy(net, delay=delay, spiking=spiking, dt=dt, debug=False)
 
 # Run for all steps
 for i in range(len(t)):
