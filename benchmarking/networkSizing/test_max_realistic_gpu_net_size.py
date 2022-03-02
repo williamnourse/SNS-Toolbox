@@ -11,7 +11,7 @@ import time
 from sns_toolbox.design.neurons import SpikingNeuron
 from sns_toolbox.design.connections import SpikingSynapse
 from sns_toolbox.design.networks import Network
-from sns_toolbox.simulate.backends import SNS_Torch, SNS_Torch_Large
+from sns_toolbox.simulate.backends import SNS_Torch_Old, SNS_Torch_Large
 
 """
 ########################################################################################################################

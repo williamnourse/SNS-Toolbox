@@ -11,7 +11,7 @@ import time
 from sns_toolbox.design.neurons import SpikingNeuron
 from sns_toolbox.design.connections import SpikingSynapse
 from sns_toolbox.design.networks import Network
-from sns_toolbox.simulate.backends import SNS_Torch
+from sns_toolbox.simulate.backends import SNS_Torch_Old
 
 """
 ########################################################################################################################
@@ -48,7 +48,7 @@ for num in range(numSamples):
     # Torch GPU
     # print('Before network created')
     # print('GPU Memory Allocated: %d , Reserved: %d'%(torch.cuda.memory_allocated(),torch.cuda.memory_reserved()))
-    torchGPUModel = SNS_Torch(net, dt=dt, device='cuda')
+    torchGPUModel = SNS_Torch_Old(net, dt=dt, device='cuda')
     torchGPUInput = torch.tensor([current],dtype=torch.float64,device='cuda')
     # print('CUDA Model Made')
     print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))

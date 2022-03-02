@@ -13,7 +13,7 @@ import pickle
 from sns_toolbox.design.neurons import SpikingNeuron
 from sns_toolbox.design.connections import SpikingSynapse
 from sns_toolbox.design.networks import Network
-from sns_toolbox.simulate.backends import __SNS_Numpy_Full__, SNS_Torch, SNS_Torch_Large
+from sns_toolbox.simulate.backends import __SNS_Numpy_Full__, SNS_Torch_Old, SNS_Torch_Large
 
 """
 ########################################################################################################################
@@ -71,7 +71,7 @@ for num in range(numSamples):
     print('Finished Numpy. Running for %f sec' % (time.time() - globalStart))
 
     # Torch CPU
-    torchCPUModel = SNS_Torch(net,dt=dt,device='cpu')
+    torchCPUModel = SNS_Torch_Old(net, dt=dt, device='cpu')
     torchCPUInput = torch.tensor([current],dtype=torch.float64,device='cpu')
     for i in range(len(t)):
         print('%i Neurons Torch CPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
@@ -85,7 +85,7 @@ for num in range(numSamples):
         # Torch GPU
         # print('Before network created')
         # print('GPU Memory Allocated: %d , Reserved: %d'%(torch.cuda.memory_allocated(),torch.cuda.memory_reserved()))
-        torchGPUModel = SNS_Torch(net, dt=dt, device='cuda')
+        torchGPUModel = SNS_Torch_Old(net, dt=dt, device='cuda')
         torchGPUInput = torch.tensor([current],dtype=torch.float64,device='cuda')
         # print('CUDA Model Made')
         # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
@@ -113,7 +113,7 @@ for num in range(numSamples):
         # Torch GPU with memory transfer at each step
         # print('Before network created')
         # print('GPU Memory Allocated: %d , Reserved: %d'%(torch.cuda.memory_allocated(),torch.cuda.memory_reserved()))
-        torchGPUTransferModel = SNS_Torch(net, dt=dt, device='cuda')
+        torchGPUTransferModel = SNS_Torch_Old(net, dt=dt, device='cuda')
         torchGPUTransferInput = torch.tensor([current], dtype=torch.float64, device='cpu')
         # print('CUDA Model Made')
         # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
