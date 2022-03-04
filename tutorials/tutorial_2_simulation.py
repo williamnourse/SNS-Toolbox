@@ -20,7 +20,7 @@ from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch
 use_torch = True
 use_cpu = False
 delay = False
-spiking = True
+spiking = False
 
 """Design the network"""
 # Define a non-spiking neuron and excitatory/inhibitory connections as in tutorial_1

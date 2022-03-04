@@ -16,9 +16,9 @@ import cv2 as cv
 import sys
 
 use_torch = True
-use_cpu = True
+use_cpu = False
 delay = False
-spiking = True
+spiking = False
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

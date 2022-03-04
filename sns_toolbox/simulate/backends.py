@@ -790,7 +790,7 @@ def SNS_Torch(network: Network, device: str = 'cuda', delay=True, spiking=True,*
         else:
             return __SNS_Torch_No_Delay__(network,device=device,**kwargs)
     else:
-        pass
+        return __SNS_Torch_Non_Spiking__(network,device=device,**kwargs)
 
 
 class __SNS_Torch_Full__(Backend):
@@ -1173,6 +1173,168 @@ class __SNS_Torch_No_Delay__(__SNS_Torch_Full__):
         self.g_spike = torch.maximum(self.g_spike, (-self.spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
         self.u = self.u * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
         self.outputs_raw = torch.matmul(self.output_voltage_connectivity, self.u) + torch.matmul(self.output_spike_connectivity, -self.spikes)
+
+        return self.out_cubic*(self.outputs_raw**3) + self.out_quad*(self.outputs_raw**2)\
+            + self.out_linear*self.outputs_raw + self.out_offset
+
+class __SNS_Torch_Non_Spiking__(__SNS_Torch_Full__):
+    def __init__(self,network: Network,device: str = 'cuda',**kwargs):
+        self.device = device
+        super().__init__(network,**kwargs)
+
+    def __initialize_vectors_and_matrices__(self) -> None:
+        """
+        Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
+        following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
+        :return:    None
+        """
+        self.u = torch.zeros(self.num_neurons,device=self.device)
+        self.u_last = torch.zeros(self.num_neurons,device=self.device)
+        self.c_m = torch.zeros(self.num_neurons,device=self.device)
+        self.g_m = torch.zeros(self.num_neurons,device=self.device)
+        self.i_b = torch.zeros(self.num_neurons,device=self.device)
+
+        self.g_max_non = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
+        self.del_e = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
+
+        self.pops_and_nrns = []
+        index = 0
+        for pop in range(len(self.network.populations)):
+            num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
+            self.pops_and_nrns.append([])
+            for num in range(num_neurons):
+                self.pops_and_nrns[pop].append(index)
+                index += 1
+
+    def __set_neurons__(self) -> None:
+        """
+        Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
+        network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
+        :return:
+        """
+        index = 0
+        for pop in range(len(self.network.populations)):
+            num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
+            initial_value = self.network.populations[pop]['initial_value']
+            for num in range(num_neurons):  # for each neuron, copy the parameters over
+                self.c_m[index] = self.network.populations[pop]['type'].params['membrane_capacitance']
+                self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
+                self.i_b[index] = self.network.populations[pop]['type'].params['bias']
+                if hasattr(initial_value, '__iter__'):
+                    self.u_last[index] = initial_value[num]
+                elif initial_value is None:
+                    self.u_last[index] = 0.0
+                else:
+                    self.u_last[index] = initial_value
+                index += 1
+        self.u = self.u_last.clone()
+
+    def __set_connections__(self) -> None:
+        """
+        Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+        synapses.
+        :return: None
+        """
+        for syn in range(len(self.network.connections)):
+            source_pop = self.network.connections[syn]['source']
+            dest_pop = self.network.connections[syn]['destination']
+            g_max = self.network.connections[syn]['params']['max_conductance']
+            del_e = self.network.connections[syn]['params']['relative_reversal_potential']
+
+            if self.network.connections[syn]['params']['pattern']:
+                pop_size = len(self.pops_and_nrns[source_pop])
+                source_index = self.pops_and_nrns[source_pop][0]
+                dest_index = self.pops_and_nrns[dest_pop][0]
+                self.g_max_non[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(g_max)
+                self.del_e[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(del_e)
+            else:
+                for source in self.pops_and_nrns[source_pop]:
+                    for dest in self.pops_and_nrns[dest_pop]:
+                        self.g_max_non[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+                        self.del_e[dest][source] = del_e
+
+    def __calculate_time_factors__(self) -> None:
+        """
+        Precompute the time factors for the membrane voltage, firing threshold, and spiking synapses.
+        :return: None
+        """
+        self.time_factor_membrane = self.dt / (self.c_m/self.g_m)
+
+    def __initialize_propagation_delay__(self) -> None:
+        """
+        Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
+        :return: None
+        """
+        pass
+
+    def __set_outputs__(self) -> None:
+        """
+        Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
+        output monitors for each neuron in a population.
+        :return: None
+        """
+        outputs = []
+        index = 0
+        for out in range(len(self.network.outputs)):
+            source_pop = self.network.outputs[out]['source']
+            num_source_neurons = self.network.populations[source_pop]['number']
+            outputs.append([])
+            for num in range(num_source_neurons):
+                outputs[out].append(index)
+                index += 1
+        self.num_outputs = index
+
+        self.output_voltage_connectivity = torch.zeros(
+            [self.num_outputs, self.num_neurons],device=self.device)  # initialize connectivity matrix
+        self.out_offset = torch.zeros(self.num_outputs,device=self.device)
+        self.out_linear = torch.zeros(self.num_outputs,device=self.device)
+        self.out_quad = torch.zeros(self.num_outputs,device=self.device)
+        self.out_cubic = torch.zeros(self.num_outputs,device=self.device)
+        self.outputs_raw = torch.zeros(self.num_outputs,device=self.device)
+        for out in range(len(self.network.outputs)):  # iterate over the connections in the network
+            source_pop = self.network.outputs[out]['source']  # get the source
+            if self.network.outputs[out]['spiking']:
+                self.out_linear[out] = 1.0
+            else:
+                self.out_offset[out] = self.network.outputs[out]['offset']
+                self.out_linear[out] = self.network.outputs[out]['linear']
+                self.out_quad[out] = self.network.outputs[out]['quadratic']
+                self.out_cubic[out] = self.network.outputs[out]['cubic']
+            for i in range(len(self.pops_and_nrns[source_pop])):
+                self.output_voltage_connectivity[outputs[out][i]][
+                    self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
+                self.out_offset[outputs[out][i]] = self.network.outputs[out]['offset']
+                self.out_linear[outputs[out][i]] = self.network.outputs[out]['linear']
+                self.out_quad[outputs[out][i]] = self.network.outputs[out]['quadratic']
+                self.out_cubic[outputs[out][i]] = self.network.outputs[out]['cubic']
+
+    def __debug_print__(self) -> None:
+        """
+        Print the values for every vector/matrix which will be used in the forward computation.
+        :return: None
+        """
+        print('Input Connectivity:')
+        print(self.input_connectivity)
+        print('g_max_non:')
+        print(self.g_max_non)
+        print('del_e:')
+        print(self.del_e)
+        print('Output Voltage Connectivity')
+        print(self.output_voltage_connectivity)
+        print('u:')
+        print(self.u)
+        print('u_last:')
+        print(self.u_last)
+
+    def __forward_pass__(self, inputs) -> Any:
+        self.u_last = torch.clone(self.u)
+        self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
+        i_app = torch.matmul(self.input_connectivity, self.inputs_mapped)  # Apply external current sources to their destinations
+        g_syn = torch.clamp(torch.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non),min=0)
+        i_syn = torch.sum(g_syn * self.del_e, 1) - self.u_last * torch.sum(g_syn, 1)
+        self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + self.i_b + i_syn + i_app)  # Update membrane potential
+
+        self.outputs_raw = torch.matmul(self.output_voltage_connectivity, self.u)
 
         return self.out_cubic*(self.outputs_raw**3) + self.out_quad*(self.outputs_raw**2)\
             + self.out_linear*self.outputs_raw + self.out_offset
