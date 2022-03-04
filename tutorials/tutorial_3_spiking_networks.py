@@ -11,12 +11,15 @@ from sns_toolbox.design.connections import SpikingSynapse
 from sns_toolbox.design.neurons import SpikingNeuron
 
 # Import packages and modules for simulating the network
-from sns_toolbox.simulate.backends import SNS_Numpy
+from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch
+import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from sns_toolbox.simulate.plotting import spike_raster_plot
 
-delay = False
+use_torch = False
+use_cpu = False
+delay = True
 spiking = True
 
 """Design the first Network"""
@@ -83,67 +86,89 @@ net_comb.render_graph(view=True)
 """Simulate both networks"""
 dt = 0.01
 t_max = 10
-t = np.arange(0, t_max, dt)
-inputs = np.zeros([len(t), net_comb.get_num_inputs()]) + 20      # getNumInputs() gets the number of input nodes in a network
-data = np.zeros([len(t), net_comb.get_num_outputs_actual()])    # getNumOutputsActual gets the number of accessible output
-                                                            # nodes in a network (since this net has populations, each
-                                                            # population has n output nodes)
-# Compile to numpy
-model = SNS_Numpy(net_comb, delay=delay, spiking=spiking, dt=dt, debug=False)
+if use_torch:
+    if use_cpu:
+        device = 'cpu'
+    else:
+        device = 'cuda'
+    t = torch.arange(0, t_max, dt)
+    inputs = torch.zeros(
+        [len(t), net_comb.get_num_inputs()],device=device) + 20  # getNumInputs() gets the number of input nodes in a network
+    data = torch.zeros(
+        [len(t), net_comb.get_num_outputs_actual()],device=device)  # getNumOutputsActual gets the number of accessible output
+    # nodes in a network (since this net has populations, each
+    # population has n output nodes)
+    # Compile to numpy
+    model = SNS_Torch(net_comb, device=device, delay=delay, spiking=spiking, dt=dt, debug=False)
 
-# Run for all steps
-for i in range(len(t)):
-    data[i,:] = model.forward(inputs[i,:])
+    # Run for all steps
+    for i in range(len(t)):
+        data[i, :] = model.forward(inputs[i, :])
+    data = data.transpose(0,1)
+    data = data.to('cpu')
+else:
+    t = np.arange(0, t_max, dt)
+    inputs = np.zeros([len(t), net_comb.get_num_inputs()]) + 20      # getNumInputs() gets the number of input nodes in a network
+    data = np.zeros([len(t), net_comb.get_num_outputs_actual()])    # getNumOutputsActual gets the number of accessible output
+                                                                # nodes in a network (since this net has populations, each
+                                                                # population has n output nodes)
+    # Compile to numpy
+    model = SNS_Numpy(net_comb, delay=delay, spiking=spiking, dt=dt, debug=False)
+
+    # Run for all steps
+    for i in range(len(t)):
+        data[i,:] = model.forward(inputs[i,:])
+    data = data.transpose()
 
 """Plotting the results"""
 # First network
 plt.figure()
 plt.subplot(3,2,1)
 plt.title('m = 0: Voltage')
-plt.plot(t,data.transpose()[:][0],color='blue')
+plt.plot(t,data[:][0],color='blue')
 # plt.xlabel('t (ms)')
 plt.ylabel('u (mV)')
 plt.subplot(3,2,2)
 plt.title('m = 0: Spikes')
-spike_raster_plot(t, data.transpose()[:][1],colors=['blue'])
+spike_raster_plot(t, data[:][1],colors=['blue'])
 # plt.xlabel('t (ms)')
 plt.subplot(3,2,3)
 plt.title('m < 0: Voltage')
-plt.plot(t,data.transpose()[:][2],color='orange')
+plt.plot(t,data[:][2],color='orange')
 # plt.xlabel('t (ms)')
 plt.ylabel('u (mV)')
 plt.subplot(3,2,4)
 plt.title('m = 0: Spikes')
-spike_raster_plot(t, data.transpose()[:][3],colors=['orange'])
+spike_raster_plot(t, data[:][3],colors=['orange'])
 # plt.xlabel('t (ms)')
 plt.subplot(3,2,5)
 plt.title('m > 0: Voltage')
-plt.plot(t,data.transpose()[:][4],color='green')
+plt.plot(t,data[:][4],color='green')
 plt.xlabel('t (ms)')
 plt.ylabel('u (mV)')
 plt.subplot(3,2,6)
 plt.title('m > 0: Spikes')
-spike_raster_plot(t, data.transpose()[:][5],colors=['green'])
+spike_raster_plot(t, data[:][5],colors=['green'])
 plt.xlabel('t (ms)')
 
 plt.figure()
 plt.subplot(2,2,1)
-spike_raster_plot(t,data.transpose()[:][6:6+pop_size],colors=['red'])
+spike_raster_plot(t,data[:][6:6+pop_size],colors=['red'])
 plt.ylabel('Neuron')
 plt.title('Source Spikes')
 plt.subplot(2, 2, 2)
-spike_raster_plot(t,data.transpose()[:][6+2*pop_size:6+3*pop_size],colors=['purple'])
+spike_raster_plot(t,data[:][6+2*pop_size:6+3*pop_size],colors=['purple'])
 plt.ylabel('Neuron')
 plt.title('Destination Spikes')
 plt.subplot(2,2,3)
 for i in range(pop_size):
-    plt.plot(t,data.transpose()[:][6+pop_size+i])
+    plt.plot(t,data[:][6+pop_size+i])
 plt.xlabel('t (ms)')
 plt.ylabel('Voltage')
 plt.title('Source Voltage')
 plt.subplot(2, 2, 4)
 for i in range(pop_size):
-    plt.plot(t,data.transpose()[:][6+3*pop_size+i])
+    plt.plot(t,data[:][6+3*pop_size+i])
 plt.xlabel('t (ms)')
 plt.ylabel('Voltage')
 plt.title('Destination Voltage')

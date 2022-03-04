@@ -16,6 +16,7 @@ from typing import Any
 import numpy as np
 import torch
 import sys
+import warnings
 
 from sns_toolbox.design.networks import Network
 from sns_toolbox.design.neurons import SpikingNeuron
@@ -779,9 +780,13 @@ Simulating the network using GPU-compatible tensors.
 Note that this is not sparse, so memory may explode for large networks
 """
 def SNS_Torch(network: Network, device: str = 'cuda', delay=True, spiking=True,**kwargs):
+    if device != 'cpu':
+        if not torch.cuda.is_available():
+            warnings.warn('CUDA Device Unavailable. Using CPU Instead')
+            device = 'cpu'
     if spiking:
         if delay:
-            pass
+            return __SNS_Torch_Full__(network,device=device,**kwargs)
         else:
             pass
     else:
@@ -789,7 +794,8 @@ def SNS_Torch(network: Network, device: str = 'cuda', delay=True, spiking=True,*
 
 
 class __SNS_Torch_Full__(Backend):
-    def __init__(self,network: Network,**kwargs):
+    def __init__(self,network: Network,device: str = 'cuda',**kwargs):
+        self.device = device
         super().__init__(network,**kwargs)
 
     def __initialize_vectors_and_matrices__(self) -> None:
@@ -798,30 +804,30 @@ class __SNS_Torch_Full__(Backend):
         following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
         :return:    None
         """
-        self.u = torch.zeros(self.num_neurons)
-        self.u_last = torch.zeros(self.num_neurons)
-        self.spikes = torch.zeros(self.num_neurons)
-        self.c_m = torch.zeros(self.num_neurons)
-        self.g_m = torch.zeros(self.num_neurons)
-        self.i_b = torch.zeros(self.num_neurons)
-        self.theta_0 = torch.zeros(self.num_neurons)
-        self.theta = torch.zeros(self.num_neurons)
-        self.theta_last = torch.zeros(self.num_neurons)
-        self.m = torch.zeros(self.num_neurons)
-        self.tau_theta = torch.zeros(self.num_neurons)
+        self.u = torch.zeros(self.num_neurons,device=self.device)
+        self.u_last = torch.zeros(self.num_neurons,device=self.device)
+        self.spikes = torch.zeros(self.num_neurons,device=self.device)
+        self.c_m = torch.zeros(self.num_neurons,device=self.device)
+        self.g_m = torch.zeros(self.num_neurons,device=self.device)
+        self.i_b = torch.zeros(self.num_neurons,device=self.device)
+        self.theta_0 = torch.zeros(self.num_neurons,device=self.device)
+        self.theta = torch.zeros(self.num_neurons,device=self.device)
+        self.theta_last = torch.zeros(self.num_neurons,device=self.device)
+        self.m = torch.zeros(self.num_neurons,device=self.device)
+        self.tau_theta = torch.zeros(self.num_neurons,device=self.device)
 
-        self.g_max_non = torch.zeros([self.num_neurons, self.num_neurons])
-        self.g_max_spike = torch.zeros([self.num_neurons, self.num_neurons])
-        self.g_spike = torch.zeros([self.num_neurons, self.num_neurons])
-        self.del_e = torch.zeros([self.num_neurons, self.num_neurons])
-        self.tau_syn = torch.zeros([self.num_neurons, self.num_neurons]) + 1
-        self.spike_delays = torch.zeros([self.num_neurons, self.num_neurons])
+        self.g_max_non = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
+        self.g_max_spike = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
+        self.g_spike = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
+        self.del_e = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
+        self.tau_syn = torch.ones([self.num_neurons, self.num_neurons],device=self.device)
+        self.spike_delays = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
         self.spike_rows = []
         self.spike_cols = []
         self.buffer_steps = []
         self.buffer_nrns = []
-        self.spike_delay_inds = torch.zeros([self.num_neurons ** 2])
-        self.delayed_spikes = torch.zeros([self.num_neurons, self.num_neurons])
+        self.spike_delay_inds = torch.zeros([self.num_neurons ** 2],device=self.device)
+        self.delayed_spikes = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
 
         self.pops_and_nrns = []
         index = 0
@@ -858,7 +864,7 @@ class __SNS_Torch_Full__(Backend):
                     self.m[index] = self.network.populations[pop]['type'].params['threshold_proportionality_constant']
                     self.tau_theta[index] = self.network.populations[pop]['type'].params['threshold_time_constant']
                 else:  # otherwise, set to the special values for NonSpiking
-                    self.theta_0[index] = sys.float_info.max
+                    self.theta_0[index] = torch.finfo(self.theta_0[index].dtype).max
                     self.m[index] = 0
                     self.tau_theta[index] = 1
                 index += 1
@@ -871,12 +877,12 @@ class __SNS_Torch_Full__(Backend):
         Build the input connection matrix, and apply linear mapping coefficients.
         :return:    None
         """
-        self.input_connectivity = torch.zeros([self.num_neurons, self.network.get_num_inputs_actual()])  # initialize connectivity matrix
-        self.in_offset = torch.zeros(self.network.get_num_inputs_actual())
-        self.in_linear = torch.zeros(self.network.get_num_inputs_actual())
-        self.in_quad = torch.zeros(self.network.get_num_inputs_actual())
-        self.in_cubic = torch.zeros(self.network.get_num_inputs_actual())
-        self.inputs_mapped = torch.zeros(self.network.get_num_inputs_actual())
+        self.input_connectivity = torch.zeros([self.num_neurons, self.network.get_num_inputs_actual()],device=self.device)  # initialize connectivity matrix
+        self.in_offset = torch.zeros(self.network.get_num_inputs_actual(),device=self.device)
+        self.in_linear = torch.zeros(self.network.get_num_inputs_actual(),device=self.device)
+        self.in_quad = torch.zeros(self.network.get_num_inputs_actual(),device=self.device)
+        self.in_cubic = torch.zeros(self.network.get_num_inputs_actual(),device=self.device)
+        self.inputs_mapped = torch.zeros(self.network.get_num_inputs_actual(),device=self.device)
         index = 0
         for inp in range(self.network.get_num_inputs()):  # iterate over the connections in the network
             size = self.network.inputs[inp]['size']
@@ -910,13 +916,14 @@ class __SNS_Torch_Full__(Backend):
                 pop_size = len(self.pops_and_nrns[source_pop])
                 source_index = self.pops_and_nrns[source_pop][0]
                 dest_index = self.pops_and_nrns[dest_pop][0]
+
                 if self.network.connections[syn]['params']['spiking']:
                     tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
                     delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
-                    self.g_max_spike[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = g_max
-                    self.del_e[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = del_e
-                    self.tau_syn[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = tau_s
-                    self.spike_delays[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = delay
+                    self.g_max_spike[dest_index:dest_index + pop_size,source_index:source_index + pop_size] = torch.from_numpy(g_max)
+                    self.del_e[dest_index:dest_index + pop_size,source_index:source_index + pop_size] = torch.from_numpy(del_e)
+                    self.tau_syn[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(tau_s)
+                    self.spike_delays[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(delay)
 
                     for source in self.pops_and_nrns[source_pop]:
                         for dest in self.pops_and_nrns[dest_pop]:
@@ -925,8 +932,8 @@ class __SNS_Torch_Full__(Backend):
                             self.spike_rows.append(dest)
                             self.spike_cols.append(source)
                 else:
-                    self.g_max_non[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = g_max
-                    self.del_e[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = del_e
+                    self.g_max_non[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(g_max)
+                    self.del_e[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(del_e)
             else:
                 if self.network.connections[syn]['params']['spiking']:
                     tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
@@ -961,8 +968,8 @@ class __SNS_Torch_Full__(Backend):
         Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
         :return: None
         """
-        buffer_length = int(np.max(self.spike_delays) + 1)
-        self.spike_buffer = np.zeros([buffer_length, self.num_neurons])
+        buffer_length = int(torch.max(self.spike_delays) + 1)
+        self.spike_buffer = torch.zeros([buffer_length, self.num_neurons],device=self.device)
 
     def __set_outputs__(self) -> None:
         """
@@ -981,14 +988,14 @@ class __SNS_Torch_Full__(Backend):
                 index += 1
         self.num_outputs = index
 
-        self.output_voltage_connectivity = np.zeros(
-            [self.num_outputs, self.num_neurons])  # initialize connectivity matrix
-        self.output_spike_connectivity = np.copy(self.output_voltage_connectivity)
-        self.out_offset = np.zeros(self.num_outputs)
-        self.out_linear = np.zeros(self.num_outputs)
-        self.out_quad = np.zeros(self.num_outputs)
-        self.out_cubic = np.zeros(self.num_outputs)
-        self.outputs_raw = np.zeros(self.num_outputs)
+        self.output_voltage_connectivity = torch.zeros(
+            [self.num_outputs, self.num_neurons],device=self.device)  # initialize connectivity matrix
+        self.output_spike_connectivity = torch.clone(self.output_voltage_connectivity)
+        self.out_offset = torch.zeros(self.num_outputs,device=self.device)
+        self.out_linear = torch.zeros(self.num_outputs,device=self.device)
+        self.out_quad = torch.zeros(self.num_outputs,device=self.device)
+        self.out_cubic = torch.zeros(self.num_outputs,device=self.device)
+        self.outputs_raw = torch.zeros(self.num_outputs,device=self.device)
         for out in range(len(self.network.outputs)):  # iterate over the connections in the network
             source_pop = self.network.outputs[out]['source']  # get the source
             if self.network.outputs[out]['spiking']:
@@ -1040,27 +1047,27 @@ class __SNS_Torch_Full__(Backend):
         print(self.theta)
 
     def __forward_pass__(self, inputs) -> Any:
-        self.u_last = np.copy(self.u)
-        self.theta_last = np.copy(self.theta)
+        self.u_last = torch.clone(self.u)
+        self.theta_last = torch.clone(self.theta)
         self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
-        i_app = np.matmul(self.input_connectivity, self.inputs_mapped)  # Apply external current sources to their destinations
-        g_non = np.maximum(0, np.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non))
+        i_app = torch.matmul(self.input_connectivity, self.inputs_mapped)  # Apply external current sources to their destinations
+        g_non = torch.clamp(torch.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non),min=0)
         self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
         g_syn = g_non + self.g_spike
-        i_syn = np.sum(g_syn * self.del_e, axis=1) - self.u_last * np.sum(g_syn, axis=1)
+        i_syn = torch.sum(g_syn * self.del_e, 1) - self.u_last * torch.sum(g_syn, 1)
         self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + self.i_b + i_syn + i_app)  # Update membrane potential
         self.theta = self.theta_last + self.time_factor_threshold * (-self.theta_last + self.theta_0 + self.m * self.u_last)  # Update the firing thresholds
-        self.spikes = np.sign(np.minimum(0, self.theta - self.u))  # Compute which neurons have spiked
+        self.spikes = torch.sign(torch.clamp(self.theta - self.u,max=0))  # Compute which neurons have spiked
 
         # New stuff with delay
-        self.spike_buffer = np.roll(self.spike_buffer, 1, axis=0)   # Shift buffer entries down
+        self.spike_buffer = torch.roll(self.spike_buffer, 1, 0)   # Shift buffer entries down
         self.spike_buffer[0, :] = self.spikes    # Replace row 0 with the current spike data
         # Update a matrix with all of the appropriately delayed spike values
         self.delayed_spikes[self.spike_rows, self.spike_cols] = self.spike_buffer[self.buffer_steps, self.buffer_nrns]
 
-        self.g_spike = np.maximum(self.g_spike, (-self.delayed_spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
+        self.g_spike = torch.maximum(self.g_spike, (-self.delayed_spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
         self.u = self.u * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
-        self.outputs_raw = np.matmul(self.output_voltage_connectivity, self.u) + np.matmul(self.output_spike_connectivity, -self.spikes)
+        self.outputs_raw = torch.matmul(self.output_voltage_connectivity, self.u) + torch.matmul(self.output_spike_connectivity, -self.spikes)
 
         return self.out_cubic*(self.outputs_raw**3) + self.out_quad*(self.outputs_raw**2)\
             + self.out_linear*self.outputs_raw + self.out_offset

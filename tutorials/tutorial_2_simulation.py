@@ -13,11 +13,14 @@ from sns_toolbox.design.networks import Network
 
 # Import packages and modules for simulating the network
 import numpy as np
+import torch
 import matplotlib.pyplot as plt
-from sns_toolbox.simulate.backends import SNS_Numpy
+from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch
 
-delay = False
-spiking = False
+use_torch = True
+use_cpu = False
+delay = True
+spiking = True
 
 """Design the network"""
 # Define a non-spiking neuron and excitatory/inhibitory connections as in tutorial_1
@@ -69,43 +72,69 @@ net.render_graph(view=True)
 dt = 0.01
 t_max = 50
 
-# Initialize a vector of timesteps
-t = np.arange(0, t_max, dt)
+if use_torch:
+    if use_cpu:
+        device = 'cpu'
+    else:
+        device = 'cuda'
+    # Initialize a vector of timesteps
+    t = torch.arange(0, t_max, dt)
 
-# Initialize vectors which store the input to our network, and for data to be written to during simulation from outputs
-inputs = np.zeros([len(t),1])+20.0  # Input vector must be 2d, even if second dimension is 1
-data = np.zeros([len(t),5])
+    # Initialize vectors which store the input to our network, and for data to be written to during simulation from outputs
+    inputs = torch.zeros([len(t), 1],device=device) + 20.0  # Input vector must be 2d, even if second dimension is 1
+    data = torch.zeros([len(t), 5],device=device)
 
-# Compile the network to use the Numpy CPU backend (if you want to see what's happening, set debug to true)
-model = SNS_Numpy(net, delay=delay, spiking=spiking, dt=dt, debug=False)
+    # Compile the network to use the Numpy CPU backend (if you want to see what's happening, set debug to true)
 
-"""Simulate the network"""
-# At every step, apply the current input to a forward pass of the network and store the results in 'data'
-for i in range(len(t)):
-    data[i,:] = model.forward(inputs[i,:])
+    model = SNS_Torch(net, device=device, delay=delay, spiking=spiking, dt=dt, debug=False)
+
+    """Simulate the network"""
+    # At every step, apply the current input to a forward pass of the network and store the results in 'data'
+    for i in range(len(t)):
+        data[i, :] = model.forward(inputs[i, :])
+    data = data.to('cpu')
+    data = data.transpose(0,1)
+    inputs = inputs.to('cpu')
+else:
+    # Initialize a vector of timesteps
+    t = np.arange(0, t_max, dt)
+
+    # Initialize vectors which store the input to our network, and for data to be written to during simulation from outputs
+    inputs = np.zeros([len(t),1])+20.0  # Input vector must be 2d, even if second dimension is 1
+    data = np.zeros([len(t),5])
+
+    # Compile the network to use the Numpy CPU backend (if you want to see what's happening, set debug to true)
+
+    model = SNS_Numpy(net, delay=delay, spiking=spiking, dt=dt, debug=False)
+
+    """Simulate the network"""
+    # At every step, apply the current input to a forward pass of the network and store the results in 'data'
+    for i in range(len(t)):
+        data[i,:] = model.forward(inputs[i,:])
+    data = data.transpose()
 
 """Plot the data"""
 # First section
 plt.figure()
 plt.title('First Section')
-plt.plot(t,data.transpose()[:][0],label='SourceNrn',color='black')  # When plotting, all data needs to be transposed first
-plt.plot(t,data.transpose()[:][1],label='Dest1',color='blue')
+plt.plot(t,data[:][0],label='SourceNrn',color='black')  # When plotting, all data needs to be transposed first
+plt.plot(t,data[:][1],label='Dest1',color='blue')
 plt.legend()
 
 # Second section
 plt.figure()
 plt.title('Second Section')
-plt.plot(t,data.transpose()[:][0],label='SourceNrn',color='black')
-plt.plot(t,data.transpose()[:][2],label='Dest2',color='orange')
-plt.plot(t,data.transpose()[:][3],label='Dest2In',color='green')
+plt.plot(t,data[:][0],label='SourceNrn',color='black')
+plt.plot(t,data[:][2],label='Dest2',color='orange')
+plt.plot(t,data[:][3],label='Dest2In',color='green')
 plt.legend()
 
 # Third section
 plt.figure()
 plt.title('Third Section')
-plt.plot(t,data.transpose()[:][0],label='SourceNrn',color='black')
-plt.plot(t,data.transpose()[:][1],label='Dest1',color='blue')
-plt.plot(t,data.transpose()[:][4],label='Dest3',color='red')
+plt.plot(t,data[:][0],label='SourceNrn',color='black')
+plt.plot(t,data[:][1],label='Dest1',color='blue')
+plt.plot(t,data[:][4],label='Dest3',color='red')
 plt.legend()
 
 plt.show()  # Show the plots

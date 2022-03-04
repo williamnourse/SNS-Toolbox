@@ -9,11 +9,14 @@ from sns_toolbox.design.neurons import NonSpikingNeuron
 
 import sns_toolbox.simulate.backends as backends
 
+import torch
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2 as cv
 import sys
 
+use_torch = True
+use_cpu = True
 delay = False
 spiking = True
 
@@ -92,7 +95,15 @@ dt = neuron_type.params['membrane_capacitance']/neuron_type.params['membrane_con
 t_max = 15  # run for 15 ms
 steps = int(t_max/dt)   # number of steps to simulate
 
-model = backends.SNS_Numpy(net,delay=delay,spiking=spiking,dt=dt,debug=False) # compile using the numpy backend
+if use_torch:
+    if use_cpu:
+        device = 'cpu'
+    else:
+        device = 'cuda'
+    model = backends.SNS_Torch(net,device=device,spiking=spiking,dt=dt,debug=False)
+    img_flat = torch.from_numpy(img_flat).to(device)
+else:
+    model = backends.SNS_Numpy(net,delay=delay,spiking=spiking,dt=dt,debug=False) # compile using the numpy backend
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -107,18 +118,33 @@ plt.title('Lamina')
 plt.axis('off')
 plt.pause(0.5)
 
-for i in range(steps):
-    print('%i / %i steps'%(i+1,steps))
-    out = model.forward(img_flat)   # run the network for one dt
-    retina = out[:flat_size]    # separate the retina and lamina states
-    lamina = out[flat_size:]
-    retina_reshape = np.reshape(retina,shape)   # reshape to from flat to an image
-    lamina_reshape = np.reshape(lamina,shape)
-    plt.subplot(1,2,1)  # plot the current state
-    plt.imshow(retina_reshape,cmap='gray')
-    plt.subplot(1, 2, 2)
-    plt.imshow(lamina_reshape, cmap='gray')
-    plt.pause(0.001)
+if use_torch:
+    for i in range(steps):
+        print('%i / %i steps'%(i+1,steps))
+        out = model.forward(img_flat)   # run the network for one dt
+        out = out.to('cpu')
+        retina = out[:flat_size]    # separate the retina and lamina states
+        lamina = out[flat_size:]
+        retina_reshape = torch.reshape(retina,shape)   # reshape to from flat to an image
+        lamina_reshape = torch.reshape(lamina,shape)
+        plt.subplot(1,2,1)  # plot the current state
+        plt.imshow(retina_reshape,cmap='gray')
+        plt.subplot(1, 2, 2)
+        plt.imshow(lamina_reshape, cmap='gray')
+        plt.pause(0.001)
+else:
+    for i in range(steps):
+        print('%i / %i steps'%(i+1,steps))
+        out = model.forward(img_flat)   # run the network for one dt
+        retina = out[:flat_size]    # separate the retina and lamina states
+        lamina = out[flat_size:]
+        retina_reshape = np.reshape(retina,shape)   # reshape to from flat to an image
+        lamina_reshape = np.reshape(lamina,shape)
+        plt.subplot(1,2,1)  # plot the current state
+        plt.imshow(retina_reshape,cmap='gray')
+        plt.subplot(1, 2, 2)
+        plt.imshow(lamina_reshape, cmap='gray')
+        plt.pause(0.001)
 
 plt.ioff()
 
