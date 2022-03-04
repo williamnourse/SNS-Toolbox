@@ -17,9 +17,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sns_toolbox.simulate.plotting import spike_raster_plot
 
-use_torch = False
+use_torch = True
 use_cpu = False
-delay = True
+delay = False
 spiking = True
 
 """Design the first Network"""

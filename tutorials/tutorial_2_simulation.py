@@ -19,7 +19,7 @@ from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch
 
 use_torch = True
 use_cpu = False
-delay = True
+delay = False
 spiking = True
 
 """Design the network"""
