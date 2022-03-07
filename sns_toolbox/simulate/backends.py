@@ -2120,9 +2120,9 @@ def SNS_Manual(network: Network, delay=True, spiking=True, **kwargs):
         if delay:
             return __SNS_Manual_Full__(network, **kwargs)
         else:
-            return __SNS_Manual_Full__(network, **kwargs)
+            return __SNS_Manual_No_Delay__(network, **kwargs)
     else:
-        return __SNS_Manual_Full__(network, **kwargs)
+        return __SNS_Manual_Non_Spiking__(network, **kwargs)
 
 class __SNS_Manual_Full__(Backend):
     def __init__(self,network: Network,**kwargs):
@@ -2233,7 +2233,7 @@ class __SNS_Manual_Full__(Backend):
             g_max = self.network.connections[syn]['params']['max_conductance']
             del_e = self.network.connections[syn]['params']['relative_reversal_potential']
 
-            if self.network.connections[syn]['params']['pattern']:  # TODO: This part is harder
+            if self.network.connections[syn]['params']['pattern']:
                 pop_size = len(self.pops_and_nrns[source_pop])
                 source_index = self.pops_and_nrns[source_pop][0]
                 dest_index = self.pops_and_nrns[dest_pop][0]
@@ -2278,7 +2278,6 @@ class __SNS_Manual_Full__(Backend):
         """
         self.time_factor_membrane = self.dt / (self.c_m/self.g_m)
         self.time_factor_threshold = self.dt / self.tau_theta
-        # self.time_factor_synapse = self.dt / self.tau_syn
 
     def __initialize_propagation_delay__(self) -> None:
         """
@@ -2385,6 +2384,251 @@ class __SNS_Manual_Full__(Backend):
                     neuron_src[4] = np.maximum(neuron_src[4], (-neuron_src[6][-1]) * neuron_src[2])  # Update the conductance of connections which spiked
             self.u[nrn] = self.u[nrn] * (self.spikes[nrn] + 1)  # Reset the membrane voltages of neurons which spiked
         self.outputs_raw = np.matmul(self.output_voltage_connectivity, self.u) + np.matmul(self.output_spike_connectivity, -self.spikes)
+
+        return self.out_cubic*(self.outputs_raw**3) + self.out_quad*(self.outputs_raw**2)\
+            + self.out_linear*self.outputs_raw + self.out_offset
+
+
+class __SNS_Manual_No_Delay__(__SNS_Manual_Full__):
+    def __init__(self,network: Network,**kwargs):
+        super().__init__(network,**kwargs)
+
+    def __set_connections__(self) -> None:
+        """
+        Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+        synapses.
+        :return: None
+        """
+        for syn in range(len(self.network.connections)):
+            source_pop = self.network.connections[syn]['source']
+            dest_pop = self.network.connections[syn]['destination']
+            g_max = self.network.connections[syn]['params']['max_conductance']
+            del_e = self.network.connections[syn]['params']['relative_reversal_potential']
+
+            if self.network.connections[syn]['params']['pattern']:
+                pop_size = len(self.pops_and_nrns[source_pop])
+                source_index = self.pops_and_nrns[source_pop][0]
+                dest_index = self.pops_and_nrns[dest_pop][0]
+                if self.network.connections[syn]['params']['spiking']:
+                    tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
+
+                    for dest in range(pop_size):
+                        for source in range(pop_size):
+                            g_syn = g_max[dest,source]
+                            rev = del_e[dest,source]
+                            time_factor_syn = self.dt/tau_s[dest,source]
+                            self.incoming_synapses[dest+dest_index].append([source+source_index, True, g_syn, rev, 0, time_factor_syn])
+                else:
+                    for dest in range(pop_size):
+                        for source in range(pop_size):
+                            g_syn = g_max[dest, source]
+                            rev = del_e[dest, source]
+
+                            self.incoming_synapses[dest + dest_index].append(
+                                [source + source_index, False, g_syn, rev, 0])
+            else:
+                if self.network.connections[syn]['params']['spiking']:
+                    tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
+                    for dest in self.pops_and_nrns[dest_pop]:
+                        for source in self.pops_and_nrns[source_pop]:
+                            g_syn = g_max / len(self.pops_and_nrns[source_pop])
+                            self.incoming_synapses[dest].append([source, True, g_syn, del_e, 0, self.dt/tau_s])
+                else:
+                    for dest in self.pops_and_nrns[dest_pop]:
+                        for source in self.pops_and_nrns[source_pop]:
+                            g_syn = g_max / len(self.pops_and_nrns[source_pop])
+                            self.incoming_synapses[dest].append([source,False,g_syn,del_e,0])
+
+    def __forward_pass__(self, inputs) -> Any:
+        self.u_last = np.copy(self.u)
+        self.theta_last = np.copy(self.theta)
+        self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
+        i_app = np.matmul(self.input_connectivity, self.inputs_mapped)  # Apply external current sources to their destinations
+        print()
+        for nrn in range(self.num_neurons):
+            i_syn = 0
+            for syn in range(len(self.incoming_synapses[nrn])):
+                neuron_src = self.incoming_synapses[nrn][syn]
+                if neuron_src[1]:  # if spiking
+                    neuron_src[4] = neuron_src[4] * (1-neuron_src[5])
+                else:
+                    neuron_src[4] = np.maximum(0, np.minimum(neuron_src[2] * self.u_last[neuron_src[0]] / self.R, neuron_src[2]))
+                i_syn += neuron_src[4] * (neuron_src[3] - self.u_last[nrn])
+            # print(i_syn)
+            self.u[nrn] = self.u_last[nrn] + self.time_factor_membrane[nrn] * (-self.g_m[nrn] * self.u_last[nrn] + self.i_b[nrn] + i_syn + i_app[nrn])  # Update membrane potential
+            self.theta[nrn] = self.theta_last[nrn] + self.time_factor_threshold[nrn] * (-self.theta_last[nrn] + self.theta_0[nrn] + self.m[nrn] * self.u_last[nrn])  # Update the firing thresholds
+            self.spikes[nrn] = np.sign(np.minimum(0, self.theta[nrn] - self.u[nrn]))  # Compute which neurons have spiked
+        for nrn in range(self.num_neurons):
+            # New stuff with delay
+            for syn in range(len(self.incoming_synapses[nrn])):
+                neuron_src = self.incoming_synapses[nrn][syn]
+                if neuron_src[1]:  # if spiking
+                    neuron_src[4] = np.maximum(neuron_src[4], (-self.spikes[neuron_src[0]]) * neuron_src[2])  # Update the conductance of connections which spiked
+            self.u[nrn] = self.u[nrn] * (self.spikes[nrn] + 1)  # Reset the membrane voltages of neurons which spiked
+        self.outputs_raw = np.matmul(self.output_voltage_connectivity, self.u) + np.matmul(self.output_spike_connectivity, -self.spikes)
+
+        return self.out_cubic*(self.outputs_raw**3) + self.out_quad*(self.outputs_raw**2)\
+            + self.out_linear*self.outputs_raw + self.out_offset
+
+
+class __SNS_Manual_Non_Spiking__(__SNS_Manual_Full__):
+    def __init__(self,network: Network,**kwargs):
+        super().__init__(network,**kwargs)
+
+    def __initialize_vectors_and_matrices__(self) -> None:
+        """
+        Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
+        following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
+        :return:    None
+        """
+        self.u = np.zeros(self.num_neurons)
+        self.u_last = np.zeros(self.num_neurons)
+        self.c_m = np.zeros(self.num_neurons)
+        self.g_m = np.zeros(self.num_neurons)
+        self.i_b = np.zeros(self.num_neurons)
+
+        self.incoming_synapses = []
+        for i in range(self.num_neurons):
+            self.incoming_synapses.append([])
+
+        self.pops_and_nrns = []
+        index = 0
+        for pop in range(len(self.network.populations)):
+            num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
+            self.pops_and_nrns.append([])
+            for num in range(num_neurons):
+                self.pops_and_nrns[pop].append(index)
+                index += 1
+
+    def __set_neurons__(self) -> None:
+        """
+        Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
+        network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
+        :return:
+        """
+        index = 0
+        for pop in range(len(self.network.populations)):
+            num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
+            initial_value = self.network.populations[pop]['initial_value']
+            for num in range(num_neurons):  # for each neuron, copy the parameters over
+                self.c_m[index] = self.network.populations[pop]['type'].params['membrane_capacitance']
+                self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
+                self.i_b[index] = self.network.populations[pop]['type'].params['bias']
+                if hasattr(initial_value, '__iter__'):
+                    self.u_last[index] = initial_value[num]
+                elif initial_value is None:
+                    self.u_last[index] = 0.0
+                else:
+                    self.u_last[index] = initial_value
+                index += 1
+        self.u = np.copy(self.u_last)
+
+    def __set_connections__(self) -> None:
+        """
+        Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+        synapses.
+        :return: None
+        """
+        for syn in range(len(self.network.connections)):
+            source_pop = self.network.connections[syn]['source']
+            dest_pop = self.network.connections[syn]['destination']
+            g_max = self.network.connections[syn]['params']['max_conductance']
+            del_e = self.network.connections[syn]['params']['relative_reversal_potential']
+
+            if self.network.connections[syn]['params']['pattern']:
+                pop_size = len(self.pops_and_nrns[source_pop])
+                source_index = self.pops_and_nrns[source_pop][0]
+                dest_index = self.pops_and_nrns[dest_pop][0]
+                for dest in range(pop_size):
+                    for source in range(pop_size):
+                        g_syn = g_max[dest, source]
+                        rev = del_e[dest, source]
+
+                        self.incoming_synapses[dest + dest_index].append(
+                            [source + source_index, False, g_syn, rev, 0])
+            else:
+                for dest in self.pops_and_nrns[dest_pop]:
+                    for source in self.pops_and_nrns[source_pop]:
+                        g_syn = g_max / len(self.pops_and_nrns[source_pop])
+                        self.incoming_synapses[dest].append([source,False,g_syn,del_e,0])
+
+    def __calculate_time_factors__(self) -> None:
+        """
+        Precompute the time factors for the membrane voltage, firing threshold, and spiking synapses.
+        :return: None
+        """
+        self.time_factor_membrane = self.dt / (self.c_m/self.g_m)
+
+    def __set_outputs__(self) -> None:
+        """
+        Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
+        output monitors for each neuron in a population.
+        :return: None
+        """
+        outputs = []
+        index = 0
+        for out in range(len(self.network.outputs)):
+            source_pop = self.network.outputs[out]['source']
+            num_source_neurons = self.network.populations[source_pop]['number']
+            outputs.append([])
+            for num in range(num_source_neurons):
+                outputs[out].append(index)
+                index += 1
+        self.num_outputs = index
+
+        self.output_voltage_connectivity = np.zeros(
+            [self.num_outputs, self.num_neurons])  # initialize connectivity matrix
+        self.out_offset = np.zeros(self.num_outputs)
+        self.out_linear = np.zeros(self.num_outputs)
+        self.out_quad = np.zeros(self.num_outputs)
+        self.out_cubic = np.zeros(self.num_outputs)
+        self.outputs_raw = np.zeros(self.num_outputs)
+        for out in range(len(self.network.outputs)):  # iterate over the connections in the network
+            source_pop = self.network.outputs[out]['source']  # get the source
+            if self.network.outputs[out]['spiking']:
+                self.out_linear[out] = 1.0
+            else:
+                self.out_offset[out] = self.network.outputs[out]['offset']
+                self.out_linear[out] = self.network.outputs[out]['linear']
+                self.out_quad[out] = self.network.outputs[out]['quadratic']
+                self.out_cubic[out] = self.network.outputs[out]['cubic']
+            for i in range(len(self.pops_and_nrns[source_pop])):
+                self.output_voltage_connectivity[outputs[out][i]][
+                    self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
+                self.out_offset[outputs[out][i]] = self.network.outputs[out]['offset']
+                self.out_linear[outputs[out][i]] = self.network.outputs[out]['linear']
+                self.out_quad[outputs[out][i]] = self.network.outputs[out]['quadratic']
+                self.out_cubic[outputs[out][i]] = self.network.outputs[out]['cubic']
+
+    def __debug_print__(self) -> None:
+        """
+        Print the values for every vector/matrix which will be used in the forward computation.
+        :return: None
+        """
+        print('Input Connectivity:')
+        print(self.input_connectivity)
+        print('Output Voltage Connectivity')
+        print(self.output_voltage_connectivity)
+        print('u:')
+        print(self.u)
+        print('u_last:')
+        print(self.u_last)
+
+    def __forward_pass__(self, inputs) -> Any:
+        self.u_last = np.copy(self.u)
+        self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
+        i_app = np.matmul(self.input_connectivity, self.inputs_mapped)  # Apply external current sources to their destinations
+        print()
+        for nrn in range(self.num_neurons):
+            i_syn = 0
+            for syn in range(len(self.incoming_synapses[nrn])):
+                neuron_src = self.incoming_synapses[nrn][syn]
+                neuron_src[4] = np.maximum(0, np.minimum(neuron_src[2] * self.u_last[neuron_src[0]] / self.R, neuron_src[2]))
+                i_syn += neuron_src[4] * (neuron_src[3] - self.u_last[nrn])
+            # print(i_syn)
+            self.u[nrn] = self.u_last[nrn] + self.time_factor_membrane[nrn] * (-self.g_m[nrn] * self.u_last[nrn] + self.i_b[nrn] + i_syn + i_app[nrn])  # Update membrane potential
+
+        self.outputs_raw = np.matmul(self.output_voltage_connectivity, self.u)
 
         return self.out_cubic*(self.outputs_raw**3) + self.out_quad*(self.outputs_raw**2)\
             + self.out_linear*self.outputs_raw + self.out_offset

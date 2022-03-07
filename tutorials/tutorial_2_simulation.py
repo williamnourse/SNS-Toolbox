@@ -21,8 +21,8 @@ manual = True
 use_torch = False
 sparse = False
 use_cpu = False
-delay = True
-spiking = True
+delay = False
+spiking = False
 
 """Design the network"""
 # Define a non-spiking neuron and excitatory/inhibitory connections as in tutorial_1

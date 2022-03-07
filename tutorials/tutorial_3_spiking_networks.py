@@ -21,7 +21,7 @@ manual = True
 sparse = False
 use_torch = True
 use_cpu = False
-delay = True
+delay = False
 spiking = True
 
 """Design the first Network"""
