@@ -15,8 +15,9 @@ import matplotlib.pyplot as plt
 import cv2 as cv
 import sys
 
+manual = True
 sparse = True
-use_torch = True
+use_torch = False
 use_cpu = False
 delay = False
 spiking = False
@@ -96,23 +97,26 @@ dt = neuron_type.params['membrane_capacitance']/neuron_type.params['membrane_con
 t_max = 15  # run for 15 ms
 steps = int(t_max/dt)   # number of steps to simulate
 
-if sparse:
-    if use_cpu:
-        device = 'cpu'
-    else:
-        device = 'cuda'
-    model = backends.SNS_Sparse(net, device=device, spiking=spiking, dt=dt, debug=False)
-    img_flat = torch.from_numpy(img_flat).to(device)
+if manual:
+    model = backends.SNS_Manual(net, delay=delay, spiking=spiking, dt=dt, debug=False)  # compile using the numpy backend
 else:
-    if use_torch:
+    if sparse:
         if use_cpu:
             device = 'cpu'
         else:
             device = 'cuda'
-        model = backends.SNS_Torch(net,device=device,spiking=spiking,dt=dt,debug=False)
+        model = backends.SNS_Sparse(net, device=device, spiking=spiking, dt=dt, debug=False)
         img_flat = torch.from_numpy(img_flat).to(device)
     else:
-        model = backends.SNS_Numpy(net,delay=delay,spiking=spiking,dt=dt,debug=False) # compile using the numpy backend
+        if use_torch:
+            if use_cpu:
+                device = 'cpu'
+            else:
+                device = 'cuda'
+            model = backends.SNS_Torch(net,device=device,spiking=spiking,dt=dt,debug=False)
+            img_flat = torch.from_numpy(img_flat).to(device)
+        else:
+            model = backends.SNS_Numpy(net,delay=delay,spiking=spiking,dt=dt,debug=False) # compile using the numpy backend
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
