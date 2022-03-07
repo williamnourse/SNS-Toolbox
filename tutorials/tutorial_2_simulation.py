@@ -15,7 +15,7 @@ from sns_toolbox.design.networks import Network
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
-from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch, SNS_Large
+from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch, SNS_Sparse
 
 use_torch = True
 sparse = True
@@ -86,7 +86,7 @@ if sparse:
 
     # Compile the network to use the Numpy CPU backend (if you want to see what's happening, set debug to true)
 
-    model = SNS_Large(net, device=device, delay=delay, spiking=spiking, dt=dt, debug=False)
+    model = SNS_Sparse(net, device=device, delay=delay, spiking=spiking, dt=dt, debug=False)
 
     """Simulate the network"""
     # At every step, apply the current input to a forward pass of the network and store the results in 'data'

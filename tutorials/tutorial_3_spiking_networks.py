@@ -11,7 +11,7 @@ from sns_toolbox.design.connections import SpikingSynapse
 from sns_toolbox.design.neurons import SpikingNeuron
 
 # Import packages and modules for simulating the network
-from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch, SNS_Large
+from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch, SNS_Sparse
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
@@ -21,7 +21,7 @@ sparse = True
 use_torch = True
 use_cpu = False
 delay = False
-spiking = True
+spiking = False
 
 """Design the first Network"""
 # Create spiking neurons with different values of 'm'
@@ -102,7 +102,7 @@ if sparse:
     # nodes in a network (since this net has populations, each
     # population has n output nodes)
     # Compile to numpy
-    model = SNS_Large(net_comb, device=device, delay=delay, spiking=spiking, dt=dt, debug=False)
+    model = SNS_Sparse(net_comb, device=device, delay=delay, spiking=spiking, dt=dt, debug=False)
 
     # Run for all steps
     for i in range(len(t)):

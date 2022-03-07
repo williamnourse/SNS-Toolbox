@@ -101,7 +101,7 @@ if sparse:
         device = 'cpu'
     else:
         device = 'cuda'
-    model = backends.SNS_Large(net, device=device, spiking=spiking, dt=dt, debug=False)
+    model = backends.SNS_Sparse(net, device=device, spiking=spiking, dt=dt, debug=False)
     img_flat = torch.from_numpy(img_flat).to(device)
 else:
     if use_torch:
