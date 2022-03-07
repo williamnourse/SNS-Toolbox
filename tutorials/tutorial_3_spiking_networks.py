@@ -11,12 +11,13 @@ from sns_toolbox.design.connections import SpikingSynapse
 from sns_toolbox.design.neurons import SpikingNeuron
 
 # Import packages and modules for simulating the network
-from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch
+from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch, SNS_Large
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from sns_toolbox.simulate.plotting import spike_raster_plot
 
+sparse = True
 use_torch = True
 use_cpu = False
 delay = False
@@ -86,39 +87,62 @@ net_comb.render_graph(view=True)
 """Simulate both networks"""
 dt = 0.01
 t_max = 10
-if use_torch:
+if sparse:
     if use_cpu:
         device = 'cpu'
     else:
         device = 'cuda'
     t = torch.arange(0, t_max, dt)
     inputs = torch.zeros(
-        [len(t), net_comb.get_num_inputs()],device=device) + 20  # getNumInputs() gets the number of input nodes in a network
+        [len(t), net_comb.get_num_inputs()],
+        device=device) + 20  # getNumInputs() gets the number of input nodes in a network
     data = torch.zeros(
-        [len(t), net_comb.get_num_outputs_actual()],device=device)  # getNumOutputsActual gets the number of accessible output
+        [len(t), net_comb.get_num_outputs_actual()],
+        device=device)  # getNumOutputsActual gets the number of accessible output
     # nodes in a network (since this net has populations, each
     # population has n output nodes)
     # Compile to numpy
-    model = SNS_Torch(net_comb, device=device, delay=delay, spiking=spiking, dt=dt, debug=False)
+    model = SNS_Large(net_comb, device=device, delay=delay, spiking=spiking, dt=dt, debug=False)
 
     # Run for all steps
     for i in range(len(t)):
         data[i, :] = model.forward(inputs[i, :])
-    data = data.transpose(0,1)
+    data = data.transpose(0, 1)
     data = data.to('cpu')
 else:
-    t = np.arange(0, t_max, dt)
-    inputs = np.zeros([len(t), net_comb.get_num_inputs()]) + 20      # getNumInputs() gets the number of input nodes in a network
-    data = np.zeros([len(t), net_comb.get_num_outputs_actual()])    # getNumOutputsActual gets the number of accessible output
-                                                                # nodes in a network (since this net has populations, each
-                                                                # population has n output nodes)
-    # Compile to numpy
-    model = SNS_Numpy(net_comb, delay=delay, spiking=spiking, dt=dt, debug=False)
+    if use_torch:
+        if use_cpu:
+            device = 'cpu'
+        else:
+            device = 'cuda'
+        t = torch.arange(0, t_max, dt)
+        inputs = torch.zeros(
+            [len(t), net_comb.get_num_inputs()],device=device) + 20  # getNumInputs() gets the number of input nodes in a network
+        data = torch.zeros(
+            [len(t), net_comb.get_num_outputs_actual()],device=device)  # getNumOutputsActual gets the number of accessible output
+        # nodes in a network (since this net has populations, each
+        # population has n output nodes)
+        # Compile to numpy
+        model = SNS_Torch(net_comb, device=device, delay=delay, spiking=spiking, dt=dt, debug=False)
 
-    # Run for all steps
-    for i in range(len(t)):
-        data[i,:] = model.forward(inputs[i,:])
-    data = data.transpose()
+        # Run for all steps
+        for i in range(len(t)):
+            data[i, :] = model.forward(inputs[i, :])
+        data = data.transpose(0,1)
+        data = data.to('cpu')
+    else:
+        t = np.arange(0, t_max, dt)
+        inputs = np.zeros([len(t), net_comb.get_num_inputs()]) + 20      # getNumInputs() gets the number of input nodes in a network
+        data = np.zeros([len(t), net_comb.get_num_outputs_actual()])    # getNumOutputsActual gets the number of accessible output
+                                                                    # nodes in a network (since this net has populations, each
+                                                                    # population has n output nodes)
+        # Compile to numpy
+        model = SNS_Numpy(net_comb, delay=delay, spiking=spiking, dt=dt, debug=False)
+
+        # Run for all steps
+        for i in range(len(t)):
+            data[i,:] = model.forward(inputs[i,:])
+        data = data.transpose()
 
 """Plotting the results"""
 # First network

@@ -15,9 +15,10 @@ from sns_toolbox.design.networks import Network
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
-from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch
+from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch, SNS_Large
 
 use_torch = True
+sparse = True
 use_cpu = False
 delay = False
 spiking = False
@@ -65,14 +66,13 @@ net.add_output('Dest2In', name='OutDest2In', color='grey')
 net.add_output('Dest3', name='OutDest3', color='grey')
 
 # View the graph of our network, to make sure everything is as we designed it
-net.render_graph(view=True)
+# net.render_graph(view=True)
 
 """Prep the Simulation"""
 # Set simulation parameters
 dt = 0.01
 t_max = 50
-
-if use_torch:
+if sparse:
     if use_cpu:
         device = 'cpu'
     else:
@@ -81,37 +81,61 @@ if use_torch:
     t = torch.arange(0, t_max, dt)
 
     # Initialize vectors which store the input to our network, and for data to be written to during simulation from outputs
-    inputs = torch.zeros([len(t), 1],device=device) + 20.0  # Input vector must be 2d, even if second dimension is 1
-    data = torch.zeros([len(t), 5],device=device)
+    inputs = torch.zeros([len(t), 1], device=device) + 20.0  # Input vector must be 2d, even if second dimension is 1
+    data = torch.zeros([len(t), 5], device=device)
 
     # Compile the network to use the Numpy CPU backend (if you want to see what's happening, set debug to true)
 
-    model = SNS_Torch(net, device=device, delay=delay, spiking=spiking, dt=dt, debug=False)
+    model = SNS_Large(net, device=device, delay=delay, spiking=spiking, dt=dt, debug=False)
 
     """Simulate the network"""
     # At every step, apply the current input to a forward pass of the network and store the results in 'data'
     for i in range(len(t)):
         data[i, :] = model.forward(inputs[i, :])
     data = data.to('cpu')
-    data = data.transpose(0,1)
+    data = data.transpose(0, 1)
     inputs = inputs.to('cpu')
 else:
-    # Initialize a vector of timesteps
-    t = np.arange(0, t_max, dt)
+    if use_torch:
+        if use_cpu:
+            device = 'cpu'
+        else:
+            device = 'cuda'
+        # Initialize a vector of timesteps
+        t = torch.arange(0, t_max, dt)
 
-    # Initialize vectors which store the input to our network, and for data to be written to during simulation from outputs
-    inputs = np.zeros([len(t),1])+20.0  # Input vector must be 2d, even if second dimension is 1
-    data = np.zeros([len(t),5])
+        # Initialize vectors which store the input to our network, and for data to be written to during simulation from outputs
+        inputs = torch.zeros([len(t), 1],device=device) + 20.0  # Input vector must be 2d, even if second dimension is 1
+        data = torch.zeros([len(t), 5],device=device)
 
-    # Compile the network to use the Numpy CPU backend (if you want to see what's happening, set debug to true)
+        # Compile the network to use the Numpy CPU backend (if you want to see what's happening, set debug to true)
 
-    model = SNS_Numpy(net, delay=delay, spiking=spiking, dt=dt, debug=False)
+        model = SNS_Torch(net, device=device, delay=delay, spiking=spiking, dt=dt, debug=False)
 
-    """Simulate the network"""
-    # At every step, apply the current input to a forward pass of the network and store the results in 'data'
-    for i in range(len(t)):
-        data[i,:] = model.forward(inputs[i,:])
-    data = data.transpose()
+        """Simulate the network"""
+        # At every step, apply the current input to a forward pass of the network and store the results in 'data'
+        for i in range(len(t)):
+            data[i, :] = model.forward(inputs[i, :])
+        data = data.to('cpu')
+        data = data.transpose(0,1)
+        inputs = inputs.to('cpu')
+    else:
+        # Initialize a vector of timesteps
+        t = np.arange(0, t_max, dt)
+
+        # Initialize vectors which store the input to our network, and for data to be written to during simulation from outputs
+        inputs = np.zeros([len(t),1])+20.0  # Input vector must be 2d, even if second dimension is 1
+        data = np.zeros([len(t),5])
+
+        # Compile the network to use the Numpy CPU backend (if you want to see what's happening, set debug to true)
+
+        model = SNS_Numpy(net, delay=delay, spiking=spiking, dt=dt, debug=False)
+
+        """Simulate the network"""
+        # At every step, apply the current input to a forward pass of the network and store the results in 'data'
+        for i in range(len(t)):
+            data[i,:] = model.forward(inputs[i,:])
+        data = data.transpose()
 
 """Plot the data"""
 # First section
