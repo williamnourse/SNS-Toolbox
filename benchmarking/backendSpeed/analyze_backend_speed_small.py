@@ -10,8 +10,8 @@ import numpy as np
 import pickle
 
 # this can be found inside 'backendSpeedData.zip'
-data = pickle.load(open('dataBackendTimesLessPts.p', 'rb'))
-numNeurons = data['shape']
+data = pickle.load(open('backendSpeedData/dataBackendTimesLessPts.p', 'rb'))
+numNeurons = data['numNeurons']
 
 npRawTimes = data['numpy']
 npAvgTimes = np.mean(npRawTimes,axis=1)*1000

@@ -8,12 +8,12 @@ from sns_toolbox.design.connections import NonSpikingSynapse
 
 from sns_toolbox.simulate import backends
 
-backend = 2 # 0: manual
+backend = 3 # 0: manual
             # 1: Numpy
             # 2: Torch
             # 3: Sparse
-cpu = False
-variant = 1 # 0: full model
+cpu = True
+variant = 0 # 0: full model
             # 1: No delay
             # 2: non-spiking
 
@@ -105,4 +105,20 @@ def main_loop(start_size,max_size,backend,cpu,variant):
     else:
         print('All Done. Largest Network Size is %i neurons. %i elapsed sec'%(max_size,time.time()-start_time))
 
-main_loop(start_size,theoretical_max,backend,cpu,variant)
+def main_loop_increment(start_size,max_size,backend,cpu,variant):
+    size = start_size
+    failed = False
+    while (not failed) and (size < max_size):
+        print(size)
+        try:
+            process(size,backend,cpu,variant)
+        except:
+            failed = True
+        size += 500
+    if failed:
+        print('All Done. Largest Network Size is %i neurons. %i elapsed sec'%(size-500,time.time()-start_time))
+    else:
+        print('All Done. Largest Network Size is %i neurons. %i elapsed sec'%(max_size,time.time()-start_time))
+
+#main_loop(start_size,theoretical_max,backend,cpu,variant)
+main_loop_increment(start_size,theoretical_max,backend,cpu,variant)
