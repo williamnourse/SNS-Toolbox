@@ -15,9 +15,9 @@ import matplotlib.pyplot as plt
 import cv2 as cv
 import sys
 
-manual = True
-sparse = True
-use_torch = False
+manual = False
+sparse = False
+use_torch = True
 use_cpu = False
 delay = False
 spiking = False
@@ -26,14 +26,14 @@ spiking = False
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IMAGE PREPROCESSING
 """
-img = cv.imread('/home/will/sample_images/cameraman.png')   # load image file
+img = cv.imread('/home/will/Pictures/sample_images/cameraman.png')   # load image file
 
 if img is None:
     sys.exit('Could not find image')    # if image doesn't exist, exit
 
 shape_original = img.shape  # dimensions of the original image
 dim_long = max(shape_original[0],shape_original[1]) # longest dimension of the original image
-dim_desired_max = 32    # constrain the longest dimension for easier processing
+dim_desired_max = 64    # constrain the longest dimension for easier processing
 ratio = dim_desired_max/dim_long    # scaling ratio of original image
 img_resized = cv.resize(img,None,fx=ratio,fy=ratio) # scale original image using ratio
 
@@ -57,7 +57,7 @@ NETWORK CONSTRUCTION
 # General network
 R = 20.0    # range of network activity (mV)
 neuron_type = NonSpikingNeuron()    # generic neuron type
-net = Network(name='Tutorial 6 Network')    # create an empty network
+net = Network(name='Visual Network')    # create an empty network
 
 # Retina
 net.add_population(neuron_type,shape,name='Retina') # add a 2d population the same size as the scaled image
@@ -71,7 +71,7 @@ net.add_population(neuron_type,shape,name='Lamina')
 del_e_ex = 160.0    # excitatory reversal potential
 del_e_in = -80.0    # inhibitory reversal potential
 k_ex = 1.0  # excitatory gain
-k_in = -1.0/8.0 # inhibitory gain
+k_in = -1.0/9.0 # inhibitory gain
 g_max_ex = (k_ex*R)/(del_e_ex-k_ex*R)   # calculate excitatory conductance
 g_max_in = (k_in*R)/(del_e_in-k_in*R)   # calculate inhibitory conductance
 
@@ -81,7 +81,10 @@ g_max_kernel = np.array([[g_max_in, g_max_in, g_max_in],    # kernel matrix of s
 del_e_kernel = np.array([[del_e_in, del_e_in, del_e_in],    # kernel matrix of synaptic reversal potentials
                          [del_e_in, del_e_ex, del_e_in],
                          [del_e_in, del_e_in, del_e_in]])
-connection_hpf = NonSpikingPatternConnection(g_max_kernel,del_e_kernel) # pattern connection (acts as high pass filter)
+del_e_kernel_inv = np.array([[del_e_ex, del_e_ex, del_e_ex],    # kernel matrix of synaptic reversal potentials
+                         [del_e_ex, del_e_in, del_e_ex],
+                         [del_e_ex, del_e_ex, del_e_ex]])
+connection_hpf = NonSpikingPatternConnection(g_max_kernel,del_e_kernel_inv) # pattern connection (acts as high pass filter)
 net.add_connection(connection_hpf,'Retina','Lamina',name='HPF') # connect the retina to the lamina
 net.add_output('Lamina',linear=255/R,name='Lamina Output')  # add a vector output from the lamina
 
