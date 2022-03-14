@@ -18,7 +18,7 @@ def build_full_spiking_net(num_neurons,dt):
     neuron_type = SpikingNeuron(bias=20.0)
     synapse_type = SpikingSynapse(transmission_delay=5)
 
-    net.add_population(neuron_type, shape=num_neurons)
+    net.add_population(neuron_type, shape=[num_neurons])
     net.add_connection(synapse_type, 0, 0)
     num_inputs = max(1,int(0.1*num_neurons))
     for i in range(num_inputs):
@@ -36,7 +36,7 @@ def build_full_no_delay_net(num_neurons,dt):
     neuron_type = SpikingNeuron(bias=20.0)
     synapse_type = SpikingSynapse()
 
-    net.add_population(neuron_type, shape=num_neurons)
+    net.add_population(neuron_type, shape=[num_neurons])
     net.add_connection(synapse_type, 0, 0)
     num_inputs = max(1, int(0.1 * num_neurons))
     for i in range(num_inputs):
@@ -54,7 +54,7 @@ def build_full_non_spiking_net(num_neurons,dt):
     neuron_type = NonSpikingNeuron(bias=20.0)
     synapse_type = NonSpikingSynapse()
 
-    net.add_population(neuron_type, shape=num_neurons)
+    net.add_population(neuron_type, shape=[num_neurons])
     net.add_connection(synapse_type, 0, 0)
     num_inputs = max(1, int(0.1 * num_neurons))
     for i in range(num_inputs):
@@ -85,11 +85,11 @@ def build_realistic_spiking_net(num_neurons,dt):
             net.add_input(i)
 
     # Synaptic population
-    net.add_population(neuron_type,num_connected,name='Pop')
+    net.add_population(neuron_type,[num_connected],name='Pop')
     net.add_connection(synapse_type, 'Pop', 'Pop')
 
     # Rest of the neurons
-    net.add_population(neuron_type,num_rest)
+    net.add_population(neuron_type,[num_rest])
 
     model = __SNS_Numpy_Full__(net, dt=dt)
 
@@ -114,11 +114,11 @@ def build_realistic_no_delay_net(num_neurons,dt):
             net.add_input(i)
 
     # Synaptic population
-    net.add_population(neuron_type,num_connected,name='Pop')
+    net.add_population(neuron_type,[num_connected],name='Pop')
     net.add_connection(synapse_type, 'Pop', 'Pop')
 
     # Rest of the neurons
-    net.add_population(neuron_type,num_rest)
+    net.add_population(neuron_type,[num_rest])
 
     model = __SNS_Numpy_No_Delay__(net, dt=dt)
 
@@ -143,11 +143,11 @@ def build_realistic_non_spiking_net(num_neurons,dt):
             net.add_input(i)
 
     # Synaptic population
-    net.add_population(neuron_type, num_connected, name='Pop')
+    net.add_population(neuron_type, [num_connected], name='Pop')
     net.add_connection(synapse_type, 'Pop', 'Pop')
 
     # Rest of the neurons
-    net.add_population(neuron_type, num_rest)
+    net.add_population(neuron_type, [num_rest])
 
     model = __SNS_Numpy_Non_Spiking__(net, dt=dt)
 
@@ -157,7 +157,7 @@ def build_realistic_non_spiking_net(num_neurons,dt):
 Simulate the networks
 """
 dt = 0.01
-num_steps = 1000
+num_steps = 100
 num_samples = 50
 num_neurons = np.logspace(1,4,num=num_samples)
 num_neurons = num_neurons.astype(int)
