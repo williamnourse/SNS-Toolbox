@@ -8,7 +8,7 @@ from sns_toolbox.design.connections import SpikingSynapse
 
 from sns_toolbox.simulate import backends
 
-backend = 1 # 0: manual
+backend = 2 # 0: manual
             # 1: Numpy
             # 2: Torch
             # 3: Sparse
