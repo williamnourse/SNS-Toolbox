@@ -303,18 +303,18 @@ class __SNS_Numpy_Full__(Backend):
         :return:    None
         """
         self.input_connectivity = np.zeros([self.num_neurons, self.network.get_num_inputs_actual()])  # initialize connectivity matrix
-        self.in_offset = np.zeros(self.network.get_num_inputs_actual())
-        self.in_linear = np.zeros(self.network.get_num_inputs_actual())
-        self.in_quad = np.zeros(self.network.get_num_inputs_actual())
-        self.in_cubic = np.zeros(self.network.get_num_inputs_actual())
-        self.inputs_mapped = np.zeros(self.network.get_num_inputs_actual())
+        # self.in_offset = np.zeros(self.network.get_num_inputs_actual())
+        # self.in_linear = np.zeros(self.network.get_num_inputs_actual())
+        # self.in_quad = np.zeros(self.network.get_num_inputs_actual())
+        # self.in_cubic = np.zeros(self.network.get_num_inputs_actual())
+        # self.inputs_mapped = np.zeros(self.network.get_num_inputs_actual())
         index = 0
         for inp in range(self.network.get_num_inputs()):  # iterate over the connections in the network
             size = self.network.inputs[inp]['size']
-            self.in_offset[index:index+size] = self.network.inputs[inp]['offset']
-            self.in_linear[index:index+size] = self.network.inputs[inp]['linear']
-            self.in_quad[index:index+size] = self.network.inputs[inp]['quadratic']
-            self.in_cubic[index:index+size] = self.network.inputs[inp]['cubic']
+            # self.in_offset[index:index+size] = self.network.inputs[inp]['offset']
+            # self.in_linear[index:index+size] = self.network.inputs[inp]['linear']
+            # self.in_quad[index:index+size] = self.network.inputs[inp]['quadratic']
+            # self.in_cubic[index:index+size] = self.network.inputs[inp]['cubic']
             dest_pop = self.network.inputs[inp]['destination']  # get the destination
             if size == 1:
                 for dest in self.pops_and_nrns[dest_pop]:
@@ -415,32 +415,32 @@ class __SNS_Numpy_Full__(Backend):
         self.output_voltage_connectivity = np.zeros(
             [self.num_outputs, self.num_neurons])  # initialize connectivity matrix
         self.output_spike_connectivity = np.copy(self.output_voltage_connectivity)
-        self.out_offset = np.zeros(self.num_outputs)
-        self.out_linear = np.zeros(self.num_outputs)
-        self.out_quad = np.zeros(self.num_outputs)
-        self.out_cubic = np.zeros(self.num_outputs)
-        self.outputs_raw = np.zeros(self.num_outputs)
+        # self.out_offset = np.zeros(self.num_outputs)
+        # self.out_linear = np.zeros(self.num_outputs)
+        # self.out_quad = np.zeros(self.num_outputs)
+        # self.out_cubic = np.zeros(self.num_outputs)
+        self.outputs = np.zeros(self.num_outputs)
         for out in range(len(self.network.outputs)):  # iterate over the connections in the network
             source_pop = self.network.outputs[out]['source']  # get the source
-            if self.network.outputs[out]['spiking']:
-                self.out_linear[out] = 1.0
-            else:
-                self.out_offset[out] = self.network.outputs[out]['offset']
-                self.out_linear[out] = self.network.outputs[out]['linear']
-                self.out_quad[out] = self.network.outputs[out]['quadratic']
-                self.out_cubic[out] = self.network.outputs[out]['cubic']
+            # if self.network.outputs[out]['spiking']:
+            #     self.out_linear[out] = 1.0
+            # else:
+            #     self.out_offset[out] = self.network.outputs[out]['offset']
+            #     self.out_linear[out] = self.network.outputs[out]['linear']
+            #     self.out_quad[out] = self.network.outputs[out]['quadratic']
+            #     self.out_cubic[out] = self.network.outputs[out]['cubic']
             for i in range(len(self.pops_and_nrns[source_pop])):
                 if self.network.outputs[out]['spiking']:
                     self.output_spike_connectivity[outputs[out][i]][
                         self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
-                    self.out_linear[outputs[out][i]] = 1.0
+                    # self.out_linear[outputs[out][i]] = 1.0
                 else:
                     self.output_voltage_connectivity[outputs[out][i]][
                         self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
-                    self.out_offset[outputs[out][i]] = self.network.outputs[out]['offset']
-                    self.out_linear[outputs[out][i]] = self.network.outputs[out]['linear']
-                    self.out_quad[outputs[out][i]] = self.network.outputs[out]['quadratic']
-                    self.out_cubic[outputs[out][i]] = self.network.outputs[out]['cubic']
+                    # self.out_offset[outputs[out][i]] = self.network.outputs[out]['offset']
+                    # self.out_linear[outputs[out][i]] = self.network.outputs[out]['linear']
+                    # self.out_quad[outputs[out][i]] = self.network.outputs[out]['quadratic']
+                    # self.out_cubic[outputs[out][i]] = self.network.outputs[out]['cubic']
 
     def __debug_print__(self) -> None:
         """
@@ -473,8 +473,8 @@ class __SNS_Numpy_Full__(Backend):
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = np.copy(self.u)
         self.theta_last = np.copy(self.theta)
-        self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
-        i_app = np.matmul(self.input_connectivity, self.inputs_mapped)  # Apply external current sources to their destinations
+        # self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
+        i_app = np.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
         g_non = np.maximum(0, np.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non))
         self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
         g_syn = g_non + self.g_spike
@@ -491,10 +491,9 @@ class __SNS_Numpy_Full__(Backend):
 
         self.g_spike = np.maximum(self.g_spike, (-self.delayed_spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
         self.u = self.u * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
-        self.outputs_raw = np.matmul(self.output_voltage_connectivity, self.u) + np.matmul(self.output_spike_connectivity, -self.spikes)
+        self.outputs = np.matmul(self.output_voltage_connectivity, self.u) + np.matmul(self.output_spike_connectivity, -self.spikes)
 
-        return self.out_cubic*(self.outputs_raw**3) + self.out_quad*(self.outputs_raw**2)\
-            + self.out_linear*self.outputs_raw + self.out_offset
+        return self.outputs
 
 class __SNS_Numpy_No_Delay__(__SNS_Numpy_Full__):
     def __init__(self, network: Network, **kwargs):
@@ -585,10 +584,10 @@ class __SNS_Numpy_No_Delay__(__SNS_Numpy_Full__):
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = np.copy(self.u)
         self.theta_last = np.copy(self.theta)
-        self.inputs_mapped = self.in_cubic * (inputs ** 3) + self.in_quad * (
-                    inputs ** 2) + self.in_linear * inputs + self.in_offset
+        # self.inputs_mapped = self.in_cubic * (inputs ** 3) + self.in_quad * (
+        #             inputs ** 2) + self.in_linear * inputs + self.in_offset
         i_app = np.matmul(self.input_connectivity,
-                          self.inputs_mapped)  # Apply external current sources to their destinations
+                          inputs)  # Apply external current sources to their destinations
         g_non = np.maximum(0, np.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non))
         self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
         g_syn = g_non + self.g_spike
@@ -602,11 +601,10 @@ class __SNS_Numpy_No_Delay__(__SNS_Numpy_Full__):
         self.g_spike = np.maximum(self.g_spike, (
             -self.spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
         self.u = self.u * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
-        self.outputs_raw = np.matmul(self.output_voltage_connectivity, self.u) + np.matmul(
+        self.outputs = np.matmul(self.output_voltage_connectivity, self.u) + np.matmul(
             self.output_spike_connectivity, -self.spikes)
 
-        return self.out_cubic * (self.outputs_raw ** 3) + self.out_quad * (self.outputs_raw ** 2) \
-               + self.out_linear * self.outputs_raw + self.out_offset
+        return self.outputs
 
 class __SNS_Numpy_Non_Spiking__(__SNS_Numpy_Full__):
     def __init__(self, network: Network, **kwargs):
@@ -718,24 +716,24 @@ class __SNS_Numpy_Non_Spiking__(__SNS_Numpy_Full__):
 
         self.output_voltage_connectivity = np.zeros(
             [self.num_outputs, self.num_neurons])  # initialize connectivity matrix
-        self.out_offset = np.zeros(self.num_outputs)
-        self.out_linear = np.zeros(self.num_outputs)
-        self.out_quad = np.zeros(self.num_outputs)
-        self.out_cubic = np.zeros(self.num_outputs)
-        self.outputs_raw = np.zeros(self.num_outputs)
+        # self.out_offset = np.zeros(self.num_outputs)
+        # self.out_linear = np.zeros(self.num_outputs)
+        # self.out_quad = np.zeros(self.num_outputs)
+        # self.out_cubic = np.zeros(self.num_outputs)
+        self.outputs = np.zeros(self.num_outputs)
         for out in range(len(self.network.outputs)):  # iterate over the connections in the network
             source_pop = self.network.outputs[out]['source']  # get the source
-            self.out_offset[out] = self.network.outputs[out]['offset']
-            self.out_linear[out] = self.network.outputs[out]['linear']
-            self.out_quad[out] = self.network.outputs[out]['quadratic']
-            self.out_cubic[out] = self.network.outputs[out]['cubic']
+            # self.out_offset[out] = self.network.outputs[out]['offset']
+            # self.out_linear[out] = self.network.outputs[out]['linear']
+            # self.out_quad[out] = self.network.outputs[out]['quadratic']
+            # self.out_cubic[out] = self.network.outputs[out]['cubic']
             for i in range(len(self.pops_and_nrns[source_pop])):
                 self.output_voltage_connectivity[outputs[out][i]][
                     self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
-                self.out_offset[outputs[out][i]] = self.network.outputs[out]['offset']
-                self.out_linear[outputs[out][i]] = self.network.outputs[out]['linear']
-                self.out_quad[outputs[out][i]] = self.network.outputs[out]['quadratic']
-                self.out_cubic[outputs[out][i]] = self.network.outputs[out]['cubic']
+                # self.out_offset[outputs[out][i]] = self.network.outputs[out]['offset']
+                # self.out_linear[outputs[out][i]] = self.network.outputs[out]['linear']
+                # self.out_quad[outputs[out][i]] = self.network.outputs[out]['quadratic']
+                # self.out_cubic[outputs[out][i]] = self.network.outputs[out]['cubic']
 
     def __debug_print__(self) -> None:
         """
@@ -757,19 +755,18 @@ class __SNS_Numpy_Non_Spiking__(__SNS_Numpy_Full__):
 
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = np.copy(self.u)
-        self.inputs_mapped = self.in_cubic * (inputs ** 3) + self.in_quad * (
-                    inputs ** 2) + self.in_linear * inputs + self.in_offset
+        # self.inputs_mapped = self.in_cubic * (inputs ** 3) + self.in_quad * (
+        #             inputs ** 2) + self.in_linear * inputs + self.in_offset
         i_app = np.matmul(self.input_connectivity,
-                          self.inputs_mapped)  # Apply external current sources to their destinations
+                          inputs)  # Apply external current sources to their destinations
         g_syn = np.maximum(0, np.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non))
         i_syn = np.sum(g_syn * self.del_e, axis=1) - self.u_last * np.sum(g_syn, axis=1)
         self.u = self.u_last + self.time_factor_membrane * (
                     -self.g_m * self.u_last + self.i_b + i_syn + i_app)  # Update membrane potential
 
-        self.outputs_raw = np.matmul(self.output_voltage_connectivity, self.u)
+        self.outputs = np.matmul(self.output_voltage_connectivity, self.u)
 
-        return self.out_cubic * (self.outputs_raw ** 3) + self.out_quad * (self.outputs_raw ** 2) \
-               + self.out_linear * self.outputs_raw + self.out_offset
+        return self.outputs
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -876,18 +873,18 @@ class __SNS_Torch_Full__(Backend):
         :return:    None
         """
         self.input_connectivity = torch.zeros([self.num_neurons, self.network.get_num_inputs_actual()],device=self.device)  # initialize connectivity matrix
-        self.in_offset = torch.zeros(self.network.get_num_inputs_actual(),device=self.device)
-        self.in_linear = torch.zeros(self.network.get_num_inputs_actual(),device=self.device)
-        self.in_quad = torch.zeros(self.network.get_num_inputs_actual(),device=self.device)
-        self.in_cubic = torch.zeros(self.network.get_num_inputs_actual(),device=self.device)
-        self.inputs_mapped = torch.zeros(self.network.get_num_inputs_actual(),device=self.device)
+        # self.in_offset = torch.zeros(self.network.get_num_inputs_actual(),device=self.device)
+        # self.in_linear = torch.zeros(self.network.get_num_inputs_actual(),device=self.device)
+        # self.in_quad = torch.zeros(self.network.get_num_inputs_actual(),device=self.device)
+        # self.in_cubic = torch.zeros(self.network.get_num_inputs_actual(),device=self.device)
+        # self.inputs_mapped = torch.zeros(self.network.get_num_inputs_actual(),device=self.device)
         index = 0
         for inp in range(self.network.get_num_inputs()):  # iterate over the connections in the network
             size = self.network.inputs[inp]['size']
-            self.in_offset[index:index+size] = self.network.inputs[inp]['offset']
-            self.in_linear[index:index+size] = self.network.inputs[inp]['linear']
-            self.in_quad[index:index+size] = self.network.inputs[inp]['quadratic']
-            self.in_cubic[index:index+size] = self.network.inputs[inp]['cubic']
+            # self.in_offset[index:index+size] = self.network.inputs[inp]['offset']
+            # self.in_linear[index:index+size] = self.network.inputs[inp]['linear']
+            # self.in_quad[index:index+size] = self.network.inputs[inp]['quadratic']
+            # self.in_cubic[index:index+size] = self.network.inputs[inp]['cubic']
             dest_pop = self.network.inputs[inp]['destination']  # get the destination
             if size == 1:
                 for dest in self.pops_and_nrns[dest_pop]:
@@ -989,32 +986,32 @@ class __SNS_Torch_Full__(Backend):
         self.output_voltage_connectivity = torch.zeros(
             [self.num_outputs, self.num_neurons],device=self.device)  # initialize connectivity matrix
         self.output_spike_connectivity = torch.clone(self.output_voltage_connectivity)
-        self.out_offset = torch.zeros(self.num_outputs,device=self.device)
-        self.out_linear = torch.zeros(self.num_outputs,device=self.device)
-        self.out_quad = torch.zeros(self.num_outputs,device=self.device)
-        self.out_cubic = torch.zeros(self.num_outputs,device=self.device)
-        self.outputs_raw = torch.zeros(self.num_outputs,device=self.device)
+        # self.out_offset = torch.zeros(self.num_outputs,device=self.device)
+        # self.out_linear = torch.zeros(self.num_outputs,device=self.device)
+        # self.out_quad = torch.zeros(self.num_outputs,device=self.device)
+        # self.out_cubic = torch.zeros(self.num_outputs,device=self.device)
+        self.outputs = torch.zeros(self.num_outputs, device=self.device)
         for out in range(len(self.network.outputs)):  # iterate over the connections in the network
             source_pop = self.network.outputs[out]['source']  # get the source
-            if self.network.outputs[out]['spiking']:
-                self.out_linear[out] = 1.0
-            else:
-                self.out_offset[out] = self.network.outputs[out]['offset']
-                self.out_linear[out] = self.network.outputs[out]['linear']
-                self.out_quad[out] = self.network.outputs[out]['quadratic']
-                self.out_cubic[out] = self.network.outputs[out]['cubic']
+            # if self.network.outputs[out]['spiking']:
+            #     self.out_linear[out] = 1.0
+            # else:
+            #     self.out_offset[out] = self.network.outputs[out]['offset']
+            #     self.out_linear[out] = self.network.outputs[out]['linear']
+            #     self.out_quad[out] = self.network.outputs[out]['quadratic']
+            #     self.out_cubic[out] = self.network.outputs[out]['cubic']
             for i in range(len(self.pops_and_nrns[source_pop])):
                 if self.network.outputs[out]['spiking']:
                     self.output_spike_connectivity[outputs[out][i]][
                         self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
-                    self.out_linear[outputs[out][i]] = 1.0
+                    # self.out_linear[outputs[out][i]] = 1.0
                 else:
                     self.output_voltage_connectivity[outputs[out][i]][
                         self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
-                    self.out_offset[outputs[out][i]] = self.network.outputs[out]['offset']
-                    self.out_linear[outputs[out][i]] = self.network.outputs[out]['linear']
-                    self.out_quad[outputs[out][i]] = self.network.outputs[out]['quadratic']
-                    self.out_cubic[outputs[out][i]] = self.network.outputs[out]['cubic']
+                    # self.out_offset[outputs[out][i]] = self.network.outputs[out]['offset']
+                    # self.out_linear[outputs[out][i]] = self.network.outputs[out]['linear']
+                    # self.out_quad[outputs[out][i]] = self.network.outputs[out]['quadratic']
+                    # self.out_cubic[outputs[out][i]] = self.network.outputs[out]['cubic']
 
     def __debug_print__(self) -> None:
         """
@@ -1047,8 +1044,8 @@ class __SNS_Torch_Full__(Backend):
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = torch.clone(self.u)
         self.theta_last = torch.clone(self.theta)
-        self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
-        i_app = torch.matmul(self.input_connectivity, self.inputs_mapped)  # Apply external current sources to their destinations
+        # self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
+        i_app = torch.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
         g_non = torch.clamp(torch.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non),min=0)
         self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
         g_syn = g_non + self.g_spike
@@ -1065,10 +1062,9 @@ class __SNS_Torch_Full__(Backend):
 
         self.g_spike = torch.maximum(self.g_spike, (-self.delayed_spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
         self.u = self.u * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
-        self.outputs_raw = torch.matmul(self.output_voltage_connectivity, self.u) + torch.matmul(self.output_spike_connectivity, -self.spikes)
+        self.outputs = torch.matmul(self.output_voltage_connectivity, self.u) + torch.matmul(self.output_spike_connectivity, -self.spikes)
 
-        return self.out_cubic*(self.outputs_raw**3) + self.out_quad*(self.outputs_raw**2)\
-            + self.out_linear*self.outputs_raw + self.out_offset
+        return self.outputs
 
 
 class __SNS_Torch_No_Delay__(__SNS_Torch_Full__):
@@ -1158,8 +1154,8 @@ class __SNS_Torch_No_Delay__(__SNS_Torch_Full__):
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = torch.clone(self.u)
         self.theta_last = torch.clone(self.theta)
-        self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
-        i_app = torch.matmul(self.input_connectivity, self.inputs_mapped)  # Apply external current sources to their destinations
+        # self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
+        i_app = torch.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
         g_non = torch.clamp(torch.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non),min=0)
         self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
         g_syn = g_non + self.g_spike
@@ -1170,10 +1166,9 @@ class __SNS_Torch_No_Delay__(__SNS_Torch_Full__):
 
         self.g_spike = torch.maximum(self.g_spike, (-self.spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
         self.u = self.u * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
-        self.outputs_raw = torch.matmul(self.output_voltage_connectivity, self.u) + torch.matmul(self.output_spike_connectivity, -self.spikes)
+        self.outputs = torch.matmul(self.output_voltage_connectivity, self.u) + torch.matmul(self.output_spike_connectivity, -self.spikes)
 
-        return self.out_cubic*(self.outputs_raw**3) + self.out_quad*(self.outputs_raw**2)\
-            + self.out_linear*self.outputs_raw + self.out_offset
+        return self.outputs
 
 class __SNS_Torch_Non_Spiking__(__SNS_Torch_Full__):
     def __init__(self,network: Network,device: str = 'cuda',**kwargs):
@@ -1284,27 +1279,20 @@ class __SNS_Torch_Non_Spiking__(__SNS_Torch_Full__):
 
         self.output_voltage_connectivity = torch.zeros(
             [self.num_outputs, self.num_neurons],device=self.device)  # initialize connectivity matrix
-        self.out_offset = torch.zeros(self.num_outputs,device=self.device)
-        self.out_linear = torch.zeros(self.num_outputs,device=self.device)
-        self.out_quad = torch.zeros(self.num_outputs,device=self.device)
-        self.out_cubic = torch.zeros(self.num_outputs,device=self.device)
-        self.outputs_raw = torch.zeros(self.num_outputs,device=self.device)
+        # self.out_offset = torch.zeros(self.num_outputs,device=self.device)
+        # self.out_linear = torch.zeros(self.num_outputs,device=self.device)
+        # self.out_quad = torch.zeros(self.num_outputs,device=self.device)
+        # self.out_cubic = torch.zeros(self.num_outputs,device=self.device)
+        self.outputs = torch.zeros(self.num_outputs, device=self.device)
         for out in range(len(self.network.outputs)):  # iterate over the connections in the network
             source_pop = self.network.outputs[out]['source']  # get the source
-            if self.network.outputs[out]['spiking']:
-                self.out_linear[out] = 1.0
-            else:
-                self.out_offset[out] = self.network.outputs[out]['offset']
-                self.out_linear[out] = self.network.outputs[out]['linear']
-                self.out_quad[out] = self.network.outputs[out]['quadratic']
-                self.out_cubic[out] = self.network.outputs[out]['cubic']
             for i in range(len(self.pops_and_nrns[source_pop])):
                 self.output_voltage_connectivity[outputs[out][i]][
                     self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
-                self.out_offset[outputs[out][i]] = self.network.outputs[out]['offset']
-                self.out_linear[outputs[out][i]] = self.network.outputs[out]['linear']
-                self.out_quad[outputs[out][i]] = self.network.outputs[out]['quadratic']
-                self.out_cubic[outputs[out][i]] = self.network.outputs[out]['cubic']
+                # self.out_offset[outputs[out][i]] = self.network.outputs[out]['offset']
+                # self.out_linear[outputs[out][i]] = self.network.outputs[out]['linear']
+                # self.out_quad[outputs[out][i]] = self.network.outputs[out]['quadratic']
+                # self.out_cubic[outputs[out][i]] = self.network.outputs[out]['cubic']
 
     def __debug_print__(self) -> None:
         """
@@ -1326,16 +1314,15 @@ class __SNS_Torch_Non_Spiking__(__SNS_Torch_Full__):
 
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = torch.clone(self.u)
-        self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
-        i_app = torch.matmul(self.input_connectivity, self.inputs_mapped)  # Apply external current sources to their destinations
+        # self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
+        i_app = torch.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
         g_syn = torch.clamp(torch.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non),min=0)
         i_syn = torch.sum(g_syn * self.del_e, 1) - self.u_last * torch.sum(g_syn, 1)
         self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + self.i_b + i_syn + i_app)  # Update membrane potential
 
-        self.outputs_raw = torch.matmul(self.output_voltage_connectivity, self.u)
+        self.outputs = torch.matmul(self.output_voltage_connectivity, self.u)
 
-        return self.out_cubic*(self.outputs_raw**3) + self.out_quad*(self.outputs_raw**2)\
-            + self.out_linear*self.outputs_raw + self.out_offset
+        return self.outputs
 
 """
 ########################################################################################################################
@@ -1451,30 +1438,30 @@ class __SNS_Sparse_Full__(Backend):
         :return:    None
         """
         self.input_connectivity = torch.sparse_coo_tensor(size=(self.num_neurons, self.network.get_num_inputs_actual()),device=self.device)  # initialize connectivity matrix
-        self.in_offset = torch.sparse_coo_tensor(size=(1,self.network.get_num_inputs_actual()),device=self.device)
-        self.in_linear = torch.sparse_coo_tensor(size=(1,self.network.get_num_inputs_actual()),device=self.device)
-        self.in_quad = torch.sparse_coo_tensor(size=(1,self.network.get_num_inputs_actual()),device=self.device)
-        self.in_cubic = torch.sparse_coo_tensor(size=(1,self.network.get_num_inputs_actual()),device=self.device)
-        self.inputs_mapped = torch.sparse_coo_tensor(size=(1,self.network.get_num_inputs_actual()),device=self.device)
+        # self.in_offset = torch.sparse_coo_tensor(size=(1,self.network.get_num_inputs_actual()),device=self.device)
+        # self.in_linear = torch.sparse_coo_tensor(size=(1,self.network.get_num_inputs_actual()),device=self.device)
+        # self.in_quad = torch.sparse_coo_tensor(size=(1,self.network.get_num_inputs_actual()),device=self.device)
+        # self.in_cubic = torch.sparse_coo_tensor(size=(1,self.network.get_num_inputs_actual()),device=self.device)
+        # self.inputs_mapped = torch.sparse_coo_tensor(size=(1,self.network.get_num_inputs_actual()),device=self.device)
         index = 0
         for inp in range(self.network.get_num_inputs()):  # iterate over the connections in the network
             size = self.network.inputs[inp]['size']
 
-            self.in_offset = self.in_offset.to_dense()
-            self.in_offset[0,index:index+size] = self.network.inputs[inp]['offset']
-            self.in_offset = self.in_offset.to_sparse()
-
-            self.in_linear = self.in_linear.to_dense()
-            self.in_linear[0,index:index+size] = self.network.inputs[inp]['linear']
-            self.in_linear = self.in_linear.to_sparse()
-
-            self.in_quad = self.in_quad.to_dense()
-            self.in_quad[0,index:index+size] = self.network.inputs[inp]['quadratic']
-            self.in_quad = self.in_quad.to_sparse()
-
-            self.in_cubic = self.in_cubic.to_dense()
-            self.in_cubic[0,index:index+size] = self.network.inputs[inp]['cubic']
-            self.in_cubic = self.in_cubic.to_sparse()
+            # self.in_offset = self.in_offset.to_dense()
+            # self.in_offset[0,index:index+size] = self.network.inputs[inp]['offset']
+            # self.in_offset = self.in_offset.to_sparse()
+            #
+            # self.in_linear = self.in_linear.to_dense()
+            # self.in_linear[0,index:index+size] = self.network.inputs[inp]['linear']
+            # self.in_linear = self.in_linear.to_sparse()
+            #
+            # self.in_quad = self.in_quad.to_dense()
+            # self.in_quad[0,index:index+size] = self.network.inputs[inp]['quadratic']
+            # self.in_quad = self.in_quad.to_sparse()
+            #
+            # self.in_cubic = self.in_cubic.to_dense()
+            # self.in_cubic[0,index:index+size] = self.network.inputs[inp]['cubic']
+            # self.in_cubic = self.in_cubic.to_sparse()
 
             dest_pop = self.network.inputs[inp]['destination']  # get the destination
 
@@ -1612,34 +1599,34 @@ class __SNS_Sparse_Full__(Backend):
 
         self.output_voltage_connectivity = torch.sparse_coo_tensor(size=(self.num_outputs, self.num_neurons),device=self.device)  # initialize connectivity matrix
         self.output_spike_connectivity = torch.clone(self.output_voltage_connectivity)
-        self.out_offset = torch.sparse_coo_tensor(size=(1,self.num_outputs),device=self.device)
-        self.out_linear = torch.sparse_coo_tensor(size=(1,self.num_outputs),device=self.device)
-        self.out_quad = torch.sparse_coo_tensor(size=(1,self.num_outputs),device=self.device)
-        self.out_cubic = torch.sparse_coo_tensor(size=(1,self.num_outputs),device=self.device)
-        self.outputs_raw = torch.sparse_coo_tensor(size=(1,self.num_outputs),device=self.device)
+        # self.out_offset = torch.sparse_coo_tensor(size=(1,self.num_outputs),device=self.device)
+        # self.out_linear = torch.sparse_coo_tensor(size=(1,self.num_outputs),device=self.device)
+        # self.out_quad = torch.sparse_coo_tensor(size=(1,self.num_outputs),device=self.device)
+        # self.out_cubic = torch.sparse_coo_tensor(size=(1,self.num_outputs),device=self.device)
+        self.outputs = torch.sparse_coo_tensor(size=(1, self.num_outputs), device=self.device)
 
         for out in range(len(self.network.outputs)):  # iterate over the connections in the network
             source_pop = self.network.outputs[out]['source']  # get the source
-            if self.network.outputs[out]['spiking']:
-                self.out_linear = self.out_linear.to_dense()
-                self.out_linear[0,out] = 1.0
-                self.out_linear = self.out_linear.to_sparse()
-            else:
-                self.out_offset = self.out_offset.to_dense()
-                self.out_offset[0,out] = self.network.outputs[out]['offset']
-                self.out_offset = self.out_offset.to_sparse()
-
-                self.out_linear = self.out_linear.to_dense()
-                self.out_linear[0,out] = self.network.outputs[out]['linear']
-                self.out_linear = self.out_linear.to_sparse()
-
-                self.out_quad = self.out_quad.to_dense()
-                self.out_quad[0,out] = self.network.outputs[out]['quadratic']
-                self.out_quad = self.out_quad.to_sparse()
-
-                self.out_cubic = self.out_cubic.to_dense()
-                self.out_cubic[0,out] = self.network.outputs[out]['cubic']
-                self.out_cubic = self.out_cubic.to_sparse()
+            # if self.network.outputs[out]['spiking']:
+            #     self.out_linear = self.out_linear.to_dense()
+            #     self.out_linear[0,out] = 1.0
+            #     self.out_linear = self.out_linear.to_sparse()
+            # else:
+            #     self.out_offset = self.out_offset.to_dense()
+            #     self.out_offset[0,out] = self.network.outputs[out]['offset']
+            #     self.out_offset = self.out_offset.to_sparse()
+            #
+            #     self.out_linear = self.out_linear.to_dense()
+            #     self.out_linear[0,out] = self.network.outputs[out]['linear']
+            #     self.out_linear = self.out_linear.to_sparse()
+            #
+            #     self.out_quad = self.out_quad.to_dense()
+            #     self.out_quad[0,out] = self.network.outputs[out]['quadratic']
+            #     self.out_quad = self.out_quad.to_sparse()
+            #
+            #     self.out_cubic = self.out_cubic.to_dense()
+            #     self.out_cubic[0,out] = self.network.outputs[out]['cubic']
+            #     self.out_cubic = self.out_cubic.to_sparse()
             for i in range(len(self.pops_and_nrns[source_pop])):
                 if self.network.outputs[out]['spiking']:
                     self.output_spike_connectivity = self.output_spike_connectivity.to_dense()
@@ -1647,30 +1634,30 @@ class __SNS_Sparse_Full__(Backend):
                         self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
                     self.output_spike_connectivity = self.output_spike_connectivity.to_sparse()
 
-                    self.out_linear = self.out_linear.to_dense()
-                    self.out_linear[0,outputs[out][i]] = 1.0
-                    self.out_linear = self.out_linear.to_sparse()
+                    # self.out_linear = self.out_linear.to_dense()
+                    # self.out_linear[0,outputs[out][i]] = 1.0
+                    # self.out_linear = self.out_linear.to_sparse()
                 else:
                     self.output_voltage_connectivity = self.output_voltage_connectivity.to_dense()
                     self.output_voltage_connectivity[outputs[out][i]][
                         self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
                     self.output_voltage_connectivity = self.output_voltage_connectivity.to_sparse()
 
-                    self.out_offset = self.out_offset.to_dense()
-                    self.out_offset[0,outputs[out][i]] = self.network.outputs[out]['offset']
-                    self.out_offset = self.out_offset.to_sparse()
-
-                    self.out_linear = self.out_linear.to_dense()
-                    self.out_linear[0,outputs[out][i]] = self.network.outputs[out]['linear']
-                    self.out_linear = self.out_linear.to_sparse()
-
-                    self.out_quad = self.out_quad.to_dense()
-                    self.out_quad[0,outputs[out][i]] = self.network.outputs[out]['quadratic']
-                    self.out_quad = self.out_quad.to_sparse()
-
-                    self.out_cubic = self.out_cubic.to_dense()
-                    self.out_cubic[0,outputs[out][i]] = self.network.outputs[out]['cubic']
-                    self.out_cubic = self.out_cubic.to_sparse()
+                    # self.out_offset = self.out_offset.to_dense()
+                    # self.out_offset[0,outputs[out][i]] = self.network.outputs[out]['offset']
+                    # self.out_offset = self.out_offset.to_sparse()
+                    #
+                    # self.out_linear = self.out_linear.to_dense()
+                    # self.out_linear[0,outputs[out][i]] = self.network.outputs[out]['linear']
+                    # self.out_linear = self.out_linear.to_sparse()
+                    #
+                    # self.out_quad = self.out_quad.to_dense()
+                    # self.out_quad[0,outputs[out][i]] = self.network.outputs[out]['quadratic']
+                    # self.out_quad = self.out_quad.to_sparse()
+                    #
+                    # self.out_cubic = self.out_cubic.to_dense()
+                    # self.out_cubic[0,outputs[out][i]] = self.network.outputs[out]['cubic']
+                    # self.out_cubic = self.out_cubic.to_sparse()
 
     def __debug_print__(self) -> None:
         """
@@ -1704,10 +1691,10 @@ class __SNS_Sparse_Full__(Backend):
         self.u_last = torch.clone(self.u)
         self.theta_last = torch.clone(self.theta)
 
-        self.inputs_mapped = (self.in_cubic.to_dense())[0,:]*(inputs**3) + (self.in_quad.to_dense())[0,:]*(inputs**2) + (self.in_linear.to_dense())[0,:]*inputs + (self.in_offset.to_dense())[0,:]
-        self.inputs_mapped = self.inputs_mapped.to_sparse()
+        # self.inputs_mapped = (self.in_cubic.to_dense())[0,:]*(inputs**3) + (self.in_quad.to_dense())[0,:]*(inputs**2) + (self.in_linear.to_dense())[0,:]*inputs + (self.in_offset.to_dense())[0,:]
+        # self.inputs_mapped = self.inputs_mapped.to_sparse()
 
-        i_app = torch.matmul(self.input_connectivity, self.inputs_mapped.to_dense())  # Apply external current sources to their destinations
+        i_app = torch.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
         i_app = i_app.to_sparse()
 
         g_non = torch.clamp(torch.minimum(self.g_max_non.to_dense() * self.u_last / self.R, self.g_max_non.to_dense()),min=0)
@@ -1744,10 +1731,9 @@ class __SNS_Sparse_Full__(Backend):
         self.g_spike = torch.maximum(self.g_spike.to_dense(), ((-self.delayed_spikes) * self.g_max_spike).to_dense())  # Update the conductance of connections which spiked
         self.g_spike = self.g_spike.to_sparse()
         self.u = self.u * (self.spikes.to_dense() + 1)  # Reset the membrane voltages of neurons which spiked
-        self.outputs_raw = torch.matmul(self.output_voltage_connectivity, self.u) + torch.matmul(self.output_spike_connectivity, -self.spikes.to_dense())
+        self.outputs = torch.matmul(self.output_voltage_connectivity, self.u) + torch.matmul(self.output_spike_connectivity, -self.spikes.to_dense())
 
-        return (self.out_cubic.to_dense())[0,:]*(self.outputs_raw**3) + (self.out_quad.to_dense())[0,:]*(self.outputs_raw**2)\
-            + (self.out_linear.to_dense())[0,:]*self.outputs_raw + (self.out_offset.to_dense())[0,:]
+        return self.outputs
 
 
 class __SNS_Sparse_No_Delay__(__SNS_Sparse_Full__):
@@ -1861,10 +1847,10 @@ class __SNS_Sparse_No_Delay__(__SNS_Sparse_Full__):
         self.u_last = torch.clone(self.u)
         self.theta_last = torch.clone(self.theta)
 
-        self.inputs_mapped = (self.in_cubic.to_dense())[0,:]*(inputs**3) + (self.in_quad.to_dense())[0,:]*(inputs**2) + (self.in_linear.to_dense())[0,:]*inputs + (self.in_offset.to_dense())[0,:]
-        self.inputs_mapped = self.inputs_mapped.to_sparse()
+        # self.inputs_mapped = (self.in_cubic.to_dense())[0,:]*(inputs**3) + (self.in_quad.to_dense())[0,:]*(inputs**2) + (self.in_linear.to_dense())[0,:]*inputs + (self.in_offset.to_dense())[0,:]
+        # self.inputs_mapped = self.inputs_mapped.to_sparse()
 
-        i_app = torch.matmul(self.input_connectivity, self.inputs_mapped.to_dense())  # Apply external current sources to their destinations
+        i_app = torch.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
         i_app = i_app.to_sparse()
 
         g_non = torch.clamp(torch.minimum(self.g_max_non.to_dense() * self.u_last / self.R, self.g_max_non.to_dense()),min=0)
@@ -1890,10 +1876,9 @@ class __SNS_Sparse_No_Delay__(__SNS_Sparse_Full__):
         self.g_spike = torch.maximum(self.g_spike.to_dense(), (-self.spikes.to_dense()) * self.g_max_spike.to_dense())  # Update the conductance of connections which spiked
         self.g_spike = self.g_spike.to_sparse()
         self.u = self.u * (self.spikes.to_dense() + 1)  # Reset the membrane voltages of neurons which spiked
-        self.outputs_raw = torch.matmul(self.output_voltage_connectivity, self.u) + torch.matmul(self.output_spike_connectivity, -self.spikes.to_dense())
+        self.outputs = torch.matmul(self.output_voltage_connectivity, self.u) + torch.matmul(self.output_spike_connectivity, -self.spikes.to_dense())
 
-        return (self.out_cubic.to_dense())[0,:]*(self.outputs_raw**3) + (self.out_quad.to_dense())[0,:]*(self.outputs_raw**2)\
-            + (self.out_linear.to_dense())[0,:]*self.outputs_raw + (self.out_offset.to_dense())[0,:]
+        return self.outputs
 
 
 class __SNS_Sparse_Non_Spiking__(__SNS_Sparse_Full__):
@@ -2020,51 +2005,51 @@ class __SNS_Sparse_Non_Spiking__(__SNS_Sparse_Full__):
         self.num_outputs = index
 
         self.output_voltage_connectivity = torch.sparse_coo_tensor(size=(self.num_outputs, self.num_neurons),device=self.device)  # initialize connectivity matrix
-        self.out_offset = torch.sparse_coo_tensor(size=(1,self.num_outputs),device=self.device)
-        self.out_linear = torch.sparse_coo_tensor(size=(1,self.num_outputs),device=self.device)
-        self.out_quad = torch.sparse_coo_tensor(size=(1,self.num_outputs),device=self.device)
-        self.out_cubic = torch.sparse_coo_tensor(size=(1,self.num_outputs),device=self.device)
-        self.outputs_raw = torch.sparse_coo_tensor(size=(1,self.num_outputs),device=self.device)
+        # self.out_offset = torch.sparse_coo_tensor(size=(1,self.num_outputs),device=self.device)
+        # self.out_linear = torch.sparse_coo_tensor(size=(1,self.num_outputs),device=self.device)
+        # self.out_quad = torch.sparse_coo_tensor(size=(1,self.num_outputs),device=self.device)
+        # self.out_cubic = torch.sparse_coo_tensor(size=(1,self.num_outputs),device=self.device)
+        self.outputs = torch.sparse_coo_tensor(size=(1, self.num_outputs), device=self.device)
 
         for out in range(len(self.network.outputs)):  # iterate over the connections in the network
             source_pop = self.network.outputs[out]['source']  # get the source
 
-            self.out_offset = self.out_offset.to_dense()
-            self.out_offset[0,out] = self.network.outputs[out]['offset']
-            self.out_offset = self.out_offset.to_sparse()
-
-            self.out_linear = self.out_linear.to_dense()
-            self.out_linear[0,out] = self.network.outputs[out]['linear']
-            self.out_linear = self.out_linear.to_sparse()
-
-            self.out_quad = self.out_quad.to_dense()
-            self.out_quad[0,out] = self.network.outputs[out]['quadratic']
-            self.out_quad = self.out_quad.to_sparse()
-
-            self.out_cubic = self.out_cubic.to_dense()
-            self.out_cubic[0,out] = self.network.outputs[out]['cubic']
-            self.out_cubic = self.out_cubic.to_sparse()
+            # self.out_offset = self.out_offset.to_dense()
+            # self.out_offset[0,out] = self.network.outputs[out]['offset']
+            # self.out_offset = self.out_offset.to_sparse()
+            #
+            # self.out_linear = self.out_linear.to_dense()
+            # self.out_linear[0,out] = self.network.outputs[out]['linear']
+            # self.out_linear = self.out_linear.to_sparse()
+            #
+            # self.out_quad = self.out_quad.to_dense()
+            # self.out_quad[0,out] = self.network.outputs[out]['quadratic']
+            # self.out_quad = self.out_quad.to_sparse()
+            #
+            # self.out_cubic = self.out_cubic.to_dense()
+            # self.out_cubic[0,out] = self.network.outputs[out]['cubic']
+            # self.out_cubic = self.out_cubic.to_sparse()
             for i in range(len(self.pops_and_nrns[source_pop])):
                 self.output_voltage_connectivity = self.output_voltage_connectivity.to_dense()
                 self.output_voltage_connectivity[outputs[out][i]][
                     self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
                 self.output_voltage_connectivity = self.output_voltage_connectivity.to_sparse()
 
-                self.out_offset = self.out_offset.to_dense()
-                self.out_offset[0,outputs[out][i]] = self.network.outputs[out]['offset']
-                self.out_offset = self.out_offset.to_sparse()
-
-                self.out_linear = self.out_linear.to_dense()
-                self.out_linear[0,outputs[out][i]] = self.network.outputs[out]['linear']
-                self.out_linear = self.out_linear.to_sparse()
-
-                self.out_quad = self.out_quad.to_dense()
-                self.out_quad[0,outputs[out][i]] = self.network.outputs[out]['quadratic']
-                self.out_quad = self.out_quad.to_sparse()
-
-                self.out_cubic = self.out_cubic.to_dense()
-                self.out_cubic[0,outputs[out][i]] = self.network.outputs[out]['cubic']
-                self.out_cubic = self.out_cubic.to_sparse()
+                # self.out_offset = self.out_offset.to_dense()
+                # self.out_offset[0,outputs[out][i]] = self.network.outputs[out]['offset']
+                # self.out_offset = self.out_offset.to_sparse()
+                #
+                # self.out_linear = self.out_linear.to_dense()
+                # self.out_linear[0,outputs[out][i]] = self.network.outputs[out]['linear']
+                # self.out_linear = self.out_linear.to_sparse()
+                #
+                # self.out_quad = self.out_quad.to_dense()
+                # self.out_quad[0,outputs[out][i]] = self.network.outputs[out]['quadratic']
+                # self.out_quad = self.out_quad.to_sparse()
+                #
+                # self.out_cubic = self.out_cubic.to_dense()
+                # self.out_cubic[0,outputs[out][i]] = self.network.outputs[out]['cubic']
+                # self.out_cubic = self.out_cubic.to_sparse()
 
     def __debug_print__(self) -> None:
         """
@@ -2087,10 +2072,10 @@ class __SNS_Sparse_Non_Spiking__(__SNS_Sparse_Full__):
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = torch.clone(self.u)
 
-        self.inputs_mapped = (self.in_cubic.to_dense())[0,:]*(inputs**3) + (self.in_quad.to_dense())[0,:]*(inputs**2) + (self.in_linear.to_dense())[0,:]*inputs + (self.in_offset.to_dense())[0,:]
-        self.inputs_mapped = self.inputs_mapped.to_sparse()
+        # self.inputs_mapped = (self.in_cubic.to_dense())[0,:]*(inputs**3) + (self.in_quad.to_dense())[0,:]*(inputs**2) + (self.in_linear.to_dense())[0,:]*inputs + (self.in_offset.to_dense())[0,:]
+        # self.inputs_mapped = self.inputs_mapped.to_sparse()
 
-        i_app = torch.matmul(self.input_connectivity, self.inputs_mapped.to_dense())  # Apply external current sources to their destinations
+        i_app = torch.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
         i_app = i_app.to_sparse()
 
         g_syn = torch.clamp(torch.minimum(self.g_max_non.to_dense() * self.u_last / self.R, self.g_max_non.to_dense()),min=0)
@@ -2103,10 +2088,9 @@ class __SNS_Sparse_Non_Spiking__(__SNS_Sparse_Full__):
 
         self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + (self.i_b.to_dense())[0,:] + i_syn + i_app)  # Update membrane potential
 
-        self.outputs_raw = torch.matmul(self.output_voltage_connectivity, self.u)
+        self.outputs = torch.matmul(self.output_voltage_connectivity, self.u)
 
-        return (self.out_cubic.to_dense())[0,:]*(self.outputs_raw**3) + (self.out_quad.to_dense())[0,:]*(self.outputs_raw**2)\
-            + (self.out_linear.to_dense())[0,:]*self.outputs_raw + (self.out_offset.to_dense())[0,:]
+        return self.outputs
 
 """
 ########################################################################################################################
@@ -2199,18 +2183,18 @@ class __SNS_Manual_Full__(Backend):
         :return:    None
         """
         self.input_connectivity = np.zeros([self.num_neurons, self.network.get_num_inputs_actual()])  # initialize connectivity matrix
-        self.in_offset = np.zeros(self.network.get_num_inputs_actual())
-        self.in_linear = np.zeros(self.network.get_num_inputs_actual())
-        self.in_quad = np.zeros(self.network.get_num_inputs_actual())
-        self.in_cubic = np.zeros(self.network.get_num_inputs_actual())
-        self.inputs_mapped = np.zeros(self.network.get_num_inputs_actual())
+        # self.in_offset = np.zeros(self.network.get_num_inputs_actual())
+        # self.in_linear = np.zeros(self.network.get_num_inputs_actual())
+        # self.in_quad = np.zeros(self.network.get_num_inputs_actual())
+        # self.in_cubic = np.zeros(self.network.get_num_inputs_actual())
+        # self.inputs_mapped = np.zeros(self.network.get_num_inputs_actual())
         index = 0
         for inp in range(self.network.get_num_inputs()):  # iterate over the connections in the network
             size = self.network.inputs[inp]['size']
-            self.in_offset[index:index+size] = self.network.inputs[inp]['offset']
-            self.in_linear[index:index+size] = self.network.inputs[inp]['linear']
-            self.in_quad[index:index+size] = self.network.inputs[inp]['quadratic']
-            self.in_cubic[index:index+size] = self.network.inputs[inp]['cubic']
+            # self.in_offset[index:index+size] = self.network.inputs[inp]['offset']
+            # self.in_linear[index:index+size] = self.network.inputs[inp]['linear']
+            # self.in_quad[index:index+size] = self.network.inputs[inp]['quadratic']
+            # self.in_cubic[index:index+size] = self.network.inputs[inp]['cubic']
             dest_pop = self.network.inputs[inp]['destination']  # get the destination
             if size == 1:
                 for dest in self.pops_and_nrns[dest_pop]:
@@ -2306,32 +2290,32 @@ class __SNS_Manual_Full__(Backend):
         self.output_voltage_connectivity = np.zeros(
             [self.num_outputs, self.num_neurons])  # initialize connectivity matrix
         self.output_spike_connectivity = np.copy(self.output_voltage_connectivity)
-        self.out_offset = np.zeros(self.num_outputs)
-        self.out_linear = np.zeros(self.num_outputs)
-        self.out_quad = np.zeros(self.num_outputs)
-        self.out_cubic = np.zeros(self.num_outputs)
-        self.outputs_raw = np.zeros(self.num_outputs)
+        # self.out_offset = np.zeros(self.num_outputs)
+        # self.out_linear = np.zeros(self.num_outputs)
+        # self.out_quad = np.zeros(self.num_outputs)
+        # self.out_cubic = np.zeros(self.num_outputs)
+        self.outputs = np.zeros(self.num_outputs)
         for out in range(len(self.network.outputs)):  # iterate over the connections in the network
             source_pop = self.network.outputs[out]['source']  # get the source
-            if self.network.outputs[out]['spiking']:
-                self.out_linear[out] = 1.0
-            else:
-                self.out_offset[out] = self.network.outputs[out]['offset']
-                self.out_linear[out] = self.network.outputs[out]['linear']
-                self.out_quad[out] = self.network.outputs[out]['quadratic']
-                self.out_cubic[out] = self.network.outputs[out]['cubic']
+            # if self.network.outputs[out]['spiking']:
+            #     self.out_linear[out] = 1.0
+            # else:
+            #     self.out_offset[out] = self.network.outputs[out]['offset']
+            #     self.out_linear[out] = self.network.outputs[out]['linear']
+            #     self.out_quad[out] = self.network.outputs[out]['quadratic']
+            #     self.out_cubic[out] = self.network.outputs[out]['cubic']
             for i in range(len(self.pops_and_nrns[source_pop])):
                 if self.network.outputs[out]['spiking']:
                     self.output_spike_connectivity[outputs[out][i]][
                         self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
-                    self.out_linear[outputs[out][i]] = 1.0
+                    # self.out_linear[outputs[out][i]] = 1.0
                 else:
                     self.output_voltage_connectivity[outputs[out][i]][
                         self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
-                    self.out_offset[outputs[out][i]] = self.network.outputs[out]['offset']
-                    self.out_linear[outputs[out][i]] = self.network.outputs[out]['linear']
-                    self.out_quad[outputs[out][i]] = self.network.outputs[out]['quadratic']
-                    self.out_cubic[outputs[out][i]] = self.network.outputs[out]['cubic']
+                    # self.out_offset[outputs[out][i]] = self.network.outputs[out]['offset']
+                    # self.out_linear[outputs[out][i]] = self.network.outputs[out]['linear']
+                    # self.out_quad[outputs[out][i]] = self.network.outputs[out]['quadratic']
+                    # self.out_cubic[outputs[out][i]] = self.network.outputs[out]['cubic']
 
     def __debug_print__(self) -> None:
         """
@@ -2358,9 +2342,9 @@ class __SNS_Manual_Full__(Backend):
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = np.copy(self.u)
         self.theta_last = np.copy(self.theta)
-        self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
-        i_app = np.matmul(self.input_connectivity, self.inputs_mapped)  # Apply external current sources to their destinations
-        print()
+        # self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
+        i_app = np.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
+        # print()
         for nrn in range(self.num_neurons):
             i_syn = 0
             for syn in range(len(self.incoming_synapses[nrn])):
@@ -2383,10 +2367,9 @@ class __SNS_Manual_Full__(Backend):
                     neuron_src[6][0] = self.spikes[neuron_src[0]]    # Replace row 0 with the current spike data
                     neuron_src[4] = np.maximum(neuron_src[4], (-neuron_src[6][-1]) * neuron_src[2])  # Update the conductance of connections which spiked
             self.u[nrn] = self.u[nrn] * (self.spikes[nrn] + 1)  # Reset the membrane voltages of neurons which spiked
-        self.outputs_raw = np.matmul(self.output_voltage_connectivity, self.u) + np.matmul(self.output_spike_connectivity, -self.spikes)
+        self.outputs = np.matmul(self.output_voltage_connectivity, self.u) + np.matmul(self.output_spike_connectivity, -self.spikes)
 
-        return self.out_cubic*(self.outputs_raw**3) + self.out_quad*(self.outputs_raw**2)\
-            + self.out_linear*self.outputs_raw + self.out_offset
+        return self.outputs
 
 
 class __SNS_Manual_No_Delay__(__SNS_Manual_Full__):
@@ -2442,9 +2425,9 @@ class __SNS_Manual_No_Delay__(__SNS_Manual_Full__):
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = np.copy(self.u)
         self.theta_last = np.copy(self.theta)
-        self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
-        i_app = np.matmul(self.input_connectivity, self.inputs_mapped)  # Apply external current sources to their destinations
-        print()
+        # self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
+        i_app = np.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
+        # print()
         for nrn in range(self.num_neurons):
             i_syn = 0
             for syn in range(len(self.incoming_synapses[nrn])):
@@ -2465,10 +2448,9 @@ class __SNS_Manual_No_Delay__(__SNS_Manual_Full__):
                 if neuron_src[1]:  # if spiking
                     neuron_src[4] = np.maximum(neuron_src[4], (-self.spikes[neuron_src[0]]) * neuron_src[2])  # Update the conductance of connections which spiked
             self.u[nrn] = self.u[nrn] * (self.spikes[nrn] + 1)  # Reset the membrane voltages of neurons which spiked
-        self.outputs_raw = np.matmul(self.output_voltage_connectivity, self.u) + np.matmul(self.output_spike_connectivity, -self.spikes)
+        self.outputs = np.matmul(self.output_voltage_connectivity, self.u) + np.matmul(self.output_spike_connectivity, -self.spikes)
 
-        return self.out_cubic*(self.outputs_raw**3) + self.out_quad*(self.outputs_raw**2)\
-            + self.out_linear*self.outputs_raw + self.out_offset
+        return self.outputs
 
 
 class __SNS_Manual_Non_Spiking__(__SNS_Manual_Full__):
@@ -2578,27 +2560,27 @@ class __SNS_Manual_Non_Spiking__(__SNS_Manual_Full__):
 
         self.output_voltage_connectivity = np.zeros(
             [self.num_outputs, self.num_neurons])  # initialize connectivity matrix
-        self.out_offset = np.zeros(self.num_outputs)
-        self.out_linear = np.zeros(self.num_outputs)
-        self.out_quad = np.zeros(self.num_outputs)
-        self.out_cubic = np.zeros(self.num_outputs)
-        self.outputs_raw = np.zeros(self.num_outputs)
+        # self.out_offset = np.zeros(self.num_outputs)
+        # self.out_linear = np.zeros(self.num_outputs)
+        # self.out_quad = np.zeros(self.num_outputs)
+        # self.out_cubic = np.zeros(self.num_outputs)
+        self.outputs = np.zeros(self.num_outputs)
         for out in range(len(self.network.outputs)):  # iterate over the connections in the network
             source_pop = self.network.outputs[out]['source']  # get the source
-            if self.network.outputs[out]['spiking']:
-                self.out_linear[out] = 1.0
-            else:
-                self.out_offset[out] = self.network.outputs[out]['offset']
-                self.out_linear[out] = self.network.outputs[out]['linear']
-                self.out_quad[out] = self.network.outputs[out]['quadratic']
-                self.out_cubic[out] = self.network.outputs[out]['cubic']
+            # if self.network.outputs[out]['spiking']:
+            #     self.out_linear[out] = 1.0
+            # else:
+            #     self.out_offset[out] = self.network.outputs[out]['offset']
+            #     self.out_linear[out] = self.network.outputs[out]['linear']
+            #     self.out_quad[out] = self.network.outputs[out]['quadratic']
+            #     self.out_cubic[out] = self.network.outputs[out]['cubic']
             for i in range(len(self.pops_and_nrns[source_pop])):
                 self.output_voltage_connectivity[outputs[out][i]][
                     self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
-                self.out_offset[outputs[out][i]] = self.network.outputs[out]['offset']
-                self.out_linear[outputs[out][i]] = self.network.outputs[out]['linear']
-                self.out_quad[outputs[out][i]] = self.network.outputs[out]['quadratic']
-                self.out_cubic[outputs[out][i]] = self.network.outputs[out]['cubic']
+                # self.out_offset[outputs[out][i]] = self.network.outputs[out]['offset']
+                # self.out_linear[outputs[out][i]] = self.network.outputs[out]['linear']
+                # self.out_quad[outputs[out][i]] = self.network.outputs[out]['quadratic']
+                # self.out_cubic[outputs[out][i]] = self.network.outputs[out]['cubic']
 
     def __debug_print__(self) -> None:
         """
@@ -2616,8 +2598,8 @@ class __SNS_Manual_Non_Spiking__(__SNS_Manual_Full__):
 
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = np.copy(self.u)
-        self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
-        i_app = np.matmul(self.input_connectivity, self.inputs_mapped)  # Apply external current sources to their destinations
+        # self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
+        i_app = np.matmul(self.input_connectivity,inputs)  # Apply external current sources to their destinations
         print()
         for nrn in range(self.num_neurons):
             i_syn = 0
@@ -2628,7 +2610,6 @@ class __SNS_Manual_Non_Spiking__(__SNS_Manual_Full__):
             # print(i_syn)
             self.u[nrn] = self.u_last[nrn] + self.time_factor_membrane[nrn] * (-self.g_m[nrn] * self.u_last[nrn] + self.i_b[nrn] + i_syn + i_app[nrn])  # Update membrane potential
 
-        self.outputs_raw = np.matmul(self.output_voltage_connectivity, self.u)
+        self.outputs = np.matmul(self.output_voltage_connectivity, self.u)
 
-        return self.out_cubic*(self.outputs_raw**3) + self.out_quad*(self.outputs_raw**2)\
-            + self.out_linear*self.outputs_raw + self.out_offset
+        return self.outputs

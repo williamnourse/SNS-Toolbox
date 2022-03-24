@@ -203,16 +203,11 @@ class Network:
         """
         self.add_population(neuron_type, shape=[1], name=name, color=color, initial_value=initial_value)
 
-    def add_input(self, dest: Any, size: int = 1, offset: Number = 0.0, linear: Number = 1.0, quadratic: Number = 0.0,
-                  cubic: Number = 0.0, name: str = 'Input', color='white') -> None:
+    def add_input(self, dest: Any, size: int = 1, name: str = 'Input', color='white') -> None:
         """
         Add an input source to the network
         :param dest:        Destination this input connects to
         :param size:        Size of the input data
-        :param offset:      Constant offset of input values in polynomial map
-        :param linear:      Linear integration_gain of input values in polynomial map
-        :param quadratic:   Quadratic (^2) integration_gain of input values in polynomial map
-        :param cubic:       Cubic (^3) integration_gain of input values in polynomial map
         :param name:        Name of the input node
         :param color:       Color of the input node in the visual render
         :return:    None
@@ -240,10 +235,6 @@ class Network:
         self.inputs.append({'name': name,
                             'size': size,
                             'destination': dest,
-                            'offset': offset,
-                            'linear': linear,
-                            'quadratic': quadratic,
-                            'cubic': cubic,
                             'color': color})
         if size == 1:
             self.graph.node('In'+str(len(self.inputs) - 1), name,
@@ -259,15 +250,10 @@ class Network:
                             fontcolor=font_color)
         self.graph.edge('In'+str(len(self.inputs) - 1), str(dest))
 
-    def add_output(self, source: Any, offset: Number = 0.0, linear: Number = 1.0, quadratic: Number = 0.0,
-                   cubic: Number = 0.0, name: str = 'Output', spiking: bool = False, color: str = 'white') -> None:
+    def add_output(self, source: Any, name: str = 'Output', spiking: bool = False, color: str = 'white') -> None:
         """
         Add an output node to the network
         :param source:      Source this output is connected to
-        :param offset:      Constant offset of output values in polynomial map
-        :param linear:      Linear integration_gain of output values in polynomial map
-        :param quadratic:   Quadratic (^2) integration_gain of output values in polynomial map
-        :param cubic:       Cubic (^3) integration_gain of output values in polynomial map
         :param name:        Name of the node
         :param spiking:     Flag for if this node stores voltage or spikes
         :param color:       Color of the output in the visual render
@@ -292,10 +278,6 @@ class Network:
         font_color = set_text_color(color)
         self.outputs.append({'name': name,
                              'source': source,
-                             'offset': offset,
-                             'linear': linear,
-                             'quadratic': quadratic,
-                             'cubic': cubic,
                              'spiking': spiking,
                              'color': color})
         if spiking:
@@ -449,12 +431,10 @@ class Network:
                 self.add_population(neuron_type=population['type'], shape=population['shape'],
                                     name=population['name'], color=population['color'])
             for inp in network.inputs:
-                self.add_input(dest=inp['destination'] + num_populations, name=inp['name'], color=inp['color'],
-                               offset=inp['offset'], linear=inp['linear'], quadratic=inp['quadratic'],
-                               cubic=inp['cubic'],size=inp['size'])
+                self.add_input(dest=inp['destination'] + num_populations, name=inp['name'], color=inp['color']
+                               ,size=inp['size'])
             for out in network.outputs:
-                self.add_output(source=out['source'] + num_populations, offset=out['offset'], linear=out['linear'],
-                                quadratic=out['quadratic'], cubic=out['cubic'], name=out['name'], color=out['color'],
+                self.add_output(source=out['source'] + num_populations, name=out['name'], color=out['color'],
                                 spiking=out['spiking'])
             for connection in network.connections:
                 self.add_connection(connection_type=connection['type'], source=connection['source'] + num_populations,
@@ -467,12 +447,10 @@ class Network:
                 self.add_population(neuron_type=population['type'], shape=population['shape'],
                                     name=population['name'], color=color)
             for inp in network.inputs:
-                self.add_input(dest=inp['destination'] + num_populations, name=inp['name'], color=color,
-                               offset=inp['offset'], linear=inp['linear'], quadratic=inp['quadratic'],
-                               cubic=inp['cubic'],size=inp['size'])
+                self.add_input(dest=inp['destination'] + num_populations, name=inp['name'], color=color
+                               ,size=inp['size'])
             for out in network.outputs:
-                self.add_output(source=out['source'] + num_populations, offset=out['offset'], linear=out['linear'],
-                                quadratic=out['quadratic'], cubic=out['cubic'], name=out['name'], color=color,
+                self.add_output(source=out['source'] + num_populations, name=out['name'], color=color,
                                 spiking=out['spiking'])
             for connection in network.connections:
                 self.add_connection(connection_type=connection['type'], source=connection['source'] + num_populations,
@@ -627,24 +605,23 @@ class IntegratorNetwork(Network):
         self.add_connection(synapse_type, 1, 0)
 
 
-# TODO: Adaptation
-class AdaptationNetwork(Network):
-    def __init__(self,ratio=0.5,name='Adaptation',neuron_type=NonSpikingNeuron(),**kwargs):
-        super().__init__(name=name,**kwargs)
-        relative_reversal_potential = 2*(self.params['R']**2 + 1)/self.params['R']
-        conductance_fast_slow = self.params['R']/(relative_reversal_potential - self.params['R'])
-        conductance_slow_fast = (self.params['R']*(ratio-1)*(relative_reversal_potential - self.params['R'] +
-                                                             ratio*self.params['R']))/(ratio *
-                                                                                       relative_reversal_potential *
-                                                                                       (-relative_reversal_potential -
-                                                                                        ratio*self.params['R']))
-        fast_slow = NonSpikingSynapse(max_conductance=conductance_fast_slow,
-                                      relative_reversal_potential=relative_reversal_potential)
-        slow_fast = NonSpikingSynapse(max_conductance=conductance_slow_fast,
-                                      relative_reversal_potential=-relative_reversal_potential)
-
-        self.add_neuron(neuron_type,name='Uadapt')
-        self.add_neuron(neuron_type)
-
-        self.add_connection(fast_slow, 0, 1)
-        self.add_connection(slow_fast, 1, 0)
+# class AdaptationNetwork(Network):
+#     def __init__(self,ratio=0.5,name='Adaptation',neuron_type=NonSpikingNeuron(),**kwargs):
+#         super().__init__(name=name,**kwargs)
+#         relative_reversal_potential = 2*(self.params['R']**2 + 1)/self.params['R']
+#         conductance_fast_slow = self.params['R']/(relative_reversal_potential - self.params['R'])
+#         conductance_slow_fast = (self.params['R']*(ratio-1)*(relative_reversal_potential - self.params['R'] +
+#                                                              ratio*self.params['R']))/(ratio *
+#                                                                                        relative_reversal_potential *
+#                                                                                        (-relative_reversal_potential -
+#                                                                                         ratio*self.params['R']))
+#         fast_slow = NonSpikingSynapse(max_conductance=conductance_fast_slow,
+#                                       relative_reversal_potential=relative_reversal_potential)
+#         slow_fast = NonSpikingSynapse(max_conductance=conductance_slow_fast,
+#                                       relative_reversal_potential=-relative_reversal_potential)
+#
+#         self.add_neuron(neuron_type,name='Uadapt')
+#         self.add_neuron(neuron_type)
+#
+#         self.add_connection(fast_slow, 0, 1)
+#         self.add_connection(slow_fast, 1, 0)

@@ -33,7 +33,7 @@ if img is None:
 
 shape_original = img.shape  # dimensions of the original image
 dim_long = max(shape_original[0],shape_original[1]) # longest dimension of the original image
-dim_desired_max = 64    # constrain the longest dimension for easier processing
+dim_desired_max = 32    # constrain the longest dimension for easier processing
 ratio = dim_desired_max/dim_long    # scaling ratio of original image
 img_resized = cv.resize(img,None,fx=ratio,fy=ratio) # scale original image using ratio
 
@@ -61,9 +61,8 @@ net = Network(name='Visual Network')    # create an empty network
 
 # Retina
 net.add_population(neuron_type,shape,name='Retina') # add a 2d population the same size as the scaled image
-net.add_input('Retina', size=flat_size,name='Image',    # add a vector input for the flattened scaled image
-              linear=R/255) # scale all the intensities from 0-255 to 0-R
-net.add_output('Retina',linear=255/R,name='Retina Output')  # add a vector output from the retina, scaled correctly
+net.add_input('Retina', size=flat_size,name='Image')    # add a vector input for the flattened scaled image
+net.add_output('Retina',name='Retina Output')  # add a vector output from the retina, scaled correctly
 
 # Lamina
 net.add_population(neuron_type,shape,name='Lamina')
@@ -81,14 +80,12 @@ g_max_kernel = np.array([[g_max_in, g_max_in, g_max_in],    # kernel matrix of s
 del_e_kernel = np.array([[del_e_in, del_e_in, del_e_in],    # kernel matrix of synaptic reversal potentials
                          [del_e_in, del_e_ex, del_e_in],
                          [del_e_in, del_e_in, del_e_in]])
-del_e_kernel_inv = np.array([[del_e_ex, del_e_ex, del_e_ex],    # kernel matrix of synaptic reversal potentials
-                         [del_e_ex, del_e_in, del_e_ex],
-                         [del_e_ex, del_e_ex, del_e_ex]])
-connection_hpf = NonSpikingPatternConnection(g_max_kernel,del_e_kernel_inv) # pattern connection (acts as high pass filter)
+connection_hpf = NonSpikingPatternConnection(g_max_kernel,del_e_kernel) # pattern connection (acts as high pass filter)
 net.add_connection(connection_hpf,'Retina','Lamina',name='HPF') # connect the retina to the lamina
-net.add_output('Lamina',linear=255/R,name='Lamina Output')  # add a vector output from the lamina
+net.add_output('Lamina',name='Lamina Output')  # add a vector output from the lamina
 
-# net.render_graph(view=True) # view the network diagram
+net.render_graph(view=True) # view the network diagram
+img_flat = img_flat*R/255.0 # scale all the intensities from 0-255 to 0-R
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -109,6 +106,7 @@ else:
         else:
             device = 'cuda'
         model = backends.SNS_Sparse(net, device=device, spiking=spiking, dt=dt, debug=False)
+        img_flat = img_flat.astype(np.float32)
         img_flat = torch.from_numpy(img_flat).to(device)
     else:
         if use_torch:
@@ -117,6 +115,7 @@ else:
             else:
                 device = 'cuda'
             model = backends.SNS_Torch(net,device=device,spiking=spiking,dt=dt,debug=False)
+            img_flat = img_flat.astype(np.float32)
             img_flat = torch.from_numpy(img_flat).to(device)
         else:
             model = backends.SNS_Numpy(net,delay=delay,spiking=spiking,dt=dt,debug=False) # compile using the numpy backend
@@ -139,8 +138,8 @@ if use_torch:
         print('%i / %i steps'%(i+1,steps))
         out = model.forward(img_flat)   # run the network for one dt
         out = out.to('cpu')
-        retina = out[:flat_size]    # separate the retina and lamina states
-        lamina = out[flat_size:]
+        retina = out[:flat_size]*255/R    # separate the retina and lamina states
+        lamina = out[flat_size:]*255/R
         retina_reshape = torch.reshape(retina,shape)   # reshape to from flat to an image
         lamina_reshape = torch.reshape(lamina,shape)
         plt.subplot(1,2,1)  # plot the current state
