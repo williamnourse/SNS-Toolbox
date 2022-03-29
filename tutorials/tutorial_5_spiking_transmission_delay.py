@@ -6,21 +6,13 @@ December 10th 2021
 
 import numpy as np
 import matplotlib.pyplot as plt
-import torch
 
 from sns_toolbox.design.networks import Network
 from sns_toolbox.design.neurons import SpikingNeuron
 from sns_toolbox.design.connections import SpikingSynapse
 
-from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch, SNS_Sparse, SNS_Manual
+from sns_toolbox.simulate.backends import SNS_Numpy
 from sns_toolbox.simulate.plotting import spike_raster_plot
-
-manual = True
-sparse = False
-use_torch = False
-use_cpu = False
-delay = True
-spiking = True
 
 """Define our types"""
 neuron_type = SpikingNeuron()
@@ -56,79 +48,20 @@ net.add_input('Source')
 """Simulate the network"""
 dt = 0.01
 t_max = 10
-if manual:
-    t = np.arange(0, t_max, dt)
-    inputs = np.zeros([len(t), net.get_num_inputs()])  # getNumInputs() gets the number of input nodes in a network
-    inputs[0:100] = 20.0
-    data = np.zeros([len(t), net.get_num_outputs_actual()])  # getNumOutputsActual gets the number of accessible output
-    # nodes in a network (since this net has populations, each
-    # population has n output nodes)
-    # Compile to numpy
-    model = SNS_Manual(net, delay=delay, spiking=spiking, dt=dt, debug=False)
 
-    # Run for all steps
-    for i in range(len(t)):
-        data[i, :] = model.forward(inputs[i, :])
-    data = data.transpose()
-else:
-    if sparse:
-        if use_cpu:
-            device = 'cpu'
-        else:
-            device = 'cuda'
-        t = torch.arange(0, t_max, dt)
-        inputs = torch.zeros([len(t), net.get_num_inputs()],
-                             device=device)  # getNumInputs() gets the number of input nodes in a network
-        inputs[0:100] = 20.0
-        data = torch.zeros([len(t), net.get_num_outputs_actual()],
-                           device=device)  # getNumOutputsActual gets the number of accessible output
-        # nodes in a network (since this net has populations, each
-        # population has n output nodes)
-        # Compile to numpy
-        model = SNS_Sparse(net, device=device, delay=delay, spiking=spiking, dt=dt, debug=False)
+t = np.arange(0, t_max, dt)
+inputs = np.zeros([len(t), net.get_num_inputs()])          # getNumInputs() gets the number of input nodes in a network
+inputs[0:100] = 20.0
+data = np.zeros([len(t), net.get_num_outputs_actual()])    # getNumOutputsActual gets the number of accessible output
+                                                            # nodes in a network (since this net has populations, each
+                                                            # population has n output nodes)
+# Compile to numpy
+model = SNS_Numpy(net, dt=dt, debug=False)
 
-        # Run for all steps
-        for i in range(len(t)):
-            data[i, :] = model.forward(inputs[i, :])
-        data = data.transpose(0, 1)
-        inputs = inputs.to('cpu')
-        data = data.to('cpu')
-    else:
-        if use_torch:
-            if use_cpu:
-                device = 'cpu'
-            else:
-                device = 'cuda'
-            t = torch.arange(0, t_max, dt)
-            inputs = torch.zeros([len(t), net.get_num_inputs()],device=device)  # getNumInputs() gets the number of input nodes in a network
-            inputs[0:100] = 20.0
-            data = torch.zeros([len(t), net.get_num_outputs_actual()],device=device)  # getNumOutputsActual gets the number of accessible output
-            # nodes in a network (since this net has populations, each
-            # population has n output nodes)
-            # Compile to numpy
-            model = SNS_Torch(net, device=device, delay=delay, spiking=spiking, dt=dt, debug=False)
-
-            # Run for all steps
-            for i in range(len(t)):
-                data[i, :] = model.forward(inputs[i, :])
-            data = data.transpose(0,1)
-            inputs = inputs.to('cpu')
-            data = data.to('cpu')
-
-        else:
-            t = np.arange(0, t_max, dt)
-            inputs = np.zeros([len(t), net.get_num_inputs()])          # getNumInputs() gets the number of input nodes in a network
-            inputs[0:100] = 20.0
-            data = np.zeros([len(t), net.get_num_outputs_actual()])    # getNumOutputsActual gets the number of accessible output
-                                                                        # nodes in a network (since this net has populations, each
-                                                                        # population has n output nodes)
-            # Compile to numpy
-            model = SNS_Numpy(net, delay=delay, spiking=spiking, dt=dt, debug=False)
-
-            # Run for all steps
-            for i in range(len(t)):
-                data[i,:] = model.forward(inputs[i,:])
-            data = data.transpose()
+# Run for all steps
+for i in range(len(t)):
+    data[i,:] = model.forward(inputs[i,:])
+data = data.transpose()
 
 """Plotting the results"""
 plt.figure()
