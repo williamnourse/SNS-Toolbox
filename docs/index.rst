@@ -18,3 +18,4 @@ Indices
 =======
 
 * :ref:`genindex`
+* source/sns_toolbox.rst
