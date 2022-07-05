@@ -1,0 +1,42 @@
+:py:mod:`sns_toolbox.design.neurons`
+====================================
+
+.. py:module:: sns_toolbox.design.neurons
+
+.. autoapi-nested-parse::
+
+   The mechanism for defining a neuron model which can be simulated in the SNS Toolbox
+   William Nourse
+   May 7, 2021
+   Execute Order 66
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   sns_toolbox.design.neurons.Neuron
+   sns_toolbox.design.neurons.NonSpikingNeuron
+   sns_toolbox.design.neurons.SpikingNeuron
+
+
+
+
+.. py:class:: Neuron(name: str = 'Neuron', color: str = 'white', membrane_capacitance: float = 5.0, membrane_conductance: float = 1.0, bias: float = 0.0)
+
+
+.. py:class:: NonSpikingNeuron(**kwargs)
+
+   Bases: :py:obj:`Neuron`
+
+
+.. py:class:: SpikingNeuron(threshold_time_constant: float = 5.0, threshold_initial_value: float = 1.0, threshold_proportionality_constant: float = 0.0, **kwargs)
+
+   Bases: :py:obj:`Neuron`
+
+

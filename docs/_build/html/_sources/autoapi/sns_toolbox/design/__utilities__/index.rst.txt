@@ -1,0 +1,55 @@
+:py:mod:`sns_toolbox.design.__utilities__`
+==========================================
+
+.. py:module:: sns_toolbox.design.__utilities__
+
+.. autoapi-nested-parse::
+
+   Stuff I may need at various points, but probably isn't useful for the end user
+   William Nourse
+   May 7, 2021
+   Fizz Buzz
+
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   sns_toolbox.design.__utilities__.valid_color
+   sns_toolbox.design.__utilities__.set_text_color
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   sns_toolbox.design.__utilities__.SETOFVALIDCOLORS
+   sns_toolbox.design.__utilities__.COLORSWHITETEXT
+
+
+.. py:data:: SETOFVALIDCOLORS
+   
+
+   
+
+.. py:data:: COLORSWHITETEXT
+   
+
+   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+   FUNCTIONS
+
+
+.. py:function:: valid_color(color: str = None) -> bool
+
+
+.. py:function:: set_text_color(color: str = None) -> str
+
+

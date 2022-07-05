@@ -1,0 +1,18 @@
+:py:mod:`sns_toolbox.simulate`
+==============================
+
+.. py:module:: sns_toolbox.simulate
+
+
+Submodules
+----------
+.. toctree::
+   :titlesonly:
+   :maxdepth: 1
+
+   __utilities__/index.rst
+   backends/index.rst
+   plotting/index.rst
+   test_backends/index.rst
+
+

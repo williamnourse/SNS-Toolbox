@@ -1,0 +1,105 @@
+:py:mod:`sns_toolbox.design.connections`
+========================================
+
+.. py:module:: sns_toolbox.design.connections
+
+.. autoapi-nested-parse::
+
+   The mechanism for defining a synapse (connection) model which can be simulated in the SNS Toolbox
+   William Nourse
+   May 10, 2021
+   He's convinced me, gimme back my dollar!
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   sns_toolbox.design.connections.Connection
+   sns_toolbox.design.connections.NonSpikingConnection
+   sns_toolbox.design.connections.SpikingConnection
+   sns_toolbox.design.connections.NonSpikingSynapse
+   sns_toolbox.design.connections.SpikingSynapse
+   sns_toolbox.design.connections.NonSpikingPatternConnection
+   sns_toolbox.design.connections.SpikingPatternConnection
+   sns_toolbox.design.connections.NonSpikingTransmissionSynapse
+   sns_toolbox.design.connections.NonSpikingModulationSynapse
+   sns_toolbox.design.connections.SpikingTransmissionSynapse
+   sns_toolbox.design.connections.NonSpikingGainPatternConnection
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   sns_toolbox.design.connections.__calc_synaptic_parameters_from_gain__
+   sns_toolbox.design.connections.__calc_spiking_synaptic_parameters_from_gain__
+
+
+
+.. py:class:: Connection(max_conductance, relative_reversal_potential, name: str = 'Connection')
+
+
+.. py:class:: NonSpikingConnection(max_conductance, relative_reversal_potential, name: str = 'Non-Spiking Connection')
+
+   Bases: :py:obj:`Connection`
+
+
+.. py:class:: SpikingConnection(max_conductance, relative_reversal_potential, time_constant, transmission_delay, name: str = 'Spiking Connection')
+
+   Bases: :py:obj:`Connection`
+
+
+.. py:class:: NonSpikingSynapse(max_conductance: float = 1.0, relative_reversal_potential: float = 40.0, **kwargs: Any)
+
+   Bases: :py:obj:`NonSpikingConnection`
+
+
+.. py:class:: SpikingSynapse(max_conductance: float = 1.0, relative_reversal_potential: float = 194.0, time_constant: float = 1.0, transmission_delay: int = 0, **kwargs: Any)
+
+   Bases: :py:obj:`SpikingConnection`
+
+
+.. py:class:: NonSpikingPatternConnection(max_conductance_kernel, relative_reversal_potential_kernel, **kwargs: Any)
+
+   Bases: :py:obj:`NonSpikingConnection`
+
+
+.. py:class:: SpikingPatternConnection(max_conductance_kernel, relative_reversal_potential_kernel, time_constant_kernel, transmission_delay_kernel, **kwargs: Any)
+
+   Bases: :py:obj:`SpikingConnection`
+
+
+.. py:class:: NonSpikingTransmissionSynapse(gain: float = 1.0, name: str = 'Transmit', R: float = 20.0, **kwargs)
+
+   Bases: :py:obj:`NonSpikingSynapse`
+
+
+.. py:class:: NonSpikingModulationSynapse(ratio, name: str = 'Modulate', **kwargs)
+
+   Bases: :py:obj:`NonSpikingSynapse`
+
+
+.. py:class:: SpikingTransmissionSynapse(gain: float = 1.0, name: str = 'Transmit', max_frequency: float = 10.0, nonlinearity: float = 0.1, **kwargs)
+
+   Bases: :py:obj:`SpikingSynapse`
+
+
+.. py:class:: NonSpikingGainPatternConnection(gain_matrix, name: str = 'Pattern', R: float = 20.0, positive_reversal_potential: float = 160.0, negative_reversal_potential: float = -80.0, wrap: bool = False)
+
+   Bases: :py:obj:`NonSpikingConnection`
+
+
+.. py:function:: __calc_synaptic_parameters_from_gain__(gain, positive_reversal_potential, negative_reversal_potential, R)
+
+
+.. py:function:: __calc_spiking_synaptic_parameters_from_gain__(gain, positive_reversal_potential, negative_reversal_potential, R, time_constant, max_frequency)
+
+

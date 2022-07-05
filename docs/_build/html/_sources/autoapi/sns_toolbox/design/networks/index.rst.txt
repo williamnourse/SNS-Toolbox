@@ -1,0 +1,191 @@
+:py:mod:`sns_toolbox.design.networks`
+=====================================
+
+.. py:module:: sns_toolbox.design.networks
+
+.. autoapi-nested-parse::
+
+   Networks store a combination of neurons and synapse, so they can be visualized and compiled
+   William Nourse
+   May 10, 2021
+   You're gonna be okay!
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   sns_toolbox.design.networks.Network
+   sns_toolbox.design.networks.AdditionNetwork
+   sns_toolbox.design.networks.MultiplicationNetwork
+   sns_toolbox.design.networks.DivisionNetwork
+   sns_toolbox.design.networks.DifferentiatorNetwork
+   sns_toolbox.design.networks.IntegratorNetwork
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   sns_toolbox.design.networks.__kernel_connections_1d__
+   sns_toolbox.design.networks.__kernel_connections_2d__
+
+
+
+.. py:class:: Network(name: str = 'Network', R: float = 20.0)
+
+   .. py:method:: get_num_neurons(self) -> int
+
+      Calculate the number of neurons in the network
+      :return: shape
+
+
+   .. py:method:: get_num_connections(self) -> int
+
+      Calculate the number of connections in the network. This will need to be overhauled for populations with multiple neurons
+      :return: num_connections
+
+
+   .. py:method:: get_num_populations(self) -> int
+
+
+   .. py:method:: get_num_inputs(self) -> int
+
+
+   .. py:method:: get_num_inputs_actual(self) -> int
+
+
+   .. py:method:: get_num_outputs(self) -> int
+
+
+   .. py:method:: get_num_outputs_actual(self) -> int
+
+
+   .. py:method:: get_population_index(self, name: str) -> int
+
+
+   .. py:method:: get_input_index(self, name: str) -> int
+
+
+   .. py:method:: render_graph(self, imgFormat: str = 'png', view: bool = False) -> None
+
+      Render an image of the network in the form of a directed graph (DG)
+      :param imgFormat:   File extension of the resulting image
+      :param view:        Flag to view the image
+      :return: None
+
+
+   .. py:method:: add_population(self, neuron_type: sns_toolbox.design.neurons.Neuron, shape, name: str = None, color=None, initial_value=None) -> None
+
+      Add a neural population to the network
+      :param neuron_type:  Type of neuron to add
+      :param shape:  Number of that neuron to include in the population
+      :param name:        Name of the population
+      :param color:       Color of the population in the rendered image
+      :param initial_value: Initial value of membrane voltage for each neuron in the population (must be either a
+      single value, or an array matching 'shape'
+      :return:            None
+
+
+   .. py:method:: add_neuron(self, neuron_type, name=None, color=None, initial_value=0.0) -> None
+
+      Add a neuron to the network. Note that this is just a special case of addPopulation, which makes a population of
+      1 neuron.
+      :param neuron_type:  Type of neuron to add
+      :param name:        Name of the neuron
+      :param color:       Color of the neuron in the visual render
+      :param initial_value: Initial value of membrane voltage
+      :return:    None
+
+
+   .. py:method:: add_input(self, dest: Any, size: int = 1, name: str = 'Input', color='white') -> None
+
+      Add an input source to the network
+      :param dest:        Destination this input connects to
+      :param size:        Size of the input data
+      :param name:        Name of the input node
+      :param color:       Color of the input node in the visual render
+      :return:    None
+
+
+   .. py:method:: add_output(self, source: Any, name: str = 'Output', spiking: bool = False, color: str = 'white') -> None
+
+      Add an output node to the network
+      :param source:      Source this output is connected to
+      :param name:        Name of the node
+      :param spiking:     Flag for if this node stores voltage or spikes
+      :param color:       Color of the output in the visual render
+      :return: None
+
+
+   .. py:method:: add_connection(self, connection_type: sns_toolbox.design.connections.Connection, source: Any, destination: Any, name: str = None, view_label: bool = False) -> None
+
+      Add a synaptic connection between two populations in the network
+      :param connection_type: Type of synapse to add
+      :param source:      Index of source population in the network
+      :param destination: Index of destination population in the network
+      :param name:        Name of synapse
+      :param view_label:   Flag to render the name on the output graph
+      :return: None
+
+
+   .. py:method:: add_network(self, network: Network, color: str = None) -> None
+
+      Add an existing topology of inputs, outputs, and populations to the network
+      :param network: Network to copy over
+      :param color:   Color to render nodes in the network
+      :return: None
+
+
+   .. py:method:: copy(self)
+
+
+
+.. py:function:: __kernel_connections_1d__(pop_size, kernel)
+
+   Generate a connection matrix from a kernel vector and population size
+   :param pop_size: number of neurons in the population
+   :param kernel: kernel vector to apply
+   :return: connection matrix
+
+
+.. py:function:: __kernel_connections_2d__(pop_shape, kernel)
+
+   Generate a connection matrix from a kernel matrix and population shape
+   :param pop_shape: shape of the population
+   :param kernel: kernel matrix to apply
+   :return: connection matrix
+
+
+.. py:class:: AdditionNetwork(gains, add_del_e=100, sub_del_e=-40, neuron_type=NonSpikingNeuron(), name='Add', **kwargs)
+
+   Bases: :py:obj:`Network`
+
+
+.. py:class:: MultiplicationNetwork(neuron_type=NonSpikingNeuron(), name='Multiply', **kwargs)
+
+   Bases: :py:obj:`Network`
+
+
+.. py:class:: DivisionNetwork(gain, ratio, name='Divide', neuron_type=NonSpikingNeuron(), **kwargs)
+
+   Bases: :py:obj:`Network`
+
+
+.. py:class:: DifferentiatorNetwork(slew_rate=1.0, name='Differentiate', tau_fast=1.0, **kwargs)
+
+   Bases: :py:obj:`Network`
+
+
+.. py:class:: IntegratorNetwork(integration_gain=0.1, relative_reversal_potential=-40.0, name='Integrator', **kwargs)
+
+   Bases: :py:obj:`Network`
+
+

@@ -1,0 +1,1315 @@
+
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>sns_toolbox.simulate.backends &#8212; SNS-Toolbox 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css" />
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/jquery.js"></script>
+    <script src="../../../../_static/underscore.js"></script>
+    <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-sns_toolbox.simulate.backends">
+<span id="sns-toolbox-simulate-backends"></span><h1><a class="reference internal" href="#module-sns_toolbox.simulate.backends" title="sns_toolbox.simulate.backends"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sns_toolbox.simulate.backends</span></code></a><a class="headerlink" href="#module-sns_toolbox.simulate.backends" title="Permalink to this heading">¶</a></h1>
+<p>Simulation backends for nonspiking networks. Each of these are python-based, and are constructed using a Nonspiking
+Network. They can then be run for a step, with the inputs being a vector of neural states and applied currents and the
+output being the next step of neural states.
+William Nourse
+August 31, 2021
+I’ve heard that you’re a low-down Yankee liar</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">¶</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading">¶</a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.simulate.backends.Backend" title="sns_toolbox.simulate.backends.Backend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Backend</span></code></a></p></td>
+<td><p>Base-level class for all simulation backends. Each will do the following:</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Full__" title="sns_toolbox.simulate.backends.__SNS_Numpy_Full__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Numpy_Full__</span></code></a></p></td>
+<td><p>Base-level class for all simulation backends. Each will do the following:</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Numpy_No_Delay__" title="sns_toolbox.simulate.backends.__SNS_Numpy_No_Delay__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Numpy_No_Delay__</span></code></a></p></td>
+<td><p>Base-level class for all simulation backends. Each will do the following:</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__" title="sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Numpy_Non_Spiking__</span></code></a></p></td>
+<td><p>Base-level class for all simulation backends. Each will do the following:</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Torch_Full__" title="sns_toolbox.simulate.backends.__SNS_Torch_Full__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Torch_Full__</span></code></a></p></td>
+<td><p>Base-level class for all simulation backends. Each will do the following:</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Torch_No_Delay__" title="sns_toolbox.simulate.backends.__SNS_Torch_No_Delay__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Torch_No_Delay__</span></code></a></p></td>
+<td><p>Base-level class for all simulation backends. Each will do the following:</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__" title="sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Torch_Non_Spiking__</span></code></a></p></td>
+<td><p>Base-level class for all simulation backends. Each will do the following:</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Full__" title="sns_toolbox.simulate.backends.__SNS_Sparse_Full__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Sparse_Full__</span></code></a></p></td>
+<td><p>Base-level class for all simulation backends. Each will do the following:</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Sparse_No_Delay__" title="sns_toolbox.simulate.backends.__SNS_Sparse_No_Delay__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Sparse_No_Delay__</span></code></a></p></td>
+<td><p>Base-level class for all simulation backends. Each will do the following:</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__" title="sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Sparse_Non_Spiking__</span></code></a></p></td>
+<td><p>Base-level class for all simulation backends. Each will do the following:</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Manual_Full__" title="sns_toolbox.simulate.backends.__SNS_Manual_Full__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Manual_Full__</span></code></a></p></td>
+<td><p>Base-level class for all simulation backends. Each will do the following:</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Manual_No_Delay__" title="sns_toolbox.simulate.backends.__SNS_Manual_No_Delay__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Manual_No_Delay__</span></code></a></p></td>
+<td><p>Base-level class for all simulation backends. Each will do the following:</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Manual_Non_Spiking__" title="sns_toolbox.simulate.backends.__SNS_Manual_Non_Spiking__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Manual_Non_Spiking__</span></code></a></p></td>
+<td><p>Base-level class for all simulation backends. Each will do the following:</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this heading">¶</a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.simulate.backends.SNS_Numpy" title="sns_toolbox.simulate.backends.SNS_Numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SNS_Numpy</span></code></a>(network: sns_toolbox.design.networks.Network, delay=True, spiking=True, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.simulate.backends.SNS_Torch" title="sns_toolbox.simulate.backends.SNS_Torch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SNS_Torch</span></code></a>(network: sns_toolbox.design.networks.Network, device: str = 'cuda', delay=True, spiking=True, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.simulate.backends.SNS_Sparse" title="sns_toolbox.simulate.backends.SNS_Sparse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SNS_Sparse</span></code></a>(network: sns_toolbox.design.networks.Network, device: str = 'cuda', delay=True, spiking=True, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.simulate.backends.SNS_Manual" title="sns_toolbox.simulate.backends.SNS_Manual"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SNS_Manual</span></code></a>(network: sns_toolbox.design.networks.Network, delay=True, spiking=True, **kwargs)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.Backend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.simulate.backends.</span></span><span class="sig-name descname"><span class="pre">Backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../design/networks/index.html#sns_toolbox.design.networks.Network" title="sns_toolbox.design.networks.Network"><span class="pre">sns_toolbox.design.networks.Network</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">substeps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.simulate.backends.Backend" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="simple">
+<dt>Base-level class for all simulation backends. Each will do the following:</dt><dd><ul class="simple">
+<li><p>Construct a representation of a given network using the desired backend technique</p></li>
+<li><p>Take in (some form of) a vector of input states and applied currents, and compute the result for the next
+timestep</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.Backend.__get_net_params__">
+<span class="sig-name descname"><span class="pre">__get_net_params__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.Backend.__get_net_params__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.Backend.__initialize_vectors_and_matrices__">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__initialize_vectors_and_matrices__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.Backend.__initialize_vectors_and_matrices__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
+following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
+:return:    None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.Backend.__set_neurons__">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__set_neurons__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.Backend.__set_neurons__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
+network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.Backend.__set_inputs__">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__set_inputs__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.Backend.__set_inputs__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the input connection matrix, and apply linear mapping coefficients.
+:return:    None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.Backend.__set_connections__">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__set_connections__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.Backend.__set_connections__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.Backend.__calculate_time_factors__">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__calculate_time_factors__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.Backend.__calculate_time_factors__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Precompute the time factors for the membrane voltage, firing threshold, and spiking synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.Backend.__initialize_propagation_delay__">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__initialize_propagation_delay__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.Backend.__initialize_propagation_delay__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.Backend.__set_outputs__">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__set_outputs__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.Backend.__set_outputs__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
+output monitors for each neuron in a population.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.Backend.__debug_print__">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__debug_print__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.Backend.__debug_print__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the values for every vector/matrix which will be used in the forward computation.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.Backend.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.Backend.forward" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the next neural states based on previous neural states
+:param inputs:    Input currents into the network
+:return:          The next neural voltages</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.Backend.__forward_pass__">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">__forward_pass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.Backend.__forward_pass__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the next neural states based on previous neural states in the following steps:
+Ulast = U
+ThetaLast = Theta
+MappedInputs = cubic*inputs^3 + quadratic*inputs^2 + linear*inputs + offset
+IApp = InputConnectivity X MappedInputs
+GNon = max(0, min(GMaxNon*ULast/R, GMaxNon))
+GSpike = GSpike * (1-TimeFactorSynapse)
+GSyn = GNon + GSpike
+ISyn = ColSum(GSyn*DelE) - ULast*ColSum(GSyn)
+U = ULast + TimeFactorMembrane*(-Gm*ULast + IBias + ISyn + IApp)
+Theta = ThetaLast + TimeFactorThreshold*(-ThetaLast + Theta0 + m*ULast)
+Spikes = Sign(min(0, Theta - U))
+SpikeBuffer = SpikeBuffer shifted down by 1
+SpikeBuffer[first row] = Spikes
+DelayedSpikeMatrix = SpikeBuffer[BufferSteps, BufferedNeurons]
+GSpike = max(GSpike, -DelayedSpikeMatrix*GMaxSpike)
+U = U * (Spikes + 1)
+Outputs = OutputVoltageConnectivity X U + OutputSpikeConnectivity X (-Spikes)
+MappedOutputs = cubic*Outputs^3 + quadratic*Outputs^2 + linear*Outputs + offset
+:param inputs:    Input currents into the network
+:return:          The next neural voltages</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.SNS_Numpy">
+<span class="sig-prename descclassname"><span class="pre">sns_toolbox.simulate.backends.</span></span><span class="sig-name descname"><span class="pre">SNS_Numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../design/networks/index.html#sns_toolbox.design.networks.Network" title="sns_toolbox.design.networks.Network"><span class="pre">sns_toolbox.design.networks.Network</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spiking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.simulate.backends.SNS_Numpy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_Full__">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.simulate.backends.</span></span><span class="sig-name descname"><span class="pre">__SNS_Numpy_Full__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../design/networks/index.html#sns_toolbox.design.networks.Network" title="sns_toolbox.design.networks.Network"><span class="pre">sns_toolbox.design.networks.Network</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Full__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.simulate.backends.Backend" title="sns_toolbox.simulate.backends.Backend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Backend</span></code></a></p>
+<dl class="simple">
+<dt>Base-level class for all simulation backends. Each will do the following:</dt><dd><ul class="simple">
+<li><p>Construct a representation of a given network using the desired backend technique</p></li>
+<li><p>Take in (some form of) a vector of input states and applied currents, and compute the result for the next
+timestep</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_Full__.__initialize_vectors_and_matrices__">
+<span class="sig-name descname"><span class="pre">__initialize_vectors_and_matrices__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Full__.__initialize_vectors_and_matrices__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
+following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
+:return:    None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_Full__.__set_neurons__">
+<span class="sig-name descname"><span class="pre">__set_neurons__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Full__.__set_neurons__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
+network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_Full__.__set_inputs__">
+<span class="sig-name descname"><span class="pre">__set_inputs__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Full__.__set_inputs__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the input connection matrix, and apply linear mapping coefficients.
+:return:    None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_Full__.__set_connections__">
+<span class="sig-name descname"><span class="pre">__set_connections__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Full__.__set_connections__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_Full__.__calculate_time_factors__">
+<span class="sig-name descname"><span class="pre">__calculate_time_factors__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Full__.__calculate_time_factors__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Precompute the time factors for the membrane voltage, firing threshold, and spiking synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_Full__.__initialize_propagation_delay__">
+<span class="sig-name descname"><span class="pre">__initialize_propagation_delay__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Full__.__initialize_propagation_delay__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_Full__.__set_outputs__">
+<span class="sig-name descname"><span class="pre">__set_outputs__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Full__.__set_outputs__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
+output monitors for each neuron in a population.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_Full__.__debug_print__">
+<span class="sig-name descname"><span class="pre">__debug_print__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Full__.__debug_print__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the values for every vector/matrix which will be used in the forward computation.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_Full__.__forward_pass__">
+<span class="sig-name descname"><span class="pre">__forward_pass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Full__.__forward_pass__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the next neural states based on previous neural states in the following steps:
+Ulast = U
+ThetaLast = Theta
+MappedInputs = cubic*inputs^3 + quadratic*inputs^2 + linear*inputs + offset
+IApp = InputConnectivity X MappedInputs
+GNon = max(0, min(GMaxNon*ULast/R, GMaxNon))
+GSpike = GSpike * (1-TimeFactorSynapse)
+GSyn = GNon + GSpike
+ISyn = ColSum(GSyn*DelE) - ULast*ColSum(GSyn)
+U = ULast + TimeFactorMembrane*(-Gm*ULast + IBias + ISyn + IApp)
+Theta = ThetaLast + TimeFactorThreshold*(-ThetaLast + Theta0 + m*ULast)
+Spikes = Sign(min(0, Theta - U))
+SpikeBuffer = SpikeBuffer shifted down by 1
+SpikeBuffer[first row] = Spikes
+DelayedSpikeMatrix = SpikeBuffer[BufferSteps, BufferedNeurons]
+GSpike = max(GSpike, -DelayedSpikeMatrix*GMaxSpike)
+U = U * (Spikes + 1)
+Outputs = OutputVoltageConnectivity X U + OutputSpikeConnectivity X (-Spikes)
+MappedOutputs = cubic*Outputs^3 + quadratic*Outputs^2 + linear*Outputs + offset
+:param inputs:    Input currents into the network
+:return:          The next neural voltages</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_No_Delay__">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.simulate.backends.</span></span><span class="sig-name descname"><span class="pre">__SNS_Numpy_No_Delay__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../design/networks/index.html#sns_toolbox.design.networks.Network" title="sns_toolbox.design.networks.Network"><span class="pre">sns_toolbox.design.networks.Network</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_No_Delay__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Full__" title="sns_toolbox.simulate.backends.__SNS_Numpy_Full__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Numpy_Full__</span></code></a></p>
+<dl class="simple">
+<dt>Base-level class for all simulation backends. Each will do the following:</dt><dd><ul class="simple">
+<li><p>Construct a representation of a given network using the desired backend technique</p></li>
+<li><p>Take in (some form of) a vector of input states and applied currents, and compute the result for the next
+timestep</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_No_Delay__.__initialize_vectors_and_matrices__">
+<span class="sig-name descname"><span class="pre">__initialize_vectors_and_matrices__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_No_Delay__.__initialize_vectors_and_matrices__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
+following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
+:return:    None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_No_Delay__.__set_connections__">
+<span class="sig-name descname"><span class="pre">__set_connections__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_No_Delay__.__set_connections__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_No_Delay__.__initialize_propagation_delay__">
+<span class="sig-name descname"><span class="pre">__initialize_propagation_delay__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_No_Delay__.__initialize_propagation_delay__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_No_Delay__.__forward_pass__">
+<span class="sig-name descname"><span class="pre">__forward_pass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_No_Delay__.__forward_pass__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the next neural states based on previous neural states in the following steps:
+Ulast = U
+ThetaLast = Theta
+MappedInputs = cubic*inputs^3 + quadratic*inputs^2 + linear*inputs + offset
+IApp = InputConnectivity X MappedInputs
+GNon = max(0, min(GMaxNon*ULast/R, GMaxNon))
+GSpike = GSpike * (1-TimeFactorSynapse)
+GSyn = GNon + GSpike
+ISyn = ColSum(GSyn*DelE) - ULast*ColSum(GSyn)
+U = ULast + TimeFactorMembrane*(-Gm*ULast + IBias + ISyn + IApp)
+Theta = ThetaLast + TimeFactorThreshold*(-ThetaLast + Theta0 + m*ULast)
+Spikes = Sign(min(0, Theta - U))
+SpikeBuffer = SpikeBuffer shifted down by 1
+SpikeBuffer[first row] = Spikes
+DelayedSpikeMatrix = SpikeBuffer[BufferSteps, BufferedNeurons]
+GSpike = max(GSpike, -DelayedSpikeMatrix*GMaxSpike)
+U = U * (Spikes + 1)
+Outputs = OutputVoltageConnectivity X U + OutputSpikeConnectivity X (-Spikes)
+MappedOutputs = cubic*Outputs^3 + quadratic*Outputs^2 + linear*Outputs + offset
+:param inputs:    Input currents into the network
+:return:          The next neural voltages</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.simulate.backends.</span></span><span class="sig-name descname"><span class="pre">__SNS_Numpy_Non_Spiking__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../design/networks/index.html#sns_toolbox.design.networks.Network" title="sns_toolbox.design.networks.Network"><span class="pre">sns_toolbox.design.networks.Network</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Full__" title="sns_toolbox.simulate.backends.__SNS_Numpy_Full__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Numpy_Full__</span></code></a></p>
+<dl class="simple">
+<dt>Base-level class for all simulation backends. Each will do the following:</dt><dd><ul class="simple">
+<li><p>Construct a representation of a given network using the desired backend technique</p></li>
+<li><p>Take in (some form of) a vector of input states and applied currents, and compute the result for the next
+timestep</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__.__initialize_vectors_and_matrices__">
+<span class="sig-name descname"><span class="pre">__initialize_vectors_and_matrices__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__.__initialize_vectors_and_matrices__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
+following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
+:return:    None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__.__set_neurons__">
+<span class="sig-name descname"><span class="pre">__set_neurons__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__.__set_neurons__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
+network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__.__set_connections__">
+<span class="sig-name descname"><span class="pre">__set_connections__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__.__set_connections__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__.__calculate_time_factors__">
+<span class="sig-name descname"><span class="pre">__calculate_time_factors__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__.__calculate_time_factors__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Precompute the time factors for the membrane voltage, firing threshold, and spiking synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__.__initialize_propagation_delay__">
+<span class="sig-name descname"><span class="pre">__initialize_propagation_delay__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__.__initialize_propagation_delay__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__.__set_outputs__">
+<span class="sig-name descname"><span class="pre">__set_outputs__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__.__set_outputs__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
+output monitors for each neuron in a population.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__.__debug_print__">
+<span class="sig-name descname"><span class="pre">__debug_print__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__.__debug_print__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the values for every vector/matrix which will be used in the forward computation.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__.__forward_pass__">
+<span class="sig-name descname"><span class="pre">__forward_pass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Numpy_Non_Spiking__.__forward_pass__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the next neural states based on previous neural states in the following steps:
+Ulast = U
+ThetaLast = Theta
+MappedInputs = cubic*inputs^3 + quadratic*inputs^2 + linear*inputs + offset
+IApp = InputConnectivity X MappedInputs
+GNon = max(0, min(GMaxNon*ULast/R, GMaxNon))
+GSpike = GSpike * (1-TimeFactorSynapse)
+GSyn = GNon + GSpike
+ISyn = ColSum(GSyn*DelE) - ULast*ColSum(GSyn)
+U = ULast + TimeFactorMembrane*(-Gm*ULast + IBias + ISyn + IApp)
+Theta = ThetaLast + TimeFactorThreshold*(-ThetaLast + Theta0 + m*ULast)
+Spikes = Sign(min(0, Theta - U))
+SpikeBuffer = SpikeBuffer shifted down by 1
+SpikeBuffer[first row] = Spikes
+DelayedSpikeMatrix = SpikeBuffer[BufferSteps, BufferedNeurons]
+GSpike = max(GSpike, -DelayedSpikeMatrix*GMaxSpike)
+U = U * (Spikes + 1)
+Outputs = OutputVoltageConnectivity X U + OutputSpikeConnectivity X (-Spikes)
+MappedOutputs = cubic*Outputs^3 + quadratic*Outputs^2 + linear*Outputs + offset
+:param inputs:    Input currents into the network
+:return:          The next neural voltages</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.SNS_Torch">
+<span class="sig-prename descclassname"><span class="pre">sns_toolbox.simulate.backends.</span></span><span class="sig-name descname"><span class="pre">SNS_Torch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../design/networks/index.html#sns_toolbox.design.networks.Network" title="sns_toolbox.design.networks.Network"><span class="pre">sns_toolbox.design.networks.Network</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cuda'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spiking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.simulate.backends.SNS_Torch" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_Full__">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.simulate.backends.</span></span><span class="sig-name descname"><span class="pre">__SNS_Torch_Full__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../design/networks/index.html#sns_toolbox.design.networks.Network" title="sns_toolbox.design.networks.Network"><span class="pre">sns_toolbox.design.networks.Network</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cuda'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_Full__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.simulate.backends.Backend" title="sns_toolbox.simulate.backends.Backend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Backend</span></code></a></p>
+<dl class="simple">
+<dt>Base-level class for all simulation backends. Each will do the following:</dt><dd><ul class="simple">
+<li><p>Construct a representation of a given network using the desired backend technique</p></li>
+<li><p>Take in (some form of) a vector of input states and applied currents, and compute the result for the next
+timestep</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_Full__.__initialize_vectors_and_matrices__">
+<span class="sig-name descname"><span class="pre">__initialize_vectors_and_matrices__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_Full__.__initialize_vectors_and_matrices__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
+following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
+:return:    None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_Full__.__set_neurons__">
+<span class="sig-name descname"><span class="pre">__set_neurons__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_Full__.__set_neurons__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
+network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_Full__.__set_inputs__">
+<span class="sig-name descname"><span class="pre">__set_inputs__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_Full__.__set_inputs__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the input connection matrix, and apply linear mapping coefficients.
+:return:    None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_Full__.__set_connections__">
+<span class="sig-name descname"><span class="pre">__set_connections__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_Full__.__set_connections__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_Full__.__calculate_time_factors__">
+<span class="sig-name descname"><span class="pre">__calculate_time_factors__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_Full__.__calculate_time_factors__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Precompute the time factors for the membrane voltage, firing threshold, and spiking synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_Full__.__initialize_propagation_delay__">
+<span class="sig-name descname"><span class="pre">__initialize_propagation_delay__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_Full__.__initialize_propagation_delay__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_Full__.__set_outputs__">
+<span class="sig-name descname"><span class="pre">__set_outputs__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_Full__.__set_outputs__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
+output monitors for each neuron in a population.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_Full__.__debug_print__">
+<span class="sig-name descname"><span class="pre">__debug_print__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_Full__.__debug_print__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the values for every vector/matrix which will be used in the forward computation.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_Full__.__forward_pass__">
+<span class="sig-name descname"><span class="pre">__forward_pass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_Full__.__forward_pass__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the next neural states based on previous neural states in the following steps:
+Ulast = U
+ThetaLast = Theta
+MappedInputs = cubic*inputs^3 + quadratic*inputs^2 + linear*inputs + offset
+IApp = InputConnectivity X MappedInputs
+GNon = max(0, min(GMaxNon*ULast/R, GMaxNon))
+GSpike = GSpike * (1-TimeFactorSynapse)
+GSyn = GNon + GSpike
+ISyn = ColSum(GSyn*DelE) - ULast*ColSum(GSyn)
+U = ULast + TimeFactorMembrane*(-Gm*ULast + IBias + ISyn + IApp)
+Theta = ThetaLast + TimeFactorThreshold*(-ThetaLast + Theta0 + m*ULast)
+Spikes = Sign(min(0, Theta - U))
+SpikeBuffer = SpikeBuffer shifted down by 1
+SpikeBuffer[first row] = Spikes
+DelayedSpikeMatrix = SpikeBuffer[BufferSteps, BufferedNeurons]
+GSpike = max(GSpike, -DelayedSpikeMatrix*GMaxSpike)
+U = U * (Spikes + 1)
+Outputs = OutputVoltageConnectivity X U + OutputSpikeConnectivity X (-Spikes)
+MappedOutputs = cubic*Outputs^3 + quadratic*Outputs^2 + linear*Outputs + offset
+:param inputs:    Input currents into the network
+:return:          The next neural voltages</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_No_Delay__">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.simulate.backends.</span></span><span class="sig-name descname"><span class="pre">__SNS_Torch_No_Delay__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../design/networks/index.html#sns_toolbox.design.networks.Network" title="sns_toolbox.design.networks.Network"><span class="pre">sns_toolbox.design.networks.Network</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cuda'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_No_Delay__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Torch_Full__" title="sns_toolbox.simulate.backends.__SNS_Torch_Full__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Torch_Full__</span></code></a></p>
+<dl class="simple">
+<dt>Base-level class for all simulation backends. Each will do the following:</dt><dd><ul class="simple">
+<li><p>Construct a representation of a given network using the desired backend technique</p></li>
+<li><p>Take in (some form of) a vector of input states and applied currents, and compute the result for the next
+timestep</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_No_Delay__.__initialize_vectors_and_matrices__">
+<span class="sig-name descname"><span class="pre">__initialize_vectors_and_matrices__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_No_Delay__.__initialize_vectors_and_matrices__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
+following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
+:return:    None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_No_Delay__.__set_connections__">
+<span class="sig-name descname"><span class="pre">__set_connections__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_No_Delay__.__set_connections__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_No_Delay__.__initialize_propagation_delay__">
+<span class="sig-name descname"><span class="pre">__initialize_propagation_delay__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_No_Delay__.__initialize_propagation_delay__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_No_Delay__.__forward_pass__">
+<span class="sig-name descname"><span class="pre">__forward_pass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_No_Delay__.__forward_pass__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the next neural states based on previous neural states in the following steps:
+Ulast = U
+ThetaLast = Theta
+MappedInputs = cubic*inputs^3 + quadratic*inputs^2 + linear*inputs + offset
+IApp = InputConnectivity X MappedInputs
+GNon = max(0, min(GMaxNon*ULast/R, GMaxNon))
+GSpike = GSpike * (1-TimeFactorSynapse)
+GSyn = GNon + GSpike
+ISyn = ColSum(GSyn*DelE) - ULast*ColSum(GSyn)
+U = ULast + TimeFactorMembrane*(-Gm*ULast + IBias + ISyn + IApp)
+Theta = ThetaLast + TimeFactorThreshold*(-ThetaLast + Theta0 + m*ULast)
+Spikes = Sign(min(0, Theta - U))
+SpikeBuffer = SpikeBuffer shifted down by 1
+SpikeBuffer[first row] = Spikes
+DelayedSpikeMatrix = SpikeBuffer[BufferSteps, BufferedNeurons]
+GSpike = max(GSpike, -DelayedSpikeMatrix*GMaxSpike)
+U = U * (Spikes + 1)
+Outputs = OutputVoltageConnectivity X U + OutputSpikeConnectivity X (-Spikes)
+MappedOutputs = cubic*Outputs^3 + quadratic*Outputs^2 + linear*Outputs + offset
+:param inputs:    Input currents into the network
+:return:          The next neural voltages</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.simulate.backends.</span></span><span class="sig-name descname"><span class="pre">__SNS_Torch_Non_Spiking__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../design/networks/index.html#sns_toolbox.design.networks.Network" title="sns_toolbox.design.networks.Network"><span class="pre">sns_toolbox.design.networks.Network</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cuda'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Torch_Full__" title="sns_toolbox.simulate.backends.__SNS_Torch_Full__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Torch_Full__</span></code></a></p>
+<dl class="simple">
+<dt>Base-level class for all simulation backends. Each will do the following:</dt><dd><ul class="simple">
+<li><p>Construct a representation of a given network using the desired backend technique</p></li>
+<li><p>Take in (some form of) a vector of input states and applied currents, and compute the result for the next
+timestep</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__.__initialize_vectors_and_matrices__">
+<span class="sig-name descname"><span class="pre">__initialize_vectors_and_matrices__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__.__initialize_vectors_and_matrices__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
+following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
+:return:    None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__.__set_neurons__">
+<span class="sig-name descname"><span class="pre">__set_neurons__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__.__set_neurons__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
+network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__.__set_connections__">
+<span class="sig-name descname"><span class="pre">__set_connections__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__.__set_connections__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__.__calculate_time_factors__">
+<span class="sig-name descname"><span class="pre">__calculate_time_factors__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__.__calculate_time_factors__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Precompute the time factors for the membrane voltage, firing threshold, and spiking synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__.__initialize_propagation_delay__">
+<span class="sig-name descname"><span class="pre">__initialize_propagation_delay__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__.__initialize_propagation_delay__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__.__set_outputs__">
+<span class="sig-name descname"><span class="pre">__set_outputs__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__.__set_outputs__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
+output monitors for each neuron in a population.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__.__debug_print__">
+<span class="sig-name descname"><span class="pre">__debug_print__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__.__debug_print__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the values for every vector/matrix which will be used in the forward computation.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__.__forward_pass__">
+<span class="sig-name descname"><span class="pre">__forward_pass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Torch_Non_Spiking__.__forward_pass__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the next neural states based on previous neural states in the following steps:
+Ulast = U
+ThetaLast = Theta
+MappedInputs = cubic*inputs^3 + quadratic*inputs^2 + linear*inputs + offset
+IApp = InputConnectivity X MappedInputs
+GNon = max(0, min(GMaxNon*ULast/R, GMaxNon))
+GSpike = GSpike * (1-TimeFactorSynapse)
+GSyn = GNon + GSpike
+ISyn = ColSum(GSyn*DelE) - ULast*ColSum(GSyn)
+U = ULast + TimeFactorMembrane*(-Gm*ULast + IBias + ISyn + IApp)
+Theta = ThetaLast + TimeFactorThreshold*(-ThetaLast + Theta0 + m*ULast)
+Spikes = Sign(min(0, Theta - U))
+SpikeBuffer = SpikeBuffer shifted down by 1
+SpikeBuffer[first row] = Spikes
+DelayedSpikeMatrix = SpikeBuffer[BufferSteps, BufferedNeurons]
+GSpike = max(GSpike, -DelayedSpikeMatrix*GMaxSpike)
+U = U * (Spikes + 1)
+Outputs = OutputVoltageConnectivity X U + OutputSpikeConnectivity X (-Spikes)
+MappedOutputs = cubic*Outputs^3 + quadratic*Outputs^2 + linear*Outputs + offset
+:param inputs:    Input currents into the network
+:return:          The next neural voltages</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.SNS_Sparse">
+<span class="sig-prename descclassname"><span class="pre">sns_toolbox.simulate.backends.</span></span><span class="sig-name descname"><span class="pre">SNS_Sparse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../design/networks/index.html#sns_toolbox.design.networks.Network" title="sns_toolbox.design.networks.Network"><span class="pre">sns_toolbox.design.networks.Network</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cuda'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spiking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.simulate.backends.SNS_Sparse" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_Full__">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.simulate.backends.</span></span><span class="sig-name descname"><span class="pre">__SNS_Sparse_Full__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../design/networks/index.html#sns_toolbox.design.networks.Network" title="sns_toolbox.design.networks.Network"><span class="pre">sns_toolbox.design.networks.Network</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cuda'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Full__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.simulate.backends.Backend" title="sns_toolbox.simulate.backends.Backend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Backend</span></code></a></p>
+<dl class="simple">
+<dt>Base-level class for all simulation backends. Each will do the following:</dt><dd><ul class="simple">
+<li><p>Construct a representation of a given network using the desired backend technique</p></li>
+<li><p>Take in (some form of) a vector of input states and applied currents, and compute the result for the next
+timestep</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_Full__.__initialize_vectors_and_matrices__">
+<span class="sig-name descname"><span class="pre">__initialize_vectors_and_matrices__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Full__.__initialize_vectors_and_matrices__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
+following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
+:return:    None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_Full__.__set_neurons__">
+<span class="sig-name descname"><span class="pre">__set_neurons__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Full__.__set_neurons__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
+network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_Full__.__set_inputs__">
+<span class="sig-name descname"><span class="pre">__set_inputs__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Full__.__set_inputs__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the input connection matrix, and apply linear mapping coefficients.
+:return:    None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_Full__.__set_connections__">
+<span class="sig-name descname"><span class="pre">__set_connections__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Full__.__set_connections__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_Full__.__calculate_time_factors__">
+<span class="sig-name descname"><span class="pre">__calculate_time_factors__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Full__.__calculate_time_factors__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Precompute the time factors for the membrane voltage, firing threshold, and spiking synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_Full__.__initialize_propagation_delay__">
+<span class="sig-name descname"><span class="pre">__initialize_propagation_delay__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Full__.__initialize_propagation_delay__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_Full__.__set_outputs__">
+<span class="sig-name descname"><span class="pre">__set_outputs__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Full__.__set_outputs__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
+output monitors for each neuron in a population.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_Full__.__debug_print__">
+<span class="sig-name descname"><span class="pre">__debug_print__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Full__.__debug_print__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the values for every vector/matrix which will be used in the forward computation.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_Full__.__forward_pass__">
+<span class="sig-name descname"><span class="pre">__forward_pass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Full__.__forward_pass__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the next neural states based on previous neural states in the following steps:
+Ulast = U
+ThetaLast = Theta
+MappedInputs = cubic*inputs^3 + quadratic*inputs^2 + linear*inputs + offset
+IApp = InputConnectivity X MappedInputs
+GNon = max(0, min(GMaxNon*ULast/R, GMaxNon))
+GSpike = GSpike * (1-TimeFactorSynapse)
+GSyn = GNon + GSpike
+ISyn = ColSum(GSyn*DelE) - ULast*ColSum(GSyn)
+U = ULast + TimeFactorMembrane*(-Gm*ULast + IBias + ISyn + IApp)
+Theta = ThetaLast + TimeFactorThreshold*(-ThetaLast + Theta0 + m*ULast)
+Spikes = Sign(min(0, Theta - U))
+SpikeBuffer = SpikeBuffer shifted down by 1
+SpikeBuffer[first row] = Spikes
+DelayedSpikeMatrix = SpikeBuffer[BufferSteps, BufferedNeurons]
+GSpike = max(GSpike, -DelayedSpikeMatrix*GMaxSpike)
+U = U * (Spikes + 1)
+Outputs = OutputVoltageConnectivity X U + OutputSpikeConnectivity X (-Spikes)
+MappedOutputs = cubic*Outputs^3 + quadratic*Outputs^2 + linear*Outputs + offset
+:param inputs:    Input currents into the network
+:return:          The next neural voltages</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_No_Delay__">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.simulate.backends.</span></span><span class="sig-name descname"><span class="pre">__SNS_Sparse_No_Delay__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../design/networks/index.html#sns_toolbox.design.networks.Network" title="sns_toolbox.design.networks.Network"><span class="pre">sns_toolbox.design.networks.Network</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cuda'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_No_Delay__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Full__" title="sns_toolbox.simulate.backends.__SNS_Sparse_Full__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Sparse_Full__</span></code></a></p>
+<dl class="simple">
+<dt>Base-level class for all simulation backends. Each will do the following:</dt><dd><ul class="simple">
+<li><p>Construct a representation of a given network using the desired backend technique</p></li>
+<li><p>Take in (some form of) a vector of input states and applied currents, and compute the result for the next
+timestep</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_No_Delay__.__initialize_vectors_and_matrices__">
+<span class="sig-name descname"><span class="pre">__initialize_vectors_and_matrices__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_No_Delay__.__initialize_vectors_and_matrices__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
+following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
+:return:    None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_No_Delay__.__set_connections__">
+<span class="sig-name descname"><span class="pre">__set_connections__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_No_Delay__.__set_connections__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_No_Delay__.__initialize_propagation_delay__">
+<span class="sig-name descname"><span class="pre">__initialize_propagation_delay__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_No_Delay__.__initialize_propagation_delay__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_No_Delay__.__forward_pass__">
+<span class="sig-name descname"><span class="pre">__forward_pass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_No_Delay__.__forward_pass__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the next neural states based on previous neural states in the following steps:
+Ulast = U
+ThetaLast = Theta
+MappedInputs = cubic*inputs^3 + quadratic*inputs^2 + linear*inputs + offset
+IApp = InputConnectivity X MappedInputs
+GNon = max(0, min(GMaxNon*ULast/R, GMaxNon))
+GSpike = GSpike * (1-TimeFactorSynapse)
+GSyn = GNon + GSpike
+ISyn = ColSum(GSyn*DelE) - ULast*ColSum(GSyn)
+U = ULast + TimeFactorMembrane*(-Gm*ULast + IBias + ISyn + IApp)
+Theta = ThetaLast + TimeFactorThreshold*(-ThetaLast + Theta0 + m*ULast)
+Spikes = Sign(min(0, Theta - U))
+SpikeBuffer = SpikeBuffer shifted down by 1
+SpikeBuffer[first row] = Spikes
+DelayedSpikeMatrix = SpikeBuffer[BufferSteps, BufferedNeurons]
+GSpike = max(GSpike, -DelayedSpikeMatrix*GMaxSpike)
+U = U * (Spikes + 1)
+Outputs = OutputVoltageConnectivity X U + OutputSpikeConnectivity X (-Spikes)
+MappedOutputs = cubic*Outputs^3 + quadratic*Outputs^2 + linear*Outputs + offset
+:param inputs:    Input currents into the network
+:return:          The next neural voltages</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.simulate.backends.</span></span><span class="sig-name descname"><span class="pre">__SNS_Sparse_Non_Spiking__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../design/networks/index.html#sns_toolbox.design.networks.Network" title="sns_toolbox.design.networks.Network"><span class="pre">sns_toolbox.design.networks.Network</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cuda'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Full__" title="sns_toolbox.simulate.backends.__SNS_Sparse_Full__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Sparse_Full__</span></code></a></p>
+<dl class="simple">
+<dt>Base-level class for all simulation backends. Each will do the following:</dt><dd><ul class="simple">
+<li><p>Construct a representation of a given network using the desired backend technique</p></li>
+<li><p>Take in (some form of) a vector of input states and applied currents, and compute the result for the next
+timestep</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__.__initialize_vectors_and_matrices__">
+<span class="sig-name descname"><span class="pre">__initialize_vectors_and_matrices__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__.__initialize_vectors_and_matrices__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
+following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
+:return:    None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__.__set_neurons__">
+<span class="sig-name descname"><span class="pre">__set_neurons__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__.__set_neurons__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
+network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__.__set_connections__">
+<span class="sig-name descname"><span class="pre">__set_connections__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__.__set_connections__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__.__calculate_time_factors__">
+<span class="sig-name descname"><span class="pre">__calculate_time_factors__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__.__calculate_time_factors__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Precompute the time factors for the membrane voltage, firing threshold, and spiking synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__.__initialize_propagation_delay__">
+<span class="sig-name descname"><span class="pre">__initialize_propagation_delay__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__.__initialize_propagation_delay__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__.__set_outputs__">
+<span class="sig-name descname"><span class="pre">__set_outputs__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__.__set_outputs__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
+output monitors for each neuron in a population.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__.__debug_print__">
+<span class="sig-name descname"><span class="pre">__debug_print__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__.__debug_print__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the values for every vector/matrix which will be used in the forward computation.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__.__forward_pass__">
+<span class="sig-name descname"><span class="pre">__forward_pass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Sparse_Non_Spiking__.__forward_pass__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the next neural states based on previous neural states in the following steps:
+Ulast = U
+ThetaLast = Theta
+MappedInputs = cubic*inputs^3 + quadratic*inputs^2 + linear*inputs + offset
+IApp = InputConnectivity X MappedInputs
+GNon = max(0, min(GMaxNon*ULast/R, GMaxNon))
+GSpike = GSpike * (1-TimeFactorSynapse)
+GSyn = GNon + GSpike
+ISyn = ColSum(GSyn*DelE) - ULast*ColSum(GSyn)
+U = ULast + TimeFactorMembrane*(-Gm*ULast + IBias + ISyn + IApp)
+Theta = ThetaLast + TimeFactorThreshold*(-ThetaLast + Theta0 + m*ULast)
+Spikes = Sign(min(0, Theta - U))
+SpikeBuffer = SpikeBuffer shifted down by 1
+SpikeBuffer[first row] = Spikes
+DelayedSpikeMatrix = SpikeBuffer[BufferSteps, BufferedNeurons]
+GSpike = max(GSpike, -DelayedSpikeMatrix*GMaxSpike)
+U = U * (Spikes + 1)
+Outputs = OutputVoltageConnectivity X U + OutputSpikeConnectivity X (-Spikes)
+MappedOutputs = cubic*Outputs^3 + quadratic*Outputs^2 + linear*Outputs + offset
+:param inputs:    Input currents into the network
+:return:          The next neural voltages</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.SNS_Manual">
+<span class="sig-prename descclassname"><span class="pre">sns_toolbox.simulate.backends.</span></span><span class="sig-name descname"><span class="pre">SNS_Manual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../design/networks/index.html#sns_toolbox.design.networks.Network" title="sns_toolbox.design.networks.Network"><span class="pre">sns_toolbox.design.networks.Network</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">delay</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spiking</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.simulate.backends.SNS_Manual" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_Full__">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.simulate.backends.</span></span><span class="sig-name descname"><span class="pre">__SNS_Manual_Full__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../design/networks/index.html#sns_toolbox.design.networks.Network" title="sns_toolbox.design.networks.Network"><span class="pre">sns_toolbox.design.networks.Network</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_Full__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.simulate.backends.Backend" title="sns_toolbox.simulate.backends.Backend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Backend</span></code></a></p>
+<dl class="simple">
+<dt>Base-level class for all simulation backends. Each will do the following:</dt><dd><ul class="simple">
+<li><p>Construct a representation of a given network using the desired backend technique</p></li>
+<li><p>Take in (some form of) a vector of input states and applied currents, and compute the result for the next
+timestep</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_Full__.__initialize_vectors_and_matrices__">
+<span class="sig-name descname"><span class="pre">__initialize_vectors_and_matrices__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_Full__.__initialize_vectors_and_matrices__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
+following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
+:return:    None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_Full__.__set_neurons__">
+<span class="sig-name descname"><span class="pre">__set_neurons__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_Full__.__set_neurons__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
+network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_Full__.__set_inputs__">
+<span class="sig-name descname"><span class="pre">__set_inputs__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_Full__.__set_inputs__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the input connection matrix, and apply linear mapping coefficients.
+:return:    None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_Full__.__set_connections__">
+<span class="sig-name descname"><span class="pre">__set_connections__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_Full__.__set_connections__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_Full__.__calculate_time_factors__">
+<span class="sig-name descname"><span class="pre">__calculate_time_factors__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_Full__.__calculate_time_factors__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Precompute the time factors for the membrane voltage, firing threshold, and spiking synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_Full__.__initialize_propagation_delay__">
+<span class="sig-name descname"><span class="pre">__initialize_propagation_delay__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_Full__.__initialize_propagation_delay__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_Full__.__set_outputs__">
+<span class="sig-name descname"><span class="pre">__set_outputs__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_Full__.__set_outputs__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
+output monitors for each neuron in a population.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_Full__.__debug_print__">
+<span class="sig-name descname"><span class="pre">__debug_print__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_Full__.__debug_print__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the values for every vector/matrix which will be used in the forward computation.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_Full__.__forward_pass__">
+<span class="sig-name descname"><span class="pre">__forward_pass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_Full__.__forward_pass__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the next neural states based on previous neural states in the following steps:
+Ulast = U
+ThetaLast = Theta
+MappedInputs = cubic*inputs^3 + quadratic*inputs^2 + linear*inputs + offset
+IApp = InputConnectivity X MappedInputs
+GNon = max(0, min(GMaxNon*ULast/R, GMaxNon))
+GSpike = GSpike * (1-TimeFactorSynapse)
+GSyn = GNon + GSpike
+ISyn = ColSum(GSyn*DelE) - ULast*ColSum(GSyn)
+U = ULast + TimeFactorMembrane*(-Gm*ULast + IBias + ISyn + IApp)
+Theta = ThetaLast + TimeFactorThreshold*(-ThetaLast + Theta0 + m*ULast)
+Spikes = Sign(min(0, Theta - U))
+SpikeBuffer = SpikeBuffer shifted down by 1
+SpikeBuffer[first row] = Spikes
+DelayedSpikeMatrix = SpikeBuffer[BufferSteps, BufferedNeurons]
+GSpike = max(GSpike, -DelayedSpikeMatrix*GMaxSpike)
+U = U * (Spikes + 1)
+Outputs = OutputVoltageConnectivity X U + OutputSpikeConnectivity X (-Spikes)
+MappedOutputs = cubic*Outputs^3 + quadratic*Outputs^2 + linear*Outputs + offset
+:param inputs:    Input currents into the network
+:return:          The next neural voltages</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_No_Delay__">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.simulate.backends.</span></span><span class="sig-name descname"><span class="pre">__SNS_Manual_No_Delay__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../design/networks/index.html#sns_toolbox.design.networks.Network" title="sns_toolbox.design.networks.Network"><span class="pre">sns_toolbox.design.networks.Network</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_No_Delay__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Manual_Full__" title="sns_toolbox.simulate.backends.__SNS_Manual_Full__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Manual_Full__</span></code></a></p>
+<dl class="simple">
+<dt>Base-level class for all simulation backends. Each will do the following:</dt><dd><ul class="simple">
+<li><p>Construct a representation of a given network using the desired backend technique</p></li>
+<li><p>Take in (some form of) a vector of input states and applied currents, and compute the result for the next
+timestep</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_No_Delay__.__set_connections__">
+<span class="sig-name descname"><span class="pre">__set_connections__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_No_Delay__.__set_connections__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_No_Delay__.__forward_pass__">
+<span class="sig-name descname"><span class="pre">__forward_pass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_No_Delay__.__forward_pass__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the next neural states based on previous neural states in the following steps:
+Ulast = U
+ThetaLast = Theta
+MappedInputs = cubic*inputs^3 + quadratic*inputs^2 + linear*inputs + offset
+IApp = InputConnectivity X MappedInputs
+GNon = max(0, min(GMaxNon*ULast/R, GMaxNon))
+GSpike = GSpike * (1-TimeFactorSynapse)
+GSyn = GNon + GSpike
+ISyn = ColSum(GSyn*DelE) - ULast*ColSum(GSyn)
+U = ULast + TimeFactorMembrane*(-Gm*ULast + IBias + ISyn + IApp)
+Theta = ThetaLast + TimeFactorThreshold*(-ThetaLast + Theta0 + m*ULast)
+Spikes = Sign(min(0, Theta - U))
+SpikeBuffer = SpikeBuffer shifted down by 1
+SpikeBuffer[first row] = Spikes
+DelayedSpikeMatrix = SpikeBuffer[BufferSteps, BufferedNeurons]
+GSpike = max(GSpike, -DelayedSpikeMatrix*GMaxSpike)
+U = U * (Spikes + 1)
+Outputs = OutputVoltageConnectivity X U + OutputSpikeConnectivity X (-Spikes)
+MappedOutputs = cubic*Outputs^3 + quadratic*Outputs^2 + linear*Outputs + offset
+:param inputs:    Input currents into the network
+:return:          The next neural voltages</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_Non_Spiking__">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.simulate.backends.</span></span><span class="sig-name descname"><span class="pre">__SNS_Manual_Non_Spiking__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../../design/networks/index.html#sns_toolbox.design.networks.Network" title="sns_toolbox.design.networks.Network"><span class="pre">sns_toolbox.design.networks.Network</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_Non_Spiking__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.simulate.backends.__SNS_Manual_Full__" title="sns_toolbox.simulate.backends.__SNS_Manual_Full__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__SNS_Manual_Full__</span></code></a></p>
+<dl class="simple">
+<dt>Base-level class for all simulation backends. Each will do the following:</dt><dd><ul class="simple">
+<li><p>Construct a representation of a given network using the desired backend technique</p></li>
+<li><p>Take in (some form of) a vector of input states and applied currents, and compute the result for the next
+timestep</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_Non_Spiking__.__initialize_vectors_and_matrices__">
+<span class="sig-name descname"><span class="pre">__initialize_vectors_and_matrices__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_Non_Spiking__.__initialize_vectors_and_matrices__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
+following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
+:return:    None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_Non_Spiking__.__set_neurons__">
+<span class="sig-name descname"><span class="pre">__set_neurons__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_Non_Spiking__.__set_neurons__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
+network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
+:return:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_Non_Spiking__.__set_connections__">
+<span class="sig-name descname"><span class="pre">__set_connections__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_Non_Spiking__.__set_connections__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_Non_Spiking__.__calculate_time_factors__">
+<span class="sig-name descname"><span class="pre">__calculate_time_factors__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_Non_Spiking__.__calculate_time_factors__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Precompute the time factors for the membrane voltage, firing threshold, and spiking synapses.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_Non_Spiking__.__set_outputs__">
+<span class="sig-name descname"><span class="pre">__set_outputs__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_Non_Spiking__.__set_outputs__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
+output monitors for each neuron in a population.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_Non_Spiking__.__debug_print__">
+<span class="sig-name descname"><span class="pre">__debug_print__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_Non_Spiking__.__debug_print__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the values for every vector/matrix which will be used in the forward computation.
+:return: None</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.simulate.backends.__SNS_Manual_Non_Spiking__.__forward_pass__">
+<span class="sig-name descname"><span class="pre">__forward_pass__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#sns_toolbox.simulate.backends.__SNS_Manual_Non_Spiking__.__forward_pass__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the next neural states based on previous neural states in the following steps:
+Ulast = U
+ThetaLast = Theta
+MappedInputs = cubic*inputs^3 + quadratic*inputs^2 + linear*inputs + offset
+IApp = InputConnectivity X MappedInputs
+GNon = max(0, min(GMaxNon*ULast/R, GMaxNon))
+GSpike = GSpike * (1-TimeFactorSynapse)
+GSyn = GNon + GSpike
+ISyn = ColSum(GSyn*DelE) - ULast*ColSum(GSyn)
+U = ULast + TimeFactorMembrane*(-Gm*ULast + IBias + ISyn + IApp)
+Theta = ThetaLast + TimeFactorThreshold*(-ThetaLast + Theta0 + m*ULast)
+Spikes = Sign(min(0, Theta - U))
+SpikeBuffer = SpikeBuffer shifted down by 1
+SpikeBuffer[first row] = Spikes
+DelayedSpikeMatrix = SpikeBuffer[BufferSteps, BufferedNeurons]
+GSpike = max(GSpike, -DelayedSpikeMatrix*GMaxSpike)
+U = U * (Spikes + 1)
+Outputs = OutputVoltageConnectivity X U + OutputSpikeConnectivity X (-Spikes)
+MappedOutputs = cubic*Outputs^3 + quadratic*Outputs^2 + linear*Outputs + offset
+:param inputs:    Input currents into the network
+:return:          The next neural voltages</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../../index.html">SNS-Toolbox</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">API Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2022, William Nourse.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 5.0.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../../../_sources/autoapi/sns_toolbox/simulate/backends/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
