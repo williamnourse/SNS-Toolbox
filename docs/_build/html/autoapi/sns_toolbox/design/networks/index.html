@@ -65,19 +65,6 @@ You’re gonna be okay!</p>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="functions">
-<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this heading">¶</a></h3>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.design.networks.__kernel_connections_1d__" title="sns_toolbox.design.networks.__kernel_connections_1d__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__kernel_connections_1d__</span></code></a>(pop_size, kernel)</p></td>
-<td><p>Generate a connection matrix from a kernel vector and population size</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.design.networks.__kernel_connections_2d__" title="sns_toolbox.design.networks.__kernel_connections_2d__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__kernel_connections_2d__</span></code></a>(pop_shape, kernel)</p></td>
-<td><p>Generate a connection matrix from a kernel matrix and population shape</p></td>
-</tr>
-</tbody>
-</table>
 <dl class="py class">
 <dt class="sig sig-object py" id="sns_toolbox.design.networks.Network">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.design.networks.</span></span><span class="sig-name descname"><span class="pre">Network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Network'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.design.networks.Network" title="Permalink to this definition">¶</a></dt>
@@ -212,24 +199,6 @@ single value, or an array matching ‘shape’
 <span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.design.networks.Network.copy" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="sns_toolbox.design.networks.__kernel_connections_1d__">
-<span class="sig-prename descclassname"><span class="pre">sns_toolbox.design.networks.</span></span><span class="sig-name descname"><span class="pre">__kernel_connections_1d__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.design.networks.__kernel_connections_1d__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a connection matrix from a kernel vector and population size
-:param pop_size: number of neurons in the population
-:param kernel: kernel vector to apply
-:return: connection matrix</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="sns_toolbox.design.networks.__kernel_connections_2d__">
-<span class="sig-prename descclassname"><span class="pre">sns_toolbox.design.networks.</span></span><span class="sig-name descname"><span class="pre">__kernel_connections_2d__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.design.networks.__kernel_connections_2d__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a connection matrix from a kernel matrix and population shape
-:param pop_shape: shape of the population
-:param kernel: kernel matrix to apply
-:return: connection matrix</p>
 </dd></dl>
 
 <dl class="py class">

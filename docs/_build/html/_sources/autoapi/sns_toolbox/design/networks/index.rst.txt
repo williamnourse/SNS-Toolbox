@@ -29,15 +29,6 @@ Classes
 
 
 
-Functions
-~~~~~~~~~
-
-.. autoapisummary::
-
-   sns_toolbox.design.networks.__kernel_connections_1d__
-   sns_toolbox.design.networks.__kernel_connections_2d__
-
-
 
 .. py:class:: Network(name: str = 'Network', R: float = 20.0)
 
@@ -146,22 +137,6 @@ Functions
 
    .. py:method:: copy(self)
 
-
-
-.. py:function:: __kernel_connections_1d__(pop_size, kernel)
-
-   Generate a connection matrix from a kernel vector and population size
-   :param pop_size: number of neurons in the population
-   :param kernel: kernel vector to apply
-   :return: connection matrix
-
-
-.. py:function:: __kernel_connections_2d__(pop_shape, kernel)
-
-   Generate a connection matrix from a kernel matrix and population shape
-   :param pop_shape: shape of the population
-   :param kernel: kernel matrix to apply
-   :return: connection matrix
 
 
 .. py:class:: AdditionNetwork(gains, add_del_e=100, sub_del_e=-40, neuron_type=NonSpikingNeuron(), name='Add', **kwargs)

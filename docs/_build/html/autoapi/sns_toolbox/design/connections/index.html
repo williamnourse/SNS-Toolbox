@@ -80,19 +80,6 @@ He’s convinced me, gimme back my dollar!</p>
 </tr>
 </tbody>
 </table>
-</section>
-<section id="functions">
-<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this heading">¶</a></h3>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.design.connections.__calc_synaptic_parameters_from_gain__" title="sns_toolbox.design.connections.__calc_synaptic_parameters_from_gain__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__calc_synaptic_parameters_from_gain__</span></code></a>(gain, positive_reversal_potential, negative_reversal_potential, R)</p></td>
-<td><p></p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.design.connections.__calc_spiking_synaptic_parameters_from_gain__" title="sns_toolbox.design.connections.__calc_spiking_synaptic_parameters_from_gain__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__calc_spiking_synaptic_parameters_from_gain__</span></code></a>(gain, positive_reversal_potential, negative_reversal_potential, R, time_constant, max_frequency)</p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
 <dl class="py class">
 <dt class="sig sig-object py" id="sns_toolbox.design.connections.Connection">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.design.connections.</span></span><span class="sig-name descname"><span class="pre">Connection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_conductance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative_reversal_potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Connection'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.design.connections.Connection" title="Permalink to this definition">¶</a></dt>
@@ -157,16 +144,6 @@ He’s convinced me, gimme back my dollar!</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.design.connections.</span></span><span class="sig-name descname"><span class="pre">NonSpikingGainPatternConnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gain_matrix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Pattern'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positive_reversal_potential</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">160.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_reversal_potential</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-</span> <span class="pre">80.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wrap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.design.connections.NonSpikingGainPatternConnection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sns_toolbox.design.connections.NonSpikingConnection" title="sns_toolbox.design.connections.NonSpikingConnection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonSpikingConnection</span></code></a></p>
 </dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="sns_toolbox.design.connections.__calc_synaptic_parameters_from_gain__">
-<span class="sig-prename descclassname"><span class="pre">sns_toolbox.design.connections.</span></span><span class="sig-name descname"><span class="pre">__calc_synaptic_parameters_from_gain__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positive_reversal_potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_reversal_potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.design.connections.__calc_synaptic_parameters_from_gain__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="sns_toolbox.design.connections.__calc_spiking_synaptic_parameters_from_gain__">
-<span class="sig-prename descclassname"><span class="pre">sns_toolbox.design.connections.</span></span><span class="sig-name descname"><span class="pre">__calc_spiking_synaptic_parameters_from_gain__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">positive_reversal_potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_reversal_potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_constant</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_frequency</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.design.connections.__calc_spiking_synaptic_parameters_from_gain__" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
 
 </section>
 </section>

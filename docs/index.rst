@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to SNS-Toolbox's documentation!
+SNS-Toolbox
 =======================================
 
 .. toctree::
@@ -12,12 +12,6 @@ Welcome to SNS-Toolbox's documentation!
 
 
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
 
 Better documentation coming soon. For now, please see the 'tutorials' folder. For network design, the python package 'graphviz' is required. For full simulation options the packages 'numpy', 'matplotlib', and 'torch' are required. Numpy will execute on the cpu, torch can be used on the gpu. I recommend installing all of the supporting packages in a virtual environment.
@@ -27,3 +21,5 @@ So far this has been tested using Python 3.8, which is also the newest version t
 Pytorch must be installed separately from the other packages in pip, since which configuration of torch you install is dependent on your personal system configuration. For instructions on installing torch, please see https://pytorch.org/get-started/locally/
 
 Tutorial 6 uses the python package for OpenCV, please see the installation instructions located at https://pypi.org/project/opencv-python/
+
+* :ref:`genindex`

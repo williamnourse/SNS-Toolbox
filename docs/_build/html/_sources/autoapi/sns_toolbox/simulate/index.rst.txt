@@ -10,7 +10,6 @@ Submodules
    :titlesonly:
    :maxdepth: 1
 
-   __utilities__/index.rst
    backends/index.rst
    plotting/index.rst
    test_backends/index.rst
