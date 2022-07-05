@@ -33,8 +33,9 @@ release = '1.0.0'
 extensions = ['myst_parser', 'autoapi.extension'
 ]
 
+# AutoAPI Settings
 autoapi_dirs = ['../sns_toolbox']
-autoapi_options = ['members','undoc-members','show-inheritance','show-module-summary','imported-members']
+autoapi_ignore = ['*/__utilities__.py']
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
