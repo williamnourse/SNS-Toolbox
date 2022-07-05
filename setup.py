@@ -1,5 +1,11 @@
 from setuptools import setup, find_packages
 
+
+def readme_file_contents():
+    with open('README.md') as f:
+        data = f.read()
+    return data
+
 setup(
     name='sns_toolbox',
     version='0.9',
@@ -9,6 +15,7 @@ setup(
     author='William Nourse',
     author_email='nourse@case.edu',
     description='Tools for designing Synthetic Nervous Systems, and simulating them on various software/hardware backends',
+    long_description=readme_file_contents(),
     setup_requires=['wheel'],
     python_requires='>=3.5',
     install_requires=['graphviz',
