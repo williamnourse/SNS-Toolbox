@@ -48,8 +48,8 @@ class Connection:
 
 class NonSpikingConnection(Connection):
     """
-    Base class of all non-spiking connections. Initializes a dictionary of parameters which is modified by classes which
-     inherit from it.
+    Base class of all non-spiking connections. Initializes a dictionary of parameters which is modified by classes
+    which inherit from it.
 
     :param max_conductance: All connections have a maximum synaptic conductance. It can be a single value or a matrix,
         but it must be defined.
@@ -71,8 +71,8 @@ class NonSpikingConnection(Connection):
 
 class SpikingConnection(Connection):
     """
-    Base class of all non-spiking connections. Initializes a dictionary of parameters which is modified by classes which
-     inherit from it.
+    Base class of all non-spiking connections. Initializes a dictionary of parameters which is modified by classes
+    which inherit from it.
 
     :param max_conductance: All connections have a maximum synaptic conductance. It can be a single value or a matrix,
         but it must be defined.
@@ -96,8 +96,8 @@ class SpikingConnection(Connection):
 
 class NonSpikingSynapse(NonSpikingConnection):
     """
-    An individual non-spiking synapse, where the conductance is defined as Conductance = max_conductance * max(0, min(1,
-     Upre/R)), and the synaptic current is i_syn = Conductance*(relative_reversal_potential - Upost).
+    An individual non-spiking synapse, where the conductance is defined as Conductance = max_conductance * max(0,
+    min(1, Upre/R)), and the synaptic current is i_syn = Conductance*(relative_reversal_potential - Upost).
 
     :param max_conductance: Maximum synaptic conductance, defaults to 1.0. Units are micro-siemens (uS).
     :type max_conductance: float, optional
@@ -128,8 +128,8 @@ class SpikingSynapse(SpikingConnection):
     """
     An individual spiking synapse, where the conductance is reset to max_conductance whenever the pre-synaptic
     neuron spikes, and otherwise decays to zero according to the time constant. Synaptic current
-    is i_syn = Conductance*(relative_reversal_potential - Upost). Synaptic propagation can be delayed by a set number of
-     timesteps.
+    is i_syn = Conductance*(relative_reversal_potential - Upost). Synaptic propagation can be delayed by a set number
+    of timesteps.
 
     :param max_conductance: Maximum synaptic conductance, defaults to 1.0. Units are micro-siemens (uS).
     :type max_conductance: float, optional
