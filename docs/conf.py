@@ -36,7 +36,7 @@ extensions = ['myst_parser', 'autoapi.extension'
 # AutoAPI Settings
 autoapi_dirs = ['../sns_toolbox']
 autoapi_ignore = ['*/__utilities__.py']
-autoapi_add_toctree_entry = False
+# autoapi_add_toctree_entry = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
