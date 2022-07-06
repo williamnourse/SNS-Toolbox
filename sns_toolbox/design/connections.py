@@ -245,7 +245,7 @@ class SpikingPatternConnection(SpikingConnection):
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SPECIFIC MODELS
 """
-
+# TODO: Move these to a 'templates' file
 class NonSpikingTransmissionSynapse(NonSpikingSynapse):
     def __init__(self, gain: float = 1.0,
                  name: str = 'Transmit',
@@ -372,7 +372,7 @@ class SpikingTransmissionSynapse(SpikingSynapse):
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 HELPER FUNCTIONS
 """
-
+# TODO: Move these to __utilities__
 def __calc_synaptic_parameters_from_gain__(gain, positive_reversal_potential, negative_reversal_potential, R):
     if gain == 0.0:
         return 0.0, 0.0
