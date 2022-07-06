@@ -126,10 +126,10 @@ class NonSpikingSynapse(NonSpikingConnection):
 
 class SpikingSynapse(SpikingConnection):
     """
-    An individual spiking synapse, where the conductance is reset to :param 'max_conductance' whenever the pre-synaptic
-    neuron spikes, and otherwise decays to zero according to the time constant :param 'time_constant'. Synaptic current
-    is i_syn = Conductance*(relative_reversal_potential - Upost). Synaptic propagation can be delayed by :param
-    'transmission_delay' timesteps.
+    An individual spiking synapse, where the conductance is reset to max_conductance whenever the pre-synaptic
+    neuron spikes, and otherwise decays to zero according to the time constant. Synaptic current
+    is i_syn = Conductance*(relative_reversal_potential - Upost). Synaptic propagation can be delayed by a set number of
+     timesteps.
 
     :param max_conductance: Maximum synaptic conductance, defaults to 1.0. Units are micro-siemens (uS).
     :type max_conductance: float, optional
