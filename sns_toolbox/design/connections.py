@@ -71,7 +71,7 @@ class NonSpikingConnection(Connection):
 
 class SpikingConnection(Connection):
     """
-    Base class of all non-spiking connections. Initializes a dictionary of parameters which is modified by classes
+    Base class of all spiking connections. Initializes a dictionary of parameters which is modified by classes
     which inherit from it.
 
     :param max_conductance: All connections have a maximum synaptic conductance. It can be a single value or a matrix,
@@ -203,6 +203,19 @@ class NonSpikingPatternConnection(NonSpikingConnection):
         self.params['pattern'] = True
 
 class SpikingPatternConnection(SpikingConnection):
+    """
+    A pattern of spiking synapses, with kernel matrices representing the maximum conductance, reversal potential, time
+    constant, and transmission delay of each synapse in the pattern.
+
+    :param max_conductance_kernel: Kernel matrix of conductance values. Units are micro-siemens (uS).
+    :type max_conductance_kernel: np.ndarray or torch.tensor
+    :param relative_reversal_potential_kernel: Kernel matrix of reversal potential values. Units are millivolts (mV).
+    :type relative_reversal_potential_kernel: np.ndarray or torch.tensor
+    :param time_constant_kernel: Kernel matrix of time constant values. Units are milliseconds (ms).
+    :type time_constant_kernel: np.ndarray or torch.tensor
+    :param transmission_delay_kernel: Kernel matrix of transmission delays. Units are timesteps (dt).
+    :type transmission_delay_kernel: np.ndarray or torch.tensor
+    """
     def __init__(self, max_conductance_kernel, relative_reversal_potential_kernel, time_constant_kernel,
                  transmission_delay_kernel, **kwargs: Any) -> None:
         """
