@@ -125,6 +125,21 @@ class NonSpikingSynapse(NonSpikingConnection):
         self.params['pattern'] = False
 
 class SpikingSynapse(SpikingConnection):
+    """
+    An individual spiking synapse, where the conductance is reset to :param 'max_conductance' whenever the pre-synaptic
+    neuron spikes, and otherwise decays to zero according to the time constant :param 'time_constant'. Synaptic current
+    is i_syn = Conductance*(relative_reversal_potential - Upost). Synaptic propagation can be delayed by :param
+    'transmission_delay' timesteps.
+
+    :param max_conductance: Maximum synaptic conductance, defaults to 1.0. Units are micro-siemens (uS).
+    :type max_conductance: float, optional
+    :param relative_reversal_potential: Synaptic reversal potential, defaults to 194.0. Units are millivolts (mV).
+    :type relative_reversal_potential: float, optional
+    :param time_constant: Time constant of synaptic decay, defaults to 1.0. Units are milliseconds (ms).
+    :type time_constant: float, optional
+    :param transmission_delay: Number of timesteps to delay synaptic activity, defaults to 0. Units are timesteps (dt).
+    :param transmission_delay: int, optional
+    """
     def __init__(self, max_conductance: float = 1.0,
                  relative_reversal_potential: float = 194.0,
                  time_constant: float = 1.0,
