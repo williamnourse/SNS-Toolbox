@@ -28,7 +28,7 @@ class Connection:
     :param relative_reversal_potential: All connections have a relative synaptic reversal potential. It can be a single
         value or a matrix, but it must be defined.
     :type relative_reversal_potential: Number, np.ndarray, or torch.tensor
-    :param name: Name of this connection preset, defaults to 'Connection'
+    :param name: Name of this connection preset, defaults to 'Connection'.
     :type name: str, optional
     """
     def __init__(self, max_conductance, relative_reversal_potential, name: str = 'Connection'):
@@ -57,7 +57,7 @@ class NonSpikingConnection(Connection):
     :param relative_reversal_potential: All connections have a relative synaptic reversal potential. It can be a single
         value or a matrix, but it must be defined.
     :type relative_reversal_potential: Number, np.ndarray, or torch.tensor
-    :param name: Name of this connection preset, defaults to 'Non-Spiking Connection'
+    :param name: Name of this connection preset, defaults to 'Non-Spiking Connection'.
     :type name: str, optional
     """
     def __init__(self, max_conductance, relative_reversal_potential, name: str = 'Non-Spiking Connection') -> None:
@@ -80,7 +80,7 @@ class SpikingConnection(Connection):
     :param relative_reversal_potential: All connections have a relative synaptic reversal potential. It can be a single
         value or a matrix, but it must be defined.
     :type relative_reversal_potential: Number, np.ndarray, or torch.tensor
-    :param name: Name of this connection preset, defaults to 'Spiking Connection'
+    :param name: Name of this connection preset, defaults to 'Spiking Connection'.
     :type name: str, optional
     """
     def __init__(self, max_conductance, relative_reversal_potential, time_constant, transmission_delay,
@@ -95,6 +95,15 @@ class SpikingConnection(Connection):
         self.params['transmissionDelay'] = transmission_delay
 
 class NonSpikingSynapse(NonSpikingConnection):
+    """
+    An individual non-spiking synapse, where the conductance is defined as Conductance = max_conductance * max(0, min(1,
+     Upre/R)), and the synaptic current is i_syn = Conductance*(relative_reversal_potential - Upost).
+
+    :param max_conductance: Maximum synaptic conductance, defaults to 1.0. Units are micro-siemens (uS).
+    :type max_conductance: float, optional
+    :param relative_reversal_potential: Synaptic reversal potential, defaults to 40.0. Units are millivolts (mV).
+    :type relative_reversal_potential: float, optional
+    """
     def __init__(self, max_conductance: float = 1.0,
                  relative_reversal_potential: float = 40.0,
                  **kwargs: Any) -> None:
