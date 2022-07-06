@@ -138,7 +138,7 @@ class SpikingSynapse(SpikingConnection):
     :param time_constant: Time constant of synaptic decay, defaults to 1.0. Units are milliseconds (ms).
     :type time_constant: float, optional
     :param transmission_delay: Number of timesteps to delay synaptic activity, defaults to 0. Units are timesteps (dt).
-    :param transmission_delay: int, optional
+    :type transmission_delay: int, optional
     """
     def __init__(self, max_conductance: float = 1.0,
                  relative_reversal_potential: float = 194.0,
@@ -178,6 +178,15 @@ class SpikingSynapse(SpikingConnection):
             raise TypeError('Synaptic transmission delay must be an integer')
 
 class NonSpikingPatternConnection(NonSpikingConnection):
+    """
+    A pattern of non-spiking synapses, with kernel matrices representing the maximum conductance and reversal potential
+    of each synapse in the pattern.
+
+    :param max_conductance_kernel: Kernel matrix of conductance values. Units are micro-siemens (uS).
+    :type max_conductance_kernel: np.ndarray or torch.tensor
+    :param relative_reversal_potential_kernel: Kernel matrix of reversal potential values. Units are millivolts (mV).
+    :type relative_reversal_potential_kernel: np.ndarray or torch.tensor
+    """
     def __init__(self, max_conductance_kernel, relative_reversal_potential_kernel, **kwargs: Any) -> None:
         """
         Basic non-spiking synapse, where the conductance is defined as the following:
