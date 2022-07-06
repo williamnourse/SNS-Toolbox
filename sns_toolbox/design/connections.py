@@ -48,8 +48,8 @@ class Connection:
 
 class NonSpikingConnection(Connection):
     """
-    Base class of all non-spiking connections. Inherits from :class: sns_toolbox.design.connections.Connection.
-    Initializes a dictionary of parameters which is modified by classes which inherit from it.
+    Base class of all non-spiking connections. Initializes a dictionary of parameters which is modified by classes which
+     inherit from it.
 
     :param max_conductance: All connections have a maximum synaptic conductance. It can be a single value or a matrix,
         but it must be defined.
@@ -70,6 +70,19 @@ class NonSpikingConnection(Connection):
         self.params['spiking'] = False
 
 class SpikingConnection(Connection):
+    """
+    Base class of all non-spiking connections. Initializes a dictionary of parameters which is modified by classes which
+     inherit from it.
+
+    :param max_conductance: All connections have a maximum synaptic conductance. It can be a single value or a matrix,
+        but it must be defined.
+    :type max_conductance: Number, np.ndarray, or torch.tensor
+    :param relative_reversal_potential: All connections have a relative synaptic reversal potential. It can be a single
+        value or a matrix, but it must be defined.
+    :type relative_reversal_potential: Number, np.ndarray, or torch.tensor
+    :param name: Name of this connection preset, defaults to 'Spiking Connection'
+    :type name: str, optional
+    """
     def __init__(self, max_conductance, relative_reversal_potential, time_constant, transmission_delay,
                  name: str = 'Spiking Connection') -> None:
         """
