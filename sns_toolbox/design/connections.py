@@ -1,8 +1,6 @@
 """
-The mechanism for defining a synapse (connection) model which can be simulated in the SNS Toolbox
-William Nourse
-May 10, 2021
-He's convinced me, gimme back my dollar!
+Connections are the mechanisms for data transmission between neurons. They can either define an individual conductance-
+based synapse, or a pattern of synapses which is tiled between two populations.
 """
 import numpy as np
 
@@ -20,6 +18,19 @@ import math
 BASE CLASS
 """
 class Connection:
+    """
+    Base class of all connections. Initializes a dictionary of parameters which is modified by classes which inherit
+    from it.
+
+    :param max_conductance: All connections have a maximum synaptic conductance. It can be a single value or a matrix,
+        but it must be defined.
+    :type max_conductance: Number, np.ndarray, or torch.tensor
+    :param relative_reversal_potential: All connections have a relative synaptic reversal potential. It can be a single
+        value or a matrix, but it must be defined.
+    :type relative_reversal_potential: Number, np.ndarray, or torch.tensor
+    :param name: Name of this connection preset, defaults to 'Connection'
+    :type name: str, optional
+    """
     def __init__(self, max_conductance, relative_reversal_potential, name: str = 'Connection'):
         """
         Constructor for the base class of all connections
@@ -237,54 +248,53 @@ class SpikingTransmissionSynapse(SpikingSynapse):
         else:
             raise TypeError('Gain of '+str(gain)+' must be a number (int, float, double, etc.)')
 
-# TODO: Redo in more elemental form
-class NonSpikingGainPatternConnection(NonSpikingConnection):
-    def __init__(self,gain_matrix,
-                 name: str = 'Pattern',
-                 R: float = 20.0,
-                 positive_reversal_potential: float = 160.0,
-                 negative_reversal_potential: float = -80.0,
-                 wrap: bool = False):
-        """
-        Connection pattern between two neural populations (i.e. a kernel)
-        :param gain_matrix: Matrix (or vector for 1D kernels) of synaptic gains
-        :param name:    Name of this connection type
-        :param R:   Voltage range of neural activity (mV)
-        :param positive_reversal_potential: Reversal potential for connections with positive gain (mV)
-        :param negative_reversal_potential: Reversal potential for connections with negative gain (mV)
-        :param wrap:    Flag for if connections should wrap from one end of the population to the other
-        """
-        max_conductance = []
-        relative_reversal_potential = []
-        super().__init__(max_conductance,relative_reversal_potential,name=name)
-        self.params['wrap'] = wrap
-        self.params['R'] = R
-        self.params['pattern'] = True
-
-        self.positive_reversal_potential = positive_reversal_potential
-        self.negative_reversal_potential = negative_reversal_potential
-
-        if hasattr(gain_matrix[0],'__iter__'): # 2D kernel
-            for row in range(len(gain_matrix)):
-                cond_values = []
-                del_e_values = []
-                for col in range(len(gain_matrix[0])):
-                    calc_max_conductance,calc_relative_reversal_potential = __calc_synaptic_parameters_from_gain__(gain_matrix[row][col],
-                                                                                                                   positive_reversal_potential,
-                                                                                                                   negative_reversal_potential,
-                                                                                                                   self.params['R'])
-                    cond_values.append(calc_max_conductance)
-                    del_e_values.append(calc_relative_reversal_potential)
-                self.params['max_conductance_kernel'].append(cond_values)
-                self.params['relative_reversal_potential_kernel'].append(del_e_values)
-        else:   # 1D kernel
-            for i in range(len(gain_matrix)):
-                calc_max_conductance, calc_relative_reversal_potential = __calc_synaptic_parameters_from_gain__(gain_matrix[i],
-                                                                                                                positive_reversal_potential,
-                                                                                                                negative_reversal_potential,
-                                                                                                                self.params['R'])
-                self.params['max_conductance_kernel'].append(calc_max_conductance)
-                self.params['relative_reversal_potential_kernel'].append(calc_relative_reversal_potential)
+# class NonSpikingGainPatternConnection(NonSpikingConnection):
+#     def __init__(self,gain_matrix,
+#                  name: str = 'Pattern',
+#                  R: float = 20.0,
+#                  positive_reversal_potential: float = 160.0,
+#                  negative_reversal_potential: float = -80.0,
+#                  wrap: bool = False):
+#         """
+#         Connection pattern between two neural populations (i.e. a kernel)
+#         :param gain_matrix: Matrix (or vector for 1D kernels) of synaptic gains
+#         :param name:    Name of this connection type
+#         :param R:   Voltage range of neural activity (mV)
+#         :param positive_reversal_potential: Reversal potential for connections with positive gain (mV)
+#         :param negative_reversal_potential: Reversal potential for connections with negative gain (mV)
+#         :param wrap:    Flag for if connections should wrap from one end of the population to the other
+#         """
+#         max_conductance = []
+#         relative_reversal_potential = []
+#         super().__init__(max_conductance,relative_reversal_potential,name=name)
+#         self.params['wrap'] = wrap
+#         self.params['R'] = R
+#         self.params['pattern'] = True
+#
+#         self.positive_reversal_potential = positive_reversal_potential
+#         self.negative_reversal_potential = negative_reversal_potential
+#
+#         if hasattr(gain_matrix[0],'__iter__'): # 2D kernel
+#             for row in range(len(gain_matrix)):
+#                 cond_values = []
+#                 del_e_values = []
+#                 for col in range(len(gain_matrix[0])):
+#                     calc_max_conductance,calc_relative_reversal_potential = __calc_synaptic_parameters_from_gain__(gain_matrix[row][col],
+#                                                                                                                    positive_reversal_potential,
+#                                                                                                                    negative_reversal_potential,
+#                                                                                                                    self.params['R'])
+#                     cond_values.append(calc_max_conductance)
+#                     del_e_values.append(calc_relative_reversal_potential)
+#                 self.params['max_conductance_kernel'].append(cond_values)
+#                 self.params['relative_reversal_potential_kernel'].append(del_e_values)
+#         else:   # 1D kernel
+#             for i in range(len(gain_matrix)):
+#                 calc_max_conductance, calc_relative_reversal_potential = __calc_synaptic_parameters_from_gain__(gain_matrix[i],
+#                                                                                                                 positive_reversal_potential,
+#                                                                                                                 negative_reversal_potential,
+#                                                                                                                 self.params['R'])
+#                 self.params['max_conductance_kernel'].append(calc_max_conductance)
+#                 self.params['relative_reversal_potential_kernel'].append(calc_relative_reversal_potential)
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
