@@ -248,7 +248,7 @@ class NonSpikingModulationSynapse(NonSpikingSynapse):
     :param ratio: The desired ratio Upost/Upre when Upre is at max activity (R mV).
     :type ratio: Number
     :param name: Name of this synapse preset, defaults to 'Modulate'.
-    :type str, optional
+    :type name: str, optional
     """
     def __init__(self,ratio, name: str = 'Modulate', **kwargs) -> None:
         super().__init__(name=name,**kwargs)
