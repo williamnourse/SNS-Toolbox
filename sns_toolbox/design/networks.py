@@ -1,8 +1,6 @@
 """
-Networks store a combination of neurons and synapse, so they can be visualized and compiled
-William Nourse
-May 10, 2021
-You're gonna be okay!
+Networks store neuron and synapse types, and the pattern of connections between them. While not capable of being
+simulated directly, they are used as a template for compilation.
 """
 
 """
