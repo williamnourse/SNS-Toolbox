@@ -56,8 +56,10 @@ class Network:
 
     def get_num_neurons(self) -> int:
         """
-        Calculate the number of neurons in the network
-        :return: shape
+        Calculate the number of neurons in the network, including within populations.
+
+        :return: The number of neurons in the network.
+        :rtype: int
         """
         num_neurons = 0
         for pop in self.populations:
