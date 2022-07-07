@@ -15,7 +15,7 @@ import math
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-BASE CLASS
+BASE CLASSES
 """
 class Connection:
     """
@@ -32,10 +32,6 @@ class Connection:
     :type name: str, optional
     """
     def __init__(self, max_conductance, relative_reversal_potential, name: str = 'Connection'):
-        """
-        Constructor for the base class of all connections
-        :param name:    Name of this connection type
-        """
         self.params: Dict[str, Any] = {}
         self.params['spiking'] = False
         self.params['pattern'] = False
@@ -61,10 +57,6 @@ class NonSpikingConnection(Connection):
     :type name: str, optional
     """
     def __init__(self, max_conductance, relative_reversal_potential, name: str = 'Non-Spiking Connection') -> None:
-        """
-        Constructor for the base class of all non-spiking connections
-        :param name: Name of this connection preset
-        """
         super().__init__(max_conductance, relative_reversal_potential, name)
 
         self.params['spiking'] = False
@@ -85,10 +77,6 @@ class SpikingConnection(Connection):
     """
     def __init__(self, max_conductance, relative_reversal_potential, time_constant, transmission_delay,
                  name: str = 'Spiking Connection') -> None:
-        """
-        Constructor for the base class of all spiking connections
-        :param name: Name of this connection preset
-        """
         super().__init__(max_conductance, relative_reversal_potential, name)
         self.params['spiking'] = True
         self.params['synapticTimeConstant'] = time_constant
@@ -107,13 +95,6 @@ class NonSpikingSynapse(NonSpikingConnection):
     def __init__(self, max_conductance: float = 1.0,
                  relative_reversal_potential: float = 40.0,
                  **kwargs: Any) -> None:
-        """
-        Basic non-spiking synapse, where the conductance is defined as the following:
-        Conductance = max_conductance * max(0, min(1, Upre/R)), and the synaptic current is
-        i_syn = Conductance*(relative_reversal_potential - Upost)
-        :param max_conductance:              uS
-        :param relative_reversal_potential:   mV
-        """
         if isinstance(max_conductance, numbers.Number):
             if max_conductance <= 0:
                 raise ValueError('max_conductance (gMax) must be greater than 0')
@@ -145,13 +126,6 @@ class SpikingSynapse(SpikingConnection):
                  time_constant: float = 1.0,
                  transmission_delay: int = 0,
                  **kwargs: Any) -> None:
-        """
-        Basic non-spiking synapse, where the conductance is defined as the following:
-        Conductance = max_conductance * max(0, min(1, Upre/R)), and the synaptic current is
-        i_syn = Conductance*(relative_reversal_potential - Upost)
-        :param max_conductance:              uS
-        :param relative_reversal_potential:   mV
-        """
         if isinstance(max_conductance, numbers.Number):
             if max_conductance <= 0:
                 raise ValueError('max_conductance (gMax) must be greater than 0')
@@ -188,13 +162,6 @@ class NonSpikingPatternConnection(NonSpikingConnection):
     :type relative_reversal_potential_kernel: np.ndarray or torch.tensor
     """
     def __init__(self, max_conductance_kernel, relative_reversal_potential_kernel, **kwargs: Any) -> None:
-        """
-        Basic non-spiking synapse, where the conductance is defined as the following:
-        Conductance = max_conductance_kernel * max(0, min(1, Upre/R)), and the synaptic current is
-        i_syn = Conductance*(relative_reversal_potential_kernel - Upost)
-        :param max_conductance_kernel:              uS
-        :param relative_reversal_potential_kernel:   mV
-        """
         if max_conductance_kernel.shape != relative_reversal_potential_kernel.shape:
             raise ValueError('Max Conductance and Relative Reversal Potential must be matrices of the same shape')
         if np.any(max_conductance_kernel <= 0):
@@ -218,15 +185,6 @@ class SpikingPatternConnection(SpikingConnection):
     """
     def __init__(self, max_conductance_kernel, relative_reversal_potential_kernel, time_constant_kernel,
                  transmission_delay_kernel, **kwargs: Any) -> None:
-        """
-        Basic non-spiking synapse, where the conductance is defined as the following:
-        Conductance = max_conductance_kernel * max(0, min(1, Upre/R)), and the synaptic current is
-        i_syn = Conductance*(relative_reversal_potential_kernel - Upost)
-        :param max_conductance_kernel:              uS
-        :param relative_reversal_potential_kernel:   mV
-        :param time_constant_kernel: ms
-        :param transmission_delay_kernel: timesteps
-        """
         if (max_conductance_kernel.shape != relative_reversal_potential_kernel.shape) or (
                 max_conductance_kernel.shape != time_constant_kernel.shape) or (
                 max_conductance_kernel.shape != transmission_delay_kernel.shape):
@@ -245,7 +203,7 @@ class SpikingPatternConnection(SpikingConnection):
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 SPECIFIC MODELS
 """
-# TODO: Move these to a 'templates' file
+
 class NonSpikingTransmissionSynapse(NonSpikingSynapse):
     def __init__(self, gain: float = 1.0,
                  name: str = 'Transmit',
