@@ -13,7 +13,7 @@ IMPORTS
 import unittest
 import warnings
 
-from sns_toolbox.design import __utilities__
+from sns_toolbox.design import design_utilities
 from sns_toolbox.design import neurons
 from sns_toolbox.design import connections
 from sns_toolbox.design import networks
@@ -31,13 +31,13 @@ class TestValidColor(unittest.TestCase):
         self.assertEqual(False, __utilities__.valid_color('not a color'), 'Should be False')
 
     def test_input_not_string(self):
-        self.assertEqual(False, __utilities__.valid_color(5), 'Should be False')
+        self.assertEqual(False, design_utilities.valid_color(5), 'Should be False')
 
     def test_input_none(self):
-        self.assertEqual(False, __utilities__.valid_color(), 'Should be False')
+        self.assertEqual(False, design_utilities.valid_color(), 'Should be False')
 
     def test_color_in_set_uppercase(self):
-        self.assertEqual(False, __utilities__.valid_color('ROYALblue'), 'Should be False')
+        self.assertEqual(False, design_utilities.valid_color('ROYALblue'), 'Should be False')
 
     def test_color_tuple(self):
         self.assertEqual(False, __utilities__.valid_color(['navy', 'olive']))
@@ -48,21 +48,21 @@ class TestSetTextColor(unittest.TestCase):
         self.assertEqual('white', __utilities__.set_text_color('brown'), 'Should be white')
 
     def test_color_with_black_text(self):
-        self.assertEqual('black', __utilities__.set_text_color('white'), 'Should be black')
+        self.assertEqual('black', design_utilities.set_text_color('white'), 'Should be black')
 
     def test_uppercase_white_text(self):
-        self.assertEqual('black', __utilities__.set_text_color('Brown'), 'Should be black')
+        self.assertEqual('black', design_utilities.set_text_color('Brown'), 'Should be black')
 
     def test_not_string(self):
         warnings.simplefilter('ignore',category=UserWarning)
-        self.assertEqual('black', __utilities__.set_text_color(5), 'Should be black')
+        self.assertEqual('black', design_utilities.set_text_color(5), 'Should be black')
 
     def test_color_tuple(self):
         warnings.simplefilter('ignore', category=UserWarning)
-        self.assertEqual('black', __utilities__.set_text_color(['black', 'blue']), 'Should be black')
+        self.assertEqual('black', design_utilities.set_text_color(['black', 'blue']), 'Should be black')
 
     def test_input_none(self):
-        self.assertEqual('black', __utilities__.set_text_color(), 'Should be black')
+        self.assertEqual('black', design_utilities.set_text_color(), 'Should be black')
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

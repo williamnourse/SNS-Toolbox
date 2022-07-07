@@ -17,7 +17,7 @@ import numpy as np
 
 from sns_toolbox.design.neurons import Neuron, NonSpikingNeuron, SpikingNeuron
 from sns_toolbox.design.connections import Connection, NonSpikingSynapse, NonSpikingTransmissionSynapse, NonSpikingModulationSynapse
-from sns_toolbox.design.__utilities__ import valid_color, set_text_color
+from sns_toolbox.design.design_utilities import valid_color, set_text_color
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
