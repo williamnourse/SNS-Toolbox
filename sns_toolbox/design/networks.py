@@ -68,11 +68,13 @@ class Network:
 
     def get_num_connections(self) -> int:
         """
-        Calculate the number of connections in the network. This will need to be overhauled for populations with multiple neurons
-        :return: num_connections
+        Calculate the number of connections in the network. Does not account for individual synapses between neurons in
+        populations.
+
+        :return: The number of connections in the network.
+        :rtype: int
         """
-        num_synapses = len(self.connections)
-        return num_synapses
+        return len(self.connections)
 
     def get_num_populations(self) -> int:
         num_pop = len(self.populations)
