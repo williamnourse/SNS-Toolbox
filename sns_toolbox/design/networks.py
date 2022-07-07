@@ -137,7 +137,7 @@ class Network:
         Given a string, find the numerical index of the population corresponding to that name within the network.
 
         :param name: Name of the population to find.
-        :type: str
+        :type name: str
         :return: Index of the population.
         :rtype: int
         """
@@ -153,7 +153,7 @@ class Network:
         Given a string, find the numerical index of the input node given by that name within the network.
 
         :param name: Name of the input node to find.
-        :type: str
+        :type name: str
         :return: Index of the input node.
         :rtype: int
         """
@@ -169,8 +169,9 @@ class Network:
         Render an image of the network in the form of a directed graph (DG) using graphviz.
 
         :param imgFormat: File extension of the resulting image, default is 'png'.
-        :type: str, optional
+        :type imgFormat: str, optional
         :param view: Boolean flag to view the image, default is 'False'.
+        :type view: bool, optional
         :return: None
         :rtype: N/A
         """
@@ -182,14 +183,21 @@ class Network:
     # Construction
     def add_population(self, neuron_type: Neuron, shape, name: str = None, color=None, initial_value=None) -> None:
         """
-        Add a neural population to the network
-        :param neuron_type:  Type of neuron to add
-        :param shape:  Number of that neuron to include in the population
-        :param name:        Name of the population
-        :param color:       Color of the population in the rendered image
+        Add a neural population to the network.
+
+        :param neuron_type:  Type of neuron to add.
+        :type neuron_type: class: 'sns_toolbox.design.neurons.Neuron'
+        :param shape: The number of neurons in each dimension of the population.
+        :type shape: class: np.ndarray or class: torch.tensor
+        :param name: Name of the population, default is None.
+        :type name: str, optional
+        :param color: Color of the population in the rendered image, default is None.
+        :type color: str, optional
         :param initial_value: Initial value of membrane voltage for each neuron in the population (must be either a
-        single value, or an array matching 'shape'
-        :return:            None
+        single value, or an array matching 'shape'.
+        :type initial_value: class: 'numbers.Number', class: 'np.ndarray', or class: 'torch.tensor'
+        :return: None
+        :rtype: N/A
         """
         if not isinstance(neuron_type, Neuron):
             raise TypeError('Input type is not a neuron')
