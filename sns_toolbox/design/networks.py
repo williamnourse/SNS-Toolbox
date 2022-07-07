@@ -166,10 +166,13 @@ class Network:
 
     def render_graph(self, imgFormat: str = 'png', view: bool = False) -> None:
         """
-        Render an image of the network in the form of a directed graph (DG)
-        :param imgFormat:   File extension of the resulting image
-        :param view:        Flag to view the image
+        Render an image of the network in the form of a directed graph (DG) using graphviz.
+
+        :param imgFormat: File extension of the resulting image, default is 'png'.
+        :type: str, optional
+        :param view: Boolean flag to view the image, default is 'False'.
         :return: None
+        :rtype: N/A
         """
         if not isinstance(view,bool):
             raise TypeError('View must be a boolean')
