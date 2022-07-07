@@ -303,6 +303,9 @@ class SpikingTransmissionSynapse(SpikingSynapse):
         else:
             raise TypeError('Gain of '+str(gain)+' must be a number (int, float, double, etc.)')
 
+"""
+Classes and functions for an easier pattern connection, just based on gains. Not fully implemented yet.
+"""
 # class NonSpikingGainPatternConnection(NonSpikingConnection):
 #     def __init__(self,gain_matrix,
 #                  name: str = 'Pattern',
@@ -351,32 +354,27 @@ class SpikingTransmissionSynapse(SpikingSynapse):
 #                 self.params['max_conductance_kernel'].append(calc_max_conductance)
 #                 self.params['relative_reversal_potential_kernel'].append(calc_relative_reversal_potential)
 
-"""
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-HELPER FUNCTIONS
-"""
-# TODO: Move these to __utilities__
-def __calc_synaptic_parameters_from_gain__(gain, positive_reversal_potential, negative_reversal_potential, R):
-    if gain == 0.0:
-        return 0.0, 0.0
-    else:
-        if gain > 0.0:
-            relative_reversal_potential = positive_reversal_potential
-        else:
-            relative_reversal_potential = negative_reversal_potential
-        max_conductance = gain * R / (relative_reversal_potential - gain * R)
-
-        return max_conductance, relative_reversal_potential
-
-def __calc_spiking_synaptic_parameters_from_gain__(gain, positive_reversal_potential, negative_reversal_potential, R,
-                                                   time_constant, max_frequency):
-    if gain == 0.0:
-        return 0.0, 0.0
-    else:
-        if gain > 0.0:
-            relative_reversal_potential = positive_reversal_potential
-        else:
-            relative_reversal_potential = negative_reversal_potential
-        max_conductance = gain * R / ((relative_reversal_potential - gain * R)*time_constant*max_frequency)
-
-        return max_conductance, relative_reversal_potential
+# def __calc_synaptic_parameters_from_gain__(gain, positive_reversal_potential, negative_reversal_potential, R):
+#     if gain == 0.0:
+#         return 0.0, 0.0
+#     else:
+#         if gain > 0.0:
+#             relative_reversal_potential = positive_reversal_potential
+#         else:
+#             relative_reversal_potential = negative_reversal_potential
+#         max_conductance = gain * R / (relative_reversal_potential - gain * R)
+#
+#         return max_conductance, relative_reversal_potential
+#
+# def __calc_spiking_synaptic_parameters_from_gain__(gain, positive_reversal_potential, negative_reversal_potential, R,
+#                                                    time_constant, max_frequency):
+#     if gain == 0.0:
+#         return 0.0, 0.0
+#     else:
+#         if gain > 0.0:
+#             relative_reversal_potential = positive_reversal_potential
+#         else:
+#             relative_reversal_potential = negative_reversal_potential
+#         max_conductance = gain * R / ((relative_reversal_potential - gain * R)*time_constant*max_frequency)
+#
+#         return max_conductance, relative_reversal_potential
