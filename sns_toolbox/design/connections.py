@@ -206,7 +206,7 @@ SPECIFIC MODELS
 
 class NonSpikingTransmissionSynapse(NonSpikingSynapse):
     """
-    A transmission synapse, where (given some integration_gain) the maximum conductance is
+    A non-spiking transmission synapse, where (given some integration_gain) the maximum conductance is
     max_conductance = (integration_gain*R)/(relative_reversal_potential - integration_gain*R).
 
     :param gain: Transmission integration gain, defaults to 1.0.
@@ -243,7 +243,7 @@ class NonSpikingTransmissionSynapse(NonSpikingSynapse):
 
 class NonSpikingModulationSynapse(NonSpikingSynapse):
     """
-    A modulation synapse, where the relative_reversal_potential is set to 0.
+    A non-spiking modulation synapse, where the relative_reversal_potential is set to 0.
 
     :param ratio: The desired ratio Upost/Upre when Upre is at max activity (R mV).
     :type ratio: Number
@@ -261,22 +261,28 @@ class NonSpikingModulationSynapse(NonSpikingSynapse):
         self.params['max_conductance'] = 1/ratio - 1
 
 class SpikingTransmissionSynapse(SpikingSynapse):
-    def __init__(self,gain: float = 1.0, name: str = 'Transmit', max_frequency: float = 10.0, nonlinearity: float = 0.1,
-                 **kwargs) -> None:
-        """
-        Spiking version of the transmission synapse.
-        :param gain: Transmission frequency gain
-        :param name: Name of this preset
-        :param max_frequency: Maximum neural spiking frequency
-        :param nonlinearity: Degree of nonlinear response of firing rate
-        """
+    """
+    A spiking version of the non-spiking transmission synapse.
+
+    :param gain: Transmission frequency gain, defaults to 1.0.
+    :type gain: Number, optional
+    :param name: Name of this preset, defaults to 'Transmit'.
+    :type name: str, optional
+    :param max_frequency: Maximum spiking frequency, defaults to 10.0. Units are kilohertz (kHz).
+    :type max_frequency: Number, optional
+    :param non_linearity: A constant between 0 and 1 which limits the synaptic non-linearity. Values closer to 0 improve
+        linearity.
+    :type non_linearity: Number, optional
+    """
+    def __init__(self, gain: float = 1.0, name: str = 'Transmit', max_frequency: float = 10.0,
+                 non_linearity: float = 0.1, **kwargs) -> None:
         if not isinstance(max_frequency, numbers.Number):
             raise TypeError('Max spiking frequency must be a number (int, float, double, etc.) greater than 0')
         elif max_frequency <= 0:
             raise ValueError('Max spiking frequency must be greater than 0')
-        if isinstance(nonlinearity, numbers.Number):
-            if (nonlinearity < 1.0) and (nonlinearity > 0.0):
-                time_constant = -1/(max_frequency*math.log(nonlinearity))
+        if isinstance(non_linearity, numbers.Number):
+            if (non_linearity < 1.0) and (non_linearity > 0.0):
+                time_constant = -1/(max_frequency * math.log(non_linearity))
             else:
                 raise ValueError('Nonlinearity coefficient must be between 0 and 1')
         else:
