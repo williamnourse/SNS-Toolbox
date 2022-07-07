@@ -17,7 +17,6 @@ import numpy as np
 
 from sns_toolbox.design.neurons import Neuron, NonSpikingNeuron, SpikingNeuron
 from sns_toolbox.design.connections import Connection, NonSpikingSynapse, NonSpikingTransmissionSynapse, NonSpikingModulationSynapse
-from sns_toolbox.design.__utilities__ import valid_color, set_text_color
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -462,12 +461,43 @@ class Network:
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-HELPER CODE
+CONSTANTS
+"""
+
+# SVG standard colors for graphviz
+SETOFVALIDCOLORS = {'aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque', 'black', 'blanchedalmond',
+          'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chartreuse', 'chocolate', 'coral',
+          'cornflowerblue', 'cornsilk', 'crimson', 'cyan', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgray',
+          'darkgreen', 'darkgrey', 'darkkhaki', 'darkmagenta', 'darkolivegreen', 'darkorange', 'darkorchid', 'darkred',
+          'darksalmon', 'darkseagreen', 'darkslateblue', 'darkslategray', 'darkslategrey', 'darkturquoise', 'darkviolet',
+          'deeppink', 'deepskyblue', 'dimgray', 'dimgrey', 'dodgerblue', 'firebrick', 'floralwhite', 'forestgreen',
+          'fuchsia', 'gainsboro', 'ghostwhite', 'gold', 'goldenrod', 'gray', 'grey', 'green', 'greenyellow', 'honeydew',
+          'hotpink', 'indianred', 'indigo',	'ivory', 'khaki', 'lavender', 'lavenderblush', 'lawngreen',	'lemonchiffon',
+          'lightblue', 'lightcoral', 'lightcyan', 'lightgoldenrodyellow', 'lightgray', 'lightgreen', 'lightgrey',
+          'lightpink', 'lightsalmon', 'lightseagreen', 'lightskyblue', 'lightslategray', 'lightslategrey',
+          'lightsteelblue', 'lightyellow', 'lime', 'limegreen', 'linen', 'magenta', 'maroon', 'mediumaquamarine',
+                    'mediumblue', 'mediumorchid', 'mediumpurple', 'mediumseagreen', 'mediumslateblue', 'mediumspringgreen',
+                    'mediumturquoise', 'mediumvioletred', 'midnightblue', 'mintcream', 'mistyrose', 'moccasin', 'navajowhite',
+                    'navy', 'oldlace', 'olive', 'olivedrab', 'orange', 'orangered', 'orchid', 'palegoldenrod', 'palegreen',
+                    'paleturquoise', 'palevioletred', 'papayawhip', 'peachpuff', 'peru', 'pink', 'plum', 'powderblue', 'purple',
+                    'red', 'rosybrown', 'royalblue', 'saddlebrown', 'salmon', 'sandybrown', 'seagreen', 'seashell', 'sienna',
+                    'silver', 'skyblue', 'slateblue', 'slategray', 'slategrey', 'snow', 'springgreen', 'steelblue', 'tan', 'teal',
+                    'thistle', 'tomato', 'turquoise', 'violet', 'wheat', 'white', 'whitesmoke', 'yellow', 'yellowgreen'}
+
+# Standard SVG colors which need white text instead of black for good visibility
+COLORSWHITETEXT = {'black', 'blue', 'blueviolet', 'brown', 'darkblue', 'darkmagenta', 'darkolivegreen', 'darkred',
+          'darkslateblue', 'darkslategray', 'darkslategrey', 'darkviolet', 'dimgray', 'dimgrey', 'indigo', 'maroon',
+                   'mediumblue', 'midnightblue', 'navy', 'olive', 'purple', 'saddlebrown', 'teal'}
+
+"""
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+HELPER FUNCTIONS
 """
 
 def __kernel_connections_1d__(pop_size,kernel):
     """
     Generate a connection matrix from a kernel vector and population size
+
     :param pop_size: number of neurons in the population
     :param kernel: kernel vector to apply
     :return: connection matrix
@@ -484,6 +514,7 @@ def __kernel_connections_1d__(pop_size,kernel):
 def __kernel_connections_2d__(pop_shape,kernel):
     """
     Generate a connection matrix from a kernel matrix and population shape
+
     :param pop_shape: shape of the population
     :param kernel: kernel matrix to apply
     :return: connection matrix
@@ -514,6 +545,25 @@ def __kernel_connections_2d__(pop_shape,kernel):
             connection_matrix[index,:] = subsection.flatten()
             index += 1
     return connection_matrix
+
+def valid_color(color: str = None) -> bool:
+    if isinstance(color, str):
+        if color in SETOFVALIDCOLORS:
+            return True
+        else:
+            return False
+    else:
+        return False
+
+def set_text_color(color: str = None) -> str:
+    if isinstance(color, str):
+        if color in COLORSWHITETEXT:
+            return 'white'
+        else:
+            return 'black'
+    else:
+        warnings.warn('Specified background color is not a string. Defaulting to black text color')
+        return 'black'
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
