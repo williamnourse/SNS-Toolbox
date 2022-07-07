@@ -186,14 +186,14 @@ class Network:
         Add a neural population to the network.
 
         :param neuron_type:  Type of neuron to add.
-        :type neuron_type: class: 'sns_toolbox.design.neurons.Neuron'
+        :type neuron_type: sns_toolbox.design.neurons.Neuron
         :param shape: The number of neurons in each dimension of the population.
-        :type shape: class: np.ndarray or class: torch.tensor
+        :type shape: np.ndarray or torch.tensor
         :param name: Name of the population, default is None.
         :type name: str, optional
         :param color: Color of the population in the rendered image, default is None.
         :type color: str, optional
-        :param initial_value: Initial value of membrane voltage for each neuron in the population (must be either a
+        :param initial_value: Initial value of membrane voltage for each neuron in the population. Must be either a
         single value, or an array matching 'shape'.
         :type initial_value: class: 'numbers.Number', class: 'np.ndarray', or class: 'torch.tensor'
         :return: None
