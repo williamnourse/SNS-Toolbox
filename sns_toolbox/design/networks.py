@@ -77,14 +77,30 @@ class Network:
         return len(self.connections)
 
     def get_num_populations(self) -> int:
-        num_pop = len(self.populations)
-        return num_pop
+        """
+        Get the number of populations in the network.
+
+        :return: Number of populations.
+        :rtype: int
+        """
+        return len(self.populations)
 
     def get_num_inputs(self) -> int:
-        num_in = len(self.inputs)
-        return num_in
+        """
+        Get the number of input nodes to the network. Vector inputs are treated as a single input node.
+
+        :return: Number of inputs.
+        :rtype: int
+        """
+        return len(self.inputs)
 
     def get_num_inputs_actual(self) -> int:
+        """
+        Calculate the number of individual inputs throughout the network. Vector inputs have one input per dimension.
+
+        :return: Number of individual inputs.
+        :rtype: int
+        """
         index = 0
         for inp in range(self.get_num_inputs()):
             size = self.inputs[inp]['size']
@@ -92,10 +108,21 @@ class Network:
         return index
 
     def get_num_outputs(self) -> int:
-        num_out = len(self.outputs)
-        return num_out
+        """
+        Get the number of output nodes from the network. Vector outputs have one output node.
+
+        :return: Number of outputs.
+        :rtype: int
+        """
+        return len(self.outputs)
 
     def get_num_outputs_actual(self) -> int:
+        """
+        Calculate the number of individual outputs from the network. Vector outputs have one output per dimension.
+
+        :return: Number of individual outputs.
+        :rtype: int
+        """
         index = 0
         for out in range(self.get_num_outputs()):
             source_pop = self.outputs[out]['source']
@@ -106,6 +133,14 @@ class Network:
         return index
 
     def get_population_index(self, name: str) -> int:
+        """
+        Given a string, find the numerical index of the population corresponding to that name within the network.
+
+        :param name: Name of the population to find.
+        :type: str
+        :return: Index of the population.
+        :rtype: int
+        """
         if not isinstance(name,str):
             raise TypeError('Name must be a valid string')
         for index in range(len(self.populations)):
@@ -114,6 +149,14 @@ class Network:
         raise ValueError('Population not found by name \'%s\'' % str(name))
 
     def get_input_index(self, name: str) -> int:
+        """
+        Given a string, find the numerical index of the input node given by that name within the network.
+
+        :param name: Name of the input node to find.
+        :type: str
+        :return: Index of the input node.
+        :rtype: int
+        """
         if not isinstance(name,str):
             raise TypeError('Name must be a valid string')
         for index in range(len(self.inputs)):
