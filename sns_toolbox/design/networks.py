@@ -25,14 +25,15 @@ BASE CLASS
 """
 
 class Network:
-    # Initialization and utilities
+    """
+    Base class for all Networks.
+
+    :param name: Name for this network, defaults to 'Network".
+    :type name: str, optional
+    :param R: Range of activity for the network, defaults to 20.0. Units are millivolts (mV).
+    :type R: Number, optional
+    """
     def __init__(self, name: str = 'Network', R: float = 20.0) -> None:
-        """
-        Constructor for base network class
-        :param name:    Name for this network
-        :param R:       Range of activity for this network (mV)
-        :return:    None
-        """
         self.params: Dict[str, Any] = {}
         if isinstance(name,str):
             self.params['name'] = name
