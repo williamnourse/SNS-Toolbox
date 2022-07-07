@@ -242,13 +242,22 @@ class NonSpikingTransmissionSynapse(NonSpikingSynapse):
             raise TypeError('R must be a number (int, float, double, etc.)')
 
 class NonSpikingModulationSynapse(NonSpikingSynapse):
+    """
+    A modulation synapse, where the relative_reversal_potential is set to 0.
+
+    :param ratio: The desired ratio Upost/Upre when Upre is at max activity (R mV).
+    :type ratio: Number
+    :param name: Name of this synapse preset, defaults to 'Modulate'.
+    :type str, optional
+    """
     def __init__(self,ratio, name: str = 'Modulate', **kwargs) -> None:
-        """
-        Modulation synapse, where the relative_reversal_potential is set to 0
-        :param name: Name of this synapse preset
-        """
         super().__init__(name=name,**kwargs)
         self.params['relative_reversal_potential'] = 0.0
+        if isinstance(ratio, numbers.Number):   # ratio error handling
+            if ratio <= 0:
+                raise ValueError('Ratio must be greater than zero')
+        else:
+            raise ValueError('Ratio must be a number (int, float, double, etc.)')
         self.params['max_conductance'] = 1/ratio - 1
 
 class SpikingTransmissionSynapse(SpikingSynapse):
