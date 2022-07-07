@@ -205,18 +205,23 @@ SPECIFIC MODELS
 """
 
 class NonSpikingTransmissionSynapse(NonSpikingSynapse):
+    """
+    A transmission synapse, where (given some integration_gain) the maximum conductance is
+    max_conductance = (integration_gain*R)/(relative_reversal_potential - integration_gain*R).
+
+    :param gain: Transmission integration gain, defaults to 1.0.
+    :type gain: Number, optional
+    :param name: Name of this synapse preset, defaults to 'Transmit'
+    :type name: str, optional
+    :param R: Range of neural voltage activity, defaults to 20.0. Units are millivolts (mV).
+    :type R: Number
+    """
     def __init__(self, gain: float = 1.0,
                  name: str = 'Transmit',
                  R: float = 20.0,
                  **kwargs) -> None:
-        """
-        Transmission synapse, where (given some integration_gain) the maximum conductance is
-        max_conductance = (integration_gain*R)/(relative_reversal_potential - integration_gain*R)
-        :param gain:    Transmission integration_gain
-        :param name:    Name of this synapse preset
-        """
         super().__init__(name=name, **kwargs)  # Call to constructor of parent class
-        if isinstance(gain,numbers.Number):
+        if isinstance(gain,numbers.Number): # Gain error handling
             if gain == 0:
                 raise ValueError('Gain must be nonzero')
             elif math.copysign(1,gain) != math.copysign(1,self.params['relative_reversal_potential']):    # sign of integration_gain and DeltaE don't match
@@ -229,7 +234,12 @@ class NonSpikingTransmissionSynapse(NonSpikingSynapse):
                 if self.params['max_conductance'] < 0:
                     raise ValueError('Gain of '+str(gain)+' causes max_conductance to be negative, decrease integration_gain or increase relative_reversal_potential_kernel')
         else:
-            raise TypeError('Gain of '+str(gain)+' must be a number (int, float, double, etc.)')
+            raise TypeError('Gain must be a number (int, float, double, etc.)')
+        if isinstance(R, numbers.Number):   # R error handling
+            if R <= 0:
+                raise ValueError('R must be greater than zero')
+        else:
+            raise TypeError('R must be a number (int, float, double, etc.)')
 
 class NonSpikingModulationSynapse(NonSpikingSynapse):
     def __init__(self,ratio, name: str = 'Modulate', **kwargs) -> None:
