@@ -623,6 +623,20 @@ SPECIFIC MODELS
 """
 
 class AdditionNetwork(Network):
+    """
+    Network which performs addition or subtraction of multiple inputs. Currently only supports non-spiking neurons.
+
+    :param gains:       List of addition or subtraction weights.
+    :type gains:        list, np.ndarray, or torch.tensor
+    :param add_del_e:   Reversal potential of addition synapses, default is 100. Unit is millivolts (mV).
+    :type add_del_e:    Number, optional
+    :param sub_del_e:   Reversal potential of subtraction synapses, default is -40. Unit is millivolts (mV).
+    :type sub_del_e:    Number, optional
+    :param neuron_type: Neuron preset to use, default is sns_toolbox.design.neurons.NonSpikingNeuron.
+    :type neuron_type:  sns_toolbox.design.neurons.NonSpikingNeuron, optional
+    :param name:        Name of this network, default is 'Add'.
+    :type name:         str, optional
+    """
     def __init__(self,gains,add_del_e=100,sub_del_e=-40,neuron_type=NonSpikingNeuron(),name='Add',**kwargs):
         super().__init__(name=name,**kwargs)
         num_inputs = len(gains)
@@ -637,6 +651,15 @@ class AdditionNetwork(Network):
             self.add_connection(conn, i + 1, name + 'Sum')
 
 class MultiplicationNetwork(Network):
+    """
+    Network where the activity in neuron 0 is roughly multiplied by the activity in neuron 1. Currently only supports
+    non-spiking neurons.
+
+    :param neuron_type: Neuron preset to use, default is sns_toolbox.design.neurons.NonSpikingNeuron.
+    :type neuron_type:  sns_toolbox.design.neurons.NonSpikingNeuron, optional
+    :param name:        Name of this network, default is 'Multiply'.
+    :type name:         str, optional
+    """
     def __init__(self,neuron_type=NonSpikingNeuron(),name='Multiply',**kwargs):
         super().__init__(name=name,**kwargs)
         self.add_neuron(neuron_type, name=name + '0')
@@ -653,6 +676,17 @@ class MultiplicationNetwork(Network):
         self.add_connection(modulate_special, name + 'Inter', name + 'Result')
 
 class DivisionNetwork(Network):
+    """
+    Network where the activity in neuron 0 is roughly divided by the activity in neuron 1. Currently only supports
+    non-spiking neurons.
+
+    :param neuron_type: Neuron preset to use, default is sns_toolbox.design.neurons.NonSpikingNeuron.
+    :type neuron_type:  sns_toolbox.design.neurons.NonSpikingNeuron, optional
+    :param ratio:       Modulation ratio.
+    :type ratio:        Number
+    :param name:        Name of this network, default is 'Divide'.
+    :type name:         str, optional
+    """
     def __init__(self,gain,ratio,name='Divide',neuron_type=NonSpikingNeuron(),**kwargs):
         super().__init__(name=name,**kwargs)
         self.add_neuron(neuron_type, name=name + 'Transmit')
@@ -666,6 +700,18 @@ class DivisionNetwork(Network):
         self.add_connection(modulation, 1, 2)
 
 class DifferentiatorNetwork(Network):
+    """
+    Network where the activity of 'Uout' is the derivative of the activity in 'Uin'. Currently only supports
+    non-spiking neurons.
+
+    :param slew_rate:   Steepest signal this differentiator can handle, default is 1.0. Influences the difference in
+        internal time constants.
+    :type slew_rate:    Number, optional
+    :param name:        Name of this network, default is 'Differentiate'.
+    :type name:         str, optional
+    :param tau_fast:    Time constant of the faster neurons, default is 1.0. Units are milliseconds (ms).
+    :type tau_fast:     Number, optional
+    """
     def __init__(self,slew_rate=1.0,name='Differentiate',tau_fast=1.0,**kwargs):
         super().__init__(name=name,**kwargs)
         fast_neuron_type = NonSpikingNeuron(membrane_capacitance=tau_fast,membrane_conductance=1.0)
@@ -685,6 +731,18 @@ class DifferentiatorNetwork(Network):
         self.add_connection(sub_synapse, 'Uslow', 'Uout')
 
 class IntegratorNetwork(Network):
+    """
+    Network where the activity of 'Uint' integrates the applied stimulus to itself over time. Currently only supports
+    non-spiking neurons.
+
+    :param integration_gain:            Gain of the integration, default is 1.0.
+    :type integration_gain:             Number, optional
+    :param relative_reversal_potential: Reversal potential of the synapses in the network, default is -40.0. Must be
+        less than 0. Units are millivolts (mV).
+    :type relative_reversal_potential:  Number, optional
+    :param name:                        Name of this network, default is 'Integrator'.
+    :type name:                         str, optional
+    """
     def __init__(self, integration_gain=0.1, relative_reversal_potential=-40.0, name='Integrator', **kwargs):
         super().__init__(name=name,**kwargs)
         membrane_capacitance = 1/(2 * integration_gain)
