@@ -561,11 +561,14 @@ HELPER FUNCTIONS
 
 def __kernel_connections_1d__(pop_size,kernel):
     """
-    Generate a connection matrix from a kernel vector and population size
+    Generate a connection matrix from a kernel vector and population size.
 
-    :param pop_size: number of neurons in the population
-    :param kernel: kernel vector to apply
-    :return: connection matrix
+    :param pop_size: Number of neurons in the population.
+    :type pop_size: int
+    :param kernel: Kernel vector to apply.
+    :type kernel: list, np.ndarray, or torch.tensor
+    :return: Connection matrix.
+    :rtype: np.ndarray
     """
     kernel_length = len(kernel)
     pad_amt = int((kernel_length-1)/2)
@@ -578,11 +581,14 @@ def __kernel_connections_1d__(pop_size,kernel):
 
 def __kernel_connections_2d__(pop_shape,kernel):
     """
-    Generate a connection matrix from a kernel matrix and population shape
+    Generate a connection matrix from a kernel matrix and population shape.
 
-    :param pop_shape: shape of the population
-    :param kernel: kernel matrix to apply
-    :return: connection matrix
+    :param pop_shape: Shape of the population.
+    :type pop_shape: list, np.ndarray, or torch.tensor
+    :param kernel: Kernel matrix to apply.
+    :type kernel: np.ndarray or torch.Tensor
+    :return: Connection matrix.
+    :rtype: np.ndarray
     """
     kernel_rows = kernel.shape[0]
     kernel_cols = kernel.shape[1]
