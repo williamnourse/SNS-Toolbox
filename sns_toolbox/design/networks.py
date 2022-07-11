@@ -272,11 +272,14 @@ class Network:
 
         :param dest:        Destination this input connects to.
         :type dest:         int or string
-        :param size:        Number of input elements.
-        :type size:         int
-        :param name:        Name of the input node
-        :param color:       Color of the input node in the visual render
+        :param size:        Number of input elements, default is 1.
+        :type size:         int, optional
+        :param name:        Name of the input node, default is 'Input'.
+        :type name:         str, optional
+        :param color:       Color of the input node in the visual render, default is 'white'.
+        :type color:        str, optional
         :return:    None
+        :rtype:     N/A
         """
 
         if not isinstance(name,str):
