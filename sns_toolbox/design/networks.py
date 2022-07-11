@@ -194,7 +194,7 @@ class Network:
         :param color: Color of the population in the rendered image, default is None.
         :type color: str, optional
         :param initial_value: Initial value of membrane voltage for each neuron in the population. Must be either a
-        single value, or an array matching 'shape'.
+            single value, or an array matching 'shape'.
         :type initial_value: class: 'numbers.Number', class: 'np.ndarray', or class: 'torch.tensor'
         :return: None
         :rtype: N/A
@@ -250,8 +250,8 @@ class Network:
 
     def add_neuron(self, neuron_type: Neuron, name=None, color=None, initial_value=0.0) -> None:
         """
-        Add a neuron to the network. Note that this is just a special case of addPopulation, which makes a population of
-            1 neuron.
+        Add a neuron to the network. Note that this is just a special case of addPopulation, which makes a
+        population of 1 neuron.
 
         :param neuron_type:  Type of neuron to add.
         :type neuron_type: sns_toolbox.design.neurons.Neuron
@@ -268,9 +268,12 @@ class Network:
 
     def add_input(self, dest: Any, size: int = 1, name: str = 'Input', color='white') -> None:
         """
-        Add an input source to the network
-        :param dest:        Destination this input connects to
-        :param size:        Size of the input data
+        Add an input source to the network.
+
+        :param dest:        Destination this input connects to.
+        :type dest:         int or string
+        :param size:        Number of input elements.
+        :type size:         int
         :param name:        Name of the input node
         :param color:       Color of the input node in the visual render
         :return:    None
