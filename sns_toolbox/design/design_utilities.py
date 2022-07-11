@@ -1,8 +1,5 @@
 """
-Stuff I may need at various points, but probably isn't useful for the end user
-William Nourse
-May 7, 2021
-Fizz Buzz
+Functions which are used within the design subpackage, but may not be necessary for the end user.
 """
 
 """
@@ -13,10 +10,10 @@ IMPORTS
 import warnings
 
 """
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-CONSTANTS
+Attributes:
+    SETOFVALIDCOLORS    A dictionary of all of the color names in the SVG set.
+    COLORSWHITETEXT     Valid colors which should use white text instead of black for better visibility. 
 """
-
 # SVG standard colors for graphviz
 SETOFVALIDCOLORS = {'aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque', 'black', 'blanchedalmond',
           'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chartreuse', 'chocolate', 'coral',
@@ -42,12 +39,16 @@ COLORSWHITETEXT = {'black', 'blue', 'blueviolet', 'brown', 'darkblue', 'darkmage
           'darkslateblue', 'darkslategray', 'darkslategrey', 'darkviolet', 'dimgray', 'dimgrey', 'indigo', 'maroon',
                    'mediumblue', 'midnightblue', 'navy', 'olive', 'purple', 'saddlebrown', 'teal'}
 
-"""
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-FUNCTIONS
-"""
 
 def valid_color(color: str = None) -> bool:
+    """
+    Check if a given color is within the standard svg set.
+
+    :param color: Desired color, default is None.
+    :type color: str, optional
+    :return: True if it is a valid color, false if not.
+    :rtype: bool
+    """
     if isinstance(color, str):
         if color in SETOFVALIDCOLORS:
             return True
@@ -57,6 +58,14 @@ def valid_color(color: str = None) -> bool:
         return False
 
 def set_text_color(color: str = None) -> str:
+    """
+    Set the text color to white or black given a valid color string.
+
+    :param color: Background color, default is None.
+    :type color: str, optional
+    :return: Text color based on background color.
+    :rtype: str
+    """
     if isinstance(color, str):
         if color in COLORSWHITETEXT:
             return 'white'
