@@ -189,12 +189,12 @@ class Network:
         :type neuron_type: sns_toolbox.design.neurons.Neuron
         :param shape: The number of neurons in each dimension of the population.
         :type shape: np.ndarray or torch.tensor
-        :param name: Name of the population, default is None.
+        :param name: Name of the population, default is the original name.
         :type name: str, optional
-        :param color: Color of the population in the rendered image, default is None.
+        :param color: Color of the population in the rendered image, default is the original color.
         :type color: str, optional
         :param initial_value: Initial value of membrane voltage for each neuron in the population. Must be either a
-            single value, or an array matching 'shape'.
+            single value, or an array matching 'shape'. Default value is the original value.
         :type initial_value: class: 'numbers.Number', class: 'np.ndarray', or class: 'torch.tensor'
         :return: None
         :rtype: N/A
@@ -255,9 +255,9 @@ class Network:
 
         :param neuron_type:  Type of neuron to add.
         :type neuron_type: sns_toolbox.design.neurons.Neuron
-        :param name:        Name of the neuron, defaults to None.
+        :param name:        Name of the neuron, defaults to the original name.
         :type name:         str, optional
-        :param color:       Color of the neuron in the visual render.
+        :param color:       Color of the neuron in the visual render, defaults to the original color.
         :type color:        str, optional
         :param initial_value: Initial value of the membrane voltage, defaults to 0.0. Units are millivolts (mV).
         :type initial_value: Number
@@ -387,13 +387,20 @@ class Network:
     def add_connection(self, connection_type: Connection, source: Any,
                        destination: Any, name: str = None, view_label: bool = False) -> None:
         """
-        Add a synaptic connection between two populations in the network
-        :param connection_type: Type of synapse to add
-        :param source:      Index of source population in the network
-        :param destination: Index of destination population in the network
-        :param name:        Name of synapse
-        :param view_label:   Flag to render the name on the output graph
+        Add a synaptic connection between two populations in the network.
+
+        :param connection_type: Type of connection to add.
+        :type connection_type: sns_toolbox.design.connections.Connection
+        :param source:      Index or name of source population in the network.
+        :type source:       int or str
+        :param destination: Index or name of destination population in the network.
+        :type destination:  int or str
+        :param name:        Name of synapse, default is the original name.
+        :type name:         str, optional
+        :param view_label:  Flag to render the name on the output graph, default is 'False'.
+        :type view_label:   bool, optional
         :return: None
+        :rtype: N/A
         """
         if not isinstance(connection_type, Connection):
             raise TypeError('Connection type must inherit from type Connection')
@@ -489,10 +496,14 @@ class Network:
 
     def add_network(self, network: 'Network', color: str = None) -> None:
         """
-        Add an existing topology of inputs, outputs, and populations to the network
-        :param network: Network to copy over
-        :param color:   Color to render nodes in the network
+        Add an existing topology of inputs, outputs, and populations to the network.
+
+        :param network: Network to copy over.
+        :type network:  sns_toolbox.design.networks.Network
+        :param color:   Color to render nodes in the network, default is the original colors.
+        :type color:    str, optional
         :return: None
+        :rtype: N/A
         """
         if not isinstance(network, Network):
             raise TypeError('Network must be of type Network')
@@ -532,6 +543,12 @@ class Network:
                                     destination=connection['destination']+num_populations, view_label=connection['view'])
 
     def copy(self):
+        """
+        Create a copy of the network.
+
+        :return: A new network with the same properties as the original. Each can be edited without effecting the other.
+        :rtype: sns_toolbox.design.networks.Network
+        """
         new_net = Network(name=self.params['name'],R=self.params['R'])
         new_net.add_network(self)
 
