@@ -252,6 +252,7 @@ class Network:
         """
         Add a neuron to the network. Note that this is just a special case of addPopulation, which makes a population of
         1 neuron.
+
         :param neuron_type:  Type of neuron to add
         :param name:        Name of the neuron
         :param color:       Color of the neuron in the visual render

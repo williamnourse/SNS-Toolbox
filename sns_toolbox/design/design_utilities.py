@@ -9,12 +9,6 @@ IMPORTS
 
 import warnings
 
-"""
-Attributes:
-    SETOFVALIDCOLORS    A dictionary of all of the color names in the SVG set.
-    COLORSWHITETEXT     Valid colors which should use white text instead of black for better visibility. 
-"""
-# SVG standard colors for graphviz
 SETOFVALIDCOLORS = {'aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque', 'black', 'blanchedalmond',
           'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chartreuse', 'chocolate', 'coral',
           'cornflowerblue', 'cornsilk', 'crimson', 'cyan', 'darkblue', 'darkcyan', 'darkgoldenrod', 'darkgray',
@@ -33,11 +27,16 @@ SETOFVALIDCOLORS = {'aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 
                     'red', 'rosybrown', 'royalblue', 'saddlebrown', 'salmon', 'sandybrown', 'seagreen', 'seashell', 'sienna',
                     'silver', 'skyblue', 'slateblue', 'slategray', 'slategrey', 'snow', 'springgreen', 'steelblue', 'tan', 'teal',
                     'thistle', 'tomato', 'turquoise', 'violet', 'wheat', 'white', 'whitesmoke', 'yellow', 'yellowgreen'}
+"""
+Set of standard SVG color names.
+"""
 
-# Standard SVG colors which need white text instead of black for good visibility
 COLORSWHITETEXT = {'black', 'blue', 'blueviolet', 'brown', 'darkblue', 'darkmagenta', 'darkolivegreen', 'darkred',
           'darkslateblue', 'darkslategray', 'darkslategrey', 'darkviolet', 'dimgray', 'dimgrey', 'indigo', 'maroon',
                    'mediumblue', 'midnightblue', 'navy', 'olive', 'purple', 'saddlebrown', 'teal'}
+"""
+Set of background colors which work better with white text for improved visibility.
+"""
 
 
 def valid_color(color: str = None) -> bool:
