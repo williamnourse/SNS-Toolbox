@@ -248,16 +248,21 @@ class Network:
                             fillcolor=color,
                             fontcolor=font_color)
 
-    def add_neuron(self, neuron_type, name=None, color=None, initial_value=0.0) -> None:
+    def add_neuron(self, neuron_type: Neuron, name=None, color=None, initial_value=0.0) -> None:
         """
         Add a neuron to the network. Note that this is just a special case of addPopulation, which makes a population of
-        1 neuron.
+            1 neuron.
 
-        :param neuron_type:  Type of neuron to add
-        :param name:        Name of the neuron
-        :param color:       Color of the neuron in the visual render
-        :param initial_value: Initial value of membrane voltage
+        :param neuron_type:  Type of neuron to add.
+        :type neuron_type: sns_toolbox.design.neurons.Neuron
+        :param name:        Name of the neuron, defaults to None.
+        :type name:         str, optional
+        :param color:       Color of the neuron in the visual render.
+        :type color:        str, optional
+        :param initial_value: Initial value of the membrane voltage, defaults to 0.0. Units are millivolts (mV).
+        :type initial_value: Number
         :return:    None
+        :rtype: N/A
         """
         self.add_population(neuron_type, shape=[1], name=name, color=color, initial_value=initial_value)
 
