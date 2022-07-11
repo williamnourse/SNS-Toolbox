@@ -321,12 +321,18 @@ class Network:
 
     def add_output(self, source: Any, name: str = 'Output', spiking: bool = False, color: str = 'white') -> None:
         """
-        Add an output node to the network
-        :param source:      Source this output is connected to
-        :param name:        Name of the node
-        :param spiking:     Flag for if this node stores voltage or spikes
-        :param color:       Color of the output in the visual render
+        Add an output node to the network.
+
+        :param source:      Source this output is connected to.
+        :type source:       int or str
+        :param name:        Name of the node, defaults to 'Output'.
+        :type name:         str, optional
+        :param spiking:     Flag for if this node stores voltage or spikes, default is 'False'.
+        :type spiking:      bool, optional
+        :param color:       Color of the output in the visual render, default is 'white'.
+        :type color:        str, optional
         :return: None
+        :rtype: N/A
         """
         if isinstance(source,int):
             if source < 0:
