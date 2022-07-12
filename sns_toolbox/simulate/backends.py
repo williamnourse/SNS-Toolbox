@@ -240,6 +240,18 @@ Simulating the network using numpy vectors and matrices.
 Note that this is not sparse, so memory may explode for large networks
 """
 def SNS_Numpy(network: Network, delay=True, spiking=True, **kwargs):
+    """
+    Handler function for generating the different variants of Numpy backends. In future versions will perform selection based
+    on network contents, but for now boolean flags must be used.
+
+    :param network: Network which will be compiled to Numpy.
+    :type network:  sns_toolbox.design.networks.Network
+    :param delay:   Flag for enabling the mechanism for spiking synaptic propagation delay. Default is 'True'.
+    :type delay:    bool, optional
+    :param spiking: Flag for enabling spike generation mechanisms. Default is 'True'.
+    :return:        A Numpy-based implementation of the input Network.
+    :rtype:         __SNS_Numpy_Full__, __SNS_Numpy_No_Delay__, or __SNS_Numpy_Non_Spiking__
+    """
     if spiking:
         if delay:
             return __SNS_Numpy_Full__(network, **kwargs)
@@ -253,11 +265,7 @@ class __SNS_Numpy_Full__(Backend):
         super().__init__(network,**kwargs)
 
     def __initialize_vectors_and_matrices__(self) -> None:
-        """
-        Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
-        following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
-        :return:    None
-        """
+
         self.u = np.zeros(self.num_neurons)
         self.u_last = np.zeros(self.num_neurons)
         self.spikes = np.zeros(self.num_neurons)
@@ -292,11 +300,7 @@ class __SNS_Numpy_Full__(Backend):
                 index += 1
 
     def __set_neurons__(self) -> None:
-        """
-        Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
-        network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
-        :return:
-        """
+
         index = 0
         for pop in range(len(self.network.populations)):
             num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
@@ -326,10 +330,7 @@ class __SNS_Numpy_Full__(Backend):
         self.theta_last = np.copy(self.theta_0)
 
     def __set_inputs__(self) -> None:
-        """
-        Build the input connection matrix, and apply linear mapping coefficients.
-        :return:    None
-        """
+
         self.input_connectivity = np.zeros([self.num_neurons, self.network.get_num_inputs_actual()])  # initialize connectivity matrix
         # self.in_offset = np.zeros(self.network.get_num_inputs_actual())
         # self.in_linear = np.zeros(self.network.get_num_inputs_actual())
@@ -354,11 +355,7 @@ class __SNS_Numpy_Full__(Backend):
                     index += 1
 
     def __set_connections__(self) -> None:
-        """
-        Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
-        synapses.
-        :return: None
-        """
+
         for syn in range(len(self.network.connections)):
             source_pop = self.network.connections[syn]['source']
             dest_pop = self.network.connections[syn]['destination']
@@ -407,28 +404,18 @@ class __SNS_Numpy_Full__(Backend):
                             self.del_e[dest][source] = del_e
 
     def __calculate_time_factors__(self) -> None:
-        """
-        Precompute the time factors for the membrane voltage, firing threshold, and spiking synapses.
-        :return: None
-        """
+
         self.time_factor_membrane = self.dt / (self.c_m/self.g_m)
         self.time_factor_threshold = self.dt / self.tau_theta
         self.time_factor_synapse = self.dt / self.tau_syn
 
     def __initialize_propagation_delay__(self) -> None:
-        """
-        Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
-        :return: None
-        """
+
         buffer_length = int(np.max(self.spike_delays) + 1)
         self.spike_buffer = np.zeros([buffer_length, self.num_neurons])
 
     def __set_outputs__(self) -> None:
-        """
-        Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
-        output monitors for each neuron in a population.
-        :return: None
-        """
+
         outputs = []
         index = 0
         for out in range(len(self.network.outputs)):
@@ -471,10 +458,7 @@ class __SNS_Numpy_Full__(Backend):
                     # self.out_cubic[outputs[out][i]] = self.network.outputs[out]['cubic']
 
     def __debug_print__(self) -> None:
-        """
-        Print the values for every vector/matrix which will be used in the forward computation.
-        :return: None
-        """
+
         print('Input Connectivity:')
         print(self.input_connectivity)
         print('g_max_non:')
