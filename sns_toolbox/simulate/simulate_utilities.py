@@ -32,6 +32,8 @@ def spike_raster_plot(t,data,colors=None) -> None:
     :type data:     np.ndarray or torch.tensor
     :param colors:  List of colors to plot each neuron, default is every neuron is blue.
     :type colors:   List of str, optional
+    :return:        None
+    :rtype:         N/A
     """
     if colors is None:
         colors = ['blue']
