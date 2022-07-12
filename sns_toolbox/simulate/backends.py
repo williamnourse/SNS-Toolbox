@@ -1,10 +1,7 @@
 """
-Simulation backends for nonspiking networks. Each of these are python-based, and are constructed using a Nonspiking
+Simulation backends for synthetic nervous system networks. Each of these are python-based, and are constructed using a
 Network. They can then be run for a step, with the inputs being a vector of neural states and applied currents and the
 output being the next step of neural states.
-William Nourse
-August 31, 2021
-I've heard that you're a low-down Yankee liar
 """
 
 """
@@ -30,19 +27,21 @@ BASE CLASS
 
 class Backend:
     """
-    Base-level class for all simulation backends. Each will do the following:
-        - Construct a representation of a given network using the desired backend technique
-        - Take in (some form of) a vector of input states and applied currents, and compute the result for the next
-          timestep
+    Base-level class for all simulation backends. Each will construct a representation of a given network using the
+    desired backend technique, and take in (some form of) a vector of input states and applied currents, and compute
+    the result for the next timestep.
+
+    :param network:     Network to serve as a design template.
+    :type network:      sns_toolbox.design.networks.Network
+    :param dt:          Simulation time constant, default is 0.1. Units are milliseconds (ms).
+    :type dt:           Number, optional
+    :param debug:       When enabled, print debug information to the console. Default is 'False'.
+    :type debug:        bool, optional
+    :param substeps:    Number of simulation substeps before returning an output vector. Default is 1.
+    :type substeps:     int, optional
     """
     def __init__(self, network: Network, dt: float = 0.1, debug: bool = False, substeps: int = 1) -> None:
-        """
-        Construct the backend based on the network design
-        :param network: NonSpikingNetwork to serve as a design template
-        :param dt:      Simulation time constant
-        :param debug: Flag for printing debug information to the console
-        :param substeps: Number of simulation substeps before returning an output vector
-        """
+
         if substeps <= 0:
             raise ValueError('Substeps must be a positive integer')
         self.substeps = substeps
@@ -88,6 +87,13 @@ class Backend:
             print('#\nDONE BUILDING\n#')
 
     def __get_net_params__(self) -> None:
+        """
+        Get the main properties from the network. These are the number of populations, number of neurons, number of
+        connections, number of inputs, number of outputs, and the network range of neural activity.
+
+        :return: None
+        :rtype: N/A
+        """
         self.num_populations = self.network.get_num_populations()
         self.num_neurons = self.network.get_num_neurons()
         self.num_connections = self.network.get_num_connections()
@@ -110,9 +116,11 @@ class Backend:
 
     def __initialize_vectors_and_matrices__(self) -> None:
         """
-        Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
+        Initialize all the vectors and matrices needed for all the neural states and parameters. That includes the
         following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
+
         :return:    None
+        :rtype:     N/A
         """
         raise NotImplementedError
 
@@ -120,14 +128,18 @@ class Backend:
         """
         Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
         network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
-        :return:
+
+        :return:    None
+        :rtype:     N/A
         """
         raise NotImplementedError
 
     def __set_inputs__(self) -> None:
         """
-        Build the input connection matrix, and apply linear mapping coefficients.
+        Build the input connection matrix.
+
         :return:    None
+        :rtype:     N/A
         """
         raise NotImplementedError
 
@@ -135,44 +147,57 @@ class Backend:
         """
         Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
         synapses.
-        :return: None
+
+        :return:    None
+        :rtype:     N/A
         """
         raise NotImplementedError
 
     def __calculate_time_factors__(self) -> None:
         """
         Precompute the time factors for the membrane voltage, firing threshold, and spiking synapses.
-        :return: None
+
+        :return:    None
+        :rtype:     N/A
         """
         raise NotImplementedError
 
     def __initialize_propagation_delay__(self) -> None:
         """
         Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
-        :return: None
+
+        :return:    None
+        :rtype:     N/A
         """
         raise NotImplementedError
 
     def __set_outputs__(self) -> None:
         """
-        Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
-        output monitors for each neuron in a population.
-        :return: None
+        Build the output connectivity matrices for voltage and spike monitors. Generate separate output monitors for
+        each neuron in a population.
+
+        :return:    None
+        :rtype:     N/A
         """
         raise NotImplementedError
 
     def __debug_print__(self) -> None:
         """
         Print the values for every vector/matrix which will be used in the forward computation.
-        :return: None
+
+        :return:    None
+        :rtype:     N/A
         """
         raise NotImplementedError
 
     def forward(self, inputs) -> Any:
         """
-        Compute the next neural states based on previous neural states
-        :param inputs:    Input currents into the network
-        :return:          The next neural voltages
+        Compute the next neural states based on previous neural states. Handle substeps as well.
+
+        :param inputs:  Input currents into the network.
+        :type inputs:   np.ndarray or torch.tensor
+        :return:        The neural states at the next step.
+        :rtype:         np.ndarray or torch.tensor
         """
         for i in range(self.substeps):
             out = self.__forward_pass__(inputs)
@@ -181,26 +206,29 @@ class Backend:
     def __forward_pass__(self, inputs) -> Any:
         """
         Compute the next neural states based on previous neural states in the following steps:
-        Ulast = U
-        ThetaLast = Theta
-        MappedInputs = cubic*inputs^3 + quadratic*inputs^2 + linear*inputs + offset
-        IApp = InputConnectivity X MappedInputs
-        GNon = max(0, min(GMaxNon*ULast/R, GMaxNon))
-        GSpike = GSpike * (1-TimeFactorSynapse)
-        GSyn = GNon + GSpike
-        ISyn = ColSum(GSyn*DelE) - ULast*ColSum(GSyn)
-        U = ULast + TimeFactorMembrane*(-Gm*ULast + IBias + ISyn + IApp)
-        Theta = ThetaLast + TimeFactorThreshold*(-ThetaLast + Theta0 + m*ULast)
-        Spikes = Sign(min(0, Theta - U))
-        SpikeBuffer = SpikeBuffer shifted down by 1
-        SpikeBuffer[first row] = Spikes
-        DelayedSpikeMatrix = SpikeBuffer[BufferSteps, BufferedNeurons]
-        GSpike = max(GSpike, -DelayedSpikeMatrix*GMaxSpike)
-        U = U * (Spikes + 1)
-        Outputs = OutputVoltageConnectivity X U + OutputSpikeConnectivity X (-Spikes)
-        MappedOutputs = cubic*Outputs^3 + quadratic*Outputs^2 + linear*Outputs + offset
-        :param inputs:    Input currents into the network
-        :return:          The next neural voltages
+        Ulast = U;
+        ThetaLast = Theta;
+        MappedInputs = cubic*inputs^3 + quadratic*inputs^2 + linear*inputs + offset;
+        IApp = InputConnectivity X MappedInputs;
+        GNon = max(0, min(GMaxNon*ULast/R, GMaxNon));
+        GSpike = GSpike * (1-TimeFactorSynapse);
+        GSyn = GNon + GSpike;
+        ISyn = ColSum(GSyn*DelE) - ULast*ColSum(GSyn);
+        U = ULast + TimeFactorMembrane*(-Gm*ULast + IBias + ISyn + IApp);
+        Theta = ThetaLast + TimeFactorThreshold*(-ThetaLast + Theta0 + m*ULast);
+        Spikes = Sign(min(0, Theta - U));
+        SpikeBuffer = SpikeBuffer shifted down by 1;
+        SpikeBuffer[first row] = Spikes;
+        DelayedSpikeMatrix = SpikeBuffer[BufferSteps, BufferedNeurons];
+        GSpike = max(GSpike, -DelayedSpikeMatrix*GMaxSpike);
+        U = U * (Spikes + 1);
+        Outputs = OutputVoltageConnectivity X U + OutputSpikeConnectivity X (-Spikes);
+        MappedOutputs = cubic*Outputs^3 + quadratic*Outputs^2 + linear*Outputs + offset.
+
+        :param inputs:  Input currents into the network.
+        :type inputs:   np.ndarray or torch.tensor
+        :return:        The neural states at the next step.
+        :rtype:         np.ndarray or torch.tensor
         """
         raise NotImplementedError
 
