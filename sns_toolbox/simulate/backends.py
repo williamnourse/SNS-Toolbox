@@ -21,7 +21,7 @@ import warnings
 from sns_toolbox.design.networks import Network
 from sns_toolbox.design.neurons import SpikingNeuron
 from sns_toolbox.design.connections import SpikingSynapse, NonSpikingSynapse, NonSpikingPatternConnection, SpikingPatternConnection
-from sns_toolbox.simulate.__utilities__ import send_vars
+from sns_toolbox.simulate.simulate_utilities import send_vars
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
