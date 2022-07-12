@@ -14,7 +14,7 @@ from sns_toolbox.design.neurons import SpikingNeuron
 from sns_toolbox.simulate.backends import SNS_Numpy
 import numpy as np
 import matplotlib.pyplot as plt
-from sns_toolbox.simulate.plotting import spike_raster_plot
+from sns_toolbox.simulate.simulate_utilities import spike_raster_plot
 
 """Design the first Network"""
 # Create spiking neurons with different values of 'm'

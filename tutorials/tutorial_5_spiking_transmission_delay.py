@@ -12,7 +12,7 @@ from sns_toolbox.design.neurons import SpikingNeuron
 from sns_toolbox.design.connections import SpikingSynapse
 
 from sns_toolbox.simulate.backends import SNS_Numpy
-from sns_toolbox.simulate.plotting import spike_raster_plot
+from sns_toolbox.simulate.simulate_utilities import spike_raster_plot
 
 """Define our types"""
 neuron_type = SpikingNeuron()
