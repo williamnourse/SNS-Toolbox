@@ -22,7 +22,7 @@ def send_vars(variables, device):
     torch.cuda.empty_cache()
     return variables
 
-def spike_raster_plot(t,data,colors=None):
+def spike_raster_plot(t,data,colors=None) -> None:
     """
     Plot spike rasters of spiking data.
 
@@ -32,7 +32,6 @@ def spike_raster_plot(t,data,colors=None):
     :type data:     np.ndarray or torch.tensor
     :param colors:  List of colors to plot each neuron, default is every neuron is blue.
     :type colors:   List of str, optional
-    :return:
     """
     if colors is None:
         colors = ['blue']
