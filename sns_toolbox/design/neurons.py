@@ -72,7 +72,7 @@ class NonSpikingNeuron(Neuron):
     Classic non-spiking neuron model, whose dynamics are as follows:
     membrane_capacitance*dU/dt = -membrane_conductance*u + bias current + synaptic current + external current.
     """
-    def __init__(self, **kwargs) -> None
+    def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
 
 class SpikingNeuron(Neuron):
