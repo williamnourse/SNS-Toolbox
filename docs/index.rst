@@ -11,7 +11,7 @@ Welcome to the documentation for SNS-Toolbox, a Python package for the large-sca
 Nervous Systems (SNS).
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    install
