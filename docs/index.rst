@@ -15,7 +15,8 @@ Nervous Systems (SNS).
    :caption: Contents:
 
    install
-   tutorial_1
+   tutorials/tutorial_1
+   tutorials/tutorial_2
 
 Indices:
 ========================================================================================================================
