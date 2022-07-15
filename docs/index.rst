@@ -16,11 +16,12 @@ Nervous Systems (SNS).
 
    api.rst
 
+Tutorials:
+========================================================================================================================
 .. toctree::
    :maxdepth: 2
-   :caption: Tutorials:
 
-   ../tutorials/Tutorial 1 - Network Design
+   ../tutorials/Tutorial 1 - Network Design.ipynb
 
 Indices:
 ========================================================================================================================
