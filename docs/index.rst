@@ -14,8 +14,8 @@ Nervous Systems (SNS).
    :maxdepth: 2
    :caption: Contents:
 
-   api.rst
-   SNS-Toolbox/tutorials/Tutorial 1 - Network Design
+   install
+   tutorial_1
 
 Indices:
 ========================================================================================================================

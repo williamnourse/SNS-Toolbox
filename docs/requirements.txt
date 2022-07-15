@@ -1,3 +1,4 @@
 Sphinx==5.0.2
 sphinx-autoapi
 nbsphinx
+nbsphinx-link
