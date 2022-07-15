@@ -15,13 +15,7 @@ Nervous Systems (SNS).
    :caption: Contents:
 
    api.rst
-
-Tutorials:
-========================================================================================================================
-.. toctree::
-   :maxdepth: 2
-
-   ../tutorials/Tutorial 1 - Network Design.ipynb
+   SNS-Toolbox/tutorials/Tutorial 1 - Network Design
 
 Indices:
 ========================================================================================================================

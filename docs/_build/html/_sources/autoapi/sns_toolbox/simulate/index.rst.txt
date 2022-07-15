@@ -11,7 +11,6 @@ Submodules
    :maxdepth: 1
 
    backends/index.rst
-   plotting/index.rst
-   test_backends/index.rst
+   simulate_utilities/index.rst
 
 

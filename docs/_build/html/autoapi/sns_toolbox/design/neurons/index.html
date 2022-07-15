@@ -15,6 +15,7 @@
     <script src="../../../../_static/underscore.js"></script>
     <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="../../../../_static/doctools.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
    
@@ -35,10 +36,7 @@
             
   <section id="module-sns_toolbox.design.neurons">
 <span id="sns-toolbox-design-neurons"></span><h1><a class="reference internal" href="#module-sns_toolbox.design.neurons" title="sns_toolbox.design.neurons"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sns_toolbox.design.neurons</span></code></a><a class="headerlink" href="#module-sns_toolbox.design.neurons" title="Permalink to this heading">¶</a></h1>
-<p>The mechanism for defining a neuron model which can be simulated in the SNS Toolbox
-William Nourse
-May 7, 2021
-Execute Order 66</p>
+<p>Neurons are the computational nodes of an SNS, and can be either spiking or non-spiking.</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this heading">¶</a></h2>
 <section id="classes">
@@ -46,31 +44,62 @@ Execute Order 66</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.design.neurons.Neuron" title="sns_toolbox.design.neurons.Neuron"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Neuron</span></code></a></p></td>
-<td><p></p></td>
+<td><p>Parent class of all neurons.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.design.neurons.NonSpikingNeuron" title="sns_toolbox.design.neurons.NonSpikingNeuron"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonSpikingNeuron</span></code></a></p></td>
-<td><p></p></td>
+<td><p>Classic non-spiking neuron model, whose dynamics are as follows:</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.design.neurons.SpikingNeuron" title="sns_toolbox.design.neurons.SpikingNeuron"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpikingNeuron</span></code></a></p></td>
-<td><p></p></td>
+<td><p>Generalized leaky integrate-and-fire neuron model, whose dynamics are as follows:</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py class">
 <dt class="sig sig-object py" id="sns_toolbox.design.neurons.Neuron">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.design.neurons.</span></span><span class="sig-name descname"><span class="pre">Neuron</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Neuron'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'white'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">membrane_capacitance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">membrane_conductance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.design.neurons.Neuron" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Parent class of all neurons.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of this neuron preset, default is ‘Neuron’.</p></li>
+<li><p><strong>color</strong> (<em>str</em><em>, </em><em>optional</em>) – Background fill color for the neuron, default is ‘white’.</p></li>
+<li><p><strong>membrane_capacitance</strong> (<em>Number</em><em>, </em><em>optional</em>) – Neural membrane capacitance, default is 5.0. Units are nanofarads (nF).</p></li>
+<li><p><strong>membrane_conductance</strong> (<em>Number</em><em>, </em><em>optional</em>) – Neural membrane conductance, default is 1.0. Units are microsiemens (uS).</p></li>
+<li><p><strong>bias</strong> (<em>Number</em><em>, </em><em>optional</em>) – Internal bias current, default is 0.0. Units are nanoamps (nA).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sns_toolbox.design.neurons.NonSpikingNeuron">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.design.neurons.</span></span><span class="sig-name descname"><span class="pre">NonSpikingNeuron</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.design.neurons.NonSpikingNeuron" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sns_toolbox.design.neurons.Neuron" title="sns_toolbox.design.neurons.Neuron"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Neuron</span></code></a></p>
+<p>Classic non-spiking neuron model, whose dynamics are as follows:
+membrane_capacitance*dU/dt = -membrane_conductance*u + bias current + synaptic current + external current.</p>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="sns_toolbox.design.neurons.SpikingNeuron">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.design.neurons.</span></span><span class="sig-name descname"><span class="pre">SpikingNeuron</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold_time_constant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_initial_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_proportionality_constant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.design.neurons.SpikingNeuron" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#sns_toolbox.design.neurons.Neuron" title="sns_toolbox.design.neurons.Neuron"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Neuron</span></code></a></p>
+<p>Generalized leaky integrate-and-fire neuron model, whose dynamics are as follows:
+membrane_capacitance*dU/dt = -membrane_conductance*u + bias current + synaptic current + external current;
+threshold_time_constant*dTheta/dt = -Theta + threshold_initial_value + threshold_proportionality_constant*u;
+if u &gt; Theta, u-&gt;0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>threshold_time_constant</strong> (<em>Number</em><em>, </em><em>optional</em>) – Rate that the firing threshold moves to the baseline value, default is 5.0. Units
+are milliseconds (ms).</p></li>
+<li><p><strong>threshold_initial_value</strong> (<em>Number</em><em>, </em><em>optional</em>) – Baseline value of the firing threshold, default is 1.0. Units are millivolts (mV).</p></li>
+<li><p><strong>threshold_proportionality_constant</strong> – Constant which determines spiking behavior.
+In response to constant stimulus, negative values cause the firing rate to decrease, positive values cause the
+rate to increase, and zero causes the rate to remain constant. Default is 0.0.</p></li>
+<li><p><strong>constant</strong> (<em>threshold_proportionality</em>) – Number, optional</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -96,6 +125,7 @@ Execute Order 66</p>
 <h3>Navigation</h3>
 <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../index.html">API Reference</a></li>
 </ul>
 
