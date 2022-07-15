@@ -16,7 +16,13 @@ Nervous Systems (SNS).
 
    api.rst
 
-Indices
+.. toctree::
+   :maxdepth: 2
+   :caption: Tutorials:
+
+   ../tutorials/Tutorial 1 - Network Design
+
+Indices:
 ========================================================================================================================
 
 * :ref:`genindex`
