@@ -1,0 +1,51 @@
+:py:mod:`sns_toolbox.simulate.simulate_utilities`
+=================================================
+
+.. py:module:: sns_toolbox.simulate.simulate_utilities
+
+.. autoapi-nested-parse::
+
+   Various Utility functions used when creating/simulating the various backends.
+
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   sns_toolbox.simulate.simulate_utilities.send_vars
+   sns_toolbox.simulate.simulate_utilities.spike_raster_plot
+
+
+
+.. py:function:: send_vars(variables, device)
+
+   Send a set of variables to a specific device. Used with PyTorch backends.
+
+   :param variables:   Variables to send.
+   :type variables:    List of torch.tensors
+   :param device:      Device to send the variables to.
+   :type device:       torch.device
+   :return:            Variables sent to correct device.
+   :rtype:             List of torch.tensors
+
+
+.. py:function:: spike_raster_plot(t, data, colors=None) -> None
+
+   Plot spike rasters of spiking data.
+
+   :param t:   vector of timesteps.
+   :type t:    List, np.ndarray, or torch.tensor
+   :param data:    2D vector of spiking data. Each row corresponds to a different neuron.
+   :type data:     np.ndarray or torch.tensor
+   :param colors:  List of colors to plot each neuron, default is every neuron is blue.
+   :type colors:   List of str, optional
+   :return:        None
+   :rtype:         N/A
+
+
