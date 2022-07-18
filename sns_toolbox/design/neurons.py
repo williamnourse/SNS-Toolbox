@@ -30,6 +30,12 @@ class Neuron:
     :type membrane_capacitance:     Number, optional
     :param membrane_conductance:    Neural membrane conductance, default is 1.0. Units are microsiemens (uS).
     :type membrane_conductance:     Number, optional
+    :param membrane_rest_potential: Neural Resting Potential, default to -60 (mV)
+    :type membrane_rest_potential:  Number, optional
+    :param pre_synaptic_saturation: Sets the membrane potential of the pre-synaptic neuron at which synaptic activity saturates, default to -40 (mV)
+    :type pre_synaptic_saturation:  Number, optional
+    :param pre_synaptic_threshold: Sets the threshold membrane potential of the pre-synaptic neuron for synaptic activity , default to -60 (mV)
+    :type pre_synaptic_threshold:  Number, optional
     :param bias:                    Internal bias current, default is 0.0. Units are nanoamps (nA).
     :type bias:                     Number, optional
     """
@@ -37,6 +43,9 @@ class Neuron:
                  color: str = 'white',
                  membrane_capacitance: float = 5.0,
                  membrane_conductance: float = 1.0,
+                 membrane_rest_potential: float = -60.0,
+                 pre_synaptic_saturation: float = -40.0,
+                 pre_synaptic_threshold: float = -60.0,
                  bias: float = 0.0) -> None:
 
         self.params: Dict[str, Any] = {}
@@ -57,6 +66,14 @@ class Neuron:
             self.params['membrane_conductance'] = membrane_conductance
         else:
             raise TypeError('Membrane conductance must be a number (int, float, double, etc.')
+        if isinstance(membrane_rest_potential, numbers.Number):
+            self.params['membrane_rest_potential'] = membrane_rest_potential
+        else:
+            raise TypeError('Membrane rest potential must be a number (int, float, double, etc.')
+        if isinstance(pre_synaptic_saturation, numbers.Number) and isinstance(pre_synaptic_threshold, numbers.Number):
+            self.params['R'] = pre_synaptic_saturation - pre_synaptic_threshold
+        else:
+            raise TypeError('pre_synaptics must be numbers (int, float, double, etc.')
         if isinstance(bias,numbers.Number):
             self.params['bias'] = bias
         else:
@@ -70,7 +87,7 @@ SPECIFIC MODELS
 class NonSpikingNeuron(Neuron):
     """
     Classic non-spiking neuron model, whose dynamics are as follows:
-    membrane_capacitance*dU/dt = -membrane_conductance*u + bias current + synaptic current + external current.
+    membrane_capacitance*dV/dt = -membrane_conductance*(V - membrane_rest_potential) + bias current + synaptic current + external current.
     """
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)

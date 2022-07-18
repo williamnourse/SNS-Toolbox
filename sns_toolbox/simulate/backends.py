@@ -487,7 +487,7 @@ class __SNS_Numpy_Full__(Backend):
         self.theta_last = np.copy(self.theta)
         # self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
         i_app = np.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
-        g_non = np.maximum(0, np.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non))
+        g_non = np.maximum(0, np.minimum(self.g_max_non * (self.u_last + membrane_rest_potential - pre_synaptic_threshold)  / self.R, self.g_max_non))
         self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
         g_syn = g_non + self.g_spike
         i_syn = np.sum(g_syn * self.del_e, axis=1) - self.u_last * np.sum(g_syn, axis=1)
@@ -1058,7 +1058,7 @@ class __SNS_Torch_Full__(Backend):
         self.theta_last = torch.clone(self.theta)
         # self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
         i_app = torch.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
-        g_non = torch.clamp(torch.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non),min=0)
+        g_non = torch.clamp(torch.minimum(self.g_max_non * self.u_last _ / self.R, self.g_max_non),min=0)
         self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
         g_syn = g_non + self.g_spike
         i_syn = torch.sum(g_syn * self.del_e, 1) - self.u_last * torch.sum(g_syn, 1)
