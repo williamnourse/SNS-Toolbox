@@ -99,7 +99,7 @@ class Backend:
         self.num_connections = self.network.get_num_connections()
         self.num_inputs = self.network.get_num_inputs()
         self.num_outputs = self.network.get_num_outputs()
-        self.R = self.network.params['R']
+        #self.R = self.network.params['R'] # Because of our change - R becomes a neuron parameter. We're still saving R as a network parameter here - just in case
 
         if self.debug:
             print('Number of Populations:')
@@ -112,7 +112,7 @@ class Backend:
             print(self.num_inputs)
             print('Number of Outputs:')
             print('Network Voltage Range (mV):')
-            print(self.R)
+            #print(self.R)
 
     def __initialize_vectors_and_matrices__(self) -> None:
         """
@@ -268,6 +268,9 @@ class __SNS_Numpy_Full__(Backend):
 
         self.u = np.zeros(self.num_neurons)
         self.u_last = np.zeros(self.num_neurons)
+        self.R = np.zeros(self.num_neurons)
+        self.membrane_rest_potential = np.zeros(self.num_neurons)
+        self.pre_synaptic_threshold = np.zeros(self.num_neurons)
         self.spikes = np.zeros(self.num_neurons)
         self.c_m = np.zeros(self.num_neurons)
         self.g_m = np.zeros(self.num_neurons)
@@ -309,6 +312,7 @@ class __SNS_Numpy_Full__(Backend):
                 self.c_m[index] = self.network.populations[pop]['type'].params['membrane_capacitance']
                 self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
                 self.i_b[index] = self.network.populations[pop]['type'].params['bias']
+                self.R[index] = self.network.populations[pop]['type'].params['R']
                 if hasattr(initial_value, '__iter__'):
                     self.u_last[index] = initial_value[num]
                 elif initial_value is None:
@@ -487,7 +491,7 @@ class __SNS_Numpy_Full__(Backend):
         self.theta_last = np.copy(self.theta)
         # self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
         i_app = np.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
-        g_non = np.maximum(0, np.minimum(self.g_max_non * (self.u_last + membrane_rest_potential - pre_synaptic_threshold)  / self.R, self.g_max_non))
+        g_non = np.maximum(0, np.minimum(self.g_max_non * (self.u_last + self.membrane_rest_potential - self.pre_synaptic_threshold)  / self.R, self.g_max_non))
         self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
         g_syn = g_non + self.g_spike
         i_syn = np.sum(g_syn * self.del_e, axis=1) - self.u_last * np.sum(g_syn, axis=1)
@@ -523,6 +527,9 @@ class __SNS_Numpy_No_Delay__(__SNS_Numpy_Full__):
         self.c_m = np.zeros(self.num_neurons)
         self.g_m = np.zeros(self.num_neurons)
         self.i_b = np.zeros(self.num_neurons)
+        self.R = np.zeros(self.num_neurons)
+        self.membrane_rest_potential = np.zeros(self.num_neurons)
+        self.pre_synaptic_threshold = np.zeros(self.num_neurons)
         self.theta_0 = np.zeros(self.num_neurons)
         self.theta = np.zeros(self.num_neurons)
         self.theta_last = np.zeros(self.num_neurons)
@@ -600,7 +607,7 @@ class __SNS_Numpy_No_Delay__(__SNS_Numpy_Full__):
         #             inputs ** 2) + self.in_linear * inputs + self.in_offset
         i_app = np.matmul(self.input_connectivity,
                           inputs)  # Apply external current sources to their destinations
-        g_non = np.maximum(0, np.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non))
+        g_non = np.maximum(0, np.minimum(self.g_max_non * (self.u_last + self.membrane_rest_potential - self.pre_synaptic_threshold) / self.R, self.g_max_non))
         self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
         g_syn = g_non + self.g_spike
         i_syn = np.sum(g_syn * self.del_e, axis=1) - self.u_last * np.sum(g_syn, axis=1)
@@ -633,6 +640,9 @@ class __SNS_Numpy_Non_Spiking__(__SNS_Numpy_Full__):
         self.c_m = np.zeros(self.num_neurons)
         self.g_m = np.zeros(self.num_neurons)
         self.i_b = np.zeros(self.num_neurons)
+        self.R = np.zeros(self.num_neurons)
+        self.membrane_rest_potential = np.zeros(self.num_neurons)
+        self.pre_synaptic_threshold = np.zeros(self.num_neurons)
 
         self.g_max_non = np.zeros([self.num_neurons, self.num_neurons])
         self.del_e = np.zeros([self.num_neurons, self.num_neurons])
@@ -661,6 +671,7 @@ class __SNS_Numpy_Non_Spiking__(__SNS_Numpy_Full__):
                 self.c_m[index] = self.network.populations[pop]['type'].params['membrane_capacitance']
                 self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
                 self.i_b[index] = self.network.populations[pop]['type'].params['bias']
+                self.R[index] = self.network.populations[pop]['type'].params['R']
                 if hasattr(initial_value, '__iter__'):
                     self.u_last[index] = initial_value[num]
                 elif initial_value is None:
@@ -771,7 +782,7 @@ class __SNS_Numpy_Non_Spiking__(__SNS_Numpy_Full__):
         #             inputs ** 2) + self.in_linear * inputs + self.in_offset
         i_app = np.matmul(self.input_connectivity,
                           inputs)  # Apply external current sources to their destinations
-        g_syn = np.maximum(0, np.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non))
+        g_syn = np.maximum(0, np.minimum(self.g_max_non * (self.u_last + self.membrane_rest_potential - self.pre_synaptic_threshold) / self.R, self.g_max_non))
         i_syn = np.sum(g_syn * self.del_e, axis=1) - self.u_last * np.sum(g_syn, axis=1)
         self.u = self.u_last + self.time_factor_membrane * (
                     -self.g_m * self.u_last + self.i_b + i_syn + i_app)  # Update membrane potential
@@ -818,6 +829,9 @@ class __SNS_Torch_Full__(Backend):
         self.c_m = torch.zeros(self.num_neurons,device=self.device)
         self.g_m = torch.zeros(self.num_neurons,device=self.device)
         self.i_b = torch.zeros(self.num_neurons,device=self.device)
+        self.R = torch.zeros(self.num_neurons,device=self.device)
+        self.membrane_rest_potential = torch.zeros(self.num_neurons,device=self.device)
+        self.pre_synaptic_threshold = torch.zeros(self.num_neurons,device=self.device)
         self.theta_0 = torch.zeros(self.num_neurons,device=self.device)
         self.theta = torch.zeros(self.num_neurons,device=self.device)
         self.theta_last = torch.zeros(self.num_neurons,device=self.device)
@@ -859,6 +873,7 @@ class __SNS_Torch_Full__(Backend):
                 self.c_m[index] = self.network.populations[pop]['type'].params['membrane_capacitance']
                 self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
                 self.i_b[index] = self.network.populations[pop]['type'].params['bias']
+                self.R[index] = self.network.populations[pop]['type'].params['R']
                 if hasattr(initial_value, '__iter__'):
                     self.u_last[index] = initial_value[num]
                 elif initial_value is None:
@@ -1058,7 +1073,7 @@ class __SNS_Torch_Full__(Backend):
         self.theta_last = torch.clone(self.theta)
         # self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
         i_app = torch.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
-        g_non = torch.clamp(torch.minimum(self.g_max_non * self.u_last _ / self.R, self.g_max_non),min=0)
+        g_non = torch.clamp(torch.minimum(self.g_max_non * (self.u_last + self.membrane_rest_potential - self.pre_synaptic_threshold) / self.R, self.g_max_non),min=0)
         self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
         g_syn = g_non + self.g_spike
         i_syn = torch.sum(g_syn * self.del_e, 1) - self.u_last * torch.sum(g_syn, 1)
@@ -1096,6 +1111,9 @@ class __SNS_Torch_No_Delay__(__SNS_Torch_Full__):
         self.c_m = torch.zeros(self.num_neurons,device=self.device)
         self.g_m = torch.zeros(self.num_neurons,device=self.device)
         self.i_b = torch.zeros(self.num_neurons,device=self.device)
+        self.R = torch.zeros(self.num_neurons,device=self.device)
+        self.membrane_rest_potential = torch.zeros(self.num_neurons,device=self.device)
+        self.pre_synaptic_threshold = torch.zeros(self.num_neurons,device=self.device)
         self.theta_0 = torch.zeros(self.num_neurons,device=self.device)
         self.theta = torch.zeros(self.num_neurons,device=self.device)
         self.theta_last = torch.zeros(self.num_neurons,device=self.device)
@@ -1168,7 +1186,7 @@ class __SNS_Torch_No_Delay__(__SNS_Torch_Full__):
         self.theta_last = torch.clone(self.theta)
         # self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
         i_app = torch.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
-        g_non = torch.clamp(torch.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non),min=0)
+        g_non = torch.clamp(torch.minimum(self.g_max_non * (self.u_last + self.membrane_rest_potential - self.pre_synaptic_threshold) / self.R, self.g_max_non),min=0)
         self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
         g_syn = g_non + self.g_spike
         i_syn = torch.sum(g_syn * self.del_e, 1) - self.u_last * torch.sum(g_syn, 1)
@@ -1198,6 +1216,9 @@ class __SNS_Torch_Non_Spiking__(__SNS_Torch_Full__):
         self.c_m = torch.zeros(self.num_neurons,device=self.device)
         self.g_m = torch.zeros(self.num_neurons,device=self.device)
         self.i_b = torch.zeros(self.num_neurons,device=self.device)
+        self.R = torch.zeros(self.num_neurons,device=self.device)
+        self.membrane_rest_potential = torch.zeros(self.num_neurons,device=self.device)
+        self.pre_synaptic_threshold = torch.zeros(self.num_neurons,device=self.device)
 
         self.g_max_non = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
         self.del_e = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
@@ -1225,6 +1246,7 @@ class __SNS_Torch_Non_Spiking__(__SNS_Torch_Full__):
                 self.c_m[index] = self.network.populations[pop]['type'].params['membrane_capacitance']
                 self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
                 self.i_b[index] = self.network.populations[pop]['type'].params['bias']
+                self.R[index] = self.network.populations[pop]['type'].params['R']
                 if hasattr(initial_value, '__iter__'):
                     self.u_last[index] = initial_value[num]
                 elif initial_value is None:
@@ -1328,7 +1350,7 @@ class __SNS_Torch_Non_Spiking__(__SNS_Torch_Full__):
         self.u_last = torch.clone(self.u)
         # self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
         i_app = torch.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
-        g_syn = torch.clamp(torch.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non),min=0)
+        g_syn = torch.clamp(torch.minimum(self.g_max_non * (self.u_last + self.membrane_rest_potential - self.pre_synaptic_threshold) / self.R, self.g_max_non),min=0)
         i_syn = torch.sum(g_syn * self.del_e, 1) - self.u_last * torch.sum(g_syn, 1)
         self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + self.i_b + i_syn + i_app)  # Update membrane potential
 
@@ -1371,6 +1393,9 @@ class __SNS_Sparse_Full__(Backend):
         self.c_m = torch.zeros(self.num_neurons,device=self.device)
         self.g_m = torch.zeros(self.num_neurons,device=self.device)
         self.i_b = torch.sparse_coo_tensor(size=(1,self.num_neurons),device=self.device)
+        self.R = torch.zeros(self.num_neurons,device=self.device)
+        self.membrane_rest_potential = torch.zeros(self.num_neurons,device=self.device)
+        self.pre_synaptic_threshold = torch.zeros(self.num_neurons,device=self.device)
         self.theta_0 = torch.zeros(self.num_neurons,device=self.device)
         self.theta = torch.zeros(self.num_neurons,device=self.device)
         self.theta_last = torch.zeros(self.num_neurons,device=self.device)
@@ -1415,6 +1440,7 @@ class __SNS_Sparse_Full__(Backend):
                 self.i_b = self.i_b.to_dense()
                 self.i_b[0,index] = self.network.populations[pop]['type'].params['bias']
                 self.i_b = self.i_b.to_sparse()
+                self.R[index] = self.network.populations[pop]['type'].params['R']
 
                 if hasattr(initial_value, '__iter__'):
                     self.u_last[index] = initial_value[num]
@@ -1709,7 +1735,7 @@ class __SNS_Sparse_Full__(Backend):
         i_app = torch.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
         i_app = i_app.to_sparse()
 
-        g_non = torch.clamp(torch.minimum(self.g_max_non.to_dense() * self.u_last / self.R, self.g_max_non.to_dense()),min=0)
+        g_non = torch.clamp(torch.minimum(self.g_max_non.to_dense() * (self.u_last + self.membrane_rest_potential - self.pre_synaptic_threshold) /  self.R, self.g_max_non.to_dense()),min=0)
         g_non = g_non.to_sparse()
 
         self.g_spike = self.g_spike.to_dense() * (1 - self.time_factor_synapse)
@@ -1765,6 +1791,9 @@ class __SNS_Sparse_No_Delay__(__SNS_Sparse_Full__):
         self.c_m = torch.zeros(self.num_neurons,device=self.device)
         self.g_m = torch.zeros(self.num_neurons,device=self.device)
         self.i_b = torch.sparse_coo_tensor(size=(1,self.num_neurons),device=self.device)
+        self.R = torch.zeros(self.num_neurons,device=self.device)
+        self.membrane_rest_potential = torch.zeros(self.num_neurons,device=self.device)
+        self.pre_synaptic_threshold = torch.zeros(self.num_neurons,device=self.device)
         self.theta_0 = torch.zeros(self.num_neurons,device=self.device)
         self.theta = torch.zeros(self.num_neurons,device=self.device)
         self.theta_last = torch.zeros(self.num_neurons,device=self.device)
@@ -1865,7 +1894,7 @@ class __SNS_Sparse_No_Delay__(__SNS_Sparse_Full__):
         i_app = torch.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
         i_app = i_app.to_sparse()
 
-        g_non = torch.clamp(torch.minimum(self.g_max_non.to_dense() * self.u_last / self.R, self.g_max_non.to_dense()),min=0)
+        g_non = torch.clamp(torch.minimum(self.g_max_non.to_dense() * (self.u_last + self.membrane_rest_potential - self.pre_synaptic_threshold) / self.R, self.g_max_non.to_dense()),min=0)
         g_non = g_non.to_sparse()
 
         self.g_spike = self.g_spike.to_dense() * (1 - self.time_factor_synapse)
@@ -1909,6 +1938,9 @@ class __SNS_Sparse_Non_Spiking__(__SNS_Sparse_Full__):
         self.c_m = torch.zeros(self.num_neurons,device=self.device)
         self.g_m = torch.zeros(self.num_neurons,device=self.device)
         self.i_b = torch.sparse_coo_tensor(size=(1,self.num_neurons),device=self.device)
+        self.R = torch.zeros(self.num_neurons,device=self.device)
+        self.membrane_rest_potential = torch.zeros(self.num_neurons,device=self.device)
+        self.pre_synaptic_threshold = torch.zeros(self.num_neurons,device=self.device)
 
         self.g_max_non = torch.sparse_coo_tensor(size=(self.num_neurons,self.num_neurons),device=self.device)
         self.del_e = torch.sparse_coo_tensor(size=(self.num_neurons,self.num_neurons),device=self.device)
@@ -1939,6 +1971,8 @@ class __SNS_Sparse_Non_Spiking__(__SNS_Sparse_Full__):
                 self.i_b = self.i_b.to_dense()
                 self.i_b[0,index] = self.network.populations[pop]['type'].params['bias']
                 self.i_b = self.i_b.to_sparse()
+                self.R[index] = self.network.populations[pop]['type'].params['R']
+
 
                 if hasattr(initial_value, '__iter__'):
                     self.u_last[index] = initial_value[num]
@@ -2090,7 +2124,7 @@ class __SNS_Sparse_Non_Spiking__(__SNS_Sparse_Full__):
         i_app = torch.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
         i_app = i_app.to_sparse()
 
-        g_syn = torch.clamp(torch.minimum(self.g_max_non.to_dense() * self.u_last / self.R, self.g_max_non.to_dense()),min=0)
+        g_syn = torch.clamp(torch.minimum(self.g_max_non.to_dense() * (self.u_last + self.membrane_rest_potential - self.pre_synaptic_threshold) / self.R, self.g_max_non.to_dense()),min=0)
         g_syn = g_syn.to_sparse()
 
         if g_syn._nnz() > 0:
@@ -2169,6 +2203,7 @@ class __SNS_Manual_Full__(Backend):
                 self.c_m[index] = self.network.populations[pop]['type'].params['membrane_capacitance']
                 self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
                 self.i_b[index] = self.network.populations[pop]['type'].params['bias']
+                self.R[index] = self.network.populations[pop]['type'].params['R']
                 if hasattr(initial_value, '__iter__'):
                     self.u_last[index] = initial_value[num]
                 elif initial_value is None:
@@ -2364,7 +2399,7 @@ class __SNS_Manual_Full__(Backend):
                 if neuron_src[1]:  # if spiking
                     neuron_src[4] = neuron_src[4] * (1-neuron_src[5])
                 else:
-                    neuron_src[4] = np.maximum(0, np.minimum(neuron_src[2] * self.u_last[neuron_src[0]] / self.R, neuron_src[2]))
+                    neuron_src[4] = np.maximum(0, np.minimum(neuron_src[2] * (self.u_last[neuron_src[0]]) / self.R, neuron_src[2])) #TODO add correction here
                 i_syn += neuron_src[4] * (neuron_src[3] - self.u_last[nrn])
             # print(i_syn)
             self.u[nrn] = self.u_last[nrn] + self.time_factor_membrane[nrn] * (-self.g_m[nrn] * self.u_last[nrn] + self.i_b[nrn] + i_syn + i_app[nrn])  # Update membrane potential
@@ -2447,7 +2482,7 @@ class __SNS_Manual_No_Delay__(__SNS_Manual_Full__):
                 if neuron_src[1]:  # if spiking
                     neuron_src[4] = neuron_src[4] * (1-neuron_src[5])
                 else:
-                    neuron_src[4] = np.maximum(0, np.minimum(neuron_src[2] * self.u_last[neuron_src[0]] / self.R, neuron_src[2]))
+                    neuron_src[4] = np.maximum(0, np.minimum(neuron_src[2] * (self.u_last[neuron_src[0]]) / self.R, neuron_src[2])) #TODO: add connections here
                 i_syn += neuron_src[4] * (neuron_src[3] - self.u_last[nrn])
             # print(i_syn)
             self.u[nrn] = self.u_last[nrn] + self.time_factor_membrane[nrn] * (-self.g_m[nrn] * self.u_last[nrn] + self.i_b[nrn] + i_syn + i_app[nrn])  # Update membrane potential
@@ -2508,6 +2543,7 @@ class __SNS_Manual_Non_Spiking__(__SNS_Manual_Full__):
                 self.c_m[index] = self.network.populations[pop]['type'].params['membrane_capacitance']
                 self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
                 self.i_b[index] = self.network.populations[pop]['type'].params['bias']
+                self.R[index] = self.network.populations[pop]['type'].params['R']
                 if hasattr(initial_value, '__iter__'):
                     self.u_last[index] = initial_value[num]
                 elif initial_value is None:
@@ -2617,7 +2653,7 @@ class __SNS_Manual_Non_Spiking__(__SNS_Manual_Full__):
             i_syn = 0
             for syn in range(len(self.incoming_synapses[nrn])):
                 neuron_src = self.incoming_synapses[nrn][syn]
-                neuron_src[4] = np.maximum(0, np.minimum(neuron_src[2] * self.u_last[neuron_src[0]] / self.R, neuron_src[2]))
+                neuron_src[4] = np.maximum(0, np.minimum(neuron_src[2] * (self.u_last[neuron_src[0]]) / self.R, neuron_src[2]))
                 i_syn += neuron_src[4] * (neuron_src[3] - self.u_last[nrn])
             # print(i_syn)
             self.u[nrn] = self.u_last[nrn] + self.time_factor_membrane[nrn] * (-self.g_m[nrn] * self.u_last[nrn] + self.i_b[nrn] + i_syn + i_app[nrn])  # Update membrane potential
