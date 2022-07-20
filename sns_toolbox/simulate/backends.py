@@ -313,6 +313,8 @@ class __SNS_Numpy_Full__(Backend):
                 self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
                 self.i_b[index] = self.network.populations[pop]['type'].params['bias']
                 self.R[index] = self.network.populations[pop]['type'].params['R']
+                self.membrane_rest_potential[index] = self.network.populations[pop]['type'].params['membrane_rest_potential']
+                self.pre_synaptic_threshold[index] = self.network.populations[pop]['type'].params['pre_synaptic_threshold']
                 if hasattr(initial_value, '__iter__'):
                     self.u_last[index] = initial_value[num]
                 elif initial_value is None:
@@ -672,6 +674,8 @@ class __SNS_Numpy_Non_Spiking__(__SNS_Numpy_Full__):
                 self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
                 self.i_b[index] = self.network.populations[pop]['type'].params['bias']
                 self.R[index] = self.network.populations[pop]['type'].params['R']
+                self.membrane_rest_potential[index] = self.network.populations[pop]['type'].params['membrane_rest_potential']
+                self.pre_synaptic_threshold[index] = self.network.populations[pop]['type'].params['pre_synaptic_threshold']
                 if hasattr(initial_value, '__iter__'):
                     self.u_last[index] = initial_value[num]
                 elif initial_value is None:
@@ -775,6 +779,12 @@ class __SNS_Numpy_Non_Spiking__(__SNS_Numpy_Full__):
         print(self.u)
         print('u_last:')
         print(self.u_last)
+        print('membrane_rest_potential:')
+        print(self.membrane_rest_potential)
+        print('pre_synaptic_threshold:')
+        print(self.pre_synaptic_threshold)
+        print('R:')
+        print(self.R)
 
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = np.copy(self.u)
@@ -874,6 +884,8 @@ class __SNS_Torch_Full__(Backend):
                 self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
                 self.i_b[index] = self.network.populations[pop]['type'].params['bias']
                 self.R[index] = self.network.populations[pop]['type'].params['R']
+                self.membrane_rest_potential[index] = self.network.populations[pop]['type'].params['membrane_rest_potential']
+                self.pre_synaptic_threshold[index] = self.network.populations[pop]['type'].params['pre_synaptic_threshold']
                 if hasattr(initial_value, '__iter__'):
                     self.u_last[index] = initial_value[num]
                 elif initial_value is None:
@@ -1247,6 +1259,8 @@ class __SNS_Torch_Non_Spiking__(__SNS_Torch_Full__):
                 self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
                 self.i_b[index] = self.network.populations[pop]['type'].params['bias']
                 self.R[index] = self.network.populations[pop]['type'].params['R']
+                self.membrane_rest_potential[index] = self.network.populations[pop]['type'].params['membrane_rest_potential']
+                self.pre_synaptic_threshold[index] = self.network.populations[pop]['type'].params['pre_synaptic_threshold']
                 if hasattr(initial_value, '__iter__'):
                     self.u_last[index] = initial_value[num]
                 elif initial_value is None:
@@ -1441,6 +1455,8 @@ class __SNS_Sparse_Full__(Backend):
                 self.i_b[0,index] = self.network.populations[pop]['type'].params['bias']
                 self.i_b = self.i_b.to_sparse()
                 self.R[index] = self.network.populations[pop]['type'].params['R']
+                self.membrane_rest_potential[index] = self.network.populations[pop]['type'].params['membrane_rest_potential']
+                self.pre_synaptic_threshold[index] = self.network.populations[pop]['type'].params['pre_synaptic_threshold']
 
                 if hasattr(initial_value, '__iter__'):
                     self.u_last[index] = initial_value[num]
@@ -1972,6 +1988,8 @@ class __SNS_Sparse_Non_Spiking__(__SNS_Sparse_Full__):
                 self.i_b[0,index] = self.network.populations[pop]['type'].params['bias']
                 self.i_b = self.i_b.to_sparse()
                 self.R[index] = self.network.populations[pop]['type'].params['R']
+                self.membrane_rest_potential[index] = self.network.populations[pop]['type'].params['membrane_rest_potential']
+                self.pre_synaptic_threshold[index] = self.network.populations[pop]['type'].params['pre_synaptic_threshold']
 
 
                 if hasattr(initial_value, '__iter__'):
@@ -2204,6 +2222,8 @@ class __SNS_Manual_Full__(Backend):
                 self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
                 self.i_b[index] = self.network.populations[pop]['type'].params['bias']
                 self.R[index] = self.network.populations[pop]['type'].params['R']
+                self.membrane_rest_potential[index] = self.network.populations[pop]['type'].params['membrane_rest_potential']
+                self.pre_synaptic_threshold[index] = self.network.populations[pop]['type'].params['pre_synaptic_threshold']
                 if hasattr(initial_value, '__iter__'):
                     self.u_last[index] = initial_value[num]
                 elif initial_value is None:
@@ -2544,6 +2564,8 @@ class __SNS_Manual_Non_Spiking__(__SNS_Manual_Full__):
                 self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
                 self.i_b[index] = self.network.populations[pop]['type'].params['bias']
                 self.R[index] = self.network.populations[pop]['type'].params['R']
+                self.membrane_rest_potential[index] = self.network.populations[pop]['type'].params['membrane_rest_potential']
+                self.pre_synaptic_threshold[index] = self.network.populations[pop]['type'].params['pre_synaptic_threshold']
                 if hasattr(initial_value, '__iter__'):
                     self.u_last[index] = initial_value[num]
                 elif initial_value is None:
