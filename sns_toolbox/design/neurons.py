@@ -72,6 +72,8 @@ class Neuron:
             raise TypeError('Membrane rest potential must be a number (int, float, double, etc.')
         if isinstance(pre_synaptic_saturation, numbers.Number) and isinstance(pre_synaptic_threshold, numbers.Number):
             self.params['R'] = pre_synaptic_saturation - pre_synaptic_threshold
+            self.params['pre_synaptic_threshold'] = pre_synaptic_threshold
+            self.params['[pre_synaptic_saturation'] = pre_synaptic_saturation
         else:
             raise TypeError('pre_synaptics must be numbers (int, float, double, etc.')
         if isinstance(bias,numbers.Number):
