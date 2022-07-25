@@ -40,7 +40,8 @@ class Backend:
     :param substeps:    Number of simulation substeps before returning an output vector. Default is 1.
     :type substeps:     int, optional
     """
-    def __init__(self, network: Network, dt: float = 0.1, debug: bool = False, substeps: int = 1) -> None:
+    def __init__(self, network: Network, dt: float = 0.1, debug: bool = False, substeps: int = 1, spiking: bool = True,
+                 delay: bool = True) -> None:
 
         if substeps <= 0:
             raise ValueError('Substeps must be a positive integer')
@@ -48,6 +49,8 @@ class Backend:
         self.network = network
         self.dt = dt
         self.debug = debug
+        self.spiking = spiking
+        self.delay = delay
 
         if self.debug:
             print('#\nGETTING NET PARAMETERS\n#')
@@ -73,9 +76,11 @@ class Backend:
             print('#\nCALCULATING TIME FACTORS\n#')
         self.__calculate_time_factors__()
 
-        if self.debug:
-            print('#\nINITIALIZING PROPAGATION DELAY\n#')
-        self.__initialize_propagation_delay__()
+        if self.spiking:
+            if self.delay:
+                if self.debug:
+                    print('#\nINITIALIZING PROPAGATION DELAY\n#')
+                self.__initialize_propagation_delay__()
 
         if self.debug:
             print('#\nSETTING OUTPUT PARAMETERS\n#')
@@ -272,23 +277,26 @@ class __SNS_Numpy_Full__(Backend):
         self.c_m = np.zeros(self.num_neurons)
         self.g_m = np.zeros(self.num_neurons)
         self.i_b = np.zeros(self.num_neurons)
-        self.theta_0 = np.zeros(self.num_neurons)
-        self.theta = np.zeros(self.num_neurons)
-        self.theta_last = np.zeros(self.num_neurons)
-        self.m = np.zeros(self.num_neurons)
-        self.tau_theta = np.zeros(self.num_neurons)
+        if self.spiking:
+            self.theta_0 = np.zeros(self.num_neurons)
+            self.theta = np.zeros(self.num_neurons)
+            self.theta_last = np.zeros(self.num_neurons)
+            self.m = np.zeros(self.num_neurons)
+            self.tau_theta = np.zeros(self.num_neurons)
 
         self.g_max_non = np.zeros([self.num_neurons, self.num_neurons])
-        self.g_max_spike = np.zeros([self.num_neurons, self.num_neurons])
-        self.g_spike = np.zeros([self.num_neurons, self.num_neurons])
         self.del_e = np.zeros([self.num_neurons, self.num_neurons])
-        self.tau_syn = np.zeros([self.num_neurons, self.num_neurons]) + 1
-        self.spike_delays = np.zeros([self.num_neurons, self.num_neurons])
-        self.spike_rows = []
-        self.spike_cols = []
-        self.buffer_steps = []
-        self.buffer_nrns = []
-        self.delayed_spikes = np.zeros([self.num_neurons, self.num_neurons])
+        if self.spiking:
+            self.g_max_spike = np.zeros([self.num_neurons, self.num_neurons])
+            self.g_spike = np.zeros([self.num_neurons, self.num_neurons])
+            self.tau_syn = np.zeros([self.num_neurons, self.num_neurons]) + 1
+            if self.delay:
+                self.spike_delays = np.zeros([self.num_neurons, self.num_neurons])
+                self.spike_rows = []
+                self.spike_cols = []
+                self.buffer_steps = []
+                self.buffer_nrns = []
+                self.delayed_spikes = np.zeros([self.num_neurons, self.num_neurons])
 
         self.pops_and_nrns = []
         index = 0
@@ -315,19 +323,20 @@ class __SNS_Numpy_Full__(Backend):
                     self.u_last[index] = 0.0
                 else:
                     self.u_last[index] = initial_value
-
-                if isinstance(self.network.populations[pop]['type'], SpikingNeuron):  # if the neuron is spiking, copy more
-                    self.theta_0[index] = self.network.populations[pop]['type'].params['threshold_initial_value']
-                    self.m[index] = self.network.populations[pop]['type'].params['threshold_proportionality_constant']
-                    self.tau_theta[index] = self.network.populations[pop]['type'].params['threshold_time_constant']
-                else:  # otherwise, set to the special values for NonSpiking
-                    self.theta_0[index] = sys.float_info.max
-                    self.m[index] = 0
-                    self.tau_theta[index] = 1
+                if self.spiking:
+                    if isinstance(self.network.populations[pop]['type'], SpikingNeuron):  # if the neuron is spiking, copy more
+                        self.theta_0[index] = self.network.populations[pop]['type'].params['threshold_initial_value']
+                        self.m[index] = self.network.populations[pop]['type'].params['threshold_proportionality_constant']
+                        self.tau_theta[index] = self.network.populations[pop]['type'].params['threshold_time_constant']
+                    else:  # otherwise, set to the special values for NonSpiking
+                        self.theta_0[index] = sys.float_info.max
+                        self.m[index] = 0
+                        self.tau_theta[index] = 1
                 index += 1
         self.u = np.copy(self.u_last)
-        self.theta = np.copy(self.theta_0)
-        self.theta_last = np.copy(self.theta_0)
+        if self.spiking:
+            self.theta = np.copy(self.theta_0)
+            self.theta_last = np.copy(self.theta_0)
 
     def __set_inputs__(self) -> None:
 
@@ -406,11 +415,11 @@ class __SNS_Numpy_Full__(Backend):
     def __calculate_time_factors__(self) -> None:
 
         self.time_factor_membrane = self.dt / (self.c_m/self.g_m)
-        self.time_factor_threshold = self.dt / self.tau_theta
-        self.time_factor_synapse = self.dt / self.tau_syn
+        if self.spiking:
+            self.time_factor_threshold = self.dt / self.tau_theta
+            self.time_factor_synapse = self.dt / self.tau_syn
 
     def __initialize_propagation_delay__(self) -> None:
-
         buffer_length = int(np.max(self.spike_delays) + 1)
         self.spike_buffer = np.zeros([buffer_length, self.num_neurons])
 
@@ -429,7 +438,8 @@ class __SNS_Numpy_Full__(Backend):
 
         self.output_voltage_connectivity = np.zeros(
             [self.num_outputs, self.num_neurons])  # initialize connectivity matrix
-        self.output_spike_connectivity = np.copy(self.output_voltage_connectivity)
+        if self.spiking:
+            self.output_spike_connectivity = np.copy(self.output_voltage_connectivity)
         # self.out_offset = np.zeros(self.num_outputs)
         # self.out_linear = np.zeros(self.num_outputs)
         # self.out_quad = np.zeros(self.num_outputs)
@@ -463,47 +473,56 @@ class __SNS_Numpy_Full__(Backend):
         print(self.input_connectivity)
         print('g_max_non:')
         print(self.g_max_non)
-        print('GmaxSpike:')
-        print(self.g_max_spike)
+        if self.spiking:
+            print('GmaxSpike:')
+            print(self.g_max_spike)
         print('del_e:')
         print(self.del_e)
         print('Output Voltage Connectivity')
         print(self.output_voltage_connectivity)
-        print('Output Spike Connectivity:')
-        print(self.output_spike_connectivity)
+        if self.spiking:
+            print('Output Spike Connectivity:')
+            print(self.output_spike_connectivity)
         print('u:')
         print(self.u)
         print('u_last:')
         print(self.u_last)
-        print('theta_0:')
-        print(self.theta_0)
-        print('ThetaLast:')
-        print(self.theta_last)
-        print('Theta')
-        print(self.theta)
+        if self.spiking:
+            print('theta_0:')
+            print(self.theta_0)
+            print('ThetaLast:')
+            print(self.theta_last)
+            print('Theta')
+            print(self.theta)
 
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = np.copy(self.u)
-        self.theta_last = np.copy(self.theta)
         # self.inputs_mapped = self.in_cubic*(inputs**3) + self.in_quad*(inputs**2) + self.in_linear*inputs + self.in_offset
         i_app = np.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
-        g_non = np.maximum(0, np.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non))
-        self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
-        g_syn = g_non + self.g_spike
+        g_syn = np.maximum(0, np.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non))
+        if self.spiking:
+            self.theta_last = np.copy(self.theta)
+            self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
+            g_syn += self.g_spike
+
         i_syn = np.sum(g_syn * self.del_e, axis=1) - self.u_last * np.sum(g_syn, axis=1)
         self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + self.i_b + i_syn + i_app)  # Update membrane potential
-        self.theta = self.theta_last + self.time_factor_threshold * (-self.theta_last + self.theta_0 + self.m * self.u_last)  # Update the firing thresholds
-        self.spikes = np.sign(np.minimum(0, self.theta - self.u))  # Compute which neurons have spiked
+        if self.spiking:
+            self.theta = self.theta_last + self.time_factor_threshold * (-self.theta_last + self.theta_0 + self.m * self.u_last)  # Update the firing thresholds
+            self.spikes = np.sign(np.minimum(0, self.theta - self.u))  # Compute which neurons have spiked
 
-        # New stuff with delay
-        self.spike_buffer = np.roll(self.spike_buffer, 1, axis=0)   # Shift buffer entries down
-        self.spike_buffer[0, :] = self.spikes    # Replace row 0 with the current spike data
-        # Update a matrix with all of the appropriately delayed spike values
-        self.delayed_spikes[self.spike_rows, self.spike_cols] = self.spike_buffer[self.buffer_steps, self.buffer_nrns]
+            # New stuff with delay
+            if self.delay:
+                self.spike_buffer = np.roll(self.spike_buffer, 1, axis=0)   # Shift buffer entries down
+                self.spike_buffer[0, :] = self.spikes    # Replace row 0 with the current spike data
+                # Update a matrix with all of the appropriately delayed spike values
+                self.delayed_spikes[self.spike_rows, self.spike_cols] = self.spike_buffer[self.buffer_steps, self.buffer_nrns]
 
-        self.g_spike = np.maximum(self.g_spike, (-self.delayed_spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
-        self.u = self.u * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
-        self.outputs = np.matmul(self.output_voltage_connectivity, self.u) + np.matmul(self.output_spike_connectivity, -self.spikes)
+                self.g_spike = np.maximum(self.g_spike, (-self.delayed_spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
+            self.u = self.u * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
+        self.outputs = np.matmul(self.output_voltage_connectivity, self.u)
+        if self.spiking:
+            self.outputs += np.matmul(self.output_spike_connectivity, -self.spikes)
 
         return self.outputs
 
