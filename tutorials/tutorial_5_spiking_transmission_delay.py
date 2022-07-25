@@ -11,7 +11,7 @@ from sns_toolbox.design.networks import Network
 from sns_toolbox.design.neurons import SpikingNeuron
 from sns_toolbox.design.connections import SpikingSynapse
 
-from sns_toolbox.simulate.backends import __SNS_Numpy_Full__
+from sns_toolbox.simulate.backends import SNS_Numpy
 from sns_toolbox.simulate.simulate_utilities import spike_raster_plot
 
 """Define our types"""
@@ -56,7 +56,7 @@ data = np.zeros([len(t), net.get_num_outputs_actual()])    # getNumOutputsActual
                                                             # nodes in a network (since this net has populations, each
                                                             # population has n output nodes)
 # Compile to numpy
-model = __SNS_Numpy_Full__(net, dt=dt, debug=False)
+model = SNS_Numpy(net, dt=dt, debug=False)
 
 # Run for all steps
 for i in range(len(t)):

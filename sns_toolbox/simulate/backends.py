@@ -448,7 +448,6 @@ class SNS_Numpy(__Backend__):
                 if self.network.outputs[out]['spiking']:
                     self.output_spike_connectivity[outputs[out][i]][
                         self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
-                    # self.out_linear[outputs[out][i]] = 1.0
                 else:
                     self.output_voltage_connectivity[outputs[out][i]][
                         self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
@@ -476,6 +475,8 @@ class SNS_Numpy(__Backend__):
                 self.delayed_spikes[self.spike_rows, self.spike_cols] = self.spike_buffer[self.buffer_steps, self.buffer_nrns]
 
                 self.g_spike = np.maximum(self.g_spike, (-self.delayed_spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
+            else:
+                self.g_spike = np.maximum(self.g_spike, (-self.spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
             self.u = self.u * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
         self.outputs = np.matmul(self.output_voltage_connectivity, self.u)
         if self.spiking:
@@ -729,6 +730,8 @@ class SNS_Torch(__Backend__):
                 self.delayed_spikes[self.spike_rows, self.spike_cols] = self.spike_buffer[self.buffer_steps, self.buffer_nrns]
 
                 self.g_spike = torch.maximum(self.g_spike, (-self.delayed_spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
+            else:
+                self.g_spike = torch.maximum(self.g_spike, (-self.spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
             self.u = self.u * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
         self.outputs = torch.matmul(self.output_voltage_connectivity, self.u)
         if self.spiking:
@@ -1046,7 +1049,9 @@ class SNS_Sparse(__Backend__):
                 self.delayed_spikes = self.delayed_spikes.to_sparse()
 
                 self.g_spike = torch.maximum(self.g_spike.to_dense(), ((-self.delayed_spikes) * self.g_max_spike).to_dense())  # Update the conductance of connections which spiked
-                self.g_spike = self.g_spike.to_sparse()
+            else:
+                self.g_spike = torch.maximum(self.g_spike.to_dense(), (-self.spikes.to_dense()) * self.g_max_spike.to_dense())  # Update the conductance of connections which spiked
+            self.g_spike = self.g_spike.to_sparse()
             self.u = self.u * (self.spikes.to_dense() + 1)  # Reset the membrane voltages of neurons which spiked
         self.outputs = torch.matmul(self.output_voltage_connectivity, self.u)
         if self.spiking:
@@ -1223,7 +1228,8 @@ class SNS_Manual(__Backend__):
         :return: None
         """
         self.time_factor_membrane = self.dt / (self.c_m/self.g_m)
-        self.time_factor_threshold = self.dt / self.tau_theta
+        if self.spiking:
+            self.time_factor_threshold = self.dt / self.tau_theta
 
     def __initialize_propagation_delay__(self) -> None:
         """
@@ -1309,16 +1315,17 @@ class SNS_Manual(__Backend__):
             if self.spiking:
                 self.theta[nrn] = self.theta_last[nrn] + self.time_factor_threshold[nrn] * (-self.theta_last[nrn] + self.theta_0[nrn] + self.m[nrn] * self.u_last[nrn])  # Update the firing thresholds
                 self.spikes[nrn] = np.sign(np.minimum(0, self.theta[nrn] - self.u[nrn]))  # Compute which neurons have spiked
-        for nrn in range(self.num_neurons):
-            if self.delay:
-                # New stuff with delay
-                for syn in range(len(self.incoming_synapses[nrn])):
-                    neuron_src = self.incoming_synapses[nrn][syn]
-                    if neuron_src[1]:  # if spiking
-                        neuron_src[6] = np.roll(neuron_src[6], 1)   # Shift buffer entries down
-                        neuron_src[6][0] = self.spikes[neuron_src[0]]    # Replace row 0 with the current spike data
-                        neuron_src[4] = np.maximum(neuron_src[4], (-neuron_src[6][-1]) * neuron_src[2])  # Update the conductance of connections which spiked
-            self.u[nrn] = self.u[nrn] * (self.spikes[nrn] + 1)  # Reset the membrane voltages of neurons which spiked
+        if self.spiking:
+            for nrn in range(self.num_neurons):
+                if self.delay:
+                    # New stuff with delay
+                    for syn in range(len(self.incoming_synapses[nrn])):
+                        neuron_src = self.incoming_synapses[nrn][syn]
+                        if neuron_src[1]:  # if spiking
+                            neuron_src[6] = np.roll(neuron_src[6], 1)   # Shift buffer entries down
+                            neuron_src[6][0] = self.spikes[neuron_src[0]]    # Replace row 0 with the current spike data
+                            neuron_src[4] = np.maximum(neuron_src[4], (-neuron_src[6][-1]) * neuron_src[2])  # Update the conductance of connections which spiked
+                self.u[nrn] = self.u[nrn] * (self.spikes[nrn] + 1)  # Reset the membrane voltages of neurons which spiked
         self.outputs = np.matmul(self.output_voltage_connectivity, self.u)
         if self.spiking:
             self.outputs += np.matmul(self.output_spike_connectivity, -self.spikes)
