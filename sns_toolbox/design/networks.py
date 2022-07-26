@@ -508,10 +508,10 @@ class Network:
 
         if view_label:
             self.graph.edge(str(source),
-                            str(destination), dir=direction, arrowhead=style, label=label)
+                            str(destination), dir=direction, arrowhead=style, label=label, arrowtail=style)
         else:
             self.graph.edge(str(source),
-                            str(destination), dir=direction, arrowhead=style)
+                            str(destination), dir=direction, arrowhead=style, arrowtail=style)
 
         if connection_type.params['spiking']:
             self.params['spiking'] = True
