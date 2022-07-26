@@ -32,6 +32,7 @@ class Connection:
         self.params: Dict[str, Any] = {}
         self.params['spiking'] = False
         self.params['pattern'] = False
+        self.params['electrical'] = False
         self.params['max_conductance'] = max_conductance
         if isinstance(name, str):
             self.params['name'] = name
@@ -41,6 +42,7 @@ class Connection:
 class ElectricalSynapse(Connection):
     def __init__(self, conductance, name: str = 'Electrical Synapse', rect: bool = False) -> None:
         super().__init__(conductance, name)
+        self.params['electrical'] = True
         self.params['rectified'] = rect
 
 class NonSpikingConnection(Connection):
