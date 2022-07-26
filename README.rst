@@ -2,7 +2,8 @@
 SNS-Toolbox
 """"""""""""
 
-Documentation is available on ReadTheDocs .. image:: https://readthedocs.org/projects/sns-toolbox/badge/?version=latest
+Documentation is available on ReadTheDocs:
+.. image:: https://readthedocs.org/projects/sns-toolbox/badge/?version=latest
 :target: https://sns-toolbox.readthedocs.io/en/latest/?badge=latest
 :alt: Documentation Status
 
