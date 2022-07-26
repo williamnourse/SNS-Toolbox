@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 
 def readme_file_contents():
-    with open('README.md') as f:
+    with open('README.rst') as f:
         data = f.read()
     return data
 
