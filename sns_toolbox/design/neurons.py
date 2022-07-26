@@ -61,6 +61,7 @@ class Neuron:
             self.params['bias'] = bias
         else:
             raise TypeError('Bias must be a number (int, float, double, etc.')
+        self.params['spiking'] = False
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -101,3 +102,4 @@ class SpikingNeuron(Neuron):
         self.params['threshold_time_constant'] = threshold_time_constant
         self.params['threshold_initial_value'] = threshold_initial_value
         self.params['threshold_proportionality_constant'] = threshold_proportionality_constant
+        self.params['spiking'] = True

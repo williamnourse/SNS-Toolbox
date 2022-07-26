@@ -54,6 +54,10 @@ class Network:
         self.connections = []
         self.graph = Digraph(filename=(self.params['name']+'.gv'))
 
+        # Compiler options
+        self.params['spiking'] = False
+        self.params['delay'] = False
+
     def get_num_neurons(self) -> int:
         """
         Calculate the number of neurons in the network, including within populations.
@@ -247,6 +251,9 @@ class Network:
                             style='filled',
                             fillcolor=color,
                             fontcolor=font_color)
+
+        if neuron_type.params['spiking']:
+            self.params['spiking'] = True
 
     def add_neuron(self, neuron_type: Neuron, name=None, color=None, initial_value=0.0) -> None:
         """

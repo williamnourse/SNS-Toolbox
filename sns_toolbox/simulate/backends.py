@@ -38,7 +38,7 @@ class __Backend__:
     :param substeps:    Number of simulation substeps before returning an output vector. Default is 1.
     :type substeps:     int, optional
     """
-    def __init__(self, network: Network, dt: float = 0.1, debug: bool = False, substeps: int = 1, spiking: bool = True,
+    def __init__(self, network: Network, dt: float = 0.1, debug: bool = False, substeps: int = 1,
                  delay: bool = True) -> None:
 
         if substeps <= 0:
@@ -47,7 +47,7 @@ class __Backend__:
         self.network = network
         self.dt = dt
         self.debug = debug
-        self.spiking = spiking
+        self.spiking = network.params['spiking']
         self.delay = delay
 
         if self.debug:

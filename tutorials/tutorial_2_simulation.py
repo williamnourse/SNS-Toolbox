@@ -75,7 +75,7 @@ data = np.zeros([len(t),5])
 
 # Compile the network to use the Numpy CPU backend (if you want to see what's happening, set debug to true)
 
-model = SNS_Numpy(net, dt=dt, debug=False,spiking=False)
+model = SNS_Numpy(net, dt=dt, debug=False)
 
 """Simulate the network"""
 # At every step, apply the current input to a forward pass of the network and store the results in 'data'

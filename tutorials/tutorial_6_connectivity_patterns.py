@@ -89,7 +89,7 @@ dt = neuron_type.params['membrane_capacitance']/neuron_type.params['membrane_con
 t_max = 15  # run for 15 ms
 steps = int(t_max/dt)   # number of steps to simulate
 
-model = backends.SNS_Numpy(net,dt=dt,debug=False,delay=False,spiking=False) # compile using the numpy backend
+model = backends.SNS_Numpy(net,dt=dt,debug=False,delay=False) # compile using the numpy backend
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
