@@ -22,7 +22,7 @@ def send_vars(variables, device):
     torch.cuda.empty_cache()
     return variables
 
-def spike_raster_plot(t,data,colors=None) -> None:
+def spike_raster_plot(t,data,colors=None,offset=0) -> None:
     """
     Plot spike rasters of spiking data.
 
@@ -32,6 +32,8 @@ def spike_raster_plot(t,data,colors=None) -> None:
     :type data:     np.ndarray or torch.tensor
     :param colors:  List of colors to plot each neuron, default is every neuron is blue.
     :type colors:   List of str, optional
+    :param offset:  Constant vertical offset for all spikes, default is 0.
+    :type offset:   Number, optional
     :return:        None
     :rtype:         N/A
     """
@@ -44,12 +46,12 @@ def spike_raster_plot(t,data,colors=None) -> None:
                 if data[neuron][step] > 0:
                     spike_locs.append(t[step])
             if len(colors) == 1:
-                plt.eventplot(spike_locs,lineoffsets=neuron+1, colors=colors[0],linelengths=0.8)
+                plt.eventplot(spike_locs,lineoffsets=neuron+1+offset, colors=colors[0],linelengths=0.8)
             else:
-                plt.eventplot(spike_locs, lineoffsets=neuron + 1, colors=colors[neuron], linelengths=0.8)
+                plt.eventplot(spike_locs, lineoffsets=neuron + 1+offset, colors=colors[neuron], linelengths=0.8)
     else:
         spike_locs = []
         for step in range(len(t)):
             if data[step] > 0:
                 spike_locs.append(t[step])
-        plt.eventplot(spike_locs, lineoffsets=1, colors=colors[0], linelengths=0.8)
+        plt.eventplot(spike_locs, lineoffsets=1+offset, colors=colors[0], linelengths=0.8)
