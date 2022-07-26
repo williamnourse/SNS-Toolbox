@@ -501,6 +501,9 @@ class Network:
             self.graph.edge(str(source),
                             str(destination), arrowhead=style)
 
+        if connection_type.params['spiking']:
+            self.params['spiking'] = True
+
     def add_network(self, network: 'Network', color: str = None) -> None:
         """
         Add an existing topology of inputs, outputs, and populations to the network.
