@@ -2,11 +2,11 @@ Installation
 ============
 
 SNS-Toolbox can be installed using pip:
-.. code::
+::
     pip install sns-toolbox
 
 The package can also be built locally. To do so, clone the repository from `github <https://github.com/wnourse05/SNS-Toolbox>`_, navigate to the root directory, and run the following command:
-.. code::
+::
     pip install -e
 
 So far this has been tested using Python 3.8, which is also the newest version that pytorch (torch) is fully compatible with.
