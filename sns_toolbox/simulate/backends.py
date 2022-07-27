@@ -570,6 +570,10 @@ class SNS_Torch(__Backend__):
                 self.buffer_steps = []
                 self.buffer_nrns = []
                 self.delayed_spikes = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
+        if self.electrical:
+            self.g_electrical = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
+        if self.electrical_rectified:
+            self.g_rectified = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
 
         self.pops_and_nrns = []
         index = 0
@@ -645,9 +649,10 @@ class SNS_Torch(__Backend__):
             source_pop = self.network.connections[syn]['source']
             dest_pop = self.network.connections[syn]['destination']
             g_max = self.network.connections[syn]['params']['max_conductance']
-            del_e = self.network.connections[syn]['params']['relative_reversal_potential']
+            if self.network.connections[syn]['params']['electrical'] is False:  # Chemical connection
+                del_e = self.network.connections[syn]['params']['relative_reversal_potential']
 
-            if self.network.connections[syn]['params']['pattern']:
+            if self.network.connections[syn]['params']['pattern']:  # pattern connection
                 pop_size = len(self.pops_and_nrns[source_pop])
                 source_index = self.pops_and_nrns[source_pop][0]
                 dest_index = self.pops_and_nrns[dest_pop][0]
@@ -670,8 +675,16 @@ class SNS_Torch(__Backend__):
                 else:
                     self.g_max_non[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(g_max)
                     self.del_e[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(del_e)
-            else:
-                if self.network.connections[syn]['params']['spiking']:
+            elif self.network.connections[syn]['params']['electrical']:  # electrical connection
+                for source in self.pops_and_nrns[source_pop]:
+                    for dest in self.pops_and_nrns[dest_pop]:
+                        if self.network.connections[syn]['params']['rectified']:  # rectified
+                            self.g_rectified[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+                        else:
+                            self.g_electrical[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+                            self.g_electrical[source][dest] = g_max / len(self.pops_and_nrns[source_pop])
+            else:   # chemical connection
+                if self.network.connections[syn]['params']['spiking']:  # spiking chemical synapse
                     tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
                     if self.delay:
                         delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
@@ -686,7 +699,7 @@ class SNS_Torch(__Backend__):
                                 self.buffer_steps.append(delay)
                                 self.spike_rows.append(dest)
                                 self.spike_cols.append(source)
-                else:
+                else:   # nonspiking chemical synapse
                     for source in self.pops_and_nrns[source_pop]:
                         for dest in self.pops_and_nrns[dest_pop]:
                             self.g_max_non[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
@@ -742,6 +755,14 @@ class SNS_Torch(__Backend__):
             self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
             g_syn += self.g_spike
         i_syn = torch.sum(g_syn * self.del_e, 1) - self.u_last * torch.sum(g_syn, 1)
+        if self.electrical:
+            i_syn += (torch.sum(self.g_electrical * self.u_last, 1) - self.u_last * torch.sum(self.g_electrical, 1))
+        if self.electrical_rectified:
+            # create mask
+            mask = (self.u_last.reshape(-1,1)-self.u_last).transpose(0,1) > 0
+            masked_g = mask * self.g_rectified
+            diag_masked = masked_g + masked_g.transpose(0,1) - torch.diag(masked_g.diagonal())
+            i_syn += torch.sum(diag_masked * self.u_last, 1) - self.u_last * torch.sum(diag_masked, 1)
         self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + self.i_b + i_syn + i_app)  # Update membrane potential
         if self.spiking:
             self.theta = self.theta_last + self.time_factor_threshold * (-self.theta_last + self.theta_0 + self.m * self.u_last)  # Update the firing thresholds
