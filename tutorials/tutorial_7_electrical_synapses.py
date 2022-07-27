@@ -6,7 +6,7 @@ from sns_toolbox.design.connections import ElectricalSynapse, NonSpikingTransmis
 from sns_toolbox.design.neurons import NonSpikingNeuron
 from sns_toolbox.design.networks import Network
 
-from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch
+from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch, SNS_Sparse
 
 import numpy as np
 import torch
@@ -47,7 +47,7 @@ net.add_input('7')
 net.add_output('6')
 net.add_output('7')
 
-net.render_graph(view=True)
+# net.render_graph(view=True)
 
 """Prep the Simulation"""
 # Set simulation parameters
@@ -63,7 +63,7 @@ data = torch.zeros([len(t),net.get_num_outputs_actual()])
 
 # Compile the network to use the Numpy CPU backend (if you want to see what's happening, set debug to true)
 
-model = SNS_Torch(net, dt=dt, debug=True,device='cpu')
+model = SNS_Sparse(net, dt=dt, debug=True,device='cpu')
 
 """Simulate the network"""
 # At every step, apply the current input to a forward pass of the network and store the results in 'data'
