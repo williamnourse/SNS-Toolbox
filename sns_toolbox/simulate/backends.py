@@ -1246,9 +1246,10 @@ class SNS_Manual(__Backend__):
             source_pop = self.network.connections[syn]['source']
             dest_pop = self.network.connections[syn]['destination']
             g_max = self.network.connections[syn]['params']['max_conductance']
-            del_e = self.network.connections[syn]['params']['relative_reversal_potential']
+            if self.network.connections[syn]['params']['electrical'] is False:  # electrical connection
+                del_e = self.network.connections[syn]['params']['relative_reversal_potential']
 
-            if self.network.connections[syn]['params']['pattern']:
+            if self.network.connections[syn]['params']['pattern']:  # pattern connection
                 pop_size = len(self.pops_and_nrns[source_pop])
                 source_index = self.pops_and_nrns[source_pop][0]
                 dest_index = self.pops_and_nrns[dest_pop][0]
@@ -1274,7 +1275,15 @@ class SNS_Manual(__Backend__):
                             rev = del_e[dest, source]
 
                             self.incoming_synapses[dest + dest_index].append([source + source_index, False, g_syn, rev, 0])
-            else:
+            elif self.network.connections[syn]['params']['electrical']:  # electrical connection
+                for source in self.pops_and_nrns[source_pop]:
+                    for dest in self.pops_and_nrns[dest_pop]:
+                        if self.network.connections[syn]['params']['rectified']:  # rectified
+                            self.g_rectified[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+                        else:
+                            self.g_electrical[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+                            self.g_electrical[source][dest] = g_max / len(self.pops_and_nrns[source_pop])
+            else:   # chemical connection
                 if self.network.connections[syn]['params']['spiking']:
                     tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
                     if self.delay:
