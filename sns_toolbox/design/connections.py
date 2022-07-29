@@ -25,22 +25,25 @@ class Connection:
     :param max_conductance: All connections have a maximum synaptic conductance. It can be a single value or a matrix,
         but it must be defined.
     :type max_conductance: Number, np.ndarray, or torch.tensor
-    :param relative_reversal_potential: All connections have a relative synaptic reversal potential. It can be a single
-        value or a matrix, but it must be defined.
-    :type relative_reversal_potential: Number, np.ndarray, or torch.tensor
     :param name: Name of this connection preset, defaults to 'Connection'.
     :type name: str, optional
     """
-    def __init__(self, max_conductance, relative_reversal_potential, name: str = 'Connection'):
+    def __init__(self, max_conductance, name: str = 'Connection'):
         self.params: Dict[str, Any] = {}
         self.params['spiking'] = False
         self.params['pattern'] = False
+        self.params['electrical'] = False
         self.params['max_conductance'] = max_conductance
-        self.params['relative_reversal_potential'] = relative_reversal_potential
         if isinstance(name, str):
             self.params['name'] = name
         else:
             raise TypeError('Name should be a string')
+
+class ElectricalSynapse(Connection):
+    def __init__(self, conductance, name: str = 'Electrical Synapse', rect: bool = False) -> None:
+        super().__init__(conductance, name)
+        self.params['electrical'] = True
+        self.params['rectified'] = rect
 
 class NonSpikingConnection(Connection):
     """
@@ -50,15 +53,15 @@ class NonSpikingConnection(Connection):
     :param max_conductance: All connections have a maximum synaptic conductance. It can be a single value or a matrix,
         but it must be defined.
     :type max_conductance: Number, np.ndarray, or torch.tensor
-    :param relative_reversal_potential: All connections have a relative synaptic reversal potential. It can be a single
-        value or a matrix, but it must be defined.
+    :param relative_reversal_potential: All chemical connections have a relative synaptic reversal potential. It can be
+        a single value or a matrix, but it must be defined.
     :type relative_reversal_potential: Number, np.ndarray, or torch.tensor
     :param name: Name of this connection preset, defaults to 'Non-Spiking Connection'.
     :type name: str, optional
     """
     def __init__(self, max_conductance, relative_reversal_potential, name: str = 'Non-Spiking Connection') -> None:
-        super().__init__(max_conductance, relative_reversal_potential, name)
-
+        super().__init__(max_conductance, name)
+        self.params['relative_reversal_potential'] = relative_reversal_potential
         self.params['spiking'] = False
 
 class SpikingConnection(Connection):
@@ -69,16 +72,17 @@ class SpikingConnection(Connection):
     :param max_conductance: All connections have a maximum synaptic conductance. It can be a single value or a matrix,
         but it must be defined.
     :type max_conductance: Number, np.ndarray, or torch.tensor
-    :param relative_reversal_potential: All connections have a relative synaptic reversal potential. It can be a single
-        value or a matrix, but it must be defined.
+    :param relative_reversal_potential: All chemical connections have a relative synaptic reversal potential. It can be
+        a single value or a matrix, but it must be defined.
     :type relative_reversal_potential: Number, np.ndarray, or torch.tensor
     :param name: Name of this connection preset, defaults to 'Spiking Connection'.
     :type name: str, optional
     """
     def __init__(self, max_conductance, relative_reversal_potential, time_constant, transmission_delay,
                  name: str = 'Spiking Connection') -> None:
-        super().__init__(max_conductance, relative_reversal_potential, name)
+        super().__init__(max_conductance, name)
         self.params['spiking'] = True
+        self.params['relative_reversal_potential'] = relative_reversal_potential
         self.params['synapticTimeConstant'] = time_constant
         self.params['transmissionDelay'] = transmission_delay
 

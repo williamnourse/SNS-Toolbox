@@ -57,6 +57,8 @@ class Network:
         # Compiler options
         self.params['spiking'] = False
         self.params['delay'] = False
+        self.params['electrical'] = False
+        self.params['electricalRectified'] = False
 
     def get_num_neurons(self) -> int:
         """
@@ -449,19 +451,14 @@ class Network:
                                  'params': connection_type.params,
                                  'type': copy.deepcopy(connection_type),
                                  'view': view_label})
-        if connection_type.params['pattern'] is False:
-            if connection_type.params['relative_reversal_potential'] > 0:
-                style = 'invempty'
-            elif connection_type.params['relative_reversal_potential'] < 0:
-                style = 'dot'
-            else:
-                style = 'odot'
-        else:
+
+        if connection_type.params['pattern']:   # Pattern connection
             if self.populations[source]['number'] == 1:
                 raise TypeError('Pattern connections are not supported for source populations of size 1')
             elif self.populations[source]['shape'] != self.populations[destination]['shape']:
                 raise TypeError('Pattern connections are not currently supported for populations of different shape')
             style = 'vee'
+            direction = 'forward'
             # 2d populations
             if len(self.populations[source]['shape']) > 1:
                 g_max = __kernel_connections_2d__(self.populations[source]['shape'],
@@ -492,14 +489,29 @@ class Network:
                     transmit_delay = __kernel_connections_1d__(self.populations[source]['number'],
                                                                connection_type.params['transmissionDelay'])
                     self.connections[-1]['params']['transmissionDelay'] = transmit_delay
+        elif connection_type.params['electrical']:
+            style = 'odiamond'
+            if connection_type.params['rectified'] is False:
+                direction = 'both'
+                self.params['electrical'] = True
+            else:
+                direction = 'forward'
+                self.params['electricalRectified'] = True
+        else:   # Chemical synapse
+            direction = 'forward'
+            if connection_type.params['relative_reversal_potential'] > 0:
+                style = 'invempty'
+            elif connection_type.params['relative_reversal_potential'] < 0:
+                style = 'dot'
+            else:
+                style = 'odot'
 
         if view_label:
             self.graph.edge(str(source),
-                            str(destination), arrowhead=style,
-                            label=label)
+                            str(destination), dir=direction, arrowhead=style, label=label, arrowtail=style)
         else:
             self.graph.edge(str(source),
-                            str(destination), arrowhead=style)
+                            str(destination), dir=direction, arrowhead=style, arrowtail=style)
 
         if connection_type.params['spiking']:
             self.params['spiking'] = True

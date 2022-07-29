@@ -48,6 +48,8 @@ class __Backend__:
         self.debug = debug
         self.spiking = network.params['spiking']
         self.delay = network.params['delay']
+        self.electrical = network.params['electrical']
+        self.electrical_rectified = network.params['electricalRectified']
 
         if self.debug:
             print('#\nGETTING NET PARAMETERS\n#')
@@ -202,6 +204,12 @@ class __Backend__:
             print(self.g_max_spike)
         print('del_e:')
         print(self.del_e)
+        if self.electrical:
+            print('Gelectrical:')
+            print(self.g_electrical)
+        if self.electrical_rectified:
+            print('GelectricalRectified:')
+            print(self.g_rectified)
         print('Output Voltage Connectivity')
         print(self.output_voltage_connectivity)
         if self.spiking:
@@ -271,8 +279,7 @@ Note that this is not sparse, so memory may explode for large networks
 
 class SNS_Numpy(__Backend__):
     """
-    Simulation backend based in Numpy. In future versions different options will be toggled automatically, but for now
-    are implmented as boolean flags.
+    Simulation backend based in Numpy.
 
     :param network: Network which will be compiled to Numpy.
     :type network:  sns_toolbox.design.networks.Network
@@ -308,6 +315,10 @@ class SNS_Numpy(__Backend__):
                 self.buffer_steps = []
                 self.buffer_nrns = []
                 self.delayed_spikes = np.zeros([self.num_neurons, self.num_neurons])
+        if self.electrical:
+            self.g_electrical = np.zeros([self.num_neurons, self.num_neurons])
+        if self.electrical_rectified:
+            self.g_rectified = np.zeros([self.num_neurons, self.num_neurons])
 
         self.pops_and_nrns = []
         index = 0
@@ -371,9 +382,10 @@ class SNS_Numpy(__Backend__):
             source_pop = self.network.connections[syn]['source']
             dest_pop = self.network.connections[syn]['destination']
             g_max = self.network.connections[syn]['params']['max_conductance']
-            del_e = self.network.connections[syn]['params']['relative_reversal_potential']
+            if self.network.connections[syn]['params']['electrical'] is False: # electrical connection
+                del_e = self.network.connections[syn]['params']['relative_reversal_potential']
 
-            if self.network.connections[syn]['params']['pattern']:
+            if self.network.connections[syn]['params']['pattern']:  # pattern connection
                 pop_size = len(self.pops_and_nrns[source_pop])
                 source_index = self.pops_and_nrns[source_pop][0]
                 dest_index = self.pops_and_nrns[dest_pop][0]
@@ -395,8 +407,16 @@ class SNS_Numpy(__Backend__):
                 else:
                     self.g_max_non[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = g_max
                     self.del_e[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = del_e
-            else:
-                if self.network.connections[syn]['params']['spiking']:
+            elif self.network.connections[syn]['params']['electrical']: # electrical connection
+                for source in self.pops_and_nrns[source_pop]:
+                    for dest in self.pops_and_nrns[dest_pop]:
+                        if self.network.connections[syn]['params']['rectified']:    # rectified
+                            self.g_rectified[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+                        else:
+                            self.g_electrical[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+                            self.g_electrical[source][dest] = g_max / len(self.pops_and_nrns[source_pop])
+            else:   # chemical connection
+                if self.network.connections[syn]['params']['spiking']:  # spiking chemical synapse
                     tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
                     if self.delay:
                         delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
@@ -411,7 +431,7 @@ class SNS_Numpy(__Backend__):
                                 self.buffer_steps.append(delay)
                                 self.spike_rows.append(dest)
                                 self.spike_cols.append(source)
-                else:
+                else:   # nonspiking chemical synapse
                     for source in self.pops_and_nrns[source_pop]:
                         for dest in self.pops_and_nrns[dest_pop]:
                             self.g_max_non[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
@@ -459,6 +479,14 @@ class SNS_Numpy(__Backend__):
             g_syn += self.g_spike
 
         i_syn = np.sum(g_syn * self.del_e, axis=1) - self.u_last * np.sum(g_syn, axis=1)
+        if self.electrical:
+            i_syn += (np.sum(self.g_electrical*self.u_last, axis=1) - self.u_last*np.sum(self.g_electrical, axis=1))
+        if self.electrical_rectified:
+            # create mask
+            mask = np.subtract.outer(self.u_last, self.u_last).transpose() > 0
+            masked_g = mask*self.g_rectified
+            diag_masked = masked_g + masked_g.transpose() - np.diag(masked_g.diagonal())
+            i_syn += np.sum(diag_masked*self.u_last, axis=1) - self.u_last*np.sum(diag_masked, axis=1)
         self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + self.i_b + i_syn + i_app)  # Update membrane potential
         if self.spiking:
             self.theta = self.theta_last + self.time_factor_threshold * (-self.theta_last + self.theta_0 + self.m * self.u_last)  # Update the firing thresholds
@@ -542,6 +570,10 @@ class SNS_Torch(__Backend__):
                 self.buffer_steps = []
                 self.buffer_nrns = []
                 self.delayed_spikes = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
+        if self.electrical:
+            self.g_electrical = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
+        if self.electrical_rectified:
+            self.g_rectified = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
 
         self.pops_and_nrns = []
         index = 0
@@ -617,9 +649,10 @@ class SNS_Torch(__Backend__):
             source_pop = self.network.connections[syn]['source']
             dest_pop = self.network.connections[syn]['destination']
             g_max = self.network.connections[syn]['params']['max_conductance']
-            del_e = self.network.connections[syn]['params']['relative_reversal_potential']
+            if self.network.connections[syn]['params']['electrical'] is False:  # Chemical connection
+                del_e = self.network.connections[syn]['params']['relative_reversal_potential']
 
-            if self.network.connections[syn]['params']['pattern']:
+            if self.network.connections[syn]['params']['pattern']:  # pattern connection
                 pop_size = len(self.pops_and_nrns[source_pop])
                 source_index = self.pops_and_nrns[source_pop][0]
                 dest_index = self.pops_and_nrns[dest_pop][0]
@@ -642,8 +675,16 @@ class SNS_Torch(__Backend__):
                 else:
                     self.g_max_non[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(g_max)
                     self.del_e[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(del_e)
-            else:
-                if self.network.connections[syn]['params']['spiking']:
+            elif self.network.connections[syn]['params']['electrical']:  # electrical connection
+                for source in self.pops_and_nrns[source_pop]:
+                    for dest in self.pops_and_nrns[dest_pop]:
+                        if self.network.connections[syn]['params']['rectified']:  # rectified
+                            self.g_rectified[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+                        else:
+                            self.g_electrical[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+                            self.g_electrical[source][dest] = g_max / len(self.pops_and_nrns[source_pop])
+            else:   # chemical connection
+                if self.network.connections[syn]['params']['spiking']:  # spiking chemical synapse
                     tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
                     if self.delay:
                         delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
@@ -658,7 +699,7 @@ class SNS_Torch(__Backend__):
                                 self.buffer_steps.append(delay)
                                 self.spike_rows.append(dest)
                                 self.spike_cols.append(source)
-                else:
+                else:   # nonspiking chemical synapse
                     for source in self.pops_and_nrns[source_pop]:
                         for dest in self.pops_and_nrns[dest_pop]:
                             self.g_max_non[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
@@ -714,6 +755,14 @@ class SNS_Torch(__Backend__):
             self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
             g_syn += self.g_spike
         i_syn = torch.sum(g_syn * self.del_e, 1) - self.u_last * torch.sum(g_syn, 1)
+        if self.electrical:
+            i_syn += (torch.sum(self.g_electrical * self.u_last, 1) - self.u_last * torch.sum(self.g_electrical, 1))
+        if self.electrical_rectified:
+            # create mask
+            mask = (self.u_last.reshape(-1,1)-self.u_last).transpose(0,1) > 0
+            masked_g = mask * self.g_rectified
+            diag_masked = masked_g + masked_g.transpose(0,1) - torch.diag(masked_g.diagonal())
+            i_syn += torch.sum(diag_masked * self.u_last, 1) - self.u_last * torch.sum(diag_masked, 1)
         self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + self.i_b + i_syn + i_app)  # Update membrane potential
         if self.spiking:
             self.theta = self.theta_last + self.time_factor_threshold * (-self.theta_last + self.theta_0 + self.m * self.u_last)  # Update the firing thresholds
@@ -791,6 +840,10 @@ class SNS_Sparse(__Backend__):
                 self.buffer_steps = []
                 self.buffer_nrns = []
                 self.delayed_spikes = torch.sparse_coo_tensor(size=(self.num_neurons,self.num_neurons),device=self.device)
+        if self.electrical:
+            self.g_electrical = torch.sparse_coo_tensor(size=(self.num_neurons, self.num_neurons), device=self.device)
+        if self.electrical_rectified:
+            self.g_rectified = torch.sparse_coo_tensor(size=(self.num_neurons, self.num_neurons), device=self.device)
 
         self.pops_and_nrns = []
         index = 0
@@ -881,9 +934,10 @@ class SNS_Sparse(__Backend__):
             source_pop = self.network.connections[syn]['source']
             dest_pop = self.network.connections[syn]['destination']
             g_max = self.network.connections[syn]['params']['max_conductance']
-            del_e = self.network.connections[syn]['params']['relative_reversal_potential']
+            if self.network.connections[syn]['params']['electrical'] is False:  # chemical connection
+                del_e = self.network.connections[syn]['params']['relative_reversal_potential']
 
-            if self.network.connections[syn]['params']['pattern']:
+            if self.network.connections[syn]['params']['pattern']:  # pattern connection
                 pop_size = len(self.pops_and_nrns[source_pop])
                 source_index = self.pops_and_nrns[source_pop][0]
                 dest_index = self.pops_and_nrns[dest_pop][0]
@@ -921,8 +975,20 @@ class SNS_Sparse(__Backend__):
                     self.del_e = self.del_e.to_dense()
                     self.del_e[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(del_e)
                     self.del_e = self.del_e.to_sparse()
-            else:
-                if self.network.connections[syn]['params']['spiking']:
+            elif self.network.connections[syn]['params']['electrical']:  # electrical connection
+                for source in self.pops_and_nrns[source_pop]:
+                    for dest in self.pops_and_nrns[dest_pop]:
+                        if self.network.connections[syn]['params']['rectified']:  # rectified
+                            self.g_rectified = self.g_rectified.to_dense()
+                            self.g_rectified[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+                            self.g_rectified = self.g_rectified.to_sparse()
+                        else:
+                            self.g_electrical = self.g_electrical.to_dense()
+                            self.g_electrical[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+                            self.g_electrical[source][dest] = g_max / len(self.pops_and_nrns[source_pop])
+                            self.g_electrical = self.g_electrical.to_sparse()
+            else:   # chemical connections
+                if self.network.connections[syn]['params']['spiking']:  # spiking chemical synapse
                     tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
                     if self.delay:
                         delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
@@ -947,7 +1013,7 @@ class SNS_Sparse(__Backend__):
                                 self.buffer_steps.append(delay)
                                 self.spike_rows.append(dest)
                                 self.spike_cols.append(source)
-                else:
+                else:   # non-spiking chemical synapse
                     for source in self.pops_and_nrns[source_pop]:
                         for dest in self.pops_and_nrns[dest_pop]:
                             self.g_max_non = self.g_max_non.to_dense()
@@ -1025,7 +1091,15 @@ class SNS_Sparse(__Backend__):
             i_syn = torch.sparse.sum(g_syn * self.del_e, 1) - (self.u_last * torch.sum(g_syn.to_dense(), 1)).to_sparse()
         else:
             i_syn = torch.sparse.sum(g_syn * self.del_e) - self.u_last * torch.sparse.sum(g_syn)
-
+        if self.electrical:
+            i_syn += (torch.sum(self.g_electrical.to_dense() * self.u_last, 1).to_sparse() -
+                      (self.u_last * torch.sum(self.g_electrical.to_dense(), 1)).to_sparse())
+        if self.electrical_rectified:
+            # create mask
+            mask = (self.u_last.reshape(-1, 1) - self.u_last).transpose(0, 1) > 0
+            masked_g = mask * self.g_rectified.to_dense()
+            diag_masked = masked_g + masked_g.transpose(0, 1) - torch.diag(masked_g.diagonal())
+            i_syn += torch.sum(diag_masked * self.u_last, 1).to_sparse() - (self.u_last * torch.sum(diag_masked, 1)).to_sparse()
         self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + (self.i_b.to_dense())[0,:] + i_syn + i_app)  # Update membrane potential
         if self.spiking:
             self.theta = self.theta_last + self.time_factor_threshold * (-self.theta_last + self.theta_0 + (self.m.to_dense())[0,:] * self.u_last)  # Update the firing thresholds
@@ -1172,9 +1246,10 @@ class SNS_Manual(__Backend__):
             source_pop = self.network.connections[syn]['source']
             dest_pop = self.network.connections[syn]['destination']
             g_max = self.network.connections[syn]['params']['max_conductance']
-            del_e = self.network.connections[syn]['params']['relative_reversal_potential']
+            if self.network.connections[syn]['params']['electrical'] is False:  # electrical connection
+                del_e = self.network.connections[syn]['params']['relative_reversal_potential']
 
-            if self.network.connections[syn]['params']['pattern']:
+            if self.network.connections[syn]['params']['pattern']:  # pattern connection
                 pop_size = len(self.pops_and_nrns[source_pop])
                 source_index = self.pops_and_nrns[source_pop][0]
                 dest_index = self.pops_and_nrns[dest_pop][0]
@@ -1190,17 +1265,27 @@ class SNS_Manual(__Backend__):
                             time_factor_syn = self.dt/tau_s[dest,source]
                             if self.delay:
                                 buffer = np.zeros(delay[dest, source])
-                                self.incoming_synapses[dest+dest_index].append([source+source_index, True, g_syn, rev, 0, time_factor_syn, buffer])
+                                self.incoming_synapses[dest+dest_index].append([source+source_index, True, False, g_syn, rev, 0, time_factor_syn, buffer])
                             else:
-                                self.incoming_synapses[dest + dest_index].append([source + source_index, True, g_syn, rev, 0, time_factor_syn])
+                                self.incoming_synapses[dest + dest_index].append([source + source_index, True, False, g_syn, rev, 0, time_factor_syn])
                 else:
                     for dest in range(pop_size):
                         for source in range(pop_size):
                             g_syn = g_max[dest, source]
                             rev = del_e[dest, source]
 
-                            self.incoming_synapses[dest + dest_index].append([source + source_index, False, g_syn, rev, 0])
-            else:
+                            self.incoming_synapses[dest + dest_index].append([source + source_index, False, False, g_syn, rev, 0])
+            elif self.network.connections[syn]['params']['electrical']:  # electrical connection
+                for dest in self.pops_and_nrns[dest_pop]:
+                    for source in self.pops_and_nrns[source_pop]:
+                        g_syn = g_max / len(self.pops_and_nrns[source_pop])
+                        if self.network.connections[syn]['params']['rectified']:  # rectified
+                            self.incoming_synapses[dest].append([source, False, True, g_syn, True, source, dest])
+                            self.incoming_synapses[source].append([dest, False, True, g_syn, True, source, dest])
+                        else:
+                            self.incoming_synapses[dest].append([source, False, True, g_syn, False])
+                            self.incoming_synapses[source].append([dest, False, True, g_syn, False])
+            else:   # chemical connection
                 if self.network.connections[syn]['params']['spiking']:
                     tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
                     if self.delay:
@@ -1210,14 +1295,14 @@ class SNS_Manual(__Backend__):
                             g_syn = g_max / len(self.pops_and_nrns[source_pop])
                             if self.delay:
                                 buffer = np.zeros(delay+1)
-                                self.incoming_synapses[dest].append([source, True, g_syn, del_e, 0, self.dt/tau_s,buffer])
+                                self.incoming_synapses[dest].append([source, True, False, g_syn, del_e, 0, self.dt/tau_s,buffer])
                             else:
-                                self.incoming_synapses[dest].append([source, True, g_syn, del_e, 0, self.dt / tau_s])
+                                self.incoming_synapses[dest].append([source, True, False, g_syn, del_e, 0, self.dt / tau_s])
                 else:
                     for dest in self.pops_and_nrns[dest_pop]:
                         for source in self.pops_and_nrns[source_pop]:
                             g_syn = g_max / len(self.pops_and_nrns[source_pop])
-                            self.incoming_synapses[dest].append([source,False,g_syn,del_e,0])
+                            self.incoming_synapses[dest].append([source,False, False, g_syn,del_e,0])
 
     def __calculate_time_factors__(self) -> None:
         """
@@ -1303,10 +1388,17 @@ class SNS_Manual(__Backend__):
             for syn in range(len(self.incoming_synapses[nrn])):
                 neuron_src = self.incoming_synapses[nrn][syn]
                 if neuron_src[1]:  # if spiking
-                    neuron_src[4] = neuron_src[4] * (1-neuron_src[5])
-                else:
-                    neuron_src[4] = np.maximum(0, np.minimum(neuron_src[2] * self.u_last[neuron_src[0]] / self.R, neuron_src[2]))
-                i_syn += neuron_src[4] * (neuron_src[3] - self.u_last[nrn])
+                    neuron_src[5] = neuron_src[5] * (1-neuron_src[6])
+                    i_syn += neuron_src[5] * (neuron_src[4] - self.u_last[nrn])
+                elif neuron_src[2]: # if electrical
+                    if neuron_src[4]:   # if rectified
+                        if self.u_last[neuron_src[5]] > self.u_last[neuron_src[6]]:
+                            i_syn += neuron_src[3] * (self.u_last[neuron_src[0]] - self.u_last[nrn])
+                    else:
+                        i_syn += neuron_src[3] * (self.u_last[neuron_src[0]] - self.u_last[nrn])
+                else:   # if chemical
+                    neuron_src[5] = np.maximum(0, np.minimum(neuron_src[3] * self.u_last[neuron_src[0]] / self.R, neuron_src[3]))
+                    i_syn += neuron_src[5] * (neuron_src[4] - self.u_last[nrn])
 
             self.u[nrn] = self.u_last[nrn] + self.time_factor_membrane[nrn] * (-self.g_m[nrn] * self.u_last[nrn] + self.i_b[nrn] + i_syn + i_app[nrn])  # Update membrane potential
             if self.spiking:
@@ -1319,12 +1411,23 @@ class SNS_Manual(__Backend__):
                     for syn in range(len(self.incoming_synapses[nrn])):
                         neuron_src = self.incoming_synapses[nrn][syn]
                         if neuron_src[1]:  # if spiking
-                            neuron_src[6] = np.roll(neuron_src[6], 1)   # Shift buffer entries down
-                            neuron_src[6][0] = self.spikes[neuron_src[0]]    # Replace row 0 with the current spike data
-                            neuron_src[4] = np.maximum(neuron_src[4], (-neuron_src[6][-1]) * neuron_src[2])  # Update the conductance of connections which spiked
+                            neuron_src[7] = np.roll(neuron_src[7], 1)   # Shift buffer entries down
+                            neuron_src[7][0] = self.spikes[neuron_src[0]]    # Replace row 0 with the current spike data
+                            neuron_src[5] = np.maximum(neuron_src[5], (-neuron_src[7][-1]) * neuron_src[3])  # Update the conductance of connections which spiked
                 self.u[nrn] = self.u[nrn] * (self.spikes[nrn] + 1)  # Reset the membrane voltages of neurons which spiked
         self.outputs = np.matmul(self.output_voltage_connectivity, self.u)
         if self.spiking:
             self.outputs += np.matmul(self.output_spike_connectivity, -self.spikes)
 
         return self.outputs
+
+
+# if self.electrical:
+#     i_syn += (torch.sum(self.g_electrical.to_dense() * self.u_last, 1).to_sparse() -
+#               (self.u_last * torch.sum(self.g_electrical.to_dense(), 1)).to_sparse())
+# if self.electrical_rectified:
+#     # create mask
+#     mask = (self.u_last.reshape(-1, 1) - self.u_last).transpose(0, 1) > 0
+#     masked_g = mask * self.g_rectified.to_dense()
+#     diag_masked = masked_g + masked_g.transpose(0, 1) - torch.diag(masked_g.diagonal())
+#     i_syn += torch.sum(diag_masked * self.u_last, 1).to_sparse() - (self.u_last * torch.sum(diag_masked, 1)).to_sparse()
