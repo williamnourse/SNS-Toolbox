@@ -62,6 +62,7 @@ class Neuron:
         else:
             raise TypeError('Bias must be a number (int, float, double, etc.')
         self.params['spiking'] = False
+        self.params['gated'] = False
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -75,6 +76,20 @@ class NonSpikingNeuron(Neuron):
     """
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+
+
+class NonSpikingNeuronWithGatedChannels(NonSpikingNeuron):
+    def __init__(self, g_ion, e_ion, pow_a, u_half_a, slope_a, tau_0_a, tau_amp_a, u_peak_a, tau_width_a,
+                 pow_b, u_half_b, slope_b, tau_0_b, tau_amp_b, u_peak_b, tau_width_b, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.params['gated'] = True
+        self.params['Gion'] = g_ion
+        self.params['Eion'] = e_ion
+        self.params['paramsA'] = {'pow': pow_a, 'Uhalf': u_half_a, 'slope': slope_a, 'Tau0': tau_0_a,
+                                  'TauAmp': tau_amp_a, 'Upeak': u_peak_a, 'TauWidth': tau_width_a}
+        self.params['paramsB'] = {'pow': pow_b, 'Uhalf': u_half_b, 'slope': slope_b, 'Tau0': tau_0_b,
+                                  'TauAmp': tau_amp_b, 'Upeak': u_peak_b, 'TauWidth': tau_width_b}
+
 
 class SpikingNeuron(Neuron):
     """
