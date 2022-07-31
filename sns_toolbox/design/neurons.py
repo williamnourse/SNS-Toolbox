@@ -56,7 +56,7 @@ class Neuron:
         if isinstance(membrane_conductance, numbers.Number):
             self.params['membrane_conductance'] = membrane_conductance
         else:
-            raise TypeError('Membrane conductance must be a number (int, float, double, etc.')
+            raise TypeError('Membrane conductance must be a number (int, float, double, etc.)')
         if isinstance(bias,numbers.Number):
             self.params['bias'] = bias
         else:
@@ -82,9 +82,13 @@ class NonSpikingNeuronWithGatedChannels(NonSpikingNeuron):
     def __init__(self, g_ion, e_ion, pow_a, u_half_a, slope_a, tau_0_a, tau_amp_a, u_peak_a, tau_width_a,
                  pow_b, u_half_b, slope_b, tau_0_b, tau_amp_b, u_peak_b, tau_width_b, **kwargs) -> None:
         super().__init__(**kwargs)
+        inputs = [g_ion, e_ion, pow_a, u_half_a, slope_a, tau_0_a, tau_amp_a, u_peak_a, tau_width_a, pow_b, u_half_b, slope_b, tau_0_b, tau_amp_b, u_peak_b, tau_width_b]
+        if all(len(x) == len(g_ion) for x in inputs) is False:
+            raise ValueError('All channel parameters must be the same dimension (len(g_ion) = len(e_ion) = ...)')
         self.params['gated'] = True
         self.params['Gion'] = g_ion
         self.params['Eion'] = e_ion
+        self.params['numChannels'] = len(g_ion)
         self.params['paramsA'] = {'pow': pow_a, 'Uhalf': u_half_a, 'slope': slope_a, 'Tau0': tau_0_a,
                                   'TauAmp': tau_amp_a, 'Upeak': u_peak_a, 'TauWidth': tau_width_a}
         self.params['paramsB'] = {'pow': pow_b, 'Uhalf': u_half_b, 'slope': slope_b, 'Tau0': tau_0_b,

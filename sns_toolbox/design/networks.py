@@ -60,6 +60,7 @@ class Network:
         self.params['electrical'] = False
         self.params['electricalRectified'] = False
         self.params['gated'] = False
+        self.params['numChannels'] = 0
 
     def get_num_neurons(self) -> int:
         """
@@ -260,6 +261,7 @@ class Network:
 
         if neuron_type.params['gated']:
             self.params['gated'] = True
+            self.params['numChannels'] = max(self.params['numChannels'], neuron_type.params['numChannels'])
 
     def add_neuron(self, neuron_type: Neuron, name=None, color=None, initial_value=0.0) -> None:
         """
