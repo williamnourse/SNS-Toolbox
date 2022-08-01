@@ -13,6 +13,8 @@ import numbers
 
 from sns_toolbox.design.design_utilities import valid_color, set_text_color
 
+import numpy as np
+
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 BASE CLASS
@@ -79,20 +81,28 @@ class NonSpikingNeuron(Neuron):
 
 
 class NonSpikingNeuronWithGatedChannels(NonSpikingNeuron):
-    def __init__(self, g_ion, e_ion, pow_a, u_half_a, slope_a, tau_0_a, tau_amp_a, u_peak_a, tau_width_a,
-                 pow_b, u_half_b, slope_b, tau_0_b, tau_amp_b, u_peak_b, tau_width_b, **kwargs) -> None:
+    """
+    Iion = sum_j[Gj * A_(inf,j)^Pa * Bj^Pb * Cj^Pc * (Ej - U)]
+    """
+    def __init__(self, g_ion=None, e_ion=None,
+                 pow_a=None, k_a=None, slope_a=None, e_a=None,
+                 pow_b=None, k_b=None, slope_b=None, e_b=None, tau_max_b=None,
+                 pow_c=None, k_c=None, slope_c=None, e_c=None, tau_max_c=None, **kwargs) -> None:
         super().__init__(**kwargs)
-        inputs = [g_ion, e_ion, pow_a, u_half_a, slope_a, tau_0_a, tau_amp_a, u_peak_a, tau_width_a, pow_b, u_half_b, slope_b, tau_0_b, tau_amp_b, u_peak_b, tau_width_b]
+
+        inputs = [g_ion, e_ion,                         # Channel params
+                  pow_a, k_a, slope_a, e_a,             # A gate params
+                  pow_b, k_b, slope_b, e_b, tau_max_b,  # B gate params
+                  pow_c, k_c, slope_c, e_c, tau_max_c]  # C gate params
         if all(len(x) == len(g_ion) for x in inputs) is False:
             raise ValueError('All channel parameters must be the same dimension (len(g_ion) = len(e_ion) = ...)')
         self.params['gated'] = True
         self.params['Gion'] = g_ion
         self.params['Eion'] = e_ion
         self.params['numChannels'] = len(g_ion)
-        self.params['paramsA'] = {'pow': pow_a, 'Uhalf': u_half_a, 'slope': slope_a, 'Tau0': tau_0_a,
-                                  'TauAmp': tau_amp_a, 'Upeak': u_peak_a, 'TauWidth': tau_width_a}
-        self.params['paramsB'] = {'pow': pow_b, 'Uhalf': u_half_b, 'slope': slope_b, 'Tau0': tau_0_b,
-                                  'TauAmp': tau_amp_b, 'Upeak': u_peak_b, 'TauWidth': tau_width_b}
+        self.params['paramsA'] = {'pow': pow_a, 'k': k_a, 'slope': slope_a, 'reversal': e_a}
+        self.params['paramsB'] = {'pow': pow_b, 'k': k_b, 'slope': slope_b, 'reversal': e_b, 'TauMax': tau_max_b}
+        self.params['paramsC'] = {'pow': pow_c, 'k': k_c, 'slope': slope_c, 'reversal': e_c, 'TauMax': tau_max_c}
 
 
 class SpikingNeuron(Neuron):
