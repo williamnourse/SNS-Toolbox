@@ -154,6 +154,22 @@ class Network:
                 return index
         raise ValueError('Population not found by name \'%s\'' % str(name))
 
+    def get_connection_index(self, name: str) -> int:
+        """
+        Given a string, find the numerical index of the connection corresponding to that name within the network.
+
+        :param name: Name of the connection to find.
+        :type name: str
+        :return: Index of the connection.
+        :rtype: int
+        """
+        if not isinstance(name,str):
+            raise TypeError('Name must be a valid string')
+        for index in range(len(self.populations)):
+            if self.connections[index]['name'] == name:
+                return index
+        raise ValueError('Population not found by name \'%s\'' % str(name))
+
     def get_input_index(self, name: str) -> int:
         """
         Given a string, find the numerical index of the input node given by that name within the network.
