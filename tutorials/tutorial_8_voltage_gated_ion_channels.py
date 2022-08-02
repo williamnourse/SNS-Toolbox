@@ -2,11 +2,11 @@
 Tutorial demonstrating the use of neurons with voltage-gated ion channels.
 """
 
-from sns_toolbox.design.neurons import NonSpikingNeuronWithGatedChannels, NonSpikingNeuronWithPersistentSodiumChannel
+from sns_toolbox.design.neurons import NonSpikingNeuronWithGatedChannels, NonSpikingNeuronWithPersistentSodiumChannel, NonSpikingNeuron
 from sns_toolbox.design.connections import NonSpikingSynapse
 from sns_toolbox.design.networks import Network
 
-from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch
+from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch, SNS_Sparse, SNS_Manual
 
 import numpy as np
 import torch
@@ -69,25 +69,25 @@ tauHmax = 300
 
 Gna = Gm*R/(zinf(R, Km, S, delEm)*zinf(R, Kh, -S, delEh)*(delEna-R))
 
-g_ion = torch.tensor([Gna])
-e_ion = torch.tensor([delEna])
+g_ion = np.array([Gna])
+e_ion = np.array([delEna])
 
-pow_a = torch.tensor([1])
-k_a = torch.tensor([Km])
-slope_a = torch.tensor([S])
-e_a = torch.tensor([delEm])
+pow_a = np.array([1])
+k_a = np.array([Km])
+slope_a = np.array([S])
+e_a = np.array([delEm])
 
-pow_b = torch.tensor([1])
-k_b = torch.tensor([Kh])
-slope_b = torch.tensor([-S])
-e_b = torch.tensor([delEh])
-tau_max_b = torch.tensor([tauHmax])
+pow_b = np.array([1])
+k_b = np.array([Kh])
+slope_b = np.array([-S])
+e_b = np.array([delEh])
+tau_max_b = np.array([tauHmax])
 
-pow_c = torch.tensor([0])
-k_c = torch.tensor([1])
-slope_c = torch.tensor([0])
-e_c = torch.tensor([0])
-tau_max_c = torch.tensor([1])
+pow_c = np.array([0])
+k_c = np.array([1])
+slope_c = np.array([0])
+e_c = np.array([0])
+tau_max_c = np.array([1])
 
 neuron_gated = NonSpikingNeuronWithGatedChannels(membrane_capacitance=Cm, membrane_conductance=Gm,g_ion=g_ion,e_ion=e_ion,
                                                  pow_a=pow_a,k_a=k_a,slope_a=slope_a,e_a=e_a,
@@ -110,19 +110,19 @@ tMax = 5000
 t = np.arange(0,tMax,dt)
 numSteps = np.size(t)
 
-Iapp = torch.zeros([numSteps,1])
+Iapp = np.zeros([numSteps,1])
 Iapp[tStart:tEnd,:] = I
 
-Ipert = torch.zeros([numSteps,1])
+Ipert = np.zeros([numSteps,1])
 Ipert[1,0] = 1
 
-model = SNS_Torch(net,dt=dt,device='cpu')
-data = torch.zeros([len(t), net.get_num_outputs_actual()])
+model = SNS_Numpy(net,dt=dt)
+data = np.zeros([len(t), net.get_num_outputs_actual()])
 inputs = Iapp + Ipert
 
 for i in range(len(t)):
     data[i] = model.forward(inputs[i])
-data = data.transpose(0,1)
+data = data.transpose()
 
 plt.figure()
 plt.plot(t,data[:][0])
@@ -163,19 +163,19 @@ def cpg(delta=-0.01):
 
     Gna = Gm*R/(zinf(R, Km, S, delEm)*zinf(R, Kh, -S, delEh)*(delEna-R))
 
-    g_ion = torch.tensor([Gna])
-    e_ion = torch.tensor([delEna])
+    g_ion = np.array([Gna])
+    e_ion = np.array([delEna])
 
-    pow_m = torch.tensor([1])
-    k_m = torch.tensor([Km])
-    slope_m = torch.tensor([S])
-    e_m = torch.tensor([delEm])
+    pow_m = np.array([1])
+    k_m = np.array([Km])
+    slope_m = np.array([S])
+    e_m = np.array([delEm])
 
-    pow_h = torch.tensor([1])
-    k_h = torch.tensor([Kh])
-    slope_h = torch.tensor([-S])
-    e_h = torch.tensor([delEh])
-    tau_max_h = torch.tensor([tauHmax])
+    pow_h = np.array([1])
+    k_h = np.array([Kh])
+    slope_h = np.array([-S])
+    e_h = np.array([delEh])
+    tau_max_h = np.array([tauHmax])
 
     neuron_cpg = NonSpikingNeuronWithPersistentSodiumChannel(membrane_capacitance=Cm, membrane_conductance=Gm,
                                                              g_ion=g_ion,e_ion=e_ion,
@@ -211,19 +211,19 @@ def cpg(delta=-0.01):
     t = np.arange(0, tMax, dt)
     numSteps = np.size(t)
 
-    Iapp = torch.zeros([numSteps,1])
+    Iapp = np.zeros([numSteps,1])
     Iapp[tStart:tEnd,:] = I
 
-    Ipert = torch.zeros([numSteps,1])
+    Ipert = np.zeros([numSteps,1])
     Ipert[1,0] = 1
 
-    model = SNS_Torch(net, dt=dt, device='cpu')
-    data = torch.zeros([len(t), net.get_num_outputs_actual()])
+    model = SNS_Numpy(net, dt=dt)
+    data = np.zeros([len(t), net.get_num_outputs_actual()])
     inputs = Iapp + Ipert
 
     for i in range(len(t)):
         data[i] = model.forward(inputs[i])
-    data = data.transpose(0,1)
+    data = data.transpose()
 
     return data
 
