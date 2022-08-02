@@ -105,6 +105,48 @@ class NonSpikingNeuronWithGatedChannels(NonSpikingNeuron):
         self.params['paramsC'] = {'pow': pow_c, 'k': k_c, 'slope': slope_c, 'reversal': e_c, 'TauMax': tau_max_c}
 
 
+class NonSpikingNeuronWithPersistentSodiumChannel(NonSpikingNeuronWithGatedChannels):
+    """
+    Iion = sum_j[Gj * m_(inf,j)^Pm * hj^Ph * (Ej - U)]
+    """
+    def __init__(self, g_ion=None, e_ion=None,
+                 pow_m=None, k_m=None, slope_m=None, e_m=None,
+                 pow_h=None, k_h=None, slope_h=None, e_h=None, tau_max_h=None,**kwargs):
+        if g_ion is None:
+            g_ion = [1.0485070729908987]
+        if e_ion is None:
+            e_ion = [110]
+        if pow_m is None:
+            pow_m = [1]
+        if k_m is None:
+            k_m = [1]
+        if slope_m is None:
+            slope_m = [0.05]
+        if e_m is None:
+            e_m = [20]
+        if pow_h is None:
+            pow_h = [1]
+        if k_h is None:
+            k_h = [0.5]
+        if slope_h is None:
+            slope_h = [-0.05]
+        if e_h is None:
+            e_h = [0]
+        if tau_max_h is None:
+            tau_max_h = [300]
+
+        inputs = [g_ion, e_ion,                         # Channel params
+                  pow_m, k_m, slope_m, e_m,             # A gate params
+                  pow_h, k_h, slope_h, e_h, tau_max_h]  # B gate params
+        if all(len(x) == len(g_ion) for x in inputs) is False:
+            raise ValueError('All channel parameters must be the same dimension (len(g_ion) = len(e_ion) = ...)')
+
+        super().__init__(g_ion=g_ion, e_ion=e_ion,
+                         pow_a=pow_m, k_a=k_m, slope_a=slope_m, e_a=e_m,
+                         pow_b=pow_h, k_b=k_h, slope_b=slope_h, e_b=e_h, tau_max_b=tau_max_h,
+                         pow_c=[0], k_c=[1], slope_c=[0], e_c=[0], tau_max_c=[1], **kwargs)
+
+
 class SpikingNeuron(Neuron):
     """
     Generalized leaky integrate-and-fire neuron model, whose dynamics are as follows:
