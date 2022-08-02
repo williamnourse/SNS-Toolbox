@@ -144,19 +144,19 @@ class NonSpikingNeuronWithPersistentSodiumChannel(NonSpikingNeuronWithGatedChann
         if all(len(x) == len(g_ion) for x in inputs) is False:
             raise ValueError('All channel parameters must be the same dimension (len(g_ion) = len(e_ion) = ...)')
         num_channels = len(g_ion)
-        if isinstance(g_ion, np.ndarray):
-            pow_c = np.zeros(num_channels)
-            k_c = np.zeros(num_channels) + 1
-            slope_c = np.zeros(num_channels)
-            e_c = np.zeros(num_channels)
-            tau_max_c = np.zeros(num_channels)+1
-        else:
+        if isinstance(g_ion, torch.Tensor):
             device = g_ion.device
             pow_c = torch.zeros(num_channels)
             k_c = torch.zeros(num_channels) + 1
             slope_c = torch.zeros(num_channels)
             e_c = torch.zeros(num_channels)
             tau_max_c = torch.zeros(num_channels) + 1
+        else:
+            pow_c = np.zeros(num_channels)
+            k_c = np.zeros(num_channels) + 1
+            slope_c = np.zeros(num_channels)
+            e_c = np.zeros(num_channels)
+            tau_max_c = np.zeros(num_channels) + 1
 
         super().__init__(g_ion=g_ion, e_ion=e_ion,
                          pow_a=pow_m, k_a=k_m, slope_a=slope_m, e_a=e_m,
