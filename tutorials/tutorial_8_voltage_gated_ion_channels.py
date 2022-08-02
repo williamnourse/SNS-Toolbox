@@ -2,14 +2,13 @@
 Tutorial demonstrating the use of neurons with voltage-gated ion channels.
 """
 
-from sns_toolbox.design.neurons import NonSpikingNeuronWithGatedChannels, NonSpikingNeuronWithPersistentSodiumChannel, NonSpikingNeuron
+from sns_toolbox.design.neurons import NonSpikingNeuronWithGatedChannels, NonSpikingNeuronWithPersistentSodiumChannel
 from sns_toolbox.design.connections import NonSpikingSynapse
 from sns_toolbox.design.networks import Network
 
-from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch, SNS_Sparse, SNS_Manual
+from sns_toolbox.simulate.backends import SNS_Numpy
 
 import numpy as np
-import torch
 import matplotlib.pyplot as plt
 
 """
@@ -203,7 +202,6 @@ def cpg(delta=-0.01):
     I = 0
     tStart = 1000
     tEnd = 4000
-    tTail = 2500
 
     dt = 1
     tMax = 5000
