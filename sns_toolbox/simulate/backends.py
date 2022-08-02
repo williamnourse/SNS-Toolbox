@@ -1478,6 +1478,32 @@ class SNS_Manual(__Backend__):
             self.theta_last = np.zeros(self.num_neurons)
             self.m = np.zeros(self.num_neurons)
             self.tau_theta = np.zeros(self.num_neurons)
+        if self.gated:
+            # Channel params
+            self.g_ion = np.zeros([self.num_channels, self.num_neurons])
+            self.e_ion = np.zeros([self.num_channels, self.num_neurons])
+            # A gate params
+            self.pow_a = np.zeros([self.num_channels, self.num_neurons])
+            self.slope_a = np.zeros([self.num_channels, self.num_neurons])
+            self.k_a = np.zeros([self.num_channels, self.num_neurons])+1
+            self.e_a = np.zeros([self.num_channels, self.num_neurons])
+            # B gate params
+            self.pow_b = np.zeros([self.num_channels, self.num_neurons])
+            self.slope_b = np.zeros([self.num_channels, self.num_neurons])
+            self.k_b = np.zeros([self.num_channels, self.num_neurons])+1
+            self.e_b = np.zeros([self.num_channels, self.num_neurons])
+            self.tau_max_b = np.zeros([self.num_channels, self.num_neurons])+1
+            # C gate params
+            self.pow_c = np.zeros([self.num_channels, self.num_neurons])
+            self.slope_c = np.zeros([self.num_channels, self.num_neurons])
+            self.k_c = np.zeros([self.num_channels, self.num_neurons])+1
+            self.e_c = np.zeros([self.num_channels, self.num_neurons])
+            self.tau_max_c = np.zeros([self.num_channels, self.num_neurons])+1
+
+            self.b_gate = np.zeros([self.num_channels, self.num_neurons])
+            self.b_gate_last = np.zeros([self.num_channels, self.num_neurons])
+            self.c_gate = np.zeros([self.num_channels, self.num_neurons])
+            self.c_gate_last = np.zeros([self.num_channels, self.num_neurons])
 
         self.incoming_synapses = []
         for i in range(self.num_neurons):
@@ -1521,11 +1547,39 @@ class SNS_Manual(__Backend__):
                         self.theta_0[index] = sys.float_info.max
                         self.m[index] = 0
                         self.tau_theta[index] = 1
+                if self.gated:
+                    if isinstance(self.network.populations[pop]['type'], NonSpikingNeuronWithGatedChannels):
+                        # Channel params
+                        self.g_ion[:, index] = self.network.populations[pop]['type'].params['Gion']
+                        self.e_ion[:, index] = self.network.populations[pop]['type'].params['Eion']
+                        # A gate params
+                        self.pow_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['pow']
+                        self.slope_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['slope']
+                        self.k_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['k']
+                        self.e_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['reversal']
+                        # B gate params
+                        self.pow_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['pow']
+                        self.slope_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['slope']
+                        self.k_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['k']
+                        self.e_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['reversal']
+                        self.tau_max_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['TauMax']
+                        # C gate params
+                        self.pow_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['pow']
+                        self.slope_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['slope']
+                        self.k_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['k']
+                        self.e_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['reversal']
+                        self.tau_max_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['TauMax']
+
+                        self.b_gate_last[:, index] = 1 / (1 + self.k_b[:, index] * np.exp(self.slope_b[:, index]*(self.u_last[index]-self.e_b[:, index])))
+                        self.c_gate_last[:, index] = 1 / (1 + self.k_c[:, index] * np.exp(self.slope_c[:, index]*(self.u_last[index]-self.e_c[:, index])))
                 index += 1
         self.u = np.copy(self.u_last)
         if self.spiking:
             self.theta = np.copy(self.theta_0)
             self.theta_last = np.copy(self.theta_0)
+        if self.gated:
+            self.b_gate = np.copy(self.b_gate_last)
+            self.c_gate = np.copy(self.c_gate_last)
 
     def __set_inputs__(self) -> None:
         """
@@ -1685,11 +1739,60 @@ class SNS_Manual(__Backend__):
             print(self.theta_last)
             print('Theta')
             print(self.theta)
+        if self.gated:
+            print('Number of Channels:')
+            print(self.num_channels)
+            print('Ionic Conductance:')
+            print(self.g_ion)
+            print('Ionic Reversal Potentials:')
+            print(self.e_ion)
+            print('A Gate Parameters:')
+            print('Power:')
+            print(self.pow_a)
+            print('Slope:')
+            print(self.slope_a)
+            print('K:')
+            print(self.k_a)
+            print('Reversal Potential:')
+            print(self.e_a)
+            print('B Gate Parameters:')
+            print('Power:')
+            print(self.pow_b)
+            print('Slope:')
+            print(self.slope_b)
+            print('K:')
+            print(self.k_b)
+            print('Reversal Potential:')
+            print(self.e_b)
+            print('Tau Max:')
+            print(self.tau_max_b)
+            print('B:')
+            print(self.b_gate)
+            print('B_last:')
+            print(self.b_gate_last)
+            print('C Gate Parameters:')
+            print('Power:')
+            print(self.pow_c)
+            print('Slope:')
+            print(self.slope_c)
+            print('K:')
+            print(self.k_c)
+            print('Reversal Potential:')
+            print(self.e_c)
+            print('Tau Max:')
+            print(self.tau_max_c)
+            print('B:')
+            print(self.c_gate)
+            print('B_last:')
+            print(self.c_gate_last)
 
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = np.copy(self.u)
         if self.spiking:
             self.theta_last = np.copy(self.theta)
+        if self.gated:
+            self.b_gate_last = np.copy(self.b_gate)
+            self.c_gate_last = np.copy(self.c_gate)
 
         i_app = np.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
 
@@ -1709,8 +1812,22 @@ class SNS_Manual(__Backend__):
                 else:   # if chemical
                     neuron_src[5] = np.maximum(0, np.minimum(neuron_src[3] * self.u_last[neuron_src[0]] / self.R, neuron_src[3]))
                     i_syn += neuron_src[5] * (neuron_src[4] - self.u_last[nrn])
+            i_gated = 0
+            if self.gated:
+                a_inf = 1 / (1 + self.k_a[:,nrn] * np.exp(self.slope_a[:,nrn] * (self.e_a[:,nrn] - self.u_last[nrn])))
+                b_inf = 1 / (1 + self.k_b[:,nrn] * np.exp(self.slope_b[:,nrn] * (self.e_b[:,nrn] - self.u_last[nrn])))
+                c_inf = 1 / (1 + self.k_c[:,nrn] * np.exp(self.slope_c[:,nrn] * (self.e_c[:,nrn] - self.u_last[nrn])))
 
-            self.u[nrn] = self.u_last[nrn] + self.time_factor_membrane[nrn] * (-self.g_m[nrn] * self.u_last[nrn] + self.i_b[nrn] + i_syn + i_app[nrn])  # Update membrane potential
+                tau_b = self.tau_max_b[:,nrn] * b_inf * np.sqrt(self.k_b[:,nrn] * np.exp(self.slope_b[:,nrn] * (self.e_b[:,nrn] - self.u_last[nrn])))
+                tau_c = self.tau_max_c[:,nrn] * c_inf * np.sqrt(self.k_c[:,nrn] * np.exp(self.slope_c[:,nrn] * (self.e_c[:,nrn] - self.u_last[nrn])))
+
+                self.b_gate[:,nrn] = self.b_gate_last[:,nrn] + self.dt * ((b_inf - self.b_gate_last[:,nrn]) / tau_b)
+                self.c_gate[:,nrn] = self.c_gate_last[:,nrn] + self.dt * ((c_inf - self.c_gate_last[:,nrn]) / tau_c)
+
+                i_ion = self.g_ion[:,nrn] * (a_inf ** self.pow_a[:,nrn]) * (self.b_gate[:,nrn] ** self.pow_b[:,nrn]) * (self.c_gate[:,nrn] ** self.pow_c[:,nrn]) * (self.e_ion[:,nrn] - self.u_last[nrn])
+                i_gated = np.sum(i_ion)
+
+            self.u[nrn] = self.u_last[nrn] + self.time_factor_membrane[nrn] * (-self.g_m[nrn] * self.u_last[nrn] + self.i_b[nrn] + i_syn + i_app[nrn] + i_gated)  # Update membrane potential
             if self.spiking:
                 self.theta[nrn] = self.theta_last[nrn] + self.time_factor_threshold[nrn] * (-self.theta_last[nrn] + self.theta_0[nrn] + self.m[nrn] * self.u_last[nrn])  # Update the firing thresholds
                 self.spikes[nrn] = np.sign(np.minimum(0, self.theta[nrn] - self.u[nrn]))  # Compute which neurons have spiked
