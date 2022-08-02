@@ -275,6 +275,18 @@ class __Backend__:
             print('B_last:')
             print(self.c_gate_last)
 
+    def reset(self, u=None, theta=None, b_gate=None, c_gate=None) -> None:
+        """
+        Reset the network, either to its initial state or an arbitrary state.
+
+        :param u:       State for u. Default is None.
+        :param theta:   State for theta. Default is None.
+        :param b_gate:  State for the b gate. Default is None.
+        :param c_gate:  State for the c gate. Default is None.
+        :return: None
+        """
+        raise NotImplementedError
+
     def forward(self, inputs) -> Any:
         """
         Compute the next neural states based on previous neural states. Handle substeps as well.
@@ -339,6 +351,7 @@ class SNS_Numpy(__Backend__):
 
         self.u = np.zeros(self.num_neurons)
         self.u_last = np.zeros(self.num_neurons)
+        self.u_0 = np.zeros(self.num_neurons)
         self.c_m = np.zeros(self.num_neurons)
         self.g_m = np.zeros(self.num_neurons)
         self.i_b = np.zeros(self.num_neurons)
@@ -391,8 +404,10 @@ class SNS_Numpy(__Backend__):
 
             self.b_gate = np.zeros([self.num_channels, self.num_neurons])
             self.b_gate_last = np.zeros([self.num_channels, self.num_neurons])
+            self.b_gate_0 = np.zeros([self.num_channels, self.num_neurons])
             self.c_gate = np.zeros([self.num_channels, self.num_neurons])
             self.c_gate_last = np.zeros([self.num_channels, self.num_neurons])
+            self.c_gate_0 = np.zeros([self.num_channels, self.num_neurons])
 
         self.pops_and_nrns = []
         index = 0
@@ -455,12 +470,15 @@ class SNS_Numpy(__Backend__):
                         self.c_gate_last[:, index] = 1 / (1 + self.k_c[:, index] * np.exp(self.slope_c[:, index]*(self.u_last[index]-self.e_c[:, index])))
                 index += 1
         self.u = np.copy(self.u_last)
+        self.u_0 = np.copy(self.u_last)
         if self.spiking:
             self.theta = np.copy(self.theta_0)
             self.theta_last = np.copy(self.theta_0)
         if self.gated:
             self.b_gate = np.copy(self.b_gate_last)
+            self.b_gate_0 = np.copy(self.b_gate_last)
             self.c_gate = np.copy(self.c_gate_last)
+            self.c_gate_0 = np.copy(self.c_gate_last)
 
     def __set_inputs__(self) -> None:
 
@@ -571,6 +589,34 @@ class SNS_Numpy(__Backend__):
                     self.output_voltage_connectivity[outputs[out][i]][
                         self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
 
+    def reset(self, u=None, theta=None, b_gate=None, c_gate=None) -> None:
+        if u is None:
+            self.u = np.copy(self.u_0)
+            self.u_last = np.copy(self.u_0)
+        else:
+            self.u = np.copy(u)
+            self.u_last = np.copy(u)
+        if self.spiking:
+            if theta is None:
+                self.theta = np.copy(self.theta_0)
+                self.theta_last = np.copy(self.theta_0)
+            else:
+                self.theta = np.copy(u)
+                self.theta_last = np.copy(u)
+        if self.gated:
+            if b_gate is None:
+                self.b_gate = np.copy(self.b_gate_0)
+                self.b_gate_last = np.copy(self.b_gate_0)
+            else:
+                self.b_gate = np.copy(self.b_gate)
+                self.b_gate_last = np.copy(self.b_gate)
+            if c_gate is None:
+                self.c_gate = np.copy(self.c_gate_0)
+                self.c_gate_last = np.copy(self.c_gate_0)
+            else:
+                self.c_gate = np.copy(self.c_gate)
+                self.c_gate_last = np.copy(self.c_gate)
+
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = np.copy(self.u)
         i_app = np.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
@@ -667,6 +713,7 @@ class SNS_Torch(__Backend__):
         """
         self.u = torch.zeros(self.num_neurons,device=self.device)
         self.u_last = torch.zeros(self.num_neurons,device=self.device)
+        self.u_0 = torch.zeros(self.num_neurons,device=self.device)
         self.c_m = torch.zeros(self.num_neurons,device=self.device)
         self.g_m = torch.zeros(self.num_neurons,device=self.device)
         self.i_b = torch.zeros(self.num_neurons,device=self.device)
@@ -719,8 +766,10 @@ class SNS_Torch(__Backend__):
 
             self.b_gate = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
             self.b_gate_last = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
+            self.b_gate_0 = torch.zeros([self.num_channels, self.num_neurons], device=self.device)
             self.c_gate = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
             self.c_gate_last = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
+            self.c_gate_0 = torch.zeros([self.num_channels, self.num_neurons], device=self.device)
 
         self.pops_and_nrns = []
         index = 0
@@ -794,6 +843,8 @@ class SNS_Torch(__Backend__):
         if self.gated:
             self.b_gate = torch.clone(self.b_gate_last)
             self.c_gate = torch.clone(self.c_gate_last)
+            self.b_gate_0 = torch.clone(self.b_gate_last)
+            self.c_gate_0 = torch.clone(self.c_gate_last)
 
     def __set_inputs__(self) -> None:
         """
@@ -921,6 +972,34 @@ class SNS_Torch(__Backend__):
                     self.output_voltage_connectivity[outputs[out][i]][
                         self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
 
+    def reset(self, u=None, theta=None, b_gate=None, c_gate=None) -> None:
+        if u is None:
+            self.u = torch.clone(self.u_0)
+            self.u_last = torch.clone(self.u_0)
+        else:
+            self.u = torch.clone(u)
+            self.u_last = torch.clone(u)
+        if self.spiking:
+            if theta is None:
+                self.theta = torch.clone(self.theta_0)
+                self.theta_last = torch.clone(self.theta_0)
+            else:
+                self.theta = torch.clone(u)
+                self.theta_last = torch.clone(u)
+        if self.gated:
+            if b_gate is None:
+                self.b_gate = torch.clone(self.b_gate_0)
+                self.b_gate_last = torch.clone(self.b_gate_0)
+            else:
+                self.b_gate = torch.clone(self.b_gate)
+                self.b_gate_last = torch.clone(self.b_gate)
+            if c_gate is None:
+                self.c_gate = torch.clone(self.c_gate_0)
+                self.c_gate_last = torch.clone(self.c_gate_0)
+            else:
+                self.c_gate = torch.clone(self.c_gate)
+                self.c_gate_last = torch.clone(self.c_gate)
+
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = torch.clone(self.u)
         i_app = torch.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
@@ -1009,6 +1088,7 @@ class SNS_Sparse(__Backend__):
         :return:    None
         """
         self.u = torch.zeros(self.num_neurons,device=self.device)
+        self.u_0 = torch.zeros(self.num_neurons, device=self.device)
         self.u_last = torch.zeros(self.num_neurons,device=self.device)
         self.c_m = torch.zeros(self.num_neurons,device=self.device)
         self.g_m = torch.zeros(self.num_neurons,device=self.device)
@@ -1062,8 +1142,10 @@ class SNS_Sparse(__Backend__):
 
             self.b_gate = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
             self.b_gate_last = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
+            self.b_gate_0 = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons), device=self.device)
             self.c_gate = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
             self.c_gate_last = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
+            self.c_gate_0 = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons), device=self.device)
 
         self.pops_and_nrns = []
         index = 0
@@ -1191,7 +1273,9 @@ class SNS_Sparse(__Backend__):
             self.theta_last = self.theta_0.clone()
         if self.gated:
             self.b_gate = torch.clone(self.b_gate_last)
+            self.b_gate_0 = torch.clone(self.b_gate_last)
             self.c_gate = torch.clone(self.c_gate_last)
+            self.c_gate_0 = torch.clone(self.c_gate_last)
 
     def __set_inputs__(self) -> None:
         """
@@ -1362,6 +1446,34 @@ class SNS_Sparse(__Backend__):
                         self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
                     self.output_voltage_connectivity = self.output_voltage_connectivity.to_sparse()
 
+    def reset(self, u=None, theta=None, b_gate=None, c_gate=None) -> None:
+        if u is None:
+            self.u = torch.clone(self.u_0)
+            self.u_last = torch.clone(self.u_0)
+        else:
+            self.u = torch.clone(u)
+            self.u_last = torch.clone(u)
+        if self.spiking:
+            if theta is None:
+                self.theta = torch.clone(self.theta_0)
+                self.theta_last = torch.clone(self.theta_0)
+            else:
+                self.theta = torch.clone(u)
+                self.theta_last = torch.clone(u)
+        if self.gated:
+            if b_gate is None:
+                self.b_gate = torch.clone(self.b_gate_0)
+                self.b_gate_last = torch.clone(self.b_gate_0)
+            else:
+                self.b_gate = torch.clone(self.b_gate)
+                self.b_gate_last = torch.clone(self.b_gate)
+            if c_gate is None:
+                self.c_gate = torch.clone(self.c_gate_0)
+                self.c_gate_last = torch.clone(self.c_gate_0)
+            else:
+                self.c_gate = torch.clone(self.c_gate)
+                self.c_gate_last = torch.clone(self.c_gate)
+
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = torch.clone(self.u)
 
@@ -1467,6 +1579,7 @@ class SNS_Manual(__Backend__):
         :return:    None
         """
         self.u = np.zeros(self.num_neurons)
+        self.u_0 = np.zeros(self.num_neurons)
         self.u_last = np.zeros(self.num_neurons)
         self.c_m = np.zeros(self.num_neurons)
         self.g_m = np.zeros(self.num_neurons)
@@ -1501,8 +1614,10 @@ class SNS_Manual(__Backend__):
             self.tau_max_c = np.zeros([self.num_channels, self.num_neurons])+1
 
             self.b_gate = np.zeros([self.num_channels, self.num_neurons])
+            self.b_gate_0 = np.zeros([self.num_channels, self.num_neurons])
             self.b_gate_last = np.zeros([self.num_channels, self.num_neurons])
             self.c_gate = np.zeros([self.num_channels, self.num_neurons])
+            self.c_gate_0 = np.zeros([self.num_channels, self.num_neurons])
             self.c_gate_last = np.zeros([self.num_channels, self.num_neurons])
 
         self.incoming_synapses = []
@@ -1579,7 +1694,9 @@ class SNS_Manual(__Backend__):
             self.theta_last = np.copy(self.theta_0)
         if self.gated:
             self.b_gate = np.copy(self.b_gate_last)
+            self.b_gate_0 = np.copy(self.b_gate_last)
             self.c_gate = np.copy(self.c_gate_last)
+            self.c_gate_0 = np.copy(self.c_gate_last)
 
     def __set_inputs__(self) -> None:
         """
@@ -1786,6 +1903,34 @@ class SNS_Manual(__Backend__):
             print('B_last:')
             print(self.c_gate_last)
 
+    def reset(self, u=None, theta=None, b_gate=None, c_gate=None) -> None:
+        if u is None:
+            self.u = np.copy(self.u_0)
+            self.u_last = np.copy(self.u_0)
+        else:
+            self.u = np.copy(u)
+            self.u_last = np.copy(u)
+        if self.spiking:
+            if theta is None:
+                self.theta = np.copy(self.theta_0)
+                self.theta_last = np.copy(self.theta_0)
+            else:
+                self.theta = np.copy(theta)
+                self.theta_last = np.copy(theta)
+        if self.gated:
+            if b_gate is None:
+                self.b_gate = np.copy(self.b_gate_0)
+                self.b_gate_last = np.copy(self.b_gate_0)
+            else:
+                self.b_gate = np.copy(b_gate)
+                self.b_gate_last = np.copy(b_gate)
+            if c_gate is None:
+                self.c_gate = np.copy(self.c_gate_0)
+                self.c_gate_last = np.copy(self.c_gate_0)
+            else:
+                self.c_gate = np.copy(c_gate)
+                self.c_gate_last = np.copy(c_gate)
+
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = np.copy(self.u)
         if self.spiking:
@@ -1829,6 +1974,7 @@ class SNS_Manual(__Backend__):
 
             self.u[nrn] = self.u_last[nrn] + self.time_factor_membrane[nrn] * (-self.g_m[nrn] * self.u_last[nrn] + self.i_b[nrn] + i_syn + i_app[nrn] + i_gated)  # Update membrane potential
             if self.spiking:
+                # if self.theta_0[nrn] != sys.float_info.max:
                 self.theta[nrn] = self.theta_last[nrn] + self.time_factor_threshold[nrn] * (-self.theta_last[nrn] + self.theta_0[nrn] + self.m[nrn] * self.u_last[nrn])  # Update the firing thresholds
                 self.spikes[nrn] = np.sign(np.minimum(0, self.theta[nrn] - self.u[nrn]))  # Compute which neurons have spiked
         if self.spiking:
