@@ -6,9 +6,10 @@ from sns_toolbox.design.neurons import NonSpikingNeuronWithGatedChannels, NonSpi
 from sns_toolbox.design.connections import NonSpikingSynapse
 from sns_toolbox.design.networks import Network
 
-from sns_toolbox.simulate.backends import SNS_Numpy
+from sns_toolbox.simulate.backends import SNS_Numpy, SNS_Torch
 
 import numpy as np
+import torch
 import matplotlib.pyplot as plt
 
 """
@@ -68,31 +69,31 @@ tauHmax = 300
 
 Gna = Gm*R/(zinf(R, Km, S, delEm)*zinf(R, Kh, -S, delEh)*(delEna-R))
 
-g_ion = Gna
-e_ion = delEna
+g_ion = torch.tensor([Gna])
+e_ion = torch.tensor([delEna])
 
-pow_a = 1
-k_a = Km
-slope_a = S
-e_a = delEm
+pow_a = torch.tensor([1])
+k_a = torch.tensor([Km])
+slope_a = torch.tensor([S])
+e_a = torch.tensor([delEm])
 
-pow_b = 1
-k_b = Kh
-slope_b = -S
-e_b = delEh
-tau_max_b = tauHmax
+pow_b = torch.tensor([1])
+k_b = torch.tensor([Kh])
+slope_b = torch.tensor([-S])
+e_b = torch.tensor([delEh])
+tau_max_b = torch.tensor([tauHmax])
 
-pow_c = 0
-k_c = 1
-slope_c = 0
-e_c = 0
-tau_max_c = 1
+pow_c = torch.tensor([0])
+k_c = torch.tensor([1])
+slope_c = torch.tensor([0])
+e_c = torch.tensor([0])
+tau_max_c = torch.tensor([1])
 
-neuron_gated = NonSpikingNeuronWithGatedChannels(membrane_capacitance=Cm, membrane_conductance=Gm,g_ion=[g_ion],e_ion=[e_ion],
-                                               pow_a=[pow_a],k_a=[k_a],slope_a=[slope_a],e_a=[e_a],
-                                               pow_b=[pow_b],k_b=[k_b],slope_b=[slope_b],e_b=[e_b],tau_max_b=[tau_max_b],
-                                               pow_c=[pow_c],k_c=[k_c],slope_c=[slope_c],e_c=[e_c],tau_max_c=[tau_max_c],
-                                               name='HC',color='orange')
+neuron_gated = NonSpikingNeuronWithGatedChannels(membrane_capacitance=Cm, membrane_conductance=Gm,g_ion=g_ion,e_ion=e_ion,
+                                                 pow_a=pow_a,k_a=k_a,slope_a=slope_a,e_a=e_a,
+                                                 pow_b=pow_b,k_b=k_b,slope_b=slope_b,e_b=e_b,tau_max_b=tau_max_b,
+                                                 pow_c=pow_c,k_c=k_c,slope_c=slope_c,e_c=e_c,tau_max_c=tau_max_c,
+                                                 name='HC',color='orange')
 
 net = Network()
 net.add_neuron(neuron_gated)
@@ -109,19 +110,19 @@ tMax = 5000
 t = np.arange(0,tMax,dt)
 numSteps = np.size(t)
 
-Iapp = np.zeros(numSteps)
-Iapp[tStart:tEnd] = I
+Iapp = torch.zeros([numSteps,1])
+Iapp[tStart:tEnd,:] = I
 
-Ipert = np.zeros(numSteps)
-Ipert[1] = 1
+Ipert = torch.zeros([numSteps,1])
+Ipert[1,0] = 1
 
-model = SNS_Numpy(net,dt=dt)
-data = np.zeros([len(t), net.get_num_outputs_actual()])
+model = SNS_Torch(net,dt=dt,device='cpu')
+data = torch.zeros([len(t), net.get_num_outputs_actual()])
 inputs = Iapp + Ipert
 
 for i in range(len(t)):
-    data[i] = model.forward([inputs[i]])
-data = data.transpose()
+    data[i] = model.forward(inputs[i])
+data = data.transpose(0,1)
 
 plt.figure()
 plt.plot(t,data[:][0])
@@ -162,19 +163,19 @@ def cpg(delta=-0.01):
 
     Gna = Gm*R/(zinf(R, Km, S, delEm)*zinf(R, Kh, -S, delEh)*(delEna-R))
 
-    g_ion = [Gna]
-    e_ion = [delEna]
+    g_ion = torch.tensor([Gna])
+    e_ion = torch.tensor([delEna])
 
-    pow_m = [1]
-    k_m = [Km]
-    slope_m = [S]
-    e_m = [delEm]
+    pow_m = torch.tensor([1])
+    k_m = torch.tensor([Km])
+    slope_m = torch.tensor([S])
+    e_m = torch.tensor([delEm])
 
-    pow_h = [1]
-    k_h = [Kh]
-    slope_h = [-S]
-    e_h = [delEh]
-    tau_max_h = [tauHmax]
+    pow_h = torch.tensor([1])
+    k_h = torch.tensor([Kh])
+    slope_h = torch.tensor([-S])
+    e_h = torch.tensor([delEh])
+    tau_max_h = torch.tensor([tauHmax])
 
     neuron_cpg = NonSpikingNeuronWithPersistentSodiumChannel(membrane_capacitance=Cm, membrane_conductance=Gm,
                                                              g_ion=g_ion,e_ion=e_ion,
@@ -210,19 +211,19 @@ def cpg(delta=-0.01):
     t = np.arange(0, tMax, dt)
     numSteps = np.size(t)
 
-    Iapp = np.zeros(numSteps)
-    Iapp[tStart:tEnd] = I
+    Iapp = torch.zeros([numSteps,1])
+    Iapp[tStart:tEnd,:] = I
 
-    Ipert = np.zeros(numSteps)
-    Ipert[1] = 1
+    Ipert = torch.zeros([numSteps,1])
+    Ipert[1,0] = 1
 
-    model = SNS_Numpy(net, dt=dt)
-    data = np.zeros([len(t), net.get_num_outputs_actual()])
+    model = SNS_Torch(net, dt=dt, device='cpu')
+    data = torch.zeros([len(t), net.get_num_outputs_actual()])
     inputs = Iapp + Ipert
 
     for i in range(len(t)):
-        data[i] = model.forward([inputs[i]])
-    data = data.transpose()
+        data[i] = model.forward(inputs[i])
+    data = data.transpose(0,1)
 
     return data
 

@@ -94,6 +94,8 @@ class NonSpikingNeuronWithGatedChannels(NonSpikingNeuron):
                   pow_a, k_a, slope_a, e_a,             # A gate params
                   pow_b, k_b, slope_b, e_b, tau_max_b,  # B gate params
                   pow_c, k_c, slope_c, e_c, tau_max_c]  # C gate params
+        if any(inputs) is False:
+            raise ValueError('All channel parameters must have a value')
         if all(len(x) == len(g_ion) for x in inputs) is False:
             raise ValueError('All channel parameters must be the same dimension (len(g_ion) = len(e_ion) = ...)')
         self.params['gated'] = True
@@ -113,27 +115,27 @@ class NonSpikingNeuronWithPersistentSodiumChannel(NonSpikingNeuronWithGatedChann
                  pow_m=None, k_m=None, slope_m=None, e_m=None,
                  pow_h=None, k_h=None, slope_h=None, e_h=None, tau_max_h=None,**kwargs):
         if g_ion is None:
-            g_ion = [1.0485070729908987]
+            g_ion = np.array([1.0485070729908987])
         if e_ion is None:
-            e_ion = [110]
+            e_ion = np.array([110])
         if pow_m is None:
-            pow_m = [1]
+            pow_m = np.array([1])
         if k_m is None:
-            k_m = [1]
+            k_m = np.array([1])
         if slope_m is None:
-            slope_m = [0.05]
+            slope_m = np.array([0.05])
         if e_m is None:
-            e_m = [20]
+            e_m = np.array([20])
         if pow_h is None:
-            pow_h = [1]
+            pow_h = np.array([1])
         if k_h is None:
-            k_h = [0.5]
+            k_h = np.array([0.5])
         if slope_h is None:
-            slope_h = [-0.05]
+            slope_h = np.array([-0.05])
         if e_h is None:
-            e_h = [0]
+            e_h = np.array([0])
         if tau_max_h is None:
-            tau_max_h = [300]
+            tau_max_h = np.array([300])
 
         inputs = [g_ion, e_ion,                         # Channel params
                   pow_m, k_m, slope_m, e_m,             # A gate params
