@@ -140,11 +140,17 @@ class NonSpikingNeuronWithPersistentSodiumChannel(NonSpikingNeuronWithGatedChann
                   pow_h, k_h, slope_h, e_h, tau_max_h]  # B gate params
         if all(len(x) == len(g_ion) for x in inputs) is False:
             raise ValueError('All channel parameters must be the same dimension (len(g_ion) = len(e_ion) = ...)')
+        num_channels = len(g_ion)
+        pow_c = np.zeros(num_channels)
+        k_c = np.zeros(num_channels) + 1
+        slope_c = np.zeros(num_channels)
+        e_c = np.zeros(num_channels)
+        tau_max_c = np.zeros(num_channels)+1
 
         super().__init__(g_ion=g_ion, e_ion=e_ion,
                          pow_a=pow_m, k_a=k_m, slope_a=slope_m, e_a=e_m,
                          pow_b=pow_h, k_b=k_h, slope_b=slope_h, e_b=e_h, tau_max_b=tau_max_h,
-                         pow_c=[0], k_c=[1], slope_c=[0], e_c=[0], tau_max_c=[1], **kwargs)
+                         pow_c=pow_c, k_c=k_c, slope_c=slope_c, e_c=e_c, tau_max_c=tau_max_c, **kwargs)
 
 
 class SpikingNeuron(Neuron):
