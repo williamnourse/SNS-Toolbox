@@ -2,7 +2,7 @@
 Tutorial demonstrating the use of neurons with voltage-gated ion channels.
 """
 
-from sns_toolbox.design.neurons import NonSpikingNeuronWithGatedChannels, NonSpikingNeuron
+from sns_toolbox.design.neurons import NonSpikingNeuronWithGatedChannels, NonSpikingNeuronWithPersistentSodiumChannel
 from sns_toolbox.design.connections import NonSpikingSynapse
 from sns_toolbox.design.networks import Network
 
@@ -156,40 +156,31 @@ def cpg(delta=-0.01):
     Kh = 0.5
     Em = -40
     Eh = -60
-    delEm = Em - Er
-    delEh = Eh - Er
+    delEm = Em-Er
+    delEh = Eh-Er
     tauHmax = 300
 
-    Gna = Gm * R / (zinf(R, Km, S, delEm) * zinf(R, Kh, -S, delEh) * (delEna - R))
+    Gna = Gm*R/(zinf(R, Km, S, delEm)*zinf(R, Kh, -S, delEh)*(delEna-R))
 
-    g_ion = Gna
-    e_ion = delEna
+    g_ion = [Gna]
+    e_ion = [delEna]
 
-    pow_a = 1
-    k_a = Km
-    slope_a = S
-    e_a = delEm
+    pow_m = [1]
+    k_m = [Km]
+    slope_m = [S]
+    e_m = [delEm]
 
-    pow_b = 1
-    k_b = Kh
-    slope_b = -S
-    e_b = delEh
-    tau_max_b = tauHmax
+    pow_h = [1]
+    k_h = [Kh]
+    slope_h = [-S]
+    e_h = [delEh]
+    tau_max_h = [tauHmax]
 
-    pow_c = 0
-    k_c = 1
-    slope_c = 0
-    e_c = 0
-    tau_max_c = 1
-
-    neuron_cpg = NonSpikingNeuronWithGatedChannels(membrane_capacitance=Cm, membrane_conductance=Gm, g_ion=[g_ion],
-                                                   e_ion=[e_ion],
-                                                   pow_a=[pow_a], k_a=[k_a], slope_a=[slope_a], e_a=[e_a],
-                                                   pow_b=[pow_b], k_b=[k_b], slope_b=[slope_b], e_b=[e_b],
-                                                   tau_max_b=[tau_max_b],
-                                                   pow_c=[pow_c], k_c=[k_c], slope_c=[slope_c], e_c=[e_c],
-                                                   tau_max_c=[tau_max_c],
-                                                   name='HC', color='orange')
+    neuron_cpg = NonSpikingNeuronWithPersistentSodiumChannel(membrane_capacitance=Cm, membrane_conductance=Gm,
+                                                             g_ion=g_ion,e_ion=e_ion,
+                                                             pow_m=pow_m,k_m=k_m,slope_m=slope_m,e_m=e_m,
+                                                             pow_h=pow_h,k_h=k_h,slope_h=slope_h,e_h=e_h,tau_max_h=tau_max_h,
+                                                             name='HC',color='orange')
 
     Ein = -100
     delEsyn = Ein - R
