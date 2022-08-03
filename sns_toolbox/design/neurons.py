@@ -13,6 +13,9 @@ import numbers
 
 from sns_toolbox.design.design_utilities import valid_color, set_text_color
 
+import numpy as np
+import torch
+
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 BASE CLASS
@@ -56,12 +59,13 @@ class Neuron:
         if isinstance(membrane_conductance, numbers.Number):
             self.params['membrane_conductance'] = membrane_conductance
         else:
-            raise TypeError('Membrane conductance must be a number (int, float, double, etc.')
+            raise TypeError('Membrane conductance must be a number (int, float, double, etc.)')
         if isinstance(bias,numbers.Number):
             self.params['bias'] = bias
         else:
             raise TypeError('Bias must be a number (int, float, double, etc.')
         self.params['spiking'] = False
+        self.params['gated'] = False
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -75,6 +79,90 @@ class NonSpikingNeuron(Neuron):
     """
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
+
+
+class NonSpikingNeuronWithGatedChannels(NonSpikingNeuron):
+    """
+    Iion = sum_j[Gj * A_(inf,j)^Pa * Bj^Pb * Cj^Pc * (Ej - U)]
+    """
+    def __init__(self, g_ion=None, e_ion=None,
+                 pow_a=None, k_a=None, slope_a=None, e_a=None,
+                 pow_b=None, k_b=None, slope_b=None, e_b=None, tau_max_b=None,
+                 pow_c=None, k_c=None, slope_c=None, e_c=None, tau_max_c=None, **kwargs) -> None:
+        super().__init__(**kwargs)
+
+        inputs = [g_ion, e_ion,                         # Channel params
+                  pow_a, k_a, slope_a, e_a,             # A gate params
+                  pow_b, k_b, slope_b, e_b, tau_max_b,  # B gate params
+                  pow_c, k_c, slope_c, e_c, tau_max_c]  # C gate params
+        if any(inputs) is False:
+            raise ValueError('All channel parameters must have a value')
+        if all(len(x) == len(g_ion) for x in inputs) is False:
+            raise ValueError('All channel parameters must be the same dimension (len(g_ion) = len(e_ion) = ...)')
+        self.params['gated'] = True
+        self.params['Gion'] = g_ion
+        self.params['Eion'] = e_ion
+        self.params['numChannels'] = len(g_ion)
+        self.params['paramsA'] = {'pow': pow_a, 'k': k_a, 'slope': slope_a, 'reversal': e_a}
+        self.params['paramsB'] = {'pow': pow_b, 'k': k_b, 'slope': slope_b, 'reversal': e_b, 'TauMax': tau_max_b}
+        self.params['paramsC'] = {'pow': pow_c, 'k': k_c, 'slope': slope_c, 'reversal': e_c, 'TauMax': tau_max_c}
+
+
+class NonSpikingNeuronWithPersistentSodiumChannel(NonSpikingNeuronWithGatedChannels):
+    """
+    Iion = sum_j[Gj * m_(inf,j)^Pm * hj^Ph * (Ej - U)]
+    """
+    def __init__(self, g_ion=None, e_ion=None,
+                 pow_m=None, k_m=None, slope_m=None, e_m=None,
+                 pow_h=None, k_h=None, slope_h=None, e_h=None, tau_max_h=None,**kwargs):
+        if g_ion is None:
+            g_ion = np.array([1.0485070729908987])
+        if e_ion is None:
+            e_ion = np.array([110])
+        if pow_m is None:
+            pow_m = np.array([1])
+        if k_m is None:
+            k_m = np.array([1])
+        if slope_m is None:
+            slope_m = np.array([0.05])
+        if e_m is None:
+            e_m = np.array([20])
+        if pow_h is None:
+            pow_h = np.array([1])
+        if k_h is None:
+            k_h = np.array([0.5])
+        if slope_h is None:
+            slope_h = np.array([-0.05])
+        if e_h is None:
+            e_h = np.array([0])
+        if tau_max_h is None:
+            tau_max_h = np.array([300])
+
+        inputs = [g_ion, e_ion,                         # Channel params
+                  pow_m, k_m, slope_m, e_m,             # A gate params
+                  pow_h, k_h, slope_h, e_h, tau_max_h]  # B gate params
+        if all(len(x) == len(g_ion) for x in inputs) is False:
+            raise ValueError('All channel parameters must be the same dimension (len(g_ion) = len(e_ion) = ...)')
+        num_channels = len(g_ion)
+        if isinstance(g_ion, torch.Tensor):
+            device = g_ion.device
+            pow_c = torch.zeros(num_channels)
+            k_c = torch.zeros(num_channels) + 1
+            slope_c = torch.zeros(num_channels)
+            e_c = torch.zeros(num_channels)
+            tau_max_c = torch.zeros(num_channels) + 1
+        else:
+            pow_c = np.zeros(num_channels)
+            k_c = np.zeros(num_channels) + 1
+            slope_c = np.zeros(num_channels)
+            e_c = np.zeros(num_channels)
+            tau_max_c = np.zeros(num_channels) + 1
+
+        super().__init__(g_ion=g_ion, e_ion=e_ion,
+                         pow_a=pow_m, k_a=k_m, slope_a=slope_m, e_a=e_m,
+                         pow_b=pow_h, k_b=k_h, slope_b=slope_h, e_b=e_h, tau_max_b=tau_max_h,
+                         pow_c=pow_c, k_c=k_c, slope_c=slope_c, e_c=e_c, tau_max_c=tau_max_c, **kwargs)
+
 
 class SpikingNeuron(Neuron):
     """
