@@ -601,21 +601,21 @@ class SNS_Numpy(__Backend__):
                 self.theta = np.copy(self.theta_0)
                 self.theta_last = np.copy(self.theta_0)
             else:
-                self.theta = np.copy(u)
-                self.theta_last = np.copy(u)
+                self.theta = np.copy(theta)
+                self.theta_last = np.copy(theta)
         if self.gated:
             if b_gate is None:
                 self.b_gate = np.copy(self.b_gate_0)
                 self.b_gate_last = np.copy(self.b_gate_0)
             else:
-                self.b_gate = np.copy(self.b_gate)
-                self.b_gate_last = np.copy(self.b_gate)
+                self.b_gate = np.copy(b_gate)
+                self.b_gate_last = np.copy(b_gate)
             if c_gate is None:
                 self.c_gate = np.copy(self.c_gate_0)
                 self.c_gate_last = np.copy(self.c_gate_0)
             else:
-                self.c_gate = np.copy(self.c_gate)
-                self.c_gate_last = np.copy(self.c_gate)
+                self.c_gate = np.copy(c_gate)
+                self.c_gate_last = np.copy(c_gate)
 
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = np.copy(self.u)
@@ -984,21 +984,21 @@ class SNS_Torch(__Backend__):
                 self.theta = torch.clone(self.theta_0)
                 self.theta_last = torch.clone(self.theta_0)
             else:
-                self.theta = torch.clone(u)
-                self.theta_last = torch.clone(u)
+                self.theta = torch.clone(theta)
+                self.theta_last = torch.clone(theta)
         if self.gated:
             if b_gate is None:
                 self.b_gate = torch.clone(self.b_gate_0)
                 self.b_gate_last = torch.clone(self.b_gate_0)
             else:
-                self.b_gate = torch.clone(self.b_gate)
-                self.b_gate_last = torch.clone(self.b_gate)
+                self.b_gate = torch.clone(b_gate)
+                self.b_gate_last = torch.clone(b_gate)
             if c_gate is None:
                 self.c_gate = torch.clone(self.c_gate_0)
                 self.c_gate_last = torch.clone(self.c_gate_0)
             else:
-                self.c_gate = torch.clone(self.c_gate)
-                self.c_gate_last = torch.clone(self.c_gate)
+                self.c_gate = torch.clone(c_gate)
+                self.c_gate_last = torch.clone(c_gate)
 
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = torch.clone(self.u)
@@ -1458,21 +1458,21 @@ class SNS_Sparse(__Backend__):
                 self.theta = torch.clone(self.theta_0)
                 self.theta_last = torch.clone(self.theta_0)
             else:
-                self.theta = torch.clone(u)
-                self.theta_last = torch.clone(u)
+                self.theta = torch.clone(theta)
+                self.theta_last = torch.clone(theta)
         if self.gated:
             if b_gate is None:
                 self.b_gate = torch.clone(self.b_gate_0)
                 self.b_gate_last = torch.clone(self.b_gate_0)
             else:
-                self.b_gate = torch.clone(self.b_gate)
-                self.b_gate_last = torch.clone(self.b_gate)
+                self.b_gate = torch.clone(b_gate)
+                self.b_gate_last = torch.clone(b_gate)
             if c_gate is None:
                 self.c_gate = torch.clone(self.c_gate_0)
                 self.c_gate_last = torch.clone(self.c_gate_0)
             else:
-                self.c_gate = torch.clone(self.c_gate)
-                self.c_gate_last = torch.clone(self.c_gate)
+                self.c_gate = torch.clone(c_gate)
+                self.c_gate_last = torch.clone(c_gate)
 
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = torch.clone(self.u)
