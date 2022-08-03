@@ -1,4 +1,4 @@
-README.md
+README.rst
 setup.py
 sns_toolbox/__init__.py
 sns_toolbox.egg-info/PKG-INFO

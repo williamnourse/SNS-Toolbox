@@ -8,14 +8,14 @@ def readme_file_contents():
 
 setup(
     name='sns_toolbox',
-    version='1.2.0',
+    version='1.1.1',
     packages=find_packages(),
     url='https://github.com/wnourse05/SNS-Toolbox',
     license='Apache v2.0',
     author='William Nourse',
     author_email='nourse@case.edu',
     description='Tools for designing Synthetic Nervous Systems, and simulating them on various software/hardware backends',
-    long_description=readme_file_contents(),
+    long_description='Documentation is available on ReadTheDocs  at https://sns-toolbox.readthedocs.io/en/latest/index.html',
     setup_requires=['wheel'],
     python_requires='>=3.5',
     install_requires=['graphviz',
