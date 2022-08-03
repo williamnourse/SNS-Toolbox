@@ -1,6 +1,6 @@
 Metadata-Version: 1.2
 Name: sns-toolbox
-Version: 1.1.1
+Version: 1.2.0
 Summary: Tools for designing Synthetic Nervous Systems, and simulating them on various software/hardware backends
 Home-page: https://github.com/wnourse05/SNS-Toolbox
 Author: William Nourse
