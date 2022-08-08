@@ -15,6 +15,7 @@ Nervous Systems (SNS).
    :caption: Contents:
 
    install
+   neuron_models
    tutorials/tutorial_1
    tutorials/tutorial_2
    tutorials/tutorial_3
