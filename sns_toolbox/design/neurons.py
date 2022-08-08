@@ -113,22 +113,20 @@ class NonSpikingNeuronWithPersistentSodiumChannel(NonSpikingNeuronWithGatedChann
     Iion = sum_j[Gj * m_(inf,j)^Pm * hj^Ph * (Ej - U)]
     """
     def __init__(self, g_ion=None, e_ion=None,
-                 pow_m=None, k_m=None, slope_m=None, e_m=None,
-                 pow_h=None, k_h=None, slope_h=None, e_h=None, tau_max_h=None,**kwargs):
+                 k_m=None, slope_m=None, e_m=None,
+                 k_h=None, slope_h=None, e_h=None, tau_max_h=None,**kwargs):
         if g_ion is None:
             g_ion = np.array([1.0485070729908987])
         if e_ion is None:
             e_ion = np.array([110])
-        if pow_m is None:
-            pow_m = np.array([1])
+        pow_m = np.array([1])
         if k_m is None:
             k_m = np.array([1])
         if slope_m is None:
             slope_m = np.array([0.05])
         if e_m is None:
             e_m = np.array([20])
-        if pow_h is None:
-            pow_h = np.array([1])
+        pow_h = np.array([1])
         if k_h is None:
             k_h = np.array([0.5])
         if slope_h is None:
@@ -146,11 +144,11 @@ class NonSpikingNeuronWithPersistentSodiumChannel(NonSpikingNeuronWithGatedChann
         num_channels = len(g_ion)
         if isinstance(g_ion, torch.Tensor):
             device = g_ion.device
-            pow_c = torch.zeros(num_channels)
-            k_c = torch.zeros(num_channels) + 1
-            slope_c = torch.zeros(num_channels)
-            e_c = torch.zeros(num_channels)
-            tau_max_c = torch.zeros(num_channels) + 1
+            pow_c = torch.zeros(num_channels,device=device)
+            k_c = torch.zeros(num_channels,device=device) + 1
+            slope_c = torch.zeros(num_channels,device=device)
+            e_c = torch.zeros(num_channels,device=device)
+            tau_max_c = torch.zeros(num_channels,device=device) + 1
         else:
             pow_c = np.zeros(num_channels)
             k_c = np.zeros(num_channels) + 1

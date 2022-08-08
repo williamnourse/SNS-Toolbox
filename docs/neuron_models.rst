@@ -107,7 +107,7 @@ Non-Spiking Neuron with Persistent Sodium Channel:
 These neurons are a special case of the non-spiking neuron with gated ion channels:
 
 .. math::
-    C_{mem} \cdot \frac{dU}{dt} = -G_{mem}\cdot U + \sum I_{syn} + I_{bias} + I_{app} + \sum_j G_{Na,j} \cdot m_{\infty,j}(U) \cdot h_j^{p_{h,j}} \cdot \left ( \Delta E_{Na,j}-U \right )
+    C_{mem} \cdot \frac{dU}{dt} = -G_{mem}\cdot U + \sum I_{syn} + I_{bias} + I_{app} + \sum_j G_{Na,j} \cdot m_{\infty,j}(U) \cdot h_j \cdot \left ( \Delta E_{Na,j}-U \right )
 
 Default values of the channel are as follows:
 

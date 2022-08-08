@@ -165,12 +165,10 @@ def cpg(delta=-0.01):
     g_ion = np.array([Gna])
     e_ion = np.array([delEna])
 
-    pow_m = np.array([1])
     k_m = np.array([Km])
     slope_m = np.array([S])
     e_m = np.array([delEm])
 
-    pow_h = np.array([1])
     k_h = np.array([Kh])
     slope_h = np.array([-S])
     e_h = np.array([delEh])
@@ -178,8 +176,8 @@ def cpg(delta=-0.01):
 
     neuron_cpg = NonSpikingNeuronWithPersistentSodiumChannel(membrane_capacitance=Cm, membrane_conductance=Gm,
                                                              g_ion=g_ion,e_ion=e_ion,
-                                                             pow_m=pow_m,k_m=k_m,slope_m=slope_m,e_m=e_m,
-                                                             pow_h=pow_h,k_h=k_h,slope_h=slope_h,e_h=e_h,tau_max_h=tau_max_h,
+                                                             k_m=k_m,slope_m=slope_m,e_m=e_m,
+                                                             k_h=k_h,slope_h=slope_h,e_h=e_h,tau_max_h=tau_max_h,
                                                              name='HC',color='orange')
 
     Ein = -100
