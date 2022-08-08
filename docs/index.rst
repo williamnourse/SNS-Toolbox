@@ -16,6 +16,7 @@ Nervous Systems (SNS).
 
    install
    neuron_models
+   connection_models
    tutorials/tutorial_1
    tutorials/tutorial_2
    tutorials/tutorial_3
