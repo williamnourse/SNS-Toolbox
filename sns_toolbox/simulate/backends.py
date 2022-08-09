@@ -30,8 +30,8 @@ class __Backend__:
     desired backend technique, and take in (some form of) a vector of input states and applied currents, and compute
     the result for the next timestep.
 
-    :param network:     Network to serve as a design template.
-    :type network:      sns_toolbox.design.networks.Network
+    :param network:     Network to serve as a design template. Can be either a Network object, or a .sns file.
+    :type network:      sns_toolbox.design.networks.Network or .sns file
     :param dt:          Simulation time constant, default is 0.1. Units are milliseconds (ms).
     :type dt:           Number, optional
     :param debug:       When enabled, print debug information to the console. Default is 'False'.
@@ -39,56 +39,124 @@ class __Backend__:
     :param substeps:    Number of simulation substeps before returning an output vector. Default is 1.
     :type substeps:     int, optional
     """
-    def __init__(self, network: Network, dt: float = 0.1, debug: bool = False, substeps: int = 1) -> None:
+    def __init__(self, network: Any, dt: float = 0.1, debug: bool = False, substeps: int = 1) -> None:
 
         if substeps <= 0:
             raise ValueError('Substeps must be a positive integer')
         self.substeps = substeps
-        self.network = network
         self.dt = dt
         self.debug = debug
-        self.spiking = network.params['spiking']
-        self.delay = network.params['delay']
-        self.electrical = network.params['electrical']
-        self.electrical_rectified = network.params['electricalRectified']
-        self.gated = network.params['gated']
-        self.num_channels = network.params['numChannels']
-        self.name = network.params['name']
+        if isinstance(network, Network):
+            self.network = network
+            self.spiking = network.params['spiking']
+            self.delay = network.params['delay']
+            self.electrical = network.params['electrical']
+            self.electrical_rectified = network.params['electricalRectified']
+            self.gated = network.params['gated']
+            self.num_channels = network.params['numChannels']
+            self.name = network.params['name']
 
-        if self.debug:
-            print('#\nGETTING NET PARAMETERS\n#')
-        self.__get_net_params__()
+            if self.debug:
+                print('#\nGETTING NET PARAMETERS\n#')
+            self.__get_net_params__()
 
-        if self.debug:
-            print('#\nINITIALIZING VARIABLES AND PARAMETERS\n#')
-        self.__initialize_vectors_and_matrices__()
+            if self.debug:
+                print('#\nINITIALIZING VARIABLES AND PARAMETERS\n#')
+            self.__initialize_vectors_and_matrices__()
 
-        if self.debug:
-            print('#\nSETTING NEURAL PARAMETERS\n#')
-        self.__set_neurons__()
+            if self.debug:
+                print('#\nSETTING NEURAL PARAMETERS\n#')
+            self.__set_neurons__()
 
-        if self.debug:
-            print('#\nSETTING INPUT PARAMETERS\n#')
-        self.__set_inputs__()
+            if self.debug:
+                print('#\nSETTING INPUT PARAMETERS\n#')
+            self.__set_inputs__()
 
-        if self.debug:
-            print('#\nSETTING CONNECTION PARAMETERS\n#')
-        self.__set_connections__()
+            if self.debug:
+                print('#\nSETTING CONNECTION PARAMETERS\n#')
+            self.__set_connections__()
 
-        if self.debug:
-            print('#\nCALCULATING TIME FACTORS\n#')
-        self.__calculate_time_factors__()
+            if self.debug:
+                print('#\nCALCULATING TIME FACTORS\n#')
+            self.__calculate_time_factors__()
 
-        if self.spiking:
+            if self.spiking:
+                if self.delay:
+                    if self.debug:
+                        print('#\nINITIALIZING PROPAGATION DELAY\n#')
+                    self.__initialize_propagation_delay__()
+
+            if self.debug:
+                print('#\nSETTING OUTPUT PARAMETERS\n#')
+            self.__set_outputs__()
+
+        elif isinstance(network, str):
+            data = pickle.load(open(network,'rb'))
+
+            self.name = data['name']
+            self.spiking = data['spiking']
+            self.delay = data['delay']
+            self.electrical = data['elec']
+            self.electrical_rectified = data['rect']
+            self.gated = data['gated']
+            self.num_channels = data['numChannels']
+            self.u = data['u']
+            self.u_last = data['uLast']
+            self.u_0 = data['u0']
+            self.c_m = data['cM']
+            self.g_m = data['gM']
+            self.i_b = data['iB']
+            self.g_max_non = data['gMaxNon']
+            self.del_e = data['delE']
+            self.time_factor_membrane = data['timeFactorMembrane']
+            if self.spiking:
+                self.spikes = data['spikes']
+                self.theta_0 = data['theta0']
+                self.theta = data['theta']
+                self.theta_last = data['thetaLast']
+                self.m = data['m']
+                self.tau_theta = data['tauTheta']
+                self.g_max_spike = data['gMaxSpike']
+                self.g_spike = data['gSpike']
+                self.tau_syn = data['tauSyn']
+                self.time_factor_threshold = data['timeFactorThreshold']
+                self.time_factor_synapse = data['timeFactorSynapse']
             if self.delay:
-                if self.debug:
-                    print('#\nINITIALIZING PROPAGATION DELAY\n#')
-                self.__initialize_propagation_delay__()
-
-        if self.debug:
-            print('#\nSETTING OUTPUT PARAMETERS\n#')
-        self.__set_outputs__()
-
+                self.spike_delays = data['spikeDelays']
+                self.spike_rows = data['spikeRows']
+                self.spike_cols = data['spikeCols']
+                self.buffer_steps = data['bufferSteps']
+                self.buffer_nrns = data['bufferNrns']
+                self.delayed_spikes = data['delayedSpikes']
+            if self.electrical:
+                self.g_electrical = data['gElectrical']
+            if self.electrical_rectified:
+                self.g_rectified = data['gRectified']
+            if self.gated:
+                self.g_ion = data['gIon']
+                self.e_ion = data['eIon']
+                self.pow_a = data['powA']
+                self.slope_a = data['slopeA']
+                self.k_a = data['kA']
+                self.e_a = data['eA']
+                self.pow_b = data['powB']
+                self.slope_b = data['slopeB']
+                self.k_b = data['kB']
+                self.e_b = data['eB']
+                self.tau_max_b = data['tauMaxB']
+                self.pow_c = data['powC']
+                self.slope_c = data['slopeC']
+                self.k_c = data['kC']
+                self.e_c = data['eC']
+                self.tau_max_c = data['tauMaxC']
+                self.b_gate = data['bGate']
+                self.b_gate_last = data['bGateLast']
+                self.b_gate_0 = data['bGate0']
+                self.c_gate = data['cGate']
+                self.c_gate_last = data['cGateLast']
+                self.c_gate_0 = data['cGate0']
+        else:
+            raise TypeError('Invalid network type, must be either sns_toolbox.design.networks.Network or \'filename.sns\'')
         if self.debug:
             print('#\nALL FINAL PARAMETERS\n#')
             self.__debug_print__()
