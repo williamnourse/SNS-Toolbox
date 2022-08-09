@@ -14,6 +14,7 @@ import numpy as np
 import torch
 import sys
 import warnings
+import pickle
 
 from sns_toolbox.design.networks import Network
 from sns_toolbox.design.neurons import SpikingNeuron, NonSpikingNeuronWithGatedChannels
@@ -52,6 +53,7 @@ class __Backend__:
         self.electrical_rectified = network.params['electricalRectified']
         self.gated = network.params['gated']
         self.num_channels = network.params['numChannels']
+        self.name = network.params['name']
 
         if self.debug:
             print('#\nGETTING NET PARAMETERS\n#')
@@ -274,6 +276,79 @@ class __Backend__:
             print(self.c_gate)
             print('B_last:')
             print(self.c_gate_last)
+
+    def save(self):
+        """
+        Save the compiled network to disc.
+
+        :return: Compressed dictionary of parameters and variables.
+        :rtype: .sns file
+        """
+        data = {'name':                 self.name,
+                'spiking':              self.spiking,
+                'delay':                self.delay,
+                'elec':                 self.electrical,
+                'rect':                 self.electrical_rectified,
+                'gated':                self.gated,
+                'numChannels':          self.num_channels,
+                'u':                    self.u,
+                'uLast':                self.u_last,
+                'u0':                   self.u_0,
+                'cM':                   self.c_m,
+                'gM':                   self.g_m,
+                'iB':                   self.i_b,
+                'gMaxNon':              self.g_max_non,
+                'delE':                 self.del_e,
+                'timeFactorMembrane':   self.time_factor_membrane}
+        if self.spiking:
+            data['spikes'] = self.spikes
+            data['theta0'] = self.theta_0
+            data['theta'] = self.theta
+            data['thetaLast'] = self.theta_last
+            data['m'] = self.m
+            data['tauTheta'] = self.tau_theta
+            data['gMaxSpike'] = self.g_max_spike
+            data['gSpike'] = self.g_spike
+            data['tauSyn'] = self.tau_syn
+            data['timeFactorThreshold'] = self.time_factor_threshold
+            data['timeFactorSynapse'] = self.time_factor_synapse
+        if self.delay:
+            data['spikeDelays'] = self.spike_delays
+            data['spikeRows'] = self.spike_rows
+            data['spikeCols'] = self.spike_cols
+            data['bufferSteps'] = self.buffer_steps
+            data['bufferNrns'] = self.buffer_nrns
+            data['delayedSpikes'] = self.delayed_spikes
+        if self.electrical:
+            data['gElectrical'] = self.g_electrical
+        if self.electrical_rectified:
+            data['gRectified'] = self.g_rectified
+        if self.gated:
+            data['gIon'] = self.g_ion
+            data['eIon'] = self.e_ion
+            data['powA'] = self.pow_a
+            data['slopeA'] = self.slope_a
+            data['kA'] = self.k_a
+            data['eA'] = self.e_a
+            data['powB'] = self.pow_b
+            data['slopeB'] = self.slope_b
+            data['kB'] = self.k_b
+            data['eB'] = self.e_b
+            data['tauMaxB'] = self.tau_max_b
+            data['powC'] = self.pow_c
+            data['slopeC'] = self.slope_c
+            data['kC'] = self.k_c
+            data['eC'] = self.e_c
+            data['tauMaxC'] = self.tau_max_c
+            data['bGate'] = self.b_gate
+            data['bGateLast'] = self.b_gate_last
+            data['bGate0'] = self.b_gate_0
+            data['cGate'] = self.c_gate
+            data['cGateLast'] = self.c_gate_last
+            data['cGate0'] = self.c_gate_0
+
+        filename = self.name + '.sns'
+        pickle.dump(data, open(filename, 'wb'))
 
     def reset(self, u=None, theta=None, b_gate=None, c_gate=None) -> None:
         """
