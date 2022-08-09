@@ -1,0 +1,7 @@
+Backend:,Max Dense (All:All):,Max Sparse (1:1):
+:code:`SNS_Manual`,11010,158010
+:code:`SNS_Numpy`,20010,23010
+:code:`SNS_Torch (CPU)`,22000,24010
+:code:`SNS_Torch (GPU)`,7865,7639
+:code:`SNS_Sparse (CPU)`,1510,17510
+:code:`SNS_Sparse (GPU)`,2510,11120
