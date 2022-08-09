@@ -69,7 +69,7 @@ This form of synapse can be implemented using
 `sns_toolbox.design.connections.SpikingSynapse <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.design.connections.SpikingSynapse>`_.
 
 ====================
-Electrical Synapses:
+Electrical Synapse:
 ====================
 
 Electrical synapses (also known as gap junctions) are a form of synaptic connection which communicates using direct
@@ -86,7 +86,7 @@ This form of synapse can be implemented using
 `sns_toolbox.design.connections.ElectricalSynapse <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.design.connections.ElectricalSynapse>`_.
 
 ====================
-Pattern Connections:
+Pattern Connection:
 ====================
 
 Chemical synapses can also be defined which connect populations of neurons, instead of single neurons.
@@ -96,7 +96,7 @@ Chemical synapses can also be defined which connect populations of neurons, inst
 
 All of the synaptic dynamics are unchanged between a non-spiking or spiking synapse and a non-spiking or spiking pattern
 connection, the only difference is that these parameters are now vectors/matrices representing the kernel which is tiled
-to describe the synaptic pattern. Note that there is currently no pattern implementation for electrical synapses.
+to describe the synaptic pattern. *Note that there is currently no pattern implementation for electrical synapses*.
 
 These forms of synapse can be implemented using
 `sns_toolbox.design.connections.NonSpikingPatternConnection <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.design.connections.NonSpikingPatternConnection>`_
