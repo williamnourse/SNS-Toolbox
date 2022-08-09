@@ -119,14 +119,14 @@ class NonSpikingNeuronWithPersistentSodiumChannel(NonSpikingNeuronWithGatedChann
             g_ion = np.array([1.0485070729908987])
         if e_ion is None:
             e_ion = np.array([110])
-        pow_m = np.array([1])
+
         if k_m is None:
             k_m = np.array([1])
         if slope_m is None:
             slope_m = np.array([0.05])
         if e_m is None:
             e_m = np.array([20])
-        pow_h = np.array([1])
+
         if k_h is None:
             k_h = np.array([0.5])
         if slope_h is None:
@@ -137,19 +137,23 @@ class NonSpikingNeuronWithPersistentSodiumChannel(NonSpikingNeuronWithGatedChann
             tau_max_h = np.array([300])
 
         inputs = [g_ion, e_ion,                         # Channel params
-                  pow_m, k_m, slope_m, e_m,             # A gate params
-                  pow_h, k_h, slope_h, e_h, tau_max_h]  # B gate params
+                  k_m, slope_m, e_m,                    # A gate params
+                  k_h, slope_h, e_h, tau_max_h]         # B gate params
         if all(len(x) == len(g_ion) for x in inputs) is False:
             raise ValueError('All channel parameters must be the same dimension (len(g_ion) = len(e_ion) = ...)')
         num_channels = len(g_ion)
         if isinstance(g_ion, torch.Tensor):
             device = g_ion.device
+            pow_m = torch.tensor([1],device=device)
+            pow_h = torch.tensor([1],device=device)
             pow_c = torch.zeros(num_channels,device=device)
             k_c = torch.zeros(num_channels,device=device) + 1
             slope_c = torch.zeros(num_channels,device=device)
             e_c = torch.zeros(num_channels,device=device)
             tau_max_c = torch.zeros(num_channels,device=device) + 1
         else:
+            pow_m = np.array([1])
+            pow_h = np.array([1])
             pow_c = np.zeros(num_channels)
             k_c = np.zeros(num_channels) + 1
             slope_c = np.zeros(num_channels)

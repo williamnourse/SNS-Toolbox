@@ -93,74 +93,88 @@ class __Backend__:
         elif isinstance(network, str):
             data = pickle.load(open(network,'rb'))
 
-            self.name = data['name']
-            self.spiking = data['spiking']
-            self.delay = data['delay']
-            self.electrical = data['elec']
-            self.electrical_rectified = data['rect']
-            self.gated = data['gated']
-            self.num_channels = data['numChannels']
-            self.u = data['u']
-            self.u_last = data['uLast']
-            self.u_0 = data['u0']
-            self.c_m = data['cM']
-            self.g_m = data['gM']
-            self.i_b = data['iB']
-            self.g_max_non = data['gMaxNon']
-            self.del_e = data['delE']
-            self.time_factor_membrane = data['timeFactorMembrane']
-            if self.spiking:
-                self.spikes = data['spikes']
-                self.theta_0 = data['theta0']
-                self.theta = data['theta']
-                self.theta_last = data['thetaLast']
-                self.m = data['m']
-                self.tau_theta = data['tauTheta']
-                self.g_max_spike = data['gMaxSpike']
-                self.g_spike = data['gSpike']
-                self.tau_syn = data['tauSyn']
-                self.time_factor_threshold = data['timeFactorThreshold']
-                self.time_factor_synapse = data['timeFactorSynapse']
-            if self.delay:
-                self.spike_delays = data['spikeDelays']
-                self.spike_rows = data['spikeRows']
-                self.spike_cols = data['spikeCols']
-                self.buffer_steps = data['bufferSteps']
-                self.buffer_nrns = data['bufferNrns']
-                self.delayed_spikes = data['delayedSpikes']
-            if self.electrical:
-                self.g_electrical = data['gElectrical']
-            if self.electrical_rectified:
-                self.g_rectified = data['gRectified']
-            if self.gated:
-                self.g_ion = data['gIon']
-                self.e_ion = data['eIon']
-                self.pow_a = data['powA']
-                self.slope_a = data['slopeA']
-                self.k_a = data['kA']
-                self.e_a = data['eA']
-                self.pow_b = data['powB']
-                self.slope_b = data['slopeB']
-                self.k_b = data['kB']
-                self.e_b = data['eB']
-                self.tau_max_b = data['tauMaxB']
-                self.pow_c = data['powC']
-                self.slope_c = data['slopeC']
-                self.k_c = data['kC']
-                self.e_c = data['eC']
-                self.tau_max_c = data['tauMaxC']
-                self.b_gate = data['bGate']
-                self.b_gate_last = data['bGateLast']
-                self.b_gate_0 = data['bGate0']
-                self.c_gate = data['cGate']
-                self.c_gate_last = data['cGateLast']
-                self.c_gate_0 = data['cGate0']
+            self.__load__(data)
+
         else:
             raise TypeError('Invalid network type, must be either sns_toolbox.design.networks.Network or \'filename.sns\'')
         if self.debug:
             print('#\nALL FINAL PARAMETERS\n#')
             self.__debug_print__()
             print('#\nDONE BUILDING\n#')
+
+    def __load__(self, data):
+        self.name = data['name']
+        self.spiking = data['spiking']
+        self.delay = data['delay']
+        self.electrical = data['elec']
+        self.electrical_rectified = data['rect']
+        self.gated = data['gated']
+        self.num_channels = data['numChannels']
+        self.u = data['u']
+        self.u_last = data['uLast']
+        self.u_0 = data['u0']
+        self.c_m = data['cM']
+        self.g_m = data['gM']
+        self.i_b = data['iB']
+        self.g_max_non = data['gMaxNon']
+        self.del_e = data['delE']
+        self.time_factor_membrane = data['timeFactorMembrane']
+        self.input_connectivity = data['inputConn']
+        self.output_voltage_connectivity = data['outConnVolt']
+        self.num_populations = data['numPop']
+        self.num_neurons = data['numNeurons']
+        self.num_connections = data['numConn']
+        self.num_inputs = data['numInputs']
+        self.num_outputs = data['numOutputs']
+        self.R = data['r']
+        if self.spiking:
+            self.spikes = data['spikes']
+            self.theta_0 = data['theta0']
+            self.theta = data['theta']
+            self.theta_last = data['thetaLast']
+            self.m = data['m']
+            self.tau_theta = data['tauTheta']
+            self.g_max_spike = data['gMaxSpike']
+            self.g_spike = data['gSpike']
+            self.tau_syn = data['tauSyn']
+            self.time_factor_threshold = data['timeFactorThreshold']
+            self.time_factor_synapse = data['timeFactorSynapse']
+            self.output_spike_connectivity = data['outConnSpike']
+        if self.delay:
+            self.spike_delays = data['spikeDelays']
+            self.spike_rows = data['spikeRows']
+            self.spike_cols = data['spikeCols']
+            self.buffer_steps = data['bufferSteps']
+            self.buffer_nrns = data['bufferNrns']
+            self.delayed_spikes = data['delayedSpikes']
+            self.spike_buffer = data['spikeBuffer']
+        if self.electrical:
+            self.g_electrical = data['gElectrical']
+        if self.electrical_rectified:
+            self.g_rectified = data['gRectified']
+        if self.gated:
+            self.g_ion = data['gIon']
+            self.e_ion = data['eIon']
+            self.pow_a = data['powA']
+            self.slope_a = data['slopeA']
+            self.k_a = data['kA']
+            self.e_a = data['eA']
+            self.pow_b = data['powB']
+            self.slope_b = data['slopeB']
+            self.k_b = data['kB']
+            self.e_b = data['eB']
+            self.tau_max_b = data['tauMaxB']
+            self.pow_c = data['powC']
+            self.slope_c = data['slopeC']
+            self.k_c = data['kC']
+            self.e_c = data['eC']
+            self.tau_max_c = data['tauMaxC']
+            self.b_gate = data['bGate']
+            self.b_gate_last = data['bGateLast']
+            self.b_gate_0 = data['bGate0']
+            self.c_gate = data['cGate']
+            self.c_gate_last = data['cGateLast']
+            self.c_gate_0 = data['cGate0']
 
     def __get_net_params__(self) -> None:
         """
@@ -345,7 +359,7 @@ class __Backend__:
             print('B_last:')
             print(self.c_gate_last)
 
-    def save(self):
+    def save(self, filename=None):
         """
         Save the compiled network to disc.
 
@@ -367,7 +381,15 @@ class __Backend__:
                 'iB':                   self.i_b,
                 'gMaxNon':              self.g_max_non,
                 'delE':                 self.del_e,
-                'timeFactorMembrane':   self.time_factor_membrane}
+                'timeFactorMembrane':   self.time_factor_membrane,
+                'inputConn':            self.input_connectivity,
+                'numPop':               self.num_populations,
+                'numNeurons':           self.num_neurons,
+                'numConn':              self.num_connections,
+                'numInputs':            self.num_inputs,
+                'numOutputs':           self.num_outputs,
+                'r':                    self.R,
+                'outConnVolt':          self.output_voltage_connectivity}
         if self.spiking:
             data['spikes'] = self.spikes
             data['theta0'] = self.theta_0
@@ -380,6 +402,7 @@ class __Backend__:
             data['tauSyn'] = self.tau_syn
             data['timeFactorThreshold'] = self.time_factor_threshold
             data['timeFactorSynapse'] = self.time_factor_synapse
+            data['outConnSpike'] = self.output_spike_connectivity
         if self.delay:
             data['spikeDelays'] = self.spike_delays
             data['spikeRows'] = self.spike_rows
@@ -387,6 +410,7 @@ class __Backend__:
             data['bufferSteps'] = self.buffer_steps
             data['bufferNrns'] = self.buffer_nrns
             data['delayedSpikes'] = self.delayed_spikes
+            data['spikeBuffer'] = self.spike_buffer
         if self.electrical:
             data['gElectrical'] = self.g_electrical
         if self.electrical_rectified:
@@ -415,7 +439,9 @@ class __Backend__:
             data['cGateLast'] = self.c_gate_last
             data['cGate0'] = self.c_gate_0
 
-        filename = self.name + '.sns'
+        if filename is None:
+            filename = self.name
+        filename += '.sns'
         pickle.dump(data, open(filename, 'wb'))
 
     def reset(self, u=None, theta=None, b_gate=None, c_gate=None) -> None:
@@ -487,7 +513,7 @@ class SNS_Numpy(__Backend__):
     :param network: Network which will be compiled to Numpy.
     :type network:  sns_toolbox.design.networks.Network
     """
-    def __init__(self,network: Network,**kwargs):
+    def __init__(self,network: Any,**kwargs):
         super().__init__(network,**kwargs)
 
     def __initialize_vectors_and_matrices__(self) -> None:
@@ -840,7 +866,7 @@ class SNS_Torch(__Backend__):
     :param device:  Device network will be stored on, default is 'cuda' (GPU).
     :type device:   str, optional
     """
-    def __init__(self,network: Network,device: str = 'cuda',**kwargs):
+    def __init__(self,network: Any,device: str = 'cuda',**kwargs):
         if device != 'cpu':
             if not torch.cuda.is_available():
                 warnings.warn('CUDA Device Unavailable. Using CPU Instead')
@@ -976,8 +1002,8 @@ class SNS_Torch(__Backend__):
                         self.e_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['reversal']
                         self.tau_max_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['TauMax']
 
-                        self.b_gate_last[:, index] = 1 / (1 + self.k_b[:, index] * np.exp(self.slope_b[:, index]*(self.u_last[index]-self.e_b[:, index])))
-                        self.c_gate_last[:, index] = 1 / (1 + self.k_c[:, index] * np.exp(self.slope_c[:, index]*(self.u_last[index]-self.e_c[:, index])))
+                        self.b_gate_last[:, index] = 1 / (1 + self.k_b[:, index] * torch.exp(self.slope_b[:, index]*(self.u_last[index]-self.e_b[:, index])))
+                        self.c_gate_last[:, index] = 1 / (1 + self.k_c[:, index] * torch.exp(self.slope_c[:, index]*(self.u_last[index]-self.e_c[:, index])))
                 index += 1
         self.u = self.u_last.clone()
         if self.spiking:
@@ -2073,6 +2099,143 @@ class SNS_Manual(__Backend__):
             else:
                 self.c_gate = np.copy(c_gate)
                 self.c_gate_last = np.copy(c_gate)
+
+    def save(self, filename=None):
+        """
+        Save the compiled network to disc.
+
+        :return: Compressed dictionary of parameters and variables.
+        :rtype: .sns file
+        """
+        data = {'name':                 self.name,
+                'spiking':              self.spiking,
+                'delay':                self.delay,
+                'elec':                 self.electrical,
+                'rect':                 self.electrical_rectified,
+                'gated':                self.gated,
+                'numChannels':          self.num_channels,
+                'u':                    self.u,
+                'uLast':                self.u_last,
+                'u0':                   self.u_0,
+                'cM':                   self.c_m,
+                'gM':                   self.g_m,
+                'iB':                   self.i_b,
+                'timeFactorMembrane':   self.time_factor_membrane,
+                'inputConn':            self.input_connectivity,
+                'numPop':               self.num_populations,
+                'numNeurons':           self.num_neurons,
+                'numConn':              self.num_connections,
+                'numInputs':            self.num_inputs,
+                'numOutputs':           self.num_outputs,
+                'r':                    self.R,
+                'outConnVolt':          self.output_voltage_connectivity,
+                'incomingSynapses':     self.incoming_synapses}
+        if self.spiking:
+            data['spikes'] = self.spikes
+            data['theta0'] = self.theta_0
+            data['theta'] = self.theta
+            data['thetaLast'] = self.theta_last
+            data['m'] = self.m
+            data['tauTheta'] = self.tau_theta
+            data['timeFactorThreshold'] = self.time_factor_threshold
+            data['outConnSpike'] = self.output_spike_connectivity
+        if self.delay:
+            foo = 5
+        if self.electrical:
+            foo = 5
+        if self.electrical_rectified:
+            foo = 5
+        if self.gated:
+            data['gIon'] = self.g_ion
+            data['eIon'] = self.e_ion
+            data['powA'] = self.pow_a
+            data['slopeA'] = self.slope_a
+            data['kA'] = self.k_a
+            data['eA'] = self.e_a
+            data['powB'] = self.pow_b
+            data['slopeB'] = self.slope_b
+            data['kB'] = self.k_b
+            data['eB'] = self.e_b
+            data['tauMaxB'] = self.tau_max_b
+            data['powC'] = self.pow_c
+            data['slopeC'] = self.slope_c
+            data['kC'] = self.k_c
+            data['eC'] = self.e_c
+            data['tauMaxC'] = self.tau_max_c
+            data['bGate'] = self.b_gate
+            data['bGateLast'] = self.b_gate_last
+            data['bGate0'] = self.b_gate_0
+            data['cGate'] = self.c_gate
+            data['cGateLast'] = self.c_gate_last
+            data['cGate0'] = self.c_gate_0
+
+        if filename is None:
+            filename = self.name
+        filename += '.sns'
+        pickle.dump(data, open(filename, 'wb'))
+
+    def __load__(self, data):
+        self.name = data['name']
+        self.spiking = data['spiking']
+        self.delay = data['delay']
+        self.electrical = data['elec']
+        self.electrical_rectified = data['rect']
+        self.gated = data['gated']
+        self.num_channels = data['numChannels']
+        self.u = data['u']
+        self.u_last = data['uLast']
+        self.u_0 = data['u0']
+        self.c_m = data['cM']
+        self.g_m = data['gM']
+        self.i_b = data['iB']
+        self.time_factor_membrane = data['timeFactorMembrane']
+        self.input_connectivity = data['inputConn']
+        self.output_voltage_connectivity = data['outConnVolt']
+        self.num_populations = data['numPop']
+        self.num_neurons = data['numNeurons']
+        self.num_connections = data['numConn']
+        self.num_inputs = data['numInputs']
+        self.num_outputs = data['numOutputs']
+        self.R = data['r']
+        self.incoming_synapses = data['incomingSynapses']
+        if self.spiking:
+            self.spikes = data['spikes']
+            self.theta_0 = data['theta0']
+            self.theta = data['theta']
+            self.theta_last = data['thetaLast']
+            self.m = data['m']
+            self.tau_theta = data['tauTheta']
+            self.time_factor_threshold = data['timeFactorThreshold']
+            self.output_spike_connectivity = data['outConnSpike']
+        if self.delay:
+            foo = 5
+        if self.electrical:
+            foo = 5
+        if self.electrical_rectified:
+            foo = 5
+        if self.gated:
+            self.g_ion = data['gIon']
+            self.e_ion = data['eIon']
+            self.pow_a = data['powA']
+            self.slope_a = data['slopeA']
+            self.k_a = data['kA']
+            self.e_a = data['eA']
+            self.pow_b = data['powB']
+            self.slope_b = data['slopeB']
+            self.k_b = data['kB']
+            self.e_b = data['eB']
+            self.tau_max_b = data['tauMaxB']
+            self.pow_c = data['powC']
+            self.slope_c = data['slopeC']
+            self.k_c = data['kC']
+            self.e_c = data['eC']
+            self.tau_max_c = data['tauMaxC']
+            self.b_gate = data['bGate']
+            self.b_gate_last = data['bGateLast']
+            self.b_gate_0 = data['bGate0']
+            self.c_gate = data['cGate']
+            self.c_gate_last = data['cGateLast']
+            self.c_gate_0 = data['cGate0']
 
     def __forward_pass__(self, inputs) -> Any:
         self.u_last = np.copy(self.u)
