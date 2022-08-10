@@ -285,7 +285,7 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
                 for source in pops_and_nrns[source_pop]:
                     for dest in pops_and_nrns[dest_pop]:
                         g_max_spike[dest][source] = g_max / len(pops_and_nrns[source_pop])
-                        del_e[dest][source] = del_e
+                        del_e[dest][source] = del_e_val
                         tau_syn[dest][source] = tau_s
                         if delay:
                             spike_delays[dest][source] = delay_val
@@ -562,8 +562,9 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
         if not torch.cuda.is_available():
             warnings.warn('Warning: CUDA device not found, switching to CPU')
             device = 'cpu'
-    print('Device:')
-    print(device)
+    if debug:
+        print('Device:')
+        print(device)
 
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -882,8 +883,8 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
             print('------------------------------')
             print('Initializing Propagation Delay')
             print('------------------------------')
-    buffer_length = int(torch.max(spike_delays) + 1)
-    spike_buffer = torch.zeros([buffer_length, num_neurons], device=device)
+        buffer_length = int(torch.max(spike_delays) + 1)
+        spike_buffer = torch.zeros([buffer_length, num_neurons], device=device)
 
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -1122,8 +1123,9 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
         if not torch.cuda.is_available():
             warnings.warn('Warning: CUDA device not found, switching to CPU')
             device = 'cpu'
-    print('Device:')
-    print(device)
+    if debug:
+        print('Device:')
+        print(device)
 
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -1535,11 +1537,11 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
             print('------------------------------')
             print('Initializing Propagation Delay')
             print('------------------------------')
-    spike_delays = spike_delays.to_dense()
-    buffer_length = int(torch.max(spike_delays) + 1)
-    spike_delays = spike_delays.to_sparse()
+        spike_delays = spike_delays.to_dense()
+        buffer_length = int(torch.max(spike_delays) + 1)
+        spike_delays = spike_delays.to_sparse()
 
-    spike_buffer = torch.sparse_coo_tensor(size=(buffer_length, num_neurons), device=device)
+        spike_buffer = torch.sparse_coo_tensor(size=(buffer_length, num_neurons), device=device)
 
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -1605,7 +1607,7 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
               'gM': g_m,
               'iB': i_b,
               'gMaxNon': g_max_non,
-              'delE': del_e_val,
+              'delE': del_e,
               'timeFactorMembrane': time_factor_membrane,
               'inputConn': input_connectivity,
               'numPop': num_populations,
