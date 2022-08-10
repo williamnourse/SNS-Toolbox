@@ -1,14 +1,13 @@
 """
-Functions which are used within the design subpackage, but may not be necessary for the end user.
+Utility functions for dealing with network colors.
 """
-from matplotlib import pyplot as plt
-
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 IMPORTS
 """
 
 import warnings
+from matplotlib import pyplot as plt
 
 SETOFVALIDCOLORS = {'aliceblue', 'antiquewhite', 'aqua', 'aquamarine', 'azure', 'beige', 'bisque', 'black', 'blanchedalmond',
           'blue', 'blueviolet', 'brown', 'burlywood', 'cadetblue', 'chartreuse', 'chocolate', 'coral',

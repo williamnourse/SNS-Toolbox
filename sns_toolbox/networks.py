@@ -17,7 +17,7 @@ import numpy as np
 
 from sns_toolbox.neurons import Neuron, NonSpikingNeuron, SpikingNeuron
 from sns_toolbox.connections import Connection, NonSpikingSynapse, NonSpikingTransmissionSynapse, NonSpikingModulationSynapse
-from sns_toolbox.utilities import valid_color, set_text_color
+from sns_toolbox.color_utilities import valid_color, set_text_color
 from sns_toolbox.compilers import __compile_numpy__, __compile_torch__, __compile_manual__, __compile_sparse__
 from sns_toolbox.backends import __Backend_New__
 
