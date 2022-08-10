@@ -1,6 +1,7 @@
 """
 Demo saving a compiled network, then loading and executing.
 """
+import pickle
 
 from sns_toolbox.design.neurons import NonSpikingNeuron, NonSpikingNeuronWithPersistentSodiumChannel, SpikingNeuron
 from sns_toolbox.design.connections import NonSpikingSynapse, SpikingSynapse, ElectricalSynapse
@@ -63,9 +64,11 @@ data_original = np.zeros([len(t),net.get_num_outputs_actual()])
 data_load = np.zeros([len(t),net.get_num_outputs_actual()])
 
 model_original = SNS_Numpy(net,dt=dt)
-model_original.save(filename='saveTest.p')
+# model_original.save(filename='saveTest.p')
+# model_load = SNS_Numpy('saveTest.p',dt=dt)
 
-model_load = SNS_Numpy('saveTest.p',dt=dt)
+pickle.dump(model_original, open('test.p','wb'))
+model_load = pickle.load(open('test.p','rb'))
 
 """Simulate the network"""
 # At every step, apply the current input to a forward pass of the network and store the results in 'data'

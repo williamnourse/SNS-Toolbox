@@ -14,7 +14,6 @@ from sns_toolbox.design.networks import Network
 # Import packages and modules for simulating the network
 import numpy as np
 import matplotlib.pyplot as plt
-from sns_toolbox.simulate.backends import SNS_Numpy
 
 """Design the network"""
 # Define a non-spiking neuron and excitatory/inhibitory connections as in tutorial_1
@@ -59,7 +58,7 @@ net.add_output('Dest2In', name='OutDest2In', color='grey')
 net.add_output('Dest3', name='OutDest3', color='grey')
 
 # View the graph of our network, to make sure everything is as we designed it
-net.render_graph(view=True)
+# net.render_graph(view=True)
 
 """Prep the Simulation"""
 # Set simulation parameters
@@ -74,13 +73,12 @@ inputs = np.zeros([len(t),1])+20.0  # Input vector must be 2d, even if second di
 data = np.zeros([len(t),5])
 
 # Compile the network to use the Numpy CPU backend (if you want to see what's happening, set debug to true)
-
-model = SNS_Numpy(net, dt=dt, debug=False)
+model = net.compile(dt=dt,backend='numpy',debug=False)
 
 """Simulate the network"""
 # At every step, apply the current input to a forward pass of the network and store the results in 'data'
 for i in range(len(t)):
-    data[i,:] = model.forward(inputs[i,:])
+    data[i, :] = model(inputs[i, :])
 data = data.transpose()
 
 """Plot the data"""

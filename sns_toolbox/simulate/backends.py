@@ -9,15 +9,716 @@ output being the next step of neural states.
 IMPORTS
 """
 
-from typing import Any
+from typing import Any, Dict
 import numpy as np
 import torch
 import sys
 import warnings
 import pickle
 
-from sns_toolbox.design.networks import Network
+# from sns_toolbox.design.networks import Network
 from sns_toolbox.design.neurons import SpikingNeuron, NonSpikingNeuronWithGatedChannels
+
+"""
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+NEW STUFF
+"""
+
+class __Backend_New__:
+
+    def __init__(self, params: Dict) -> None:
+        self.set_params(params)
+
+    def forward(self, x):
+        raise NotImplementedError
+
+    def set_params(self, params: Dict) -> None:
+        self.dt = params['dt']
+        self.name = params['name']
+        self.spiking = params['spiking']
+        self.delay = params['delay']
+        self.electrical = params['elec']
+        self.electrical_rectified = params['rect']
+        self.gated = params['gated']
+        self.num_channels = params['numChannels']
+        self.u = params['u']
+        self.u_last = params['uLast']
+        self.u_0 = params['u0']
+        self.c_m = params['cM']
+        self.g_m = params['gM']
+        self.i_b = params['iB']
+        self.g_max_non = params['gMaxNon']
+        self.del_e = params['delE']
+        self.time_factor_membrane = params['timeFactorMembrane']
+        self.input_connectivity = params['inputConn']
+        self.output_voltage_connectivity = params['outConnVolt']
+        self.num_populations = params['numPop']
+        self.num_neurons = params['numNeurons']
+        self.num_connections = params['numConn']
+        self.num_inputs = params['numInputs']
+        self.num_outputs = params['numOutputs']
+        self.R = params['r']
+        if self.spiking:
+            self.spikes = params['spikes']
+            self.theta_0 = params['theta0']
+            self.theta = params['theta']
+            self.theta_last = params['thetaLast']
+            self.m = params['m']
+            self.tau_theta = params['tauTheta']
+            self.g_max_spike = params['gMaxSpike']
+            self.g_spike = params['gSpike']
+            self.tau_syn = params['tauSyn']
+            self.time_factor_threshold = params['timeFactorThreshold']
+            self.time_factor_synapse = params['timeFactorSynapse']
+            self.output_spike_connectivity = params['outConnSpike']
+        if self.delay:
+            self.spike_delays = params['spikeDelays']
+            self.spike_rows = params['spikeRows']
+            self.spike_cols = params['spikeCols']
+            self.buffer_steps = params['bufferSteps']
+            self.buffer_nrns = params['bufferNrns']
+            self.delayed_spikes = params['delayedSpikes']
+            self.spike_buffer = params['spikeBuffer']
+        if self.electrical:
+            self.g_electrical = params['gElectrical']
+        if self.electrical_rectified:
+            self.g_rectified = params['gRectified']
+        if self.gated:
+            self.g_ion = params['gIon']
+            self.e_ion = params['eIon']
+            self.pow_a = params['powA']
+            self.slope_a = params['slopeA']
+            self.k_a = params['kA']
+            self.e_a = params['eA']
+            self.pow_b = params['powB']
+            self.slope_b = params['slopeB']
+            self.k_b = params['kB']
+            self.e_b = params['eB']
+            self.tau_max_b = params['tauMaxB']
+            self.pow_c = params['powC']
+            self.slope_c = params['slopeC']
+            self.k_c = params['kC']
+            self.e_c = params['eC']
+            self.tau_max_c = params['tauMaxC']
+            self.b_gate = params['bGate']
+            self.b_gate_last = params['bGateLast']
+            self.b_gate_0 = params['bGate0']
+            self.c_gate = params['cGate']
+            self.c_gate_last = params['cGateLast']
+            self.c_gate_0 = params['cGate0']
+
+    def __call__(self, x):
+        return self.forward(x)
+
+class SNS_Numpy_New(__Backend_New__):
+    def __init__(self, params: Dict) -> None:
+        super().__init__(params)
+
+    def forward(self, inputs):
+        self.u_last = np.copy(self.u)
+        i_app = np.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
+        g_syn = np.maximum(0, np.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non))
+        if self.spiking:
+            self.theta_last = np.copy(self.theta)
+            self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
+            g_syn += self.g_spike
+
+        i_syn = np.sum(g_syn * self.del_e, axis=1) - self.u_last * np.sum(g_syn, axis=1)
+        if self.electrical:
+            i_syn += (np.sum(self.g_electrical * self.u_last, axis=1) - self.u_last * np.sum(self.g_electrical, axis=1))
+        if self.electrical_rectified:
+            # create mask
+            mask = np.subtract.outer(self.u_last, self.u_last).transpose() > 0
+            masked_g = mask * self.g_rectified
+            diag_masked = masked_g + masked_g.transpose() - np.diag(masked_g.diagonal())
+            i_syn += np.sum(diag_masked * self.u_last, axis=1) - self.u_last * np.sum(diag_masked, axis=1)
+        if self.gated:
+            a_inf = 1 / (1 + self.k_a * np.exp(self.slope_a * (self.e_a - self.u_last)))
+            b_inf = 1 / (1 + self.k_b * np.exp(self.slope_b * (self.e_b - self.u_last)))
+            c_inf = 1 / (1 + self.k_c * np.exp(self.slope_c * (self.e_c - self.u_last)))
+
+            tau_b = self.tau_max_b * b_inf * np.sqrt(self.k_b * np.exp(self.slope_b * (self.e_b - self.u_last)))
+            tau_c = self.tau_max_c * c_inf * np.sqrt(self.k_c * np.exp(self.slope_c * (self.e_c - self.u_last)))
+
+            self.b_gate_last = np.copy(self.b_gate)
+            self.c_gate_last = np.copy(self.c_gate)
+
+            self.b_gate = self.b_gate_last + self.dt * ((b_inf - self.b_gate_last) / tau_b)
+            self.c_gate = self.c_gate_last + self.dt * ((c_inf - self.c_gate_last) / tau_c)
+
+            i_ion = self.g_ion * (a_inf ** self.pow_a) * (self.b_gate ** self.pow_b) * (self.c_gate ** self.pow_c) * (
+                        self.e_ion - self.u_last)
+            i_gated = np.sum(i_ion, axis=0)
+
+            self.u = self.u_last + self.time_factor_membrane * (
+                        -self.g_m * self.u_last + self.i_b + i_syn + i_app + i_gated)  # Update membrane potential
+        else:
+            self.u = self.u_last + self.time_factor_membrane * (
+                        -self.g_m * self.u_last + self.i_b + i_syn + i_app)  # Update membrane potential
+        if self.spiking:
+            self.theta = self.theta_last + self.time_factor_threshold * (
+                        -self.theta_last + self.theta_0 + self.m * self.u_last)  # Update the firing thresholds
+            self.spikes = np.sign(np.minimum(0, self.theta - self.u))  # Compute which neurons have spiked
+
+            # New stuff with delay
+            if self.delay:
+                self.spike_buffer = np.roll(self.spike_buffer, 1, axis=0)  # Shift buffer entries down
+                self.spike_buffer[0, :] = self.spikes  # Replace row 0 with the current spike data
+                # Update a matrix with all of the appropriately delayed spike values
+                self.delayed_spikes[self.spike_rows, self.spike_cols] = self.spike_buffer[
+                    self.buffer_steps, self.buffer_nrns]
+
+                self.g_spike = np.maximum(self.g_spike, (
+                    -self.delayed_spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
+            else:
+                self.g_spike = np.maximum(self.g_spike, (
+                    -self.spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
+            self.u = self.u * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
+        self.outputs = np.matmul(self.output_voltage_connectivity, self.u)
+        if self.spiking:
+            self.outputs += np.matmul(self.output_spike_connectivity, -self.spikes)
+
+        return self.outputs
+
+
+def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy_New:
+    if debug:
+        print('-------------------------------------------------------------------------------------------------------')
+        print('COMPILING NETWORK USING NUMPY:')
+        print('-------------------------------------------------------------------------------------------------------')
+
+    """
+    --------------------------------------------------------------------------------------------------------------------
+    Get net parameters
+    --------------------------------------------------------------------------------------------------------------------
+    """
+    if debug:
+        print('-----------------------------')
+        print('Getting network parameters...')
+        print('-----------------------------')
+    spiking = network.params['spiking']
+    delay = network.params['delay']
+    electrical = network.params['electrical']
+    electrical_rectified = network.params['electricalRectified']
+    gated = network.params['gated']
+    num_channels = network.params['numChannels']
+    name = network.params['name']
+    num_populations = network.get_num_populations()
+    num_neurons = network.get_num_neurons()
+    num_connections = network.get_num_connections()
+    num_inputs = network.get_num_inputs()
+    num_outputs = network.get_num_outputs()
+    R = network.params['R']
+    if debug:
+        print('Spiking:')
+        print(spiking)
+        print('Spiking Propagation Delay:')
+        print(delay)
+        print('Electrical Synapses:')
+        print(electrical)
+        print('Rectified Electrical Synapses:')
+        print(electrical_rectified)
+        print('Number of Populations:')
+        print(num_populations)
+        print('Number of Neurons:')
+        print(num_neurons)
+        print('Number of Connections')
+        print(num_connections)
+        print('Number of Inputs:')
+        print(num_inputs)
+        print('Number of Outputs:')
+        print(num_outputs)
+        print('Network Voltage Range (mV):')
+        print(R)
+
+    """
+    --------------------------------------------------------------------------------------------------------------------
+    Initialize vectors and matrices
+    --------------------------------------------------------------------------------------------------------------------
+    """
+    if debug:
+        print('---------------------------------')
+        print('Initializing vectors and matrices')
+        print('---------------------------------')
+    u = np.zeros(num_neurons)
+    u_last = np.zeros(num_neurons)
+    u_0 = np.zeros(num_neurons)
+    c_m = np.zeros(num_neurons)
+    g_m = np.zeros(num_neurons)
+    i_b = np.zeros(num_neurons)
+    if spiking:
+        spikes = np.zeros(num_neurons)
+        theta_0 = np.zeros(num_neurons)
+        theta = np.zeros(num_neurons)
+        theta_last = np.zeros(num_neurons)
+        m = np.zeros(num_neurons)
+        tau_theta = np.zeros(num_neurons)
+
+    g_max_non = np.zeros([num_neurons, num_neurons])
+    del_e = np.zeros([num_neurons, num_neurons])
+    if spiking:
+        g_max_spike = np.zeros([num_neurons, num_neurons])
+        g_spike = np.zeros([num_neurons, num_neurons])
+        tau_syn = np.zeros([num_neurons, num_neurons]) + 1
+        if delay:
+            spike_delays = np.zeros([num_neurons, num_neurons])
+            spike_rows = []
+            spike_cols = []
+            buffer_steps = []
+            buffer_nrns = []
+            delayed_spikes = np.zeros([num_neurons, num_neurons])
+    if electrical:
+        g_electrical = np.zeros([num_neurons, num_neurons])
+    if electrical_rectified:
+        g_rectified = np.zeros([num_neurons, num_neurons])
+    if gated:
+        # Channel params
+        g_ion = np.zeros([num_channels, num_neurons])
+        e_ion = np.zeros([num_channels, num_neurons])
+        # A gate params
+        pow_a = np.zeros([num_channels, num_neurons])
+        slope_a = np.zeros([num_channels, num_neurons])
+        k_a = np.zeros([num_channels, num_neurons]) + 1
+        e_a = np.zeros([num_channels, num_neurons])
+        # B gate params
+        pow_b = np.zeros([num_channels, num_neurons])
+        slope_b = np.zeros([num_channels, num_neurons])
+        k_b = np.zeros([num_channels, num_neurons]) + 1
+        e_b = np.zeros([num_channels, num_neurons])
+        tau_max_b = np.zeros([num_channels, num_neurons]) + 1
+        # C gate params
+        pow_c = np.zeros([num_channels, num_neurons])
+        slope_c = np.zeros([num_channels, num_neurons])
+        k_c = np.zeros([num_channels, num_neurons]) + 1
+        e_c = np.zeros([num_channels, num_neurons])
+        tau_max_c = np.zeros([num_channels, num_neurons]) + 1
+
+        b_gate = np.zeros([num_channels, num_neurons])
+        b_gate_last = np.zeros([num_channels, num_neurons])
+        b_gate_0 = np.zeros([num_channels, num_neurons])
+        c_gate = np.zeros([num_channels, num_neurons])
+        c_gate_last = np.zeros([num_channels, num_neurons])
+        c_gate_0 = np.zeros([num_channels, num_neurons])
+
+    pops_and_nrns = []
+    index = 0
+    for pop in range(len(network.populations)):
+        num_neurons_in_pop = network.populations[pop]['number']  # find the number of neurons in the population
+        pops_and_nrns.append([])
+        for num in range(num_neurons_in_pop):
+            pops_and_nrns[pop].append(index)
+            index += 1
+
+    """
+    --------------------------------------------------------------------------------------------------------------------
+    Set Neurons
+    --------------------------------------------------------------------------------------------------------------------
+    """
+    if debug:
+        print('---------------')
+        print('Setting neurons')
+        print('---------------')
+    index = 0
+    for pop in range(len(network.populations)):
+        num_neurons_in_pop = network.populations[pop]['number']  # find the number of neurons in the population
+        initial_value = network.populations[pop]['initial_value']
+        for num in range(num_neurons_in_pop):  # for each neuron, copy the parameters over
+            c_m[index] = network.populations[pop]['type'].params['membrane_capacitance']
+            g_m[index] = network.populations[pop]['type'].params['membrane_conductance']
+            i_b[index] = network.populations[pop]['type'].params['bias']
+            if hasattr(initial_value, '__iter__'):
+                u_last[index] = initial_value[num]
+            elif initial_value is None:
+                u_last[index] = 0.0
+            else:
+                u_last[index] = initial_value
+            if spiking:
+                if isinstance(network.populations[pop]['type'],
+                              SpikingNeuron):  # if the neuron is spiking, copy more
+                    theta_0[index] = network.populations[pop]['type'].params['threshold_initial_value']
+                    m[index] = network.populations[pop]['type'].params['threshold_proportionality_constant']
+                    tau_theta[index] = network.populations[pop]['type'].params['threshold_time_constant']
+                else:  # otherwise, set to the special values for NonSpiking
+                    theta_0[index] = sys.float_info.max
+                    m[index] = 0
+                    tau_theta[index] = 1
+            if gated:
+                if isinstance(network.populations[pop]['type'], NonSpikingNeuronWithGatedChannels):
+                    # Channel params
+                    g_ion[:, index] = network.populations[pop]['type'].params['Gion']
+                    e_ion[:, index] = network.populations[pop]['type'].params['Eion']
+                    # A gate params
+                    pow_a[:, index] = network.populations[pop]['type'].params['paramsA']['pow']
+                    slope_a[:, index] = network.populations[pop]['type'].params['paramsA']['slope']
+                    k_a[:, index] = network.populations[pop]['type'].params['paramsA']['k']
+                    e_a[:, index] = network.populations[pop]['type'].params['paramsA']['reversal']
+                    # B gate params
+                    pow_b[:, index] = network.populations[pop]['type'].params['paramsB']['pow']
+                    slope_b[:, index] = network.populations[pop]['type'].params['paramsB']['slope']
+                    k_b[:, index] = network.populations[pop]['type'].params['paramsB']['k']
+                    e_b[:, index] = network.populations[pop]['type'].params['paramsB']['reversal']
+                    tau_max_b[:, index] = network.populations[pop]['type'].params['paramsB']['TauMax']
+                    # C gate params
+                    pow_c[:, index] = network.populations[pop]['type'].params['paramsC']['pow']
+                    slope_c[:, index] = network.populations[pop]['type'].params['paramsC']['slope']
+                    k_c[:, index] = network.populations[pop]['type'].params['paramsC']['k']
+                    e_c[:, index] = network.populations[pop]['type'].params['paramsC']['reversal']
+                    tau_max_c[:, index] = network.populations[pop]['type'].params['paramsC']['TauMax']
+
+                    b_gate_last[:, index] = 1 / (1 + k_b[:, index] * np.exp(
+                        slope_b[:, index] * (u_last[index] - e_b[:, index])))
+                    c_gate_last[:, index] = 1 / (1 + k_c[:, index] * np.exp(
+                        slope_c[:, index] * (u_last[index] - e_c[:, index])))
+            index += 1
+    u = np.copy(u_last)
+    u_0 = np.copy(u_last)
+    if spiking:
+        theta = np.copy(theta_0)
+        theta_last = np.copy(theta_0)
+    if gated:
+        b_gate = np.copy(b_gate_last)
+        b_gate_0 = np.copy(b_gate_last)
+        c_gate = np.copy(c_gate_last)
+        c_gate_0 = np.copy(c_gate_last)
+
+    """
+    --------------------------------------------------------------------------------------------------------------------
+    Set Inputs
+    --------------------------------------------------------------------------------------------------------------------
+    """
+    if debug:
+        print('--------------')
+        print('Setting Inputs')
+        print('--------------')
+    input_connectivity = np.zeros(
+        [num_neurons, network.get_num_inputs_actual()])  # initialize connectivity matrix
+    index = 0
+    for inp in range(network.get_num_inputs()):  # iterate over the connections in the network
+        size = network.inputs[inp]['size']
+        dest_pop = network.inputs[inp]['destination']  # get the destination
+        if size == 1:
+            for dest in pops_and_nrns[dest_pop]:
+                input_connectivity[dest][inp] = 1.0  # set the weight in the correct source and destination
+            index += 1
+        else:
+            for dest in pops_and_nrns[dest_pop]:
+                input_connectivity[dest][index] = 1.0
+                index += 1
+
+    """
+    --------------------------------------------------------------------------------------------------------------------
+    Set Connections
+    --------------------------------------------------------------------------------------------------------------------
+    """
+    if debug:
+        print('-------------------')
+        print('Setting connections')
+        print('-------------------')
+    for syn in range(len(network.connections)):
+        source_pop = network.connections[syn]['source']
+        dest_pop = network.connections[syn]['destination']
+        g_max = network.connections[syn]['params']['max_conductance']
+        del_e_val = None
+        if network.connections[syn]['params']['electrical'] is False:  # electrical connection
+            del_e_val = network.connections[syn]['params']['relative_reversal_potential']
+
+        if network.connections[syn]['params']['pattern']:  # pattern connection
+            pop_size = len(pops_and_nrns[source_pop])
+            source_index = pops_and_nrns[source_pop][0]
+            dest_index = pops_and_nrns[dest_pop][0]
+            if network.connections[syn]['params']['spiking']:
+                tau_s = network.connections[syn]['params']['synapticTimeConstant']
+                g_max_spike[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = g_max
+                del_e[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = del_e_val
+                tau_syn[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = tau_s
+                if delay:
+                    delay_val = network.connections[syn]['params']['synapticTransmissionDelay']
+                    spike_delays[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = delay_val
+
+                    for source in pops_and_nrns[source_pop]:
+                        for dest in pops_and_nrns[dest_pop]:
+                            buffer_nrns.append(source)
+                            buffer_steps.append(delay)
+                            spike_rows.append(dest)
+                            spike_cols.append(source)
+            else:
+                g_max_non[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = g_max
+                del_e[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = del_e_val
+        elif network.connections[syn]['params']['electrical']:  # electrical connection
+            for source in pops_and_nrns[source_pop]:
+                for dest in pops_and_nrns[dest_pop]:
+                    if network.connections[syn]['params']['rectified']:  # rectified
+                        g_rectified[dest][source] = g_max / len(pops_and_nrns[source_pop])
+                    else:
+                        g_electrical[dest][source] = g_max / len(pops_and_nrns[source_pop])
+                        g_electrical[source][dest] = g_max / len(pops_and_nrns[source_pop])
+        else:  # chemical connection
+            if network.connections[syn]['params']['spiking']:  # spiking chemical synapse
+                tau_s = network.connections[syn]['params']['synapticTimeConstant']
+                if delay:
+                    delay_val = network.connections[syn]['params']['synapticTransmissionDelay']
+                for source in pops_and_nrns[source_pop]:
+                    for dest in pops_and_nrns[dest_pop]:
+                        g_max_spike[dest][source] = g_max / len(pops_and_nrns[source_pop])
+                        del_e[dest][source] = del_e
+                        tau_syn[dest][source] = tau_s
+                        if delay:
+                            spike_delays[dest][source] = delay_val
+                            buffer_nrns.append(source)
+                            buffer_steps.append(delay_val)
+                            spike_rows.append(dest)
+                            spike_cols.append(source)
+            else:  # nonspiking chemical synapse
+                for source in pops_and_nrns[source_pop]:
+                    for dest in pops_and_nrns[dest_pop]:
+                        g_max_non[dest][source] = g_max / len(pops_and_nrns[source_pop])
+                        del_e[dest][source] = del_e_val
+
+    """
+    --------------------------------------------------------------------------------------------------------------------
+    Calculate Time Factors
+    --------------------------------------------------------------------------------------------------------------------
+    """
+    if debug:
+        print('------------------------')
+        print('Calculating Time Factors')
+        print('------------------------')
+    time_factor_membrane = dt / (c_m / g_m)
+    if spiking:
+        time_factor_threshold = dt / tau_theta
+        time_factor_synapse = dt / tau_syn
+
+    """
+    --------------------------------------------------------------------------------------------------------------------
+    Initialize Propagation Delay
+    --------------------------------------------------------------------------------------------------------------------
+    """
+    if delay:
+        if debug:
+            print('------------------------------')
+            print('Initializing Propagation Delay')
+            print('------------------------------')
+        buffer_length = int(np.max(spike_delays) + 1)
+        spike_buffer = np.zeros([buffer_length, num_neurons])
+
+    """
+    --------------------------------------------------------------------------------------------------------------------
+    Set Outputs
+    --------------------------------------------------------------------------------------------------------------------
+    """
+    if debug:
+        print('---------------')
+        print('Setting Outputs')
+        print('---------------')
+    output_nodes = []
+    index = 0
+    for out in range(len(network.outputs)):
+        source_pop = network.outputs[out]['source']
+        num_source_neurons = network.populations[source_pop]['number']
+        output_nodes.append([])
+        for num in range(num_source_neurons):
+            output_nodes[out].append(index)
+            index += 1
+    num_outputs = index
+
+    output_voltage_connectivity = np.zeros(
+        [num_outputs, num_neurons])  # initialize connectivity matrix
+    if spiking:
+        output_spike_connectivity = np.copy(output_voltage_connectivity)
+    outputs = np.zeros(num_outputs)
+    for out in range(len(network.outputs)):  # iterate over the connections in the network
+        source_pop = network.outputs[out]['source']  # get the source
+        for i in range(len(pops_and_nrns[source_pop])):
+            if network.outputs[out]['spiking']:
+                output_spike_connectivity[output_nodes[out][i]][
+                    pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
+            else:
+                output_voltage_connectivity[output_nodes[out][i]][
+                    pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
+
+    """
+    --------------------------------------------------------------------------------------------------------------------
+    Arrange states and parameters into dictionary
+    --------------------------------------------------------------------------------------------------------------------
+    """
+    if debug:
+        print('---------------------')
+        print('Writing to Dictionary')
+        print('---------------------')
+    params = {'dt': dt,
+              'name': name,
+              'spiking': spiking,
+              'delay': delay,
+              'elec': electrical,
+              'rect': electrical_rectified,
+              'gated': gated,
+              'numChannels': num_channels,
+              'u': u,
+              'uLast': u_last,
+              'u0': u_0,
+              'cM': c_m,
+              'gM': g_m,
+              'iB': i_b,
+              'gMaxNon': g_max_non,
+              'delE': del_e,
+              'timeFactorMembrane': time_factor_membrane,
+              'inputConn': input_connectivity,
+              'numPop': num_populations,
+              'numNeurons': num_neurons,
+              'numConn': num_connections,
+              'numInputs': num_inputs,
+              'numOutputs': num_outputs,
+              'r': R,
+              'outConnVolt': output_voltage_connectivity}
+    if spiking:
+        params['spikes'] = spikes
+        params['theta0'] = theta_0
+        params['theta'] = theta
+        params['thetaLast'] = theta_last
+        params['m'] = m
+        params['tauTheta'] = tau_theta
+        params['gMaxSpike'] = g_max_spike
+        params['gSpike'] = g_spike
+        params['tauSyn'] = tau_syn
+        params['timeFactorThreshold'] = time_factor_threshold
+        params['timeFactorSynapse'] = time_factor_synapse
+        params['outConnSpike'] = output_spike_connectivity
+    if delay:
+        params['spikeDelays'] = spike_delays
+        params['spikeRows'] = spike_rows
+        params['spikeCols'] = spike_cols
+        params['bufferSteps'] = buffer_steps
+        params['bufferNrns'] = buffer_nrns
+        params['delayedSpikes'] = delayed_spikes
+        params['spikeBuffer'] = spike_buffer
+    if electrical:
+        params['gElectrical'] = g_electrical
+    if electrical_rectified:
+        params['gRectified'] = g_rectified
+    if gated:
+        params['gIon'] = g_ion
+        params['eIon'] = e_ion
+        params['powA'] = pow_a
+        params['slopeA'] = slope_a
+        params['kA'] = k_a
+        params['eA'] = e_a
+        params['powB'] = pow_b
+        params['slopeB'] = slope_b
+        params['kB'] = k_b
+        params['eB'] = e_b
+        params['tauMaxB'] = tau_max_b
+        params['powC'] = pow_c
+        params['slopeC'] = slope_c
+        params['kC'] = k_c
+        params['eC'] = e_c
+        params['tauMaxC'] = tau_max_c
+        params['bGate'] = b_gate
+        params['bGateLast'] = b_gate_last
+        params['bGate0'] = b_gate_0
+        params['cGate'] = c_gate
+        params['cGateLast'] = c_gate_last
+        params['cGate0'] = c_gate_0
+
+    """
+    --------------------------------------------------------------------------------------------------------------------
+    Passing params to backend object
+    --------------------------------------------------------------------------------------------------------------------
+    """
+    if debug:
+        print('-------------------------------------------------')
+        print('Passing states and parameters to SNS_Numpy object')
+        print('-------------------------------------------------')
+    model = SNS_Numpy_New(params)
+
+    """
+    --------------------------------------------------------------------------------------------------------------------
+    Final print
+    --------------------------------------------------------------------------------------------------------------------
+    """
+    if debug:
+        print('----------------------------')
+        print('Final states and parameters:')
+        print('----------------------------')
+        print('Input Connectivity:')
+        print(input_connectivity)
+        print('g_max_non:')
+        print(g_max_non)
+        if spiking:
+            print('GmaxSpike:')
+            print(g_max_spike)
+        print('del_e:')
+        print(del_e)
+        if electrical:
+            print('Gelectrical:')
+            print(g_electrical)
+        if electrical_rectified:
+            print('GelectricalRectified:')
+            print(g_rectified)
+        print('Output Voltage Connectivity')
+        print(output_voltage_connectivity)
+        if spiking:
+            print('Output Spike Connectivity:')
+            print(output_spike_connectivity)
+        print('u:')
+        print(u)
+        print('u_last:')
+        print(u_last)
+        if spiking:
+            print('theta_0:')
+            print(theta_0)
+            print('ThetaLast:')
+            print(theta_last)
+            print('Theta')
+            print(theta)
+        if gated:
+            print('Number of Channels:')
+            print(num_channels)
+            print('Ionic Conductance:')
+            print(g_ion)
+            print('Ionic Reversal Potentials:')
+            print(e_ion)
+            print('A Gate Parameters:')
+            print('Power:')
+            print(pow_a)
+            print('Slope:')
+            print(slope_a)
+            print('K:')
+            print(k_a)
+            print('Reversal Potential:')
+            print(e_a)
+            print('B Gate Parameters:')
+            print('Power:')
+            print(pow_b)
+            print('Slope:')
+            print(slope_b)
+            print('K:')
+            print(k_b)
+            print('Reversal Potential:')
+            print(e_b)
+            print('Tau Max:')
+            print(tau_max_b)
+            print('B:')
+            print(b_gate)
+            print('B_last:')
+            print(b_gate_last)
+            print('C Gate Parameters:')
+            print('Power:')
+            print(pow_c)
+            print('Slope:')
+            print(slope_c)
+            print('K:')
+            print(k_c)
+            print('Reversal Potential:')
+            print(e_c)
+            print('Tau Max:')
+            print(tau_max_c)
+            print('B:')
+            print(c_gate)
+            print('B_last:')
+            print(c_gate_last)
+
+    return model
+
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -46,7 +747,7 @@ class __Backend__:
         self.substeps = substeps
         self.dt = dt
         self.debug = debug
-        if isinstance(network, Network):
+        if not isinstance(network, str):
             self.network = network
             self.spiking = network.params['spiking']
             self.delay = network.params['delay']
@@ -90,13 +791,13 @@ class __Backend__:
                 print('#\nSETTING OUTPUT PARAMETERS\n#')
             self.__set_outputs__()
 
-        elif isinstance(network, str):
+        else:
             data = pickle.load(open(network,'rb'))
 
             self.__load__(data)
 
-        else:
-            raise TypeError('Invalid network type, must be either sns_toolbox.design.networks.Network or \'filename.sns\'')
+        # else:
+        #     raise TypeError('Invalid network type, must be either sns_toolbox.design.networks.Network or \'filename.sns\'')
         if self.debug:
             print('#\nALL FINAL PARAMETERS\n#')
             self.__debug_print__()
@@ -201,6 +902,7 @@ class __Backend__:
             print('Number of Inputs:')
             print(self.num_inputs)
             print('Number of Outputs:')
+            print(self.num_outputs)
             print('Network Voltage Range (mV):')
             print(self.R)
 
@@ -497,1800 +1199,1451 @@ class __Backend__:
         """
         raise NotImplementedError
 
-"""
-########################################################################################################################
-NUMPY BACKEND
-
-Simulating the network using numpy vectors and matrices.
-Note that this is not sparse, so memory may explode for large networks
-"""
-
-class SNS_Numpy(__Backend__):
-    """
-    Simulation backend based in Numpy.
-
-    :param network: Network which will be compiled to Numpy.
-    :type network:  sns_toolbox.design.networks.Network
-    """
-    def __init__(self,network: Any,**kwargs):
-        super().__init__(network,**kwargs)
-
-    def __initialize_vectors_and_matrices__(self) -> None:
-
-        self.u = np.zeros(self.num_neurons)
-        self.u_last = np.zeros(self.num_neurons)
-        self.u_0 = np.zeros(self.num_neurons)
-        self.c_m = np.zeros(self.num_neurons)
-        self.g_m = np.zeros(self.num_neurons)
-        self.i_b = np.zeros(self.num_neurons)
-        if self.spiking:
-            self.spikes = np.zeros(self.num_neurons)
-            self.theta_0 = np.zeros(self.num_neurons)
-            self.theta = np.zeros(self.num_neurons)
-            self.theta_last = np.zeros(self.num_neurons)
-            self.m = np.zeros(self.num_neurons)
-            self.tau_theta = np.zeros(self.num_neurons)
-
-        self.g_max_non = np.zeros([self.num_neurons, self.num_neurons])
-        self.del_e = np.zeros([self.num_neurons, self.num_neurons])
-        if self.spiking:
-            self.g_max_spike = np.zeros([self.num_neurons, self.num_neurons])
-            self.g_spike = np.zeros([self.num_neurons, self.num_neurons])
-            self.tau_syn = np.zeros([self.num_neurons, self.num_neurons]) + 1
-            if self.delay:
-                self.spike_delays = np.zeros([self.num_neurons, self.num_neurons])
-                self.spike_rows = []
-                self.spike_cols = []
-                self.buffer_steps = []
-                self.buffer_nrns = []
-                self.delayed_spikes = np.zeros([self.num_neurons, self.num_neurons])
-        if self.electrical:
-            self.g_electrical = np.zeros([self.num_neurons, self.num_neurons])
-        if self.electrical_rectified:
-            self.g_rectified = np.zeros([self.num_neurons, self.num_neurons])
-        if self.gated:
-            # Channel params
-            self.g_ion = np.zeros([self.num_channels, self.num_neurons])
-            self.e_ion = np.zeros([self.num_channels, self.num_neurons])
-            # A gate params
-            self.pow_a = np.zeros([self.num_channels, self.num_neurons])
-            self.slope_a = np.zeros([self.num_channels, self.num_neurons])
-            self.k_a = np.zeros([self.num_channels, self.num_neurons])+1
-            self.e_a = np.zeros([self.num_channels, self.num_neurons])
-            # B gate params
-            self.pow_b = np.zeros([self.num_channels, self.num_neurons])
-            self.slope_b = np.zeros([self.num_channels, self.num_neurons])
-            self.k_b = np.zeros([self.num_channels, self.num_neurons])+1
-            self.e_b = np.zeros([self.num_channels, self.num_neurons])
-            self.tau_max_b = np.zeros([self.num_channels, self.num_neurons])+1
-            # C gate params
-            self.pow_c = np.zeros([self.num_channels, self.num_neurons])
-            self.slope_c = np.zeros([self.num_channels, self.num_neurons])
-            self.k_c = np.zeros([self.num_channels, self.num_neurons])+1
-            self.e_c = np.zeros([self.num_channels, self.num_neurons])
-            self.tau_max_c = np.zeros([self.num_channels, self.num_neurons])+1
-
-            self.b_gate = np.zeros([self.num_channels, self.num_neurons])
-            self.b_gate_last = np.zeros([self.num_channels, self.num_neurons])
-            self.b_gate_0 = np.zeros([self.num_channels, self.num_neurons])
-            self.c_gate = np.zeros([self.num_channels, self.num_neurons])
-            self.c_gate_last = np.zeros([self.num_channels, self.num_neurons])
-            self.c_gate_0 = np.zeros([self.num_channels, self.num_neurons])
-
-        self.pops_and_nrns = []
-        index = 0
-        for pop in range(len(self.network.populations)):
-            num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
-            self.pops_and_nrns.append([])
-            for num in range(num_neurons):
-                self.pops_and_nrns[pop].append(index)
-                index += 1
-
-    def __set_neurons__(self) -> None:
-
-        index = 0
-        for pop in range(len(self.network.populations)):
-            num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
-            initial_value = self.network.populations[pop]['initial_value']
-            for num in range(num_neurons):  # for each neuron, copy the parameters over
-                self.c_m[index] = self.network.populations[pop]['type'].params['membrane_capacitance']
-                self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
-                self.i_b[index] = self.network.populations[pop]['type'].params['bias']
-                if hasattr(initial_value, '__iter__'):
-                    self.u_last[index] = initial_value[num]
-                elif initial_value is None:
-                    self.u_last[index] = 0.0
-                else:
-                    self.u_last[index] = initial_value
-                if self.spiking:
-                    if isinstance(self.network.populations[pop]['type'], SpikingNeuron):  # if the neuron is spiking, copy more
-                        self.theta_0[index] = self.network.populations[pop]['type'].params['threshold_initial_value']
-                        self.m[index] = self.network.populations[pop]['type'].params['threshold_proportionality_constant']
-                        self.tau_theta[index] = self.network.populations[pop]['type'].params['threshold_time_constant']
-                    else:  # otherwise, set to the special values for NonSpiking
-                        self.theta_0[index] = sys.float_info.max
-                        self.m[index] = 0
-                        self.tau_theta[index] = 1
-                if self.gated:
-                    if isinstance(self.network.populations[pop]['type'], NonSpikingNeuronWithGatedChannels):
-                        # Channel params
-                        self.g_ion[:, index] = self.network.populations[pop]['type'].params['Gion']
-                        self.e_ion[:, index] = self.network.populations[pop]['type'].params['Eion']
-                        # A gate params
-                        self.pow_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['pow']
-                        self.slope_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['slope']
-                        self.k_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['k']
-                        self.e_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['reversal']
-                        # B gate params
-                        self.pow_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['pow']
-                        self.slope_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['slope']
-                        self.k_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['k']
-                        self.e_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['reversal']
-                        self.tau_max_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['TauMax']
-                        # C gate params
-                        self.pow_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['pow']
-                        self.slope_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['slope']
-                        self.k_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['k']
-                        self.e_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['reversal']
-                        self.tau_max_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['TauMax']
-
-                        self.b_gate_last[:, index] = 1 / (1 + self.k_b[:, index] * np.exp(self.slope_b[:, index]*(self.u_last[index]-self.e_b[:, index])))
-                        self.c_gate_last[:, index] = 1 / (1 + self.k_c[:, index] * np.exp(self.slope_c[:, index]*(self.u_last[index]-self.e_c[:, index])))
-                index += 1
-        self.u = np.copy(self.u_last)
-        self.u_0 = np.copy(self.u_last)
-        if self.spiking:
-            self.theta = np.copy(self.theta_0)
-            self.theta_last = np.copy(self.theta_0)
-        if self.gated:
-            self.b_gate = np.copy(self.b_gate_last)
-            self.b_gate_0 = np.copy(self.b_gate_last)
-            self.c_gate = np.copy(self.c_gate_last)
-            self.c_gate_0 = np.copy(self.c_gate_last)
-
-    def __set_inputs__(self) -> None:
-
-        self.input_connectivity = np.zeros([self.num_neurons, self.network.get_num_inputs_actual()])  # initialize connectivity matrix
-        index = 0
-        for inp in range(self.network.get_num_inputs()):  # iterate over the connections in the network
-            size = self.network.inputs[inp]['size']
-            dest_pop = self.network.inputs[inp]['destination']  # get the destination
-            if size == 1:
-                for dest in self.pops_and_nrns[dest_pop]:
-                    self.input_connectivity[dest][inp] = 1.0  # set the weight in the correct source and destination
-                index += 1
-            else:
-                for dest in self.pops_and_nrns[dest_pop]:
-                    self.input_connectivity[dest][index] = 1.0
-                    index += 1
-
-    def __set_connections__(self) -> None:
-
-        for syn in range(len(self.network.connections)):
-            source_pop = self.network.connections[syn]['source']
-            dest_pop = self.network.connections[syn]['destination']
-            g_max = self.network.connections[syn]['params']['max_conductance']
-            if self.network.connections[syn]['params']['electrical'] is False: # electrical connection
-                del_e = self.network.connections[syn]['params']['relative_reversal_potential']
-
-            if self.network.connections[syn]['params']['pattern']:  # pattern connection
-                pop_size = len(self.pops_and_nrns[source_pop])
-                source_index = self.pops_and_nrns[source_pop][0]
-                dest_index = self.pops_and_nrns[dest_pop][0]
-                if self.network.connections[syn]['params']['spiking']:
-                    tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
-                    self.g_max_spike[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = g_max
-                    self.del_e[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = del_e
-                    self.tau_syn[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = tau_s
-                    if self.delay:
-                        delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
-                        self.spike_delays[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = delay
-
-                        for source in self.pops_and_nrns[source_pop]:
-                            for dest in self.pops_and_nrns[dest_pop]:
-                                self.buffer_nrns.append(source)
-                                self.buffer_steps.append(delay)
-                                self.spike_rows.append(dest)
-                                self.spike_cols.append(source)
-                else:
-                    self.g_max_non[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = g_max
-                    self.del_e[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = del_e
-            elif self.network.connections[syn]['params']['electrical']: # electrical connection
-                for source in self.pops_and_nrns[source_pop]:
-                    for dest in self.pops_and_nrns[dest_pop]:
-                        if self.network.connections[syn]['params']['rectified']:    # rectified
-                            self.g_rectified[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
-                        else:
-                            self.g_electrical[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
-                            self.g_electrical[source][dest] = g_max / len(self.pops_and_nrns[source_pop])
-            else:   # chemical connection
-                if self.network.connections[syn]['params']['spiking']:  # spiking chemical synapse
-                    tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
-                    if self.delay:
-                        delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
-                    for source in self.pops_and_nrns[source_pop]:
-                        for dest in self.pops_and_nrns[dest_pop]:
-                            self.g_max_spike[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
-                            self.del_e[dest][source] = del_e
-                            self.tau_syn[dest][source] = tau_s
-                            if self.delay:
-                                self.spike_delays[dest][source] = delay
-                                self.buffer_nrns.append(source)
-                                self.buffer_steps.append(delay)
-                                self.spike_rows.append(dest)
-                                self.spike_cols.append(source)
-                else:   # nonspiking chemical synapse
-                    for source in self.pops_and_nrns[source_pop]:
-                        for dest in self.pops_and_nrns[dest_pop]:
-                            self.g_max_non[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
-                            self.del_e[dest][source] = del_e
-
-    def __initialize_propagation_delay__(self) -> None:
-        buffer_length = int(np.max(self.spike_delays) + 1)
-        self.spike_buffer = np.zeros([buffer_length, self.num_neurons])
-
-    def __set_outputs__(self) -> None:
-
-        outputs = []
-        index = 0
-        for out in range(len(self.network.outputs)):
-            source_pop = self.network.outputs[out]['source']
-            num_source_neurons = self.network.populations[source_pop]['number']
-            outputs.append([])
-            for num in range(num_source_neurons):
-                outputs[out].append(index)
-                index += 1
-        self.num_outputs = index
-
-        self.output_voltage_connectivity = np.zeros(
-            [self.num_outputs, self.num_neurons])  # initialize connectivity matrix
-        if self.spiking:
-            self.output_spike_connectivity = np.copy(self.output_voltage_connectivity)
-        self.outputs = np.zeros(self.num_outputs)
-        for out in range(len(self.network.outputs)):  # iterate over the connections in the network
-            source_pop = self.network.outputs[out]['source']  # get the source
-            for i in range(len(self.pops_and_nrns[source_pop])):
-                if self.network.outputs[out]['spiking']:
-                    self.output_spike_connectivity[outputs[out][i]][
-                        self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
-                else:
-                    self.output_voltage_connectivity[outputs[out][i]][
-                        self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
-
-    def reset(self, u=None, theta=None, b_gate=None, c_gate=None) -> None:
-        if u is None:
-            self.u = np.copy(self.u_0)
-            self.u_last = np.copy(self.u_0)
-        else:
-            self.u = np.copy(u)
-            self.u_last = np.copy(u)
-        if self.spiking:
-            if theta is None:
-                self.theta = np.copy(self.theta_0)
-                self.theta_last = np.copy(self.theta_0)
-            else:
-                self.theta = np.copy(theta)
-                self.theta_last = np.copy(theta)
-        if self.gated:
-            if b_gate is None:
-                self.b_gate = np.copy(self.b_gate_0)
-                self.b_gate_last = np.copy(self.b_gate_0)
-            else:
-                self.b_gate = np.copy(b_gate)
-                self.b_gate_last = np.copy(b_gate)
-            if c_gate is None:
-                self.c_gate = np.copy(self.c_gate_0)
-                self.c_gate_last = np.copy(self.c_gate_0)
-            else:
-                self.c_gate = np.copy(c_gate)
-                self.c_gate_last = np.copy(c_gate)
-
-    def __forward_pass__(self, inputs) -> Any:
-        self.u_last = np.copy(self.u)
-        i_app = np.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
-        g_syn = np.maximum(0, np.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non))
-        if self.spiking:
-            self.theta_last = np.copy(self.theta)
-            self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
-            g_syn += self.g_spike
-
-        i_syn = np.sum(g_syn * self.del_e, axis=1) - self.u_last * np.sum(g_syn, axis=1)
-        if self.electrical:
-            i_syn += (np.sum(self.g_electrical*self.u_last, axis=1) - self.u_last*np.sum(self.g_electrical, axis=1))
-        if self.electrical_rectified:
-            # create mask
-            mask = np.subtract.outer(self.u_last, self.u_last).transpose() > 0
-            masked_g = mask*self.g_rectified
-            diag_masked = masked_g + masked_g.transpose() - np.diag(masked_g.diagonal())
-            i_syn += np.sum(diag_masked*self.u_last, axis=1) - self.u_last*np.sum(diag_masked, axis=1)
-        if self.gated:
-            a_inf = 1 / (1 + self.k_a * np.exp(self.slope_a*(self.e_a-self.u_last)))
-            b_inf = 1 / (1 + self.k_b * np.exp(self.slope_b*(self.e_b-self.u_last)))
-            c_inf = 1 / (1 + self.k_c * np.exp(self.slope_c*(self.e_c-self.u_last)))
-
-            tau_b = self.tau_max_b * b_inf * np.sqrt(self.k_b*np.exp(self.slope_b*(self.e_b-self.u_last)))
-            tau_c = self.tau_max_c * c_inf * np.sqrt(self.k_c*np.exp(self.slope_c*(self.e_c-self.u_last)))
-
-            self.b_gate_last = np.copy(self.b_gate)
-            self.c_gate_last = np.copy(self.c_gate)
-
-            self.b_gate = self.b_gate_last + self.dt * ((b_inf - self.b_gate_last) / tau_b)
-            self.c_gate = self.c_gate_last + self.dt * ((c_inf - self.c_gate_last) / tau_c)
-
-            i_ion = self.g_ion*(a_inf**self.pow_a)*(self.b_gate**self.pow_b)*(self.c_gate**self.pow_c)*(self.e_ion-self.u_last)
-            i_gated = np.sum(i_ion, axis=0)
-
-            self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + self.i_b + i_syn + i_app + i_gated)  # Update membrane potential
-        else:
-            self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + self.i_b + i_syn + i_app)  # Update membrane potential
-        if self.spiking:
-            self.theta = self.theta_last + self.time_factor_threshold * (-self.theta_last + self.theta_0 + self.m * self.u_last)  # Update the firing thresholds
-            self.spikes = np.sign(np.minimum(0, self.theta - self.u))  # Compute which neurons have spiked
-
-            # New stuff with delay
-            if self.delay:
-                self.spike_buffer = np.roll(self.spike_buffer, 1, axis=0)   # Shift buffer entries down
-                self.spike_buffer[0, :] = self.spikes    # Replace row 0 with the current spike data
-                # Update a matrix with all of the appropriately delayed spike values
-                self.delayed_spikes[self.spike_rows, self.spike_cols] = self.spike_buffer[self.buffer_steps, self.buffer_nrns]
-
-                self.g_spike = np.maximum(self.g_spike, (-self.delayed_spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
-            else:
-                self.g_spike = np.maximum(self.g_spike, (-self.spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
-            self.u = self.u * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
-        self.outputs = np.matmul(self.output_voltage_connectivity, self.u)
-        if self.spiking:
-            self.outputs += np.matmul(self.output_spike_connectivity, -self.spikes)
-
-        return self.outputs
-
-
-
-"""
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-PYTORCH DENSE
-
-Simulating the network using GPU-compatible tensors.
-Note that this is not sparse, so memory may explode for large networks
-"""
-
-
-class SNS_Torch(__Backend__):
-    """
-    Simulation backend based in PyTorch. In future versions different options will be toggled automatically, but for now
-    are implemented as boolean flags.
-
-    :param network: Network which will be compiled to PyTorch.
-    :type network:  sns_toolbox.design.networks.Network
-    :param device:  Device network will be stored on, default is 'cuda' (GPU).
-    :type device:   str, optional
-    """
-    def __init__(self,network: Any,device: str = 'cuda',**kwargs):
-        if device != 'cpu':
-            if not torch.cuda.is_available():
-                warnings.warn('CUDA Device Unavailable. Using CPU Instead')
-                device = 'cpu'
-        self.device = device
-        super().__init__(network,**kwargs)
-
-    def __initialize_vectors_and_matrices__(self) -> None:
-        """
-        Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
-        following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
-        :return:    None
-        """
-        self.u = torch.zeros(self.num_neurons,device=self.device)
-        self.u_last = torch.zeros(self.num_neurons,device=self.device)
-        self.u_0 = torch.zeros(self.num_neurons,device=self.device)
-        self.c_m = torch.zeros(self.num_neurons,device=self.device)
-        self.g_m = torch.zeros(self.num_neurons,device=self.device)
-        self.i_b = torch.zeros(self.num_neurons,device=self.device)
-        if self.spiking:
-            self.spikes = torch.zeros(self.num_neurons, device=self.device)
-            self.theta_0 = torch.zeros(self.num_neurons,device=self.device)
-            self.theta = torch.zeros(self.num_neurons,device=self.device)
-            self.theta_last = torch.zeros(self.num_neurons,device=self.device)
-            self.m = torch.zeros(self.num_neurons,device=self.device)
-            self.tau_theta = torch.zeros(self.num_neurons,device=self.device)
-
-        self.g_max_non = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
-        self.del_e = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
-        if self.spiking:
-            self.g_max_spike = torch.zeros([self.num_neurons, self.num_neurons], device=self.device)
-            self.g_spike = torch.zeros([self.num_neurons, self.num_neurons], device=self.device)
-            self.tau_syn = torch.ones([self.num_neurons, self.num_neurons],device=self.device)
-            if self.delay:
-                self.spike_delays = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
-                self.spike_rows = []
-                self.spike_cols = []
-                self.buffer_steps = []
-                self.buffer_nrns = []
-                self.delayed_spikes = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
-        if self.electrical:
-            self.g_electrical = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
-        if self.electrical_rectified:
-            self.g_rectified = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
-        if self.gated:
-            # Channel params
-            self.g_ion = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
-            self.e_ion = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
-            # A gate params
-            self.pow_a = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
-            self.slope_a = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
-            self.k_a = torch.ones([self.num_channels, self.num_neurons],device=self.device)
-            self.e_a = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
-            # B gate params
-            self.pow_b = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
-            self.slope_b = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
-            self.k_b = torch.ones([self.num_channels, self.num_neurons],device=self.device)
-            self.e_b = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
-            self.tau_max_b = torch.ones([self.num_channels, self.num_neurons],device=self.device)
-            # C gate params
-            self.pow_c = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
-            self.slope_c = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
-            self.k_c = torch.ones([self.num_channels, self.num_neurons],device=self.device)
-            self.e_c = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
-            self.tau_max_c = torch.ones([self.num_channels, self.num_neurons],device=self.device)+1
-
-            self.b_gate = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
-            self.b_gate_last = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
-            self.b_gate_0 = torch.zeros([self.num_channels, self.num_neurons], device=self.device)
-            self.c_gate = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
-            self.c_gate_last = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
-            self.c_gate_0 = torch.zeros([self.num_channels, self.num_neurons], device=self.device)
-
-        self.pops_and_nrns = []
-        index = 0
-        for pop in range(len(self.network.populations)):
-            num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
-            self.pops_and_nrns.append([])
-            for num in range(num_neurons):
-                self.pops_and_nrns[pop].append(index)
-                index += 1
-
-    def __set_neurons__(self) -> None:
-        """
-        Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
-        network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
-        :return:
-        """
-        index = 0
-        for pop in range(len(self.network.populations)):
-            num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
-            initial_value = self.network.populations[pop]['initial_value']
-            for num in range(num_neurons):  # for each neuron, copy the parameters over
-                self.c_m[index] = self.network.populations[pop]['type'].params['membrane_capacitance']
-                self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
-                self.i_b[index] = self.network.populations[pop]['type'].params['bias']
-                if hasattr(initial_value, '__iter__'):
-                    self.u_last[index] = initial_value[num]
-                elif initial_value is None:
-                    self.u_last[index] = 0.0
-                else:
-                    self.u_last[index] = initial_value
-
-                if self.spiking:
-                    if isinstance(self.network.populations[pop]['type'], SpikingNeuron):  # if the neuron is spiking, copy more
-                        self.theta_0[index] = self.network.populations[pop]['type'].params['threshold_initial_value']
-                        self.m[index] = self.network.populations[pop]['type'].params['threshold_proportionality_constant']
-                        self.tau_theta[index] = self.network.populations[pop]['type'].params['threshold_time_constant']
-                    else:  # otherwise, set to the special values for NonSpiking
-                        self.theta_0[index] = torch.finfo(self.theta_0[index].dtype).max
-                        self.m[index] = 0
-                        self.tau_theta[index] = 1
-                if self.gated:
-                    if isinstance(self.network.populations[pop]['type'], NonSpikingNeuronWithGatedChannels):
-                        # Channel params
-                        self.g_ion[:, index] = self.network.populations[pop]['type'].params['Gion']
-                        self.e_ion[:, index] = self.network.populations[pop]['type'].params['Eion']
-                        # A gate params
-                        self.pow_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['pow']
-                        self.slope_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['slope']
-                        self.k_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['k']
-                        self.e_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['reversal']
-                        # B gate params
-                        self.pow_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['pow']
-                        self.slope_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['slope']
-                        self.k_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['k']
-                        self.e_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['reversal']
-                        self.tau_max_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['TauMax']
-                        # C gate params
-                        self.pow_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['pow']
-                        self.slope_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['slope']
-                        self.k_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['k']
-                        self.e_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['reversal']
-                        self.tau_max_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['TauMax']
-
-                        self.b_gate_last[:, index] = 1 / (1 + self.k_b[:, index] * torch.exp(self.slope_b[:, index]*(self.u_last[index]-self.e_b[:, index])))
-                        self.c_gate_last[:, index] = 1 / (1 + self.k_c[:, index] * torch.exp(self.slope_c[:, index]*(self.u_last[index]-self.e_c[:, index])))
-                index += 1
-        self.u = self.u_last.clone()
-        if self.spiking:
-            self.theta = self.theta_0.clone()
-            self.theta_last = self.theta_0.clone()
-        if self.gated:
-            self.b_gate = torch.clone(self.b_gate_last)
-            self.c_gate = torch.clone(self.c_gate_last)
-            self.b_gate_0 = torch.clone(self.b_gate_last)
-            self.c_gate_0 = torch.clone(self.c_gate_last)
-
-    def __set_inputs__(self) -> None:
-        """
-        Build the input connection matrix, and apply linear mapping coefficients.
-        :return:    None
-        """
-        self.input_connectivity = torch.zeros([self.num_neurons, self.network.get_num_inputs_actual()],device=self.device)  # initialize connectivity matrix
-        index = 0
-        for inp in range(self.network.get_num_inputs()):  # iterate over the connections in the network
-            size = self.network.inputs[inp]['size']
-            dest_pop = self.network.inputs[inp]['destination']  # get the destination
-            if size == 1:
-                for dest in self.pops_and_nrns[dest_pop]:
-                    self.input_connectivity[dest][inp] = 1.0  # set the weight in the correct source and destination
-                index += 1
-            else:
-                for dest in self.pops_and_nrns[dest_pop]:
-                    self.input_connectivity[dest][index] = 1.0
-                    index += 1
-
-    def __set_connections__(self) -> None:
-        """
-        Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
-        synapses.
-        :return: None
-        """
-        for syn in range(len(self.network.connections)):
-            source_pop = self.network.connections[syn]['source']
-            dest_pop = self.network.connections[syn]['destination']
-            g_max = self.network.connections[syn]['params']['max_conductance']
-            if self.network.connections[syn]['params']['electrical'] is False:  # Chemical connection
-                del_e = self.network.connections[syn]['params']['relative_reversal_potential']
-
-            if self.network.connections[syn]['params']['pattern']:  # pattern connection
-                pop_size = len(self.pops_and_nrns[source_pop])
-                source_index = self.pops_and_nrns[source_pop][0]
-                dest_index = self.pops_and_nrns[dest_pop][0]
-
-                if self.network.connections[syn]['params']['spiking']:
-                    tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
-                    self.g_max_spike[dest_index:dest_index + pop_size,source_index:source_index + pop_size] = torch.from_numpy(g_max)
-                    self.del_e[dest_index:dest_index + pop_size,source_index:source_index + pop_size] = torch.from_numpy(del_e)
-                    self.tau_syn[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(tau_s)
-                    if self.delay:
-                        delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
-                        self.spike_delays[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(delay)
-
-                        for source in self.pops_and_nrns[source_pop]:
-                            for dest in self.pops_and_nrns[dest_pop]:
-                                self.buffer_nrns.append(source)
-                                self.buffer_steps.append(delay)
-                                self.spike_rows.append(dest)
-                                self.spike_cols.append(source)
-                else:
-                    self.g_max_non[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(g_max)
-                    self.del_e[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(del_e)
-            elif self.network.connections[syn]['params']['electrical']:  # electrical connection
-                for source in self.pops_and_nrns[source_pop]:
-                    for dest in self.pops_and_nrns[dest_pop]:
-                        if self.network.connections[syn]['params']['rectified']:  # rectified
-                            self.g_rectified[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
-                        else:
-                            self.g_electrical[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
-                            self.g_electrical[source][dest] = g_max / len(self.pops_and_nrns[source_pop])
-            else:   # chemical connection
-                if self.network.connections[syn]['params']['spiking']:  # spiking chemical synapse
-                    tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
-                    if self.delay:
-                        delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
-                    for source in self.pops_and_nrns[source_pop]:
-                        for dest in self.pops_and_nrns[dest_pop]:
-                            self.g_max_spike[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
-                            self.del_e[dest][source] = del_e
-                            self.tau_syn[dest][source] = tau_s
-                            if self.delay:
-                                self.spike_delays[dest][source] = delay
-                                self.buffer_nrns.append(source)
-                                self.buffer_steps.append(delay)
-                                self.spike_rows.append(dest)
-                                self.spike_cols.append(source)
-                else:   # nonspiking chemical synapse
-                    for source in self.pops_and_nrns[source_pop]:
-                        for dest in self.pops_and_nrns[dest_pop]:
-                            self.g_max_non[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
-                            self.del_e[dest][source] = del_e
-
-    def __initialize_propagation_delay__(self) -> None:
-        """
-        Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
-        :return: None
-        """
-        buffer_length = int(torch.max(self.spike_delays) + 1)
-        self.spike_buffer = torch.zeros([buffer_length, self.num_neurons],device=self.device)
-
-    def __set_outputs__(self) -> None:
-        """
-        Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
-        output monitors for each neuron in a population.
-        :return: None
-        """
-        outputs = []
-        index = 0
-        for out in range(len(self.network.outputs)):
-            source_pop = self.network.outputs[out]['source']
-            num_source_neurons = self.network.populations[source_pop]['number']
-            outputs.append([])
-            for num in range(num_source_neurons):
-                outputs[out].append(index)
-                index += 1
-        self.num_outputs = index
-
-        self.output_voltage_connectivity = torch.zeros(
-            [self.num_outputs, self.num_neurons],device=self.device)  # initialize connectivity matrix
-        if self.spiking:
-            self.output_spike_connectivity = torch.clone(self.output_voltage_connectivity)
-        self.outputs = torch.zeros(self.num_outputs, device=self.device)
-        for out in range(len(self.network.outputs)):  # iterate over the connections in the network
-            source_pop = self.network.outputs[out]['source']  # get the source
-            for i in range(len(self.pops_and_nrns[source_pop])):
-                if self.network.outputs[out]['spiking']:
-                    self.output_spike_connectivity[outputs[out][i]][
-                        self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
-                    # self.out_linear[outputs[out][i]] = 1.0
-                else:
-                    self.output_voltage_connectivity[outputs[out][i]][
-                        self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
-
-    def reset(self, u=None, theta=None, b_gate=None, c_gate=None) -> None:
-        if u is None:
-            self.u = torch.clone(self.u_0)
-            self.u_last = torch.clone(self.u_0)
-        else:
-            self.u = torch.clone(u)
-            self.u_last = torch.clone(u)
-        if self.spiking:
-            if theta is None:
-                self.theta = torch.clone(self.theta_0)
-                self.theta_last = torch.clone(self.theta_0)
-            else:
-                self.theta = torch.clone(theta)
-                self.theta_last = torch.clone(theta)
-        if self.gated:
-            if b_gate is None:
-                self.b_gate = torch.clone(self.b_gate_0)
-                self.b_gate_last = torch.clone(self.b_gate_0)
-            else:
-                self.b_gate = torch.clone(b_gate)
-                self.b_gate_last = torch.clone(b_gate)
-            if c_gate is None:
-                self.c_gate = torch.clone(self.c_gate_0)
-                self.c_gate_last = torch.clone(self.c_gate_0)
-            else:
-                self.c_gate = torch.clone(c_gate)
-                self.c_gate_last = torch.clone(c_gate)
-
-    def __forward_pass__(self, inputs) -> Any:
-        self.u_last = torch.clone(self.u)
-        i_app = torch.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
-        g_syn = torch.clamp(torch.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non),min=0)
-        if self.spiking:
-            self.theta_last = torch.clone(self.theta)
-            self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
-            g_syn += self.g_spike
-        i_syn = torch.sum(g_syn * self.del_e, 1) - self.u_last * torch.sum(g_syn, 1)
-        if self.electrical:
-            i_syn += (torch.sum(self.g_electrical * self.u_last, 1) - self.u_last * torch.sum(self.g_electrical, 1))
-        if self.electrical_rectified:
-            # create mask
-            mask = (self.u_last.reshape(-1,1)-self.u_last).transpose(0,1) > 0
-            masked_g = mask * self.g_rectified
-            diag_masked = masked_g + masked_g.transpose(0,1) - torch.diag(masked_g.diagonal())
-            i_syn += torch.sum(diag_masked * self.u_last, 1) - self.u_last * torch.sum(diag_masked, 1)
-        if self.gated:
-            a_inf = 1 / (1 + self.k_a * torch.exp(self.slope_a*(self.e_a-self.u_last)))
-            b_inf = 1 / (1 + self.k_b * torch.exp(self.slope_b*(self.e_b-self.u_last)))
-            c_inf = 1 / (1 + self.k_c * torch.exp(self.slope_c*(self.e_c-self.u_last)))
-
-            tau_b = self.tau_max_b * b_inf * torch.sqrt(self.k_b*torch.exp(self.slope_b*(self.e_b-self.u_last)))
-            tau_c = self.tau_max_c * c_inf * torch.sqrt(self.k_c*torch.exp(self.slope_c*(self.e_c-self.u_last)))
-
-            self.b_gate_last = torch.clone(self.b_gate)
-            self.c_gate_last = torch.clone(self.c_gate)
-
-            self.b_gate = self.b_gate_last + self.dt * ((b_inf - self.b_gate_last) / tau_b)
-            self.c_gate = self.c_gate_last + self.dt * ((c_inf - self.c_gate_last) / tau_c)
-
-            i_ion = self.g_ion*(a_inf**self.pow_a)*(self.b_gate**self.pow_b)*(self.c_gate**self.pow_c)*(self.e_ion-self.u_last)
-            i_gated = torch.sum(i_ion, 0)
-
-            self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + self.i_b + i_syn + i_app + i_gated)  # Update membrane potential
-        else:
-            self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + self.i_b + i_syn + i_app)  # Update membrane potential
-        if self.spiking:
-            self.theta = self.theta_last + self.time_factor_threshold * (-self.theta_last + self.theta_0 + self.m * self.u_last)  # Update the firing thresholds
-            self.spikes = torch.sign(torch.clamp(self.theta - self.u,max=0))  # Compute which neurons have spiked
-
-            # New stuff with delay
-            if self.delay:
-                self.spike_buffer = torch.roll(self.spike_buffer, 1, 0)   # Shift buffer entries down
-                self.spike_buffer[0, :] = self.spikes    # Replace row 0 with the current spike data
-                # Update a matrix with all of the appropriately delayed spike values
-                self.delayed_spikes[self.spike_rows, self.spike_cols] = self.spike_buffer[self.buffer_steps, self.buffer_nrns]
-
-                self.g_spike = torch.maximum(self.g_spike, (-self.delayed_spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
-            else:
-                self.g_spike = torch.maximum(self.g_spike, (-self.spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
-            self.u = self.u * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
-        self.outputs = torch.matmul(self.output_voltage_connectivity, self.u)
-        if self.spiking:
-            self.outputs += torch.matmul(self.output_spike_connectivity, -self.spikes)
-
-        return self.outputs
-
-
-"""
-########################################################################################################################
-PYTORCH SPARSE
-"""
-class SNS_Sparse(__Backend__):
-    """
-    Simulation backend based in PyTorch Sparse. In future versions different options will be toggled automatically,
-    but for now are implemented as boolean flags.
-
-    :param network: Network which will be compiled to PyTorch Sparse.
-    :type network:  sns_toolbox.design.networks.Network
-    :param device:  Device network will be stored on, default is 'cuda' (GPU).
-    :type device:   str, optional
-    """
-    def __init__(self,network: Network,device: str = 'cuda',**kwargs):
-        if device != 'cpu':
-            if not torch.cuda.is_available():
-                warnings.warn('CUDA Device Unavailable. Using CPU Instead')
-                device = 'cpu'
-        self.device = device
-        super().__init__(network,**kwargs)
-
-    def __initialize_vectors_and_matrices__(self) -> None:
-        """
-        Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
-        following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
-        :return:    None
-        """
-        self.u = torch.zeros(self.num_neurons,device=self.device)
-        self.u_0 = torch.zeros(self.num_neurons, device=self.device)
-        self.u_last = torch.zeros(self.num_neurons,device=self.device)
-        self.c_m = torch.zeros(self.num_neurons,device=self.device)
-        self.g_m = torch.zeros(self.num_neurons,device=self.device)
-        self.i_b = torch.sparse_coo_tensor(size=(1,self.num_neurons),device=self.device)
-        if self.spiking:
-            self.spikes = torch.sparse_coo_tensor(size=(1, self.num_neurons), device=self.device)
-            self.theta_0 = torch.zeros(self.num_neurons,device=self.device)
-            self.theta = torch.zeros(self.num_neurons,device=self.device)
-            self.theta_last = torch.zeros(self.num_neurons,device=self.device)
-            self.m = torch.sparse_coo_tensor(size=(1,self.num_neurons),device=self.device)
-            self.tau_theta = torch.zeros(self.num_neurons,device=self.device)
-
-        self.g_max_non = torch.sparse_coo_tensor(size=(self.num_neurons,self.num_neurons),device=self.device)
-        self.del_e = torch.sparse_coo_tensor(size=(self.num_neurons, self.num_neurons), device=self.device)
-        if self.spiking:
-            self.g_max_spike = torch.sparse_coo_tensor(size=(self.num_neurons,self.num_neurons),device=self.device)
-            self.g_spike = torch.sparse_coo_tensor(size=(self.num_neurons,self.num_neurons),device=self.device)
-            self.tau_syn = torch.ones([self.num_neurons, self.num_neurons],device=self.device)
-            if self.delay:
-                self.spike_delays = torch.sparse_coo_tensor(size=(self.num_neurons,self.num_neurons),device=self.device)
-                self.spike_rows = []
-                self.spike_cols = []
-                self.buffer_steps = []
-                self.buffer_nrns = []
-                self.delayed_spikes = torch.sparse_coo_tensor(size=(self.num_neurons,self.num_neurons),device=self.device)
-        if self.electrical:
-            self.g_electrical = torch.sparse_coo_tensor(size=(self.num_neurons, self.num_neurons), device=self.device)
-        if self.electrical_rectified:
-            self.g_rectified = torch.sparse_coo_tensor(size=(self.num_neurons, self.num_neurons), device=self.device)
-        if self.gated:
-            # Channel params
-            self.g_ion = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
-            self.e_ion = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
-            # A gate params
-            self.pow_a = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
-            self.slope_a = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
-            self.k_a = torch.ones([self.num_channels, self.num_neurons],device=self.device)
-            self.e_a = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
-            # B gate params
-            self.pow_b = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
-            self.slope_b = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
-            self.k_b = torch.ones([self.num_channels, self.num_neurons],device=self.device)
-            self.e_b = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
-            self.tau_max_b = torch.ones([self.num_channels, self.num_neurons],device=self.device)
-            # C gate params
-            self.pow_c = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
-            self.slope_c = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
-            self.k_c = torch.ones([self.num_channels, self.num_neurons],device=self.device)
-            self.e_c = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
-            self.tau_max_c = torch.ones([self.num_channels, self.num_neurons],device=self.device)
-
-            self.b_gate = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
-            self.b_gate_last = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
-            self.b_gate_0 = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons), device=self.device)
-            self.c_gate = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
-            self.c_gate_last = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
-            self.c_gate_0 = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons), device=self.device)
-
-        self.pops_and_nrns = []
-        index = 0
-        for pop in range(len(self.network.populations)):
-            num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
-            self.pops_and_nrns.append([])
-            for num in range(num_neurons):
-                self.pops_and_nrns[pop].append(index)
-                index += 1
-
-    def __set_neurons__(self) -> None:
-        """
-        Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
-        network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
-        :return:
-        """
-        index = 0
-        for pop in range(len(self.network.populations)):
-            num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
-            initial_value = self.network.populations[pop]['initial_value']
-            for num in range(num_neurons):  # for each neuron, copy the parameters over
-                self.c_m[index] = self.network.populations[pop]['type'].params['membrane_capacitance']
-                self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
-
-                self.i_b = self.i_b.to_dense()
-                self.i_b[0,index] = self.network.populations[pop]['type'].params['bias']
-                self.i_b = self.i_b.to_sparse()
-
-                if hasattr(initial_value, '__iter__'):
-                    self.u_last[index] = initial_value[num]
-                elif initial_value is None:
-                    self.u_last[index] = 0.0
-                else:
-                    self.u_last[index] = initial_value
-
-                if self.spiking:
-                    if isinstance(self.network.populations[pop]['type'], SpikingNeuron):  # if the neuron is spiking, copy more
-                        self.theta_0[index] = self.network.populations[pop]['type'].params['threshold_initial_value']
-
-                        self.m = self.m.to_dense()
-                        self.m[0,index] = self.network.populations[pop]['type'].params['threshold_proportionality_constant']
-                        self.m = self.m.to_sparse()
-
-                        self.tau_theta[index] = self.network.populations[pop]['type'].params['threshold_time_constant']
-                    else:  # otherwise, set to the special values for NonSpiking
-                        self.theta_0[index] = torch.finfo(self.theta_0[index].dtype).max
-
-                        self.m = self.m.to_dense()
-                        self.m[0,index] = 0
-                        self.m = self.m.to_sparse()
-
-                        self.tau_theta[index] = 1
-                if self.gated:
-                    if isinstance(self.network.populations[pop]['type'], NonSpikingNeuronWithGatedChannels):
-                        # Channel params
-                        self.g_ion = self.g_ion.to_dense()
-                        self.g_ion[:, index] = self.network.populations[pop]['type'].params['Gion']
-                        self.g_ion = self.g_ion.to_sparse()
-
-                        self.e_ion = self.e_ion.to_dense()
-                        self.e_ion[:, index] = self.network.populations[pop]['type'].params['Eion']
-                        self.e_ion = self.e_ion.to_sparse()
-
-                        # A gate params
-                        self.pow_a = self.pow_a.to_dense()
-                        self.pow_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['pow']
-                        self.pow_a = self.pow_a.to_sparse()
-
-                        self.slope_a = self.slope_a.to_dense()
-                        self.slope_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['slope']
-                        self.slope_a = self.slope_a.to_sparse()
-
-                        self.k_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['k']
-
-                        self.e_a = self.e_a.to_dense()
-                        self.e_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['reversal']
-                        self.e_a = self.e_a.to_sparse()
-
-                        # B gate params
-                        self.pow_b = self.pow_b.to_dense()
-                        self.pow_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['pow']
-                        self.pow_b = self.pow_b.to_sparse()
-
-                        self.slope_b = self.slope_b.to_dense()
-                        self.slope_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['slope']
-                        self.slope_b = self.slope_b.to_sparse()
-
-                        self.k_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['k']
-
-                        self.e_b = self.e_b.to_dense()
-                        self.e_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['reversal']
-                        self.e_b = self.e_b.to_sparse()
-
-                        self.tau_max_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['TauMax']
-
-                        # C gate params
-                        self.pow_c = self.pow_c.to_dense()
-                        self.pow_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['pow']
-                        self.pow_c = self.pow_c.to_sparse()
-
-                        self.slope_c = self.slope_c.to_dense()
-                        self.slope_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['slope']
-                        self.slope_c = self.slope_c.to_sparse()
-
-                        self.k_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['k']
-
-                        self.e_c = self.e_c.to_dense()
-                        self.e_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['reversal']
-                        self.e_c = self.e_c.to_sparse()
-
-                        self.tau_max_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['TauMax']
-
-                        self.b_gate_last = self.b_gate_last.to_dense()
-                        self.b_gate_last[:, index] = 1 / (1 + self.k_b[:, index] * np.exp(self.slope_b.to_dense()[:, index]*(self.u_last[index]-self.e_b.to_dense()[:, index])))
-                        self.b_gate_last = self.b_gate_last.to_sparse()
-
-                        self.c_gate_last = self.c_gate_last.to_dense()
-                        self.c_gate_last[:, index] = 1 / (1 + self.k_c[:, index] * np.exp(self.slope_c.to_dense()[:, index]*(self.u_last[index]-self.e_c.to_dense()[:, index])))
-                        self.c_gate_last = self.c_gate_last.to_sparse()
-
-                index += 1
-        self.u = self.u_last.clone()
-        if self.spiking:
-            self.theta = self.theta_0.clone()
-            self.theta_last = self.theta_0.clone()
-        if self.gated:
-            self.b_gate = torch.clone(self.b_gate_last)
-            self.b_gate_0 = torch.clone(self.b_gate_last)
-            self.c_gate = torch.clone(self.c_gate_last)
-            self.c_gate_0 = torch.clone(self.c_gate_last)
-
-    def __set_inputs__(self) -> None:
-        """
-        Build the input connection matrix, and apply linear mapping coefficients.
-        :return:    None
-        """
-        self.input_connectivity = torch.sparse_coo_tensor(size=(self.num_neurons, self.network.get_num_inputs_actual()),device=self.device)  # initialize connectivity matrix
-        index = 0
-        for inp in range(self.network.get_num_inputs()):  # iterate over the connections in the network
-            size = self.network.inputs[inp]['size']
-            dest_pop = self.network.inputs[inp]['destination']  # get the destination
-
-            self.input_connectivity = self.input_connectivity.to_dense()
-            if size == 1:
-                for dest in self.pops_and_nrns[dest_pop]:
-                    self.input_connectivity[dest][inp] = 1.0  # set the weight in the correct source and destination
-                index += 1
-            else:
-                for dest in self.pops_and_nrns[dest_pop]:
-                    self.input_connectivity[dest][index] = 1.0
-                    index += 1
-            self.input_connectivity = self.input_connectivity.to_sparse()
-
-    def __set_connections__(self) -> None:
-        """
-        Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
-        synapses.
-        :return: None
-        """
-        for syn in range(len(self.network.connections)):
-            source_pop = self.network.connections[syn]['source']
-            dest_pop = self.network.connections[syn]['destination']
-            g_max = self.network.connections[syn]['params']['max_conductance']
-            if self.network.connections[syn]['params']['electrical'] is False:  # chemical connection
-                del_e = self.network.connections[syn]['params']['relative_reversal_potential']
-
-            if self.network.connections[syn]['params']['pattern']:  # pattern connection
-                pop_size = len(self.pops_and_nrns[source_pop])
-                source_index = self.pops_and_nrns[source_pop][0]
-                dest_index = self.pops_and_nrns[dest_pop][0]
-
-                if self.network.connections[syn]['params']['spiking']:
-                    tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
-
-                    self.g_max_spike = self.g_max_spike.to_dense()
-                    self.g_max_spike[dest_index:dest_index + pop_size,source_index:source_index + pop_size] = torch.from_numpy(g_max)
-                    self.g_max_spike = self.g_max_spike.to_sparse()
-
-                    self.del_e = self.del_e.to_dense()
-                    self.del_e[dest_index:dest_index + pop_size,source_index:source_index + pop_size] = torch.from_numpy(del_e)
-                    self.del_e = self.del_e.to_sparse()
-
-                    self.tau_syn[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(tau_s)
-
-                    if self.delay:
-                        delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
-                        self.spike_delays = self.spike_delays.to_dense()
-                        self.spike_delays[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(delay)
-                        self.spike_delays = self.spike_delays.to_sparse()
-
-                        for source in self.pops_and_nrns[source_pop]:
-                            for dest in self.pops_and_nrns[dest_pop]:
-                                self.buffer_nrns.append(source)
-                                self.buffer_steps.append(delay)
-                                self.spike_rows.append(dest)
-                                self.spike_cols.append(source)
-                else:
-                    self.g_max_non = self.g_max_non.to_dense()
-                    self.g_max_non[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(g_max)
-                    self.g_max_non = self.g_max_non.to_sparse()
-
-                    self.del_e = self.del_e.to_dense()
-                    self.del_e[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(del_e)
-                    self.del_e = self.del_e.to_sparse()
-            elif self.network.connections[syn]['params']['electrical']:  # electrical connection
-                for source in self.pops_and_nrns[source_pop]:
-                    for dest in self.pops_and_nrns[dest_pop]:
-                        if self.network.connections[syn]['params']['rectified']:  # rectified
-                            self.g_rectified = self.g_rectified.to_dense()
-                            self.g_rectified[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
-                            self.g_rectified = self.g_rectified.to_sparse()
-                        else:
-                            self.g_electrical = self.g_electrical.to_dense()
-                            self.g_electrical[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
-                            self.g_electrical[source][dest] = g_max / len(self.pops_and_nrns[source_pop])
-                            self.g_electrical = self.g_electrical.to_sparse()
-            else:   # chemical connections
-                if self.network.connections[syn]['params']['spiking']:  # spiking chemical synapse
-                    tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
-                    if self.delay:
-                        delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
-                    for source in self.pops_and_nrns[source_pop]:
-                        for dest in self.pops_and_nrns[dest_pop]:
-                            self.g_max_spike = self.g_max_spike.to_dense()
-                            self.g_max_spike[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
-                            self.g_max_spike = self.g_max_spike.to_sparse()
-
-                            self.del_e = self.del_e.to_dense()
-                            self.del_e[dest][source] = del_e
-                            self.del_e = self.del_e.to_sparse()
-
-                            self.tau_syn[dest][source] = tau_s
-
-                            if self.delay:
-                                self.spike_delays = self.spike_delays.to_dense()
-                                self.spike_delays[dest][source] = delay
-                                self.spike_delays = self.spike_delays.to_sparse()
-
-                                self.buffer_nrns.append(source)
-                                self.buffer_steps.append(delay)
-                                self.spike_rows.append(dest)
-                                self.spike_cols.append(source)
-                else:   # non-spiking chemical synapse
-                    for source in self.pops_and_nrns[source_pop]:
-                        for dest in self.pops_and_nrns[dest_pop]:
-                            self.g_max_non = self.g_max_non.to_dense()
-                            self.g_max_non[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
-                            self.g_max_non = self.g_max_non.to_sparse()
-
-                            self.del_e = self.del_e.to_dense()
-                            self.del_e[dest][source] = del_e
-                            self.del_e = self.del_e.to_sparse()
-
-    def __initialize_propagation_delay__(self) -> None:
-        """
-        Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
-        :return: None
-        """
-        self.spike_delays = self.spike_delays.to_dense()
-        buffer_length = int(torch.max(self.spike_delays) + 1)
-        self.spike_delays = self.spike_delays.to_sparse()
-
-        self.spike_buffer = torch.sparse_coo_tensor(size=(buffer_length,self.num_neurons),device=self.device)
-
-    def __set_outputs__(self) -> None:
-        """
-        Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
-        output monitors for each neuron in a population.
-        :return: None
-        """
-        outputs = []
-        index = 0
-        for out in range(len(self.network.outputs)):
-            source_pop = self.network.outputs[out]['source']
-            num_source_neurons = self.network.populations[source_pop]['number']
-            outputs.append([])
-            for num in range(num_source_neurons):
-                outputs[out].append(index)
-                index += 1
-        self.num_outputs = index
-
-        self.output_voltage_connectivity = torch.sparse_coo_tensor(size=(self.num_outputs, self.num_neurons),device=self.device)  # initialize connectivity matrix
-        if self.spiking:
-            self.output_spike_connectivity = torch.clone(self.output_voltage_connectivity)
-        self.outputs = torch.sparse_coo_tensor(size=(1, self.num_outputs), device=self.device)
-
-        for out in range(len(self.network.outputs)):  # iterate over the connections in the network
-            source_pop = self.network.outputs[out]['source']  # get the source
-            for i in range(len(self.pops_and_nrns[source_pop])):
-                if self.network.outputs[out]['spiking']:
-                    self.output_spike_connectivity = self.output_spike_connectivity.to_dense()
-                    self.output_spike_connectivity[outputs[out][i]][
-                        self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
-                    self.output_spike_connectivity = self.output_spike_connectivity.to_sparse()
-                else:
-                    self.output_voltage_connectivity = self.output_voltage_connectivity.to_dense()
-                    self.output_voltage_connectivity[outputs[out][i]][
-                        self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
-                    self.output_voltage_connectivity = self.output_voltage_connectivity.to_sparse()
-
-    def reset(self, u=None, theta=None, b_gate=None, c_gate=None) -> None:
-        if u is None:
-            self.u = torch.clone(self.u_0)
-            self.u_last = torch.clone(self.u_0)
-        else:
-            self.u = torch.clone(u)
-            self.u_last = torch.clone(u)
-        if self.spiking:
-            if theta is None:
-                self.theta = torch.clone(self.theta_0)
-                self.theta_last = torch.clone(self.theta_0)
-            else:
-                self.theta = torch.clone(theta)
-                self.theta_last = torch.clone(theta)
-        if self.gated:
-            if b_gate is None:
-                self.b_gate = torch.clone(self.b_gate_0)
-                self.b_gate_last = torch.clone(self.b_gate_0)
-            else:
-                self.b_gate = torch.clone(b_gate)
-                self.b_gate_last = torch.clone(b_gate)
-            if c_gate is None:
-                self.c_gate = torch.clone(self.c_gate_0)
-                self.c_gate_last = torch.clone(self.c_gate_0)
-            else:
-                self.c_gate = torch.clone(c_gate)
-                self.c_gate_last = torch.clone(c_gate)
-
-    def __forward_pass__(self, inputs) -> Any:
-        self.u_last = torch.clone(self.u)
-
-        i_app = torch.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
-        i_app = i_app.to_sparse()
-
-        g_syn = torch.clamp(torch.minimum(self.g_max_non.to_dense() * self.u_last / self.R, self.g_max_non.to_dense()),min=0)
-        g_syn = g_syn.to_sparse()
-
-        if self.spiking:
-            self.theta_last = torch.clone(self.theta)
-            self.g_spike = self.g_spike.to_dense() * (1 - self.time_factor_synapse)
-            self.g_spike = self.g_spike.to_sparse()
-
-            g_syn += self.g_spike
-
-        if g_syn._nnz() > 0:
-            i_syn = torch.sparse.sum(g_syn * self.del_e, 1) - (self.u_last * torch.sum(g_syn.to_dense(), 1)).to_sparse()
-        else:
-            i_syn = torch.sparse.sum(g_syn * self.del_e) - self.u_last * torch.sparse.sum(g_syn)
-        if self.electrical:
-            i_syn += (torch.sum(self.g_electrical.to_dense() * self.u_last, 1).to_sparse() -
-                      (self.u_last * torch.sum(self.g_electrical.to_dense(), 1)).to_sparse())
-        if self.electrical_rectified:
-            # create mask
-            mask = (self.u_last.reshape(-1, 1) - self.u_last).transpose(0, 1) > 0
-            masked_g = mask * self.g_rectified.to_dense()
-            diag_masked = masked_g + masked_g.transpose(0, 1) - torch.diag(masked_g.diagonal())
-            i_syn += torch.sum(diag_masked * self.u_last, 1).to_sparse() - (self.u_last * torch.sum(diag_masked, 1)).to_sparse()
-        if self.gated:
-            a_inf = (1 / (1 + self.k_a * torch.exp(self.slope_a.to_dense()*(self.e_a.to_dense()-self.u_last)))).to_sparse()
-            b_inf = (1 / (1 + self.k_b * torch.exp(self.slope_b.to_dense()*(self.e_b.to_dense()-self.u_last)))).to_sparse()
-            c_inf = (1 / (1 + self.k_c * torch.exp(self.slope_c.to_dense()*(self.e_c.to_dense()-self.u_last)))).to_sparse()
-
-            tau_b = (self.tau_max_b * b_inf.to_dense() * torch.sqrt(self.k_b*torch.exp(self.slope_b.to_dense()*(self.e_b.to_dense()-self.u_last)))).to_sparse()
-            tau_c = (self.tau_max_c * c_inf.to_dense() * torch.sqrt(self.k_c*torch.exp(self.slope_c.to_dense()*(self.e_c.to_dense()-self.u_last)))).to_sparse()
-
-            self.b_gate_last = torch.clone(self.b_gate)
-            self.c_gate_last = torch.clone(self.c_gate)
-
-            self.b_gate = (self.b_gate_last.to_dense() + self.dt * ((b_inf - self.b_gate_last).to_dense() / tau_b.to_dense())).to_sparse()
-            self.c_gate = (self.c_gate_last.to_dense() + self.dt * ((c_inf - self.c_gate_last).to_dense() / tau_c.to_dense())).to_sparse()
-
-            i_ion = (self.g_ion.to_dense()*(a_inf.to_dense()**self.pow_a.to_dense())*(self.b_gate.to_dense()**self.pow_b.to_dense())*(self.c_gate.to_dense()**self.pow_c.to_dense())*(self.e_ion.to_dense()-self.u_last)).to_sparse()
-            i_gated = torch.sum(i_ion.to_dense(), 0).to_sparse()
-
-            self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + (self.i_b.to_dense())[0,:] + i_syn + i_app + i_gated)  # Update membrane potential
-        else:
-            self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + (self.i_b.to_dense())[0,:] + i_syn + i_app)  # Update membrane potential
-        if self.spiking:
-            self.theta = self.theta_last + self.time_factor_threshold * (-self.theta_last + self.theta_0 + (self.m.to_dense())[0,:] * self.u_last)  # Update the firing thresholds
-
-            self.spikes = torch.sign(torch.clamp(self.theta - self.u,max=0))  # Compute which neurons have spiked
-            self.spikes = self.spikes.to_sparse()
-
-            if self.delay:
-                # New stuff with delay
-                self.spike_buffer = self.spike_buffer.to_dense()
-                self.spike_buffer = torch.roll(self.spike_buffer, 1, 0)   # Shift buffer entries down
-                self.spike_buffer[0, :] = self.spikes.to_dense()    # Replace row 0 with the current spike data
-                self.spike_buffer = self.spike_buffer.to_sparse()
-
-                # Update a matrix with all of the appropriately delayed spike values
-                self.delayed_spikes = self.delayed_spikes.to_dense()
-                self.delayed_spikes[self.spike_rows, self.spike_cols] = (self.spike_buffer.to_dense())[self.buffer_steps, self.buffer_nrns]
-                self.delayed_spikes = self.delayed_spikes.to_sparse()
-
-                self.g_spike = torch.maximum(self.g_spike.to_dense(), ((-self.delayed_spikes) * self.g_max_spike).to_dense())  # Update the conductance of connections which spiked
-            else:
-                self.g_spike = torch.maximum(self.g_spike.to_dense(), (-self.spikes.to_dense()) * self.g_max_spike.to_dense())  # Update the conductance of connections which spiked
-            self.g_spike = self.g_spike.to_sparse()
-            self.u = self.u * (self.spikes.to_dense() + 1)  # Reset the membrane voltages of neurons which spiked
-        self.outputs = torch.matmul(self.output_voltage_connectivity, self.u)
-        if self.spiking:
-            self.outputs += torch.matmul(self.output_spike_connectivity, -self.spikes.to_dense())
-
-        return self.outputs
-
-
-"""
-########################################################################################################################
-MANUAL BACKEND
-
-Simulating the network using numpy vectors and matrices.
-Note that this is not sparse, so memory may explode for large networks
-"""
-class SNS_Manual(__Backend__):
-    """
-    Simulation backend based in Numpy, but computes neural and synapses states in loops. Primarily for comparison, but
-    could be useful for giant networks that don't fit in memory. In future versions different options will be toggled
-    automatically, but for now are implemented as boolean flags.
-
-    :param network: Network which will be compiled.
-    :type network:  sns_toolbox.design.networks.Network
-    """
-    def __init__(self,network: Network,**kwargs):
-        super().__init__(network,**kwargs)
-
-    def __initialize_vectors_and_matrices__(self) -> None:
-        """
-        Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
-        following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
-        :return:    None
-        """
-        self.u = np.zeros(self.num_neurons)
-        self.u_0 = np.zeros(self.num_neurons)
-        self.u_last = np.zeros(self.num_neurons)
-        self.c_m = np.zeros(self.num_neurons)
-        self.g_m = np.zeros(self.num_neurons)
-        self.i_b = np.zeros(self.num_neurons)
-        if self.spiking:
-            self.spikes = np.zeros(self.num_neurons)
-            self.theta_0 = np.zeros(self.num_neurons)
-            self.theta = np.zeros(self.num_neurons)
-            self.theta_last = np.zeros(self.num_neurons)
-            self.m = np.zeros(self.num_neurons)
-            self.tau_theta = np.zeros(self.num_neurons)
-        if self.gated:
-            # Channel params
-            self.g_ion = np.zeros([self.num_channels, self.num_neurons])
-            self.e_ion = np.zeros([self.num_channels, self.num_neurons])
-            # A gate params
-            self.pow_a = np.zeros([self.num_channels, self.num_neurons])
-            self.slope_a = np.zeros([self.num_channels, self.num_neurons])
-            self.k_a = np.zeros([self.num_channels, self.num_neurons])+1
-            self.e_a = np.zeros([self.num_channels, self.num_neurons])
-            # B gate params
-            self.pow_b = np.zeros([self.num_channels, self.num_neurons])
-            self.slope_b = np.zeros([self.num_channels, self.num_neurons])
-            self.k_b = np.zeros([self.num_channels, self.num_neurons])+1
-            self.e_b = np.zeros([self.num_channels, self.num_neurons])
-            self.tau_max_b = np.zeros([self.num_channels, self.num_neurons])+1
-            # C gate params
-            self.pow_c = np.zeros([self.num_channels, self.num_neurons])
-            self.slope_c = np.zeros([self.num_channels, self.num_neurons])
-            self.k_c = np.zeros([self.num_channels, self.num_neurons])+1
-            self.e_c = np.zeros([self.num_channels, self.num_neurons])
-            self.tau_max_c = np.zeros([self.num_channels, self.num_neurons])+1
-
-            self.b_gate = np.zeros([self.num_channels, self.num_neurons])
-            self.b_gate_0 = np.zeros([self.num_channels, self.num_neurons])
-            self.b_gate_last = np.zeros([self.num_channels, self.num_neurons])
-            self.c_gate = np.zeros([self.num_channels, self.num_neurons])
-            self.c_gate_0 = np.zeros([self.num_channels, self.num_neurons])
-            self.c_gate_last = np.zeros([self.num_channels, self.num_neurons])
-
-        self.incoming_synapses = []
-        for i in range(self.num_neurons):
-            self.incoming_synapses.append([])
-
-        self.pops_and_nrns = []
-        index = 0
-        for pop in range(len(self.network.populations)):
-            num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
-            self.pops_and_nrns.append([])
-            for num in range(num_neurons):
-                self.pops_and_nrns[pop].append(index)
-                index += 1
-
-    def __set_neurons__(self) -> None:
-        """
-        Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
-        network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
-        :return:
-        """
-        index = 0
-        for pop in range(len(self.network.populations)):
-            num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
-            initial_value = self.network.populations[pop]['initial_value']
-            for num in range(num_neurons):  # for each neuron, copy the parameters over
-                self.c_m[index] = self.network.populations[pop]['type'].params['membrane_capacitance']
-                self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
-                self.i_b[index] = self.network.populations[pop]['type'].params['bias']
-                if hasattr(initial_value, '__iter__'):
-                    self.u_last[index] = initial_value[num]
-                elif initial_value is None:
-                    self.u_last[index] = 0.0
-                else:
-                    self.u_last[index] = initial_value
-                if self.spiking:
-                    if isinstance(self.network.populations[pop]['type'], SpikingNeuron):  # if the neuron is spiking, copy more
-                        self.theta_0[index] = self.network.populations[pop]['type'].params['threshold_initial_value']
-                        self.m[index] = self.network.populations[pop]['type'].params['threshold_proportionality_constant']
-                        self.tau_theta[index] = self.network.populations[pop]['type'].params['threshold_time_constant']
-                    else:  # otherwise, set to the special values for NonSpiking
-                        self.theta_0[index] = sys.float_info.max
-                        self.m[index] = 0
-                        self.tau_theta[index] = 1
-                if self.gated:
-                    if isinstance(self.network.populations[pop]['type'], NonSpikingNeuronWithGatedChannels):
-                        # Channel params
-                        self.g_ion[:, index] = self.network.populations[pop]['type'].params['Gion']
-                        self.e_ion[:, index] = self.network.populations[pop]['type'].params['Eion']
-                        # A gate params
-                        self.pow_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['pow']
-                        self.slope_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['slope']
-                        self.k_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['k']
-                        self.e_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['reversal']
-                        # B gate params
-                        self.pow_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['pow']
-                        self.slope_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['slope']
-                        self.k_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['k']
-                        self.e_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['reversal']
-                        self.tau_max_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['TauMax']
-                        # C gate params
-                        self.pow_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['pow']
-                        self.slope_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['slope']
-                        self.k_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['k']
-                        self.e_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['reversal']
-                        self.tau_max_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['TauMax']
-
-                        self.b_gate_last[:, index] = 1 / (1 + self.k_b[:, index] * np.exp(self.slope_b[:, index]*(self.u_last[index]-self.e_b[:, index])))
-                        self.c_gate_last[:, index] = 1 / (1 + self.k_c[:, index] * np.exp(self.slope_c[:, index]*(self.u_last[index]-self.e_c[:, index])))
-                index += 1
-        self.u = np.copy(self.u_last)
-        if self.spiking:
-            self.theta = np.copy(self.theta_0)
-            self.theta_last = np.copy(self.theta_0)
-        if self.gated:
-            self.b_gate = np.copy(self.b_gate_last)
-            self.b_gate_0 = np.copy(self.b_gate_last)
-            self.c_gate = np.copy(self.c_gate_last)
-            self.c_gate_0 = np.copy(self.c_gate_last)
-
-    def __set_inputs__(self) -> None:
-        """
-        Build the input connection matrix, and apply linear mapping coefficients.
-        :return:    None
-        """
-        self.input_connectivity = np.zeros([self.num_neurons, self.network.get_num_inputs_actual()])  # initialize connectivity matrix
-        index = 0
-        for inp in range(self.network.get_num_inputs()):  # iterate over the connections in the network
-            size = self.network.inputs[inp]['size']
-            dest_pop = self.network.inputs[inp]['destination']  # get the destination
-            if size == 1:
-                for dest in self.pops_and_nrns[dest_pop]:
-                    self.input_connectivity[dest][inp] = 1.0  # set the weight in the correct source and destination
-                index += 1
-            else:
-                for dest in self.pops_and_nrns[dest_pop]:
-                    self.input_connectivity[dest][index] = 1.0
-                    index += 1
-
-    def __set_connections__(self) -> None:
-        """
-        Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
-        synapses.
-        :return: None
-        """
-        for syn in range(len(self.network.connections)):
-            source_pop = self.network.connections[syn]['source']
-            dest_pop = self.network.connections[syn]['destination']
-            g_max = self.network.connections[syn]['params']['max_conductance']
-            if self.network.connections[syn]['params']['electrical'] is False:  # electrical connection
-                del_e = self.network.connections[syn]['params']['relative_reversal_potential']
-
-            if self.network.connections[syn]['params']['pattern']:  # pattern connection
-                pop_size = len(self.pops_and_nrns[source_pop])
-                source_index = self.pops_and_nrns[source_pop][0]
-                dest_index = self.pops_and_nrns[dest_pop][0]
-                if self.network.connections[syn]['params']['spiking']:
-                    tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
-                    if self.delay:
-                        delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
-
-                    for dest in range(pop_size):
-                        for source in range(pop_size):
-                            g_syn = g_max[dest,source]
-                            rev = del_e[dest,source]
-                            time_factor_syn = self.dt/tau_s[dest,source]
-                            if self.delay:
-                                buffer = np.zeros(delay[dest, source])
-                                self.incoming_synapses[dest+dest_index].append([source+source_index, True, False, g_syn, rev, 0, time_factor_syn, buffer])
-                            else:
-                                self.incoming_synapses[dest + dest_index].append([source + source_index, True, False, g_syn, rev, 0, time_factor_syn])
-                else:
-                    for dest in range(pop_size):
-                        for source in range(pop_size):
-                            g_syn = g_max[dest, source]
-                            rev = del_e[dest, source]
-
-                            self.incoming_synapses[dest + dest_index].append([source + source_index, False, False, g_syn, rev, 0])
-            elif self.network.connections[syn]['params']['electrical']:  # electrical connection
-                for dest in self.pops_and_nrns[dest_pop]:
-                    for source in self.pops_and_nrns[source_pop]:
-                        g_syn = g_max / len(self.pops_and_nrns[source_pop])
-                        if self.network.connections[syn]['params']['rectified']:  # rectified
-                            self.incoming_synapses[dest].append([source, False, True, g_syn, True, source, dest])
-                            self.incoming_synapses[source].append([dest, False, True, g_syn, True, source, dest])
-                        else:
-                            self.incoming_synapses[dest].append([source, False, True, g_syn, False])
-                            self.incoming_synapses[source].append([dest, False, True, g_syn, False])
-            else:   # chemical connection
-                if self.network.connections[syn]['params']['spiking']:
-                    tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
-                    if self.delay:
-                        delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
-                    for dest in self.pops_and_nrns[dest_pop]:
-                        for source in self.pops_and_nrns[source_pop]:
-                            g_syn = g_max / len(self.pops_and_nrns[source_pop])
-                            if self.delay:
-                                buffer = np.zeros(delay+1)
-                                self.incoming_synapses[dest].append([source, True, False, g_syn, del_e, 0, self.dt/tau_s,buffer])
-                            else:
-                                self.incoming_synapses[dest].append([source, True, False, g_syn, del_e, 0, self.dt / tau_s])
-                else:
-                    for dest in self.pops_and_nrns[dest_pop]:
-                        for source in self.pops_and_nrns[source_pop]:
-                            g_syn = g_max / len(self.pops_and_nrns[source_pop])
-                            self.incoming_synapses[dest].append([source,False, False, g_syn,del_e,0])
-
-    def __calculate_time_factors__(self) -> None:
-        """
-        Precompute the time factors for the membrane voltage, firing threshold, and spiking synapses.
-        :return: None
-        """
-        self.time_factor_membrane = self.dt / (self.c_m/self.g_m)
-        if self.spiking:
-            self.time_factor_threshold = self.dt / self.tau_theta
-
-    def __initialize_propagation_delay__(self) -> None:
-        """
-        Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
-        :return: None
-        """
-        pass
-
-    def __set_outputs__(self) -> None:
-        """
-        Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
-        output monitors for each neuron in a population.
-        :return: None
-        """
-        outputs = []
-        index = 0
-        for out in range(len(self.network.outputs)):
-            source_pop = self.network.outputs[out]['source']
-            num_source_neurons = self.network.populations[source_pop]['number']
-            outputs.append([])
-            for num in range(num_source_neurons):
-                outputs[out].append(index)
-                index += 1
-        self.num_outputs = index
-
-        self.output_voltage_connectivity = np.zeros([self.num_outputs, self.num_neurons])  # initialize connectivity matrix
-        if self.spiking:
-            self.output_spike_connectivity = np.copy(self.output_voltage_connectivity)
-        self.outputs = np.zeros(self.num_outputs)
-        for out in range(len(self.network.outputs)):  # iterate over the connections in the network
-            source_pop = self.network.outputs[out]['source']  # get the source
-            for i in range(len(self.pops_and_nrns[source_pop])):
-                if self.network.outputs[out]['spiking']:
-                    self.output_spike_connectivity[outputs[out][i]][
-                        self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
-                    # self.out_linear[outputs[out][i]] = 1.0
-                else:
-                    self.output_voltage_connectivity[outputs[out][i]][
-                        self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
-
-    def __debug_print__(self) -> None:
-        """
-        Print the values for every vector/matrix which will be used in the forward computation.
-        :return: None
-        """
-        print('Input Connectivity:')
-        print(self.input_connectivity)
-        print('Output Voltage Connectivity')
-        print(self.output_voltage_connectivity)
-        if self.spiking:
-            print('Output Spike Connectivity:')
-            print(self.output_spike_connectivity)
-        print('u:')
-        print(self.u)
-        print('u_last:')
-        print(self.u_last)
-        if self.spiking:
-            print('theta_0:')
-            print(self.theta_0)
-            print('ThetaLast:')
-            print(self.theta_last)
-            print('Theta')
-            print(self.theta)
-        if self.gated:
-            print('Number of Channels:')
-            print(self.num_channels)
-            print('Ionic Conductance:')
-            print(self.g_ion)
-            print('Ionic Reversal Potentials:')
-            print(self.e_ion)
-            print('A Gate Parameters:')
-            print('Power:')
-            print(self.pow_a)
-            print('Slope:')
-            print(self.slope_a)
-            print('K:')
-            print(self.k_a)
-            print('Reversal Potential:')
-            print(self.e_a)
-            print('B Gate Parameters:')
-            print('Power:')
-            print(self.pow_b)
-            print('Slope:')
-            print(self.slope_b)
-            print('K:')
-            print(self.k_b)
-            print('Reversal Potential:')
-            print(self.e_b)
-            print('Tau Max:')
-            print(self.tau_max_b)
-            print('B:')
-            print(self.b_gate)
-            print('B_last:')
-            print(self.b_gate_last)
-            print('C Gate Parameters:')
-            print('Power:')
-            print(self.pow_c)
-            print('Slope:')
-            print(self.slope_c)
-            print('K:')
-            print(self.k_c)
-            print('Reversal Potential:')
-            print(self.e_c)
-            print('Tau Max:')
-            print(self.tau_max_c)
-            print('B:')
-            print(self.c_gate)
-            print('B_last:')
-            print(self.c_gate_last)
-
-    def reset(self, u=None, theta=None, b_gate=None, c_gate=None) -> None:
-        if u is None:
-            self.u = np.copy(self.u_0)
-            self.u_last = np.copy(self.u_0)
-        else:
-            self.u = np.copy(u)
-            self.u_last = np.copy(u)
-        if self.spiking:
-            if theta is None:
-                self.theta = np.copy(self.theta_0)
-                self.theta_last = np.copy(self.theta_0)
-            else:
-                self.theta = np.copy(theta)
-                self.theta_last = np.copy(theta)
-        if self.gated:
-            if b_gate is None:
-                self.b_gate = np.copy(self.b_gate_0)
-                self.b_gate_last = np.copy(self.b_gate_0)
-            else:
-                self.b_gate = np.copy(b_gate)
-                self.b_gate_last = np.copy(b_gate)
-            if c_gate is None:
-                self.c_gate = np.copy(self.c_gate_0)
-                self.c_gate_last = np.copy(self.c_gate_0)
-            else:
-                self.c_gate = np.copy(c_gate)
-                self.c_gate_last = np.copy(c_gate)
-
-    def save(self, filename=None) -> None:
-        """
-        Save the compiled network to disc.
-        """
-        data = {'name':                 self.name,
-                'spiking':              self.spiking,
-                'delay':                self.delay,
-                'elec':                 self.electrical,
-                'rect':                 self.electrical_rectified,
-                'gated':                self.gated,
-                'numChannels':          self.num_channels,
-                'u':                    self.u,
-                'uLast':                self.u_last,
-                'u0':                   self.u_0,
-                'cM':                   self.c_m,
-                'gM':                   self.g_m,
-                'iB':                   self.i_b,
-                'timeFactorMembrane':   self.time_factor_membrane,
-                'inputConn':            self.input_connectivity,
-                'numPop':               self.num_populations,
-                'numNeurons':           self.num_neurons,
-                'numConn':              self.num_connections,
-                'numInputs':            self.num_inputs,
-                'numOutputs':           self.num_outputs,
-                'r':                    self.R,
-                'outConnVolt':          self.output_voltage_connectivity,
-                'incomingSynapses':     self.incoming_synapses}
-        if self.spiking:
-            data['spikes'] = self.spikes
-            data['theta0'] = self.theta_0
-            data['theta'] = self.theta
-            data['thetaLast'] = self.theta_last
-            data['m'] = self.m
-            data['tauTheta'] = self.tau_theta
-            data['timeFactorThreshold'] = self.time_factor_threshold
-            data['outConnSpike'] = self.output_spike_connectivity
-        if self.delay:
-            foo = 5
-        if self.electrical:
-            foo = 5
-        if self.electrical_rectified:
-            foo = 5
-        if self.gated:
-            data['gIon'] = self.g_ion
-            data['eIon'] = self.e_ion
-            data['powA'] = self.pow_a
-            data['slopeA'] = self.slope_a
-            data['kA'] = self.k_a
-            data['eA'] = self.e_a
-            data['powB'] = self.pow_b
-            data['slopeB'] = self.slope_b
-            data['kB'] = self.k_b
-            data['eB'] = self.e_b
-            data['tauMaxB'] = self.tau_max_b
-            data['powC'] = self.pow_c
-            data['slopeC'] = self.slope_c
-            data['kC'] = self.k_c
-            data['eC'] = self.e_c
-            data['tauMaxC'] = self.tau_max_c
-            data['bGate'] = self.b_gate
-            data['bGateLast'] = self.b_gate_last
-            data['bGate0'] = self.b_gate_0
-            data['cGate'] = self.c_gate
-            data['cGateLast'] = self.c_gate_last
-            data['cGate0'] = self.c_gate_0
-
-        if filename is None:
-            filename = self.name + '.p'
-        pickle.dump(data, open(filename, 'wb'))
-
-    def __load__(self, data):
-        self.name = data['name']
-        self.spiking = data['spiking']
-        self.delay = data['delay']
-        self.electrical = data['elec']
-        self.electrical_rectified = data['rect']
-        self.gated = data['gated']
-        self.num_channels = data['numChannels']
-        self.u = data['u']
-        self.u_last = data['uLast']
-        self.u_0 = data['u0']
-        self.c_m = data['cM']
-        self.g_m = data['gM']
-        self.i_b = data['iB']
-        self.time_factor_membrane = data['timeFactorMembrane']
-        self.input_connectivity = data['inputConn']
-        self.output_voltage_connectivity = data['outConnVolt']
-        self.num_populations = data['numPop']
-        self.num_neurons = data['numNeurons']
-        self.num_connections = data['numConn']
-        self.num_inputs = data['numInputs']
-        self.num_outputs = data['numOutputs']
-        self.R = data['r']
-        self.incoming_synapses = data['incomingSynapses']
-        if self.spiking:
-            self.spikes = data['spikes']
-            self.theta_0 = data['theta0']
-            self.theta = data['theta']
-            self.theta_last = data['thetaLast']
-            self.m = data['m']
-            self.tau_theta = data['tauTheta']
-            self.time_factor_threshold = data['timeFactorThreshold']
-            self.output_spike_connectivity = data['outConnSpike']
-        if self.delay:
-            foo = 5
-        if self.electrical:
-            foo = 5
-        if self.electrical_rectified:
-            foo = 5
-        if self.gated:
-            self.g_ion = data['gIon']
-            self.e_ion = data['eIon']
-            self.pow_a = data['powA']
-            self.slope_a = data['slopeA']
-            self.k_a = data['kA']
-            self.e_a = data['eA']
-            self.pow_b = data['powB']
-            self.slope_b = data['slopeB']
-            self.k_b = data['kB']
-            self.e_b = data['eB']
-            self.tau_max_b = data['tauMaxB']
-            self.pow_c = data['powC']
-            self.slope_c = data['slopeC']
-            self.k_c = data['kC']
-            self.e_c = data['eC']
-            self.tau_max_c = data['tauMaxC']
-            self.b_gate = data['bGate']
-            self.b_gate_last = data['bGateLast']
-            self.b_gate_0 = data['bGate0']
-            self.c_gate = data['cGate']
-            self.c_gate_last = data['cGateLast']
-            self.c_gate_0 = data['cGate0']
-
-    def __forward_pass__(self, inputs) -> Any:
-        self.u_last = np.copy(self.u)
-        if self.spiking:
-            self.theta_last = np.copy(self.theta)
-        if self.gated:
-            self.b_gate_last = np.copy(self.b_gate)
-            self.c_gate_last = np.copy(self.c_gate)
-
-        i_app = np.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
-
-        for nrn in range(self.num_neurons):
-            i_syn = 0
-            for syn in range(len(self.incoming_synapses[nrn])):
-                neuron_src = self.incoming_synapses[nrn][syn]
-                if neuron_src[1]:  # if spiking
-                    neuron_src[5] = neuron_src[5] * (1-neuron_src[6])
-                    i_syn += neuron_src[5] * (neuron_src[4] - self.u_last[nrn])
-                elif neuron_src[2]: # if electrical
-                    if neuron_src[4]:   # if rectified
-                        if self.u_last[neuron_src[5]] > self.u_last[neuron_src[6]]:
-                            i_syn += neuron_src[3] * (self.u_last[neuron_src[0]] - self.u_last[nrn])
-                    else:
-                        i_syn += neuron_src[3] * (self.u_last[neuron_src[0]] - self.u_last[nrn])
-                else:   # if chemical
-                    neuron_src[5] = np.maximum(0, np.minimum(neuron_src[3] * self.u_last[neuron_src[0]] / self.R, neuron_src[3]))
-                    i_syn += neuron_src[5] * (neuron_src[4] - self.u_last[nrn])
-            i_gated = 0
-            if self.gated:
-                a_inf = 1 / (1 + self.k_a[:,nrn] * np.exp(self.slope_a[:,nrn] * (self.e_a[:,nrn] - self.u_last[nrn])))
-                b_inf = 1 / (1 + self.k_b[:,nrn] * np.exp(self.slope_b[:,nrn] * (self.e_b[:,nrn] - self.u_last[nrn])))
-                c_inf = 1 / (1 + self.k_c[:,nrn] * np.exp(self.slope_c[:,nrn] * (self.e_c[:,nrn] - self.u_last[nrn])))
-
-                tau_b = self.tau_max_b[:,nrn] * b_inf * np.sqrt(self.k_b[:,nrn] * np.exp(self.slope_b[:,nrn] * (self.e_b[:,nrn] - self.u_last[nrn])))
-                tau_c = self.tau_max_c[:,nrn] * c_inf * np.sqrt(self.k_c[:,nrn] * np.exp(self.slope_c[:,nrn] * (self.e_c[:,nrn] - self.u_last[nrn])))
-
-                self.b_gate[:,nrn] = self.b_gate_last[:,nrn] + self.dt * ((b_inf - self.b_gate_last[:,nrn]) / tau_b)
-                self.c_gate[:,nrn] = self.c_gate_last[:,nrn] + self.dt * ((c_inf - self.c_gate_last[:,nrn]) / tau_c)
-
-                i_ion = self.g_ion[:,nrn] * (a_inf ** self.pow_a[:,nrn]) * (self.b_gate[:,nrn] ** self.pow_b[:,nrn]) * (self.c_gate[:,nrn] ** self.pow_c[:,nrn]) * (self.e_ion[:,nrn] - self.u_last[nrn])
-                i_gated = np.sum(i_ion)
-
-            self.u[nrn] = self.u_last[nrn] + self.time_factor_membrane[nrn] * (-self.g_m[nrn] * self.u_last[nrn] + self.i_b[nrn] + i_syn + i_app[nrn] + i_gated)  # Update membrane potential
-            if self.spiking:
-                # if self.theta_0[nrn] != sys.float_info.max:
-                self.theta[nrn] = self.theta_last[nrn] + self.time_factor_threshold[nrn] * (-self.theta_last[nrn] + self.theta_0[nrn] + self.m[nrn] * self.u_last[nrn])  # Update the firing thresholds
-                self.spikes[nrn] = np.sign(np.minimum(0, self.theta[nrn] - self.u[nrn]))  # Compute which neurons have spiked
-        if self.spiking:
-            for nrn in range(self.num_neurons):
-                if self.delay:
-                    # New stuff with delay
-                    for syn in range(len(self.incoming_synapses[nrn])):
-                        neuron_src = self.incoming_synapses[nrn][syn]
-                        if neuron_src[1]:  # if spiking
-                            neuron_src[7] = np.roll(neuron_src[7], 1)   # Shift buffer entries down
-                            neuron_src[7][0] = self.spikes[neuron_src[0]]    # Replace row 0 with the current spike data
-                            neuron_src[5] = np.maximum(neuron_src[5], (-neuron_src[7][-1]) * neuron_src[3])  # Update the conductance of connections which spiked
-                self.u[nrn] = self.u[nrn] * (self.spikes[nrn] + 1)  # Reset the membrane voltages of neurons which spiked
-        self.outputs = np.matmul(self.output_voltage_connectivity, self.u)
-        if self.spiking:
-            self.outputs += np.matmul(self.output_spike_connectivity, -self.spikes)
-
-        return self.outputs
+# """
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+# PYTORCH DENSE
+#
+# Simulating the network using GPU-compatible tensors.
+# Note that this is not sparse, so memory may explode for large networks
+# """
+#
+# # TODO: Try Reformulating as 'real' pytorch model
+# class SNS_Torch(__Backend__):
+#     """
+#     Simulation backend based in PyTorch. In future versions different options will be toggled automatically, but for now
+#     are implemented as boolean flags.
+#
+#     :param network: Network which will be compiled to PyTorch.
+#     :type network:  sns_toolbox.design.networks.Network
+#     :param device:  Device network will be stored on, default is 'cuda' (GPU).
+#     :type device:   str, optional
+#     """
+#     def __init__(self,network: Any,device: str = 'cuda',**kwargs):
+#         if device != 'cpu':
+#             if not torch.cuda.is_available():
+#                 warnings.warn('CUDA Device Unavailable. Using CPU Instead')
+#                 device = 'cpu'
+#         self.device = device
+#         super().__init__(network,**kwargs)
+#
+#     def __initialize_vectors_and_matrices__(self) -> None:
+#         """
+#         Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
+#         following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
+#         :return:    None
+#         """
+#         self.u = torch.zeros(self.num_neurons,device=self.device)
+#         self.u_last = torch.zeros(self.num_neurons,device=self.device)
+#         self.u_0 = torch.zeros(self.num_neurons,device=self.device)
+#         self.c_m = torch.zeros(self.num_neurons,device=self.device)
+#         self.g_m = torch.zeros(self.num_neurons,device=self.device)
+#         self.i_b = torch.zeros(self.num_neurons,device=self.device)
+#         if self.spiking:
+#             self.spikes = torch.zeros(self.num_neurons, device=self.device)
+#             self.theta_0 = torch.zeros(self.num_neurons,device=self.device)
+#             self.theta = torch.zeros(self.num_neurons,device=self.device)
+#             self.theta_last = torch.zeros(self.num_neurons,device=self.device)
+#             self.m = torch.zeros(self.num_neurons,device=self.device)
+#             self.tau_theta = torch.zeros(self.num_neurons,device=self.device)
+#
+#         self.g_max_non = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
+#         self.del_e = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
+#         if self.spiking:
+#             self.g_max_spike = torch.zeros([self.num_neurons, self.num_neurons], device=self.device)
+#             self.g_spike = torch.zeros([self.num_neurons, self.num_neurons], device=self.device)
+#             self.tau_syn = torch.ones([self.num_neurons, self.num_neurons],device=self.device)
+#             if self.delay:
+#                 self.spike_delays = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
+#                 self.spike_rows = []
+#                 self.spike_cols = []
+#                 self.buffer_steps = []
+#                 self.buffer_nrns = []
+#                 self.delayed_spikes = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
+#         if self.electrical:
+#             self.g_electrical = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
+#         if self.electrical_rectified:
+#             self.g_rectified = torch.zeros([self.num_neurons, self.num_neurons],device=self.device)
+#         if self.gated:
+#             # Channel params
+#             self.g_ion = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
+#             self.e_ion = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
+#             # A gate params
+#             self.pow_a = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
+#             self.slope_a = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
+#             self.k_a = torch.ones([self.num_channels, self.num_neurons],device=self.device)
+#             self.e_a = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
+#             # B gate params
+#             self.pow_b = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
+#             self.slope_b = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
+#             self.k_b = torch.ones([self.num_channels, self.num_neurons],device=self.device)
+#             self.e_b = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
+#             self.tau_max_b = torch.ones([self.num_channels, self.num_neurons],device=self.device)
+#             # C gate params
+#             self.pow_c = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
+#             self.slope_c = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
+#             self.k_c = torch.ones([self.num_channels, self.num_neurons],device=self.device)
+#             self.e_c = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
+#             self.tau_max_c = torch.ones([self.num_channels, self.num_neurons],device=self.device)+1
+#
+#             self.b_gate = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
+#             self.b_gate_last = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
+#             self.b_gate_0 = torch.zeros([self.num_channels, self.num_neurons], device=self.device)
+#             self.c_gate = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
+#             self.c_gate_last = torch.zeros([self.num_channels, self.num_neurons],device=self.device)
+#             self.c_gate_0 = torch.zeros([self.num_channels, self.num_neurons], device=self.device)
+#
+#         self.pops_and_nrns = []
+#         index = 0
+#         for pop in range(len(self.network.populations)):
+#             num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
+#             self.pops_and_nrns.append([])
+#             for num in range(num_neurons):
+#                 self.pops_and_nrns[pop].append(index)
+#                 index += 1
+#
+#     def __set_neurons__(self) -> None:
+#         """
+#         Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
+#         network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
+#         :return:
+#         """
+#         index = 0
+#         for pop in range(len(self.network.populations)):
+#             num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
+#             initial_value = self.network.populations[pop]['initial_value']
+#             for num in range(num_neurons):  # for each neuron, copy the parameters over
+#                 self.c_m[index] = self.network.populations[pop]['type'].params['membrane_capacitance']
+#                 self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
+#                 self.i_b[index] = self.network.populations[pop]['type'].params['bias']
+#                 if hasattr(initial_value, '__iter__'):
+#                     self.u_last[index] = initial_value[num]
+#                 elif initial_value is None:
+#                     self.u_last[index] = 0.0
+#                 else:
+#                     self.u_last[index] = initial_value
+#
+#                 if self.spiking:
+#                     if isinstance(self.network.populations[pop]['type'], SpikingNeuron):  # if the neuron is spiking, copy more
+#                         self.theta_0[index] = self.network.populations[pop]['type'].params['threshold_initial_value']
+#                         self.m[index] = self.network.populations[pop]['type'].params['threshold_proportionality_constant']
+#                         self.tau_theta[index] = self.network.populations[pop]['type'].params['threshold_time_constant']
+#                     else:  # otherwise, set to the special values for NonSpiking
+#                         self.theta_0[index] = torch.finfo(self.theta_0[index].dtype).max
+#                         self.m[index] = 0
+#                         self.tau_theta[index] = 1
+#                 if self.gated:
+#                     if isinstance(self.network.populations[pop]['type'], NonSpikingNeuronWithGatedChannels):
+#                         # Channel params
+#                         self.g_ion[:, index] = self.network.populations[pop]['type'].params['Gion']
+#                         self.e_ion[:, index] = self.network.populations[pop]['type'].params['Eion']
+#                         # A gate params
+#                         self.pow_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['pow']
+#                         self.slope_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['slope']
+#                         self.k_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['k']
+#                         self.e_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['reversal']
+#                         # B gate params
+#                         self.pow_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['pow']
+#                         self.slope_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['slope']
+#                         self.k_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['k']
+#                         self.e_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['reversal']
+#                         self.tau_max_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['TauMax']
+#                         # C gate params
+#                         self.pow_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['pow']
+#                         self.slope_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['slope']
+#                         self.k_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['k']
+#                         self.e_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['reversal']
+#                         self.tau_max_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['TauMax']
+#
+#                         self.b_gate_last[:, index] = 1 / (1 + self.k_b[:, index] * torch.exp(self.slope_b[:, index]*(self.u_last[index]-self.e_b[:, index])))
+#                         self.c_gate_last[:, index] = 1 / (1 + self.k_c[:, index] * torch.exp(self.slope_c[:, index]*(self.u_last[index]-self.e_c[:, index])))
+#                 index += 1
+#         self.u = self.u_last.clone()
+#         if self.spiking:
+#             self.theta = self.theta_0.clone()
+#             self.theta_last = self.theta_0.clone()
+#         if self.gated:
+#             self.b_gate = torch.clone(self.b_gate_last)
+#             self.c_gate = torch.clone(self.c_gate_last)
+#             self.b_gate_0 = torch.clone(self.b_gate_last)
+#             self.c_gate_0 = torch.clone(self.c_gate_last)
+#
+#     def __set_inputs__(self) -> None:
+#         """
+#         Build the input connection matrix, and apply linear mapping coefficients.
+#         :return:    None
+#         """
+#         self.input_connectivity = torch.zeros([self.num_neurons, self.network.get_num_inputs_actual()],device=self.device)  # initialize connectivity matrix
+#         index = 0
+#         for inp in range(self.network.get_num_inputs()):  # iterate over the connections in the network
+#             size = self.network.inputs[inp]['size']
+#             dest_pop = self.network.inputs[inp]['destination']  # get the destination
+#             if size == 1:
+#                 for dest in self.pops_and_nrns[dest_pop]:
+#                     self.input_connectivity[dest][inp] = 1.0  # set the weight in the correct source and destination
+#                 index += 1
+#             else:
+#                 for dest in self.pops_and_nrns[dest_pop]:
+#                     self.input_connectivity[dest][index] = 1.0
+#                     index += 1
+#
+#     def __set_connections__(self) -> None:
+#         """
+#         Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+#         synapses.
+#         :return: None
+#         """
+#         for syn in range(len(self.network.connections)):
+#             source_pop = self.network.connections[syn]['source']
+#             dest_pop = self.network.connections[syn]['destination']
+#             g_max = self.network.connections[syn]['params']['max_conductance']
+#             if self.network.connections[syn]['params']['electrical'] is False:  # Chemical connection
+#                 del_e = self.network.connections[syn]['params']['relative_reversal_potential']
+#
+#             if self.network.connections[syn]['params']['pattern']:  # pattern connection
+#                 pop_size = len(self.pops_and_nrns[source_pop])
+#                 source_index = self.pops_and_nrns[source_pop][0]
+#                 dest_index = self.pops_and_nrns[dest_pop][0]
+#
+#                 if self.network.connections[syn]['params']['spiking']:
+#                     tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
+#                     self.g_max_spike[dest_index:dest_index + pop_size,source_index:source_index + pop_size] = torch.from_numpy(g_max)
+#                     self.del_e[dest_index:dest_index + pop_size,source_index:source_index + pop_size] = torch.from_numpy(del_e)
+#                     self.tau_syn[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(tau_s)
+#                     if self.delay:
+#                         delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
+#                         self.spike_delays[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(delay)
+#
+#                         for source in self.pops_and_nrns[source_pop]:
+#                             for dest in self.pops_and_nrns[dest_pop]:
+#                                 self.buffer_nrns.append(source)
+#                                 self.buffer_steps.append(delay)
+#                                 self.spike_rows.append(dest)
+#                                 self.spike_cols.append(source)
+#                 else:
+#                     self.g_max_non[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(g_max)
+#                     self.del_e[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(del_e)
+#             elif self.network.connections[syn]['params']['electrical']:  # electrical connection
+#                 for source in self.pops_and_nrns[source_pop]:
+#                     for dest in self.pops_and_nrns[dest_pop]:
+#                         if self.network.connections[syn]['params']['rectified']:  # rectified
+#                             self.g_rectified[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+#                         else:
+#                             self.g_electrical[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+#                             self.g_electrical[source][dest] = g_max / len(self.pops_and_nrns[source_pop])
+#             else:   # chemical connection
+#                 if self.network.connections[syn]['params']['spiking']:  # spiking chemical synapse
+#                     tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
+#                     if self.delay:
+#                         delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
+#                     for source in self.pops_and_nrns[source_pop]:
+#                         for dest in self.pops_and_nrns[dest_pop]:
+#                             self.g_max_spike[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+#                             self.del_e[dest][source] = del_e
+#                             self.tau_syn[dest][source] = tau_s
+#                             if self.delay:
+#                                 self.spike_delays[dest][source] = delay
+#                                 self.buffer_nrns.append(source)
+#                                 self.buffer_steps.append(delay)
+#                                 self.spike_rows.append(dest)
+#                                 self.spike_cols.append(source)
+#                 else:   # nonspiking chemical synapse
+#                     for source in self.pops_and_nrns[source_pop]:
+#                         for dest in self.pops_and_nrns[dest_pop]:
+#                             self.g_max_non[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+#                             self.del_e[dest][source] = del_e
+#
+#     def __initialize_propagation_delay__(self) -> None:
+#         """
+#         Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
+#         :return: None
+#         """
+#         buffer_length = int(torch.max(self.spike_delays) + 1)
+#         self.spike_buffer = torch.zeros([buffer_length, self.num_neurons],device=self.device)
+#
+#     def __set_outputs__(self) -> None:
+#         """
+#         Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
+#         output monitors for each neuron in a population.
+#         :return: None
+#         """
+#         outputs = []
+#         index = 0
+#         for out in range(len(self.network.outputs)):
+#             source_pop = self.network.outputs[out]['source']
+#             num_source_neurons = self.network.populations[source_pop]['number']
+#             outputs.append([])
+#             for num in range(num_source_neurons):
+#                 outputs[out].append(index)
+#                 index += 1
+#         self.num_outputs = index
+#
+#         self.output_voltage_connectivity = torch.zeros(
+#             [self.num_outputs, self.num_neurons],device=self.device)  # initialize connectivity matrix
+#         if self.spiking:
+#             self.output_spike_connectivity = torch.clone(self.output_voltage_connectivity)
+#         self.outputs = torch.zeros(self.num_outputs, device=self.device)
+#         for out in range(len(self.network.outputs)):  # iterate over the connections in the network
+#             source_pop = self.network.outputs[out]['source']  # get the source
+#             for i in range(len(self.pops_and_nrns[source_pop])):
+#                 if self.network.outputs[out]['spiking']:
+#                     self.output_spike_connectivity[outputs[out][i]][
+#                         self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
+#                     # self.out_linear[outputs[out][i]] = 1.0
+#                 else:
+#                     self.output_voltage_connectivity[outputs[out][i]][
+#                         self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
+#
+#     def reset(self, u=None, theta=None, b_gate=None, c_gate=None) -> None:
+#         if u is None:
+#             self.u = torch.clone(self.u_0)
+#             self.u_last = torch.clone(self.u_0)
+#         else:
+#             self.u = torch.clone(u)
+#             self.u_last = torch.clone(u)
+#         if self.spiking:
+#             if theta is None:
+#                 self.theta = torch.clone(self.theta_0)
+#                 self.theta_last = torch.clone(self.theta_0)
+#             else:
+#                 self.theta = torch.clone(theta)
+#                 self.theta_last = torch.clone(theta)
+#         if self.gated:
+#             if b_gate is None:
+#                 self.b_gate = torch.clone(self.b_gate_0)
+#                 self.b_gate_last = torch.clone(self.b_gate_0)
+#             else:
+#                 self.b_gate = torch.clone(b_gate)
+#                 self.b_gate_last = torch.clone(b_gate)
+#             if c_gate is None:
+#                 self.c_gate = torch.clone(self.c_gate_0)
+#                 self.c_gate_last = torch.clone(self.c_gate_0)
+#             else:
+#                 self.c_gate = torch.clone(c_gate)
+#                 self.c_gate_last = torch.clone(c_gate)
+#
+#     def __forward_pass__(self, inputs) -> Any:
+#         self.u_last = torch.clone(self.u)
+#         i_app = torch.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
+#         g_syn = torch.clamp(torch.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non),min=0)
+#         if self.spiking:
+#             self.theta_last = torch.clone(self.theta)
+#             self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
+#             g_syn += self.g_spike
+#         i_syn = torch.sum(g_syn * self.del_e, 1) - self.u_last * torch.sum(g_syn, 1)
+#         if self.electrical:
+#             i_syn += (torch.sum(self.g_electrical * self.u_last, 1) - self.u_last * torch.sum(self.g_electrical, 1))
+#         if self.electrical_rectified:
+#             # create mask
+#             mask = (self.u_last.reshape(-1,1)-self.u_last).transpose(0,1) > 0
+#             masked_g = mask * self.g_rectified
+#             diag_masked = masked_g + masked_g.transpose(0,1) - torch.diag(masked_g.diagonal())
+#             i_syn += torch.sum(diag_masked * self.u_last, 1) - self.u_last * torch.sum(diag_masked, 1)
+#         if self.gated:
+#             a_inf = 1 / (1 + self.k_a * torch.exp(self.slope_a*(self.e_a-self.u_last)))
+#             b_inf = 1 / (1 + self.k_b * torch.exp(self.slope_b*(self.e_b-self.u_last)))
+#             c_inf = 1 / (1 + self.k_c * torch.exp(self.slope_c*(self.e_c-self.u_last)))
+#
+#             tau_b = self.tau_max_b * b_inf * torch.sqrt(self.k_b*torch.exp(self.slope_b*(self.e_b-self.u_last)))
+#             tau_c = self.tau_max_c * c_inf * torch.sqrt(self.k_c*torch.exp(self.slope_c*(self.e_c-self.u_last)))
+#
+#             self.b_gate_last = torch.clone(self.b_gate)
+#             self.c_gate_last = torch.clone(self.c_gate)
+#
+#             self.b_gate = self.b_gate_last + self.dt * ((b_inf - self.b_gate_last) / tau_b)
+#             self.c_gate = self.c_gate_last + self.dt * ((c_inf - self.c_gate_last) / tau_c)
+#
+#             i_ion = self.g_ion*(a_inf**self.pow_a)*(self.b_gate**self.pow_b)*(self.c_gate**self.pow_c)*(self.e_ion-self.u_last)
+#             i_gated = torch.sum(i_ion, 0)
+#
+#             self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + self.i_b + i_syn + i_app + i_gated)  # Update membrane potential
+#         else:
+#             self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + self.i_b + i_syn + i_app)  # Update membrane potential
+#         if self.spiking:
+#             self.theta = self.theta_last + self.time_factor_threshold * (-self.theta_last + self.theta_0 + self.m * self.u_last)  # Update the firing thresholds
+#             self.spikes = torch.sign(torch.clamp(self.theta - self.u,max=0))  # Compute which neurons have spiked
+#
+#             # New stuff with delay
+#             if self.delay:
+#                 self.spike_buffer = torch.roll(self.spike_buffer, 1, 0)   # Shift buffer entries down
+#                 self.spike_buffer[0, :] = self.spikes    # Replace row 0 with the current spike data
+#                 # Update a matrix with all of the appropriately delayed spike values
+#                 self.delayed_spikes[self.spike_rows, self.spike_cols] = self.spike_buffer[self.buffer_steps, self.buffer_nrns]
+#
+#                 self.g_spike = torch.maximum(self.g_spike, (-self.delayed_spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
+#             else:
+#                 self.g_spike = torch.maximum(self.g_spike, (-self.spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
+#             self.u = self.u * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
+#         self.outputs = torch.matmul(self.output_voltage_connectivity, self.u)
+#         if self.spiking:
+#             self.outputs += torch.matmul(self.output_spike_connectivity, -self.spikes)
+#
+#         return self.outputs
+#
+#
+# """
+# ########################################################################################################################
+# PYTORCH SPARSE
+# """
+# class SNS_Sparse(__Backend__):
+#     """
+#     Simulation backend based in PyTorch Sparse. In future versions different options will be toggled automatically,
+#     but for now are implemented as boolean flags.
+#
+#     :param network: Network which will be compiled to PyTorch Sparse.
+#     :type network:  sns_toolbox.design.networks.Network
+#     :param device:  Device network will be stored on, default is 'cuda' (GPU).
+#     :type device:   str, optional
+#     """
+#     def __init__(self,network: Network,device: str = 'cuda',**kwargs):
+#         if device != 'cpu':
+#             if not torch.cuda.is_available():
+#                 warnings.warn('CUDA Device Unavailable. Using CPU Instead')
+#                 device = 'cpu'
+#         self.device = device
+#         super().__init__(network,**kwargs)
+#
+#     def __initialize_vectors_and_matrices__(self) -> None:
+#         """
+#         Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
+#         following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
+#         :return:    None
+#         """
+#         self.u = torch.zeros(self.num_neurons,device=self.device)
+#         self.u_0 = torch.zeros(self.num_neurons, device=self.device)
+#         self.u_last = torch.zeros(self.num_neurons,device=self.device)
+#         self.c_m = torch.zeros(self.num_neurons,device=self.device)
+#         self.g_m = torch.zeros(self.num_neurons,device=self.device)
+#         self.i_b = torch.sparse_coo_tensor(size=(1,self.num_neurons),device=self.device)
+#         if self.spiking:
+#             self.spikes = torch.sparse_coo_tensor(size=(1, self.num_neurons), device=self.device)
+#             self.theta_0 = torch.zeros(self.num_neurons,device=self.device)
+#             self.theta = torch.zeros(self.num_neurons,device=self.device)
+#             self.theta_last = torch.zeros(self.num_neurons,device=self.device)
+#             self.m = torch.sparse_coo_tensor(size=(1,self.num_neurons),device=self.device)
+#             self.tau_theta = torch.zeros(self.num_neurons,device=self.device)
+#
+#         self.g_max_non = torch.sparse_coo_tensor(size=(self.num_neurons,self.num_neurons),device=self.device)
+#         self.del_e = torch.sparse_coo_tensor(size=(self.num_neurons, self.num_neurons), device=self.device)
+#         if self.spiking:
+#             self.g_max_spike = torch.sparse_coo_tensor(size=(self.num_neurons,self.num_neurons),device=self.device)
+#             self.g_spike = torch.sparse_coo_tensor(size=(self.num_neurons,self.num_neurons),device=self.device)
+#             self.tau_syn = torch.ones([self.num_neurons, self.num_neurons],device=self.device)
+#             if self.delay:
+#                 self.spike_delays = torch.sparse_coo_tensor(size=(self.num_neurons,self.num_neurons),device=self.device)
+#                 self.spike_rows = []
+#                 self.spike_cols = []
+#                 self.buffer_steps = []
+#                 self.buffer_nrns = []
+#                 self.delayed_spikes = torch.sparse_coo_tensor(size=(self.num_neurons,self.num_neurons),device=self.device)
+#         if self.electrical:
+#             self.g_electrical = torch.sparse_coo_tensor(size=(self.num_neurons, self.num_neurons), device=self.device)
+#         if self.electrical_rectified:
+#             self.g_rectified = torch.sparse_coo_tensor(size=(self.num_neurons, self.num_neurons), device=self.device)
+#         if self.gated:
+#             # Channel params
+#             self.g_ion = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
+#             self.e_ion = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
+#             # A gate params
+#             self.pow_a = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
+#             self.slope_a = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
+#             self.k_a = torch.ones([self.num_channels, self.num_neurons],device=self.device)
+#             self.e_a = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
+#             # B gate params
+#             self.pow_b = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
+#             self.slope_b = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
+#             self.k_b = torch.ones([self.num_channels, self.num_neurons],device=self.device)
+#             self.e_b = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
+#             self.tau_max_b = torch.ones([self.num_channels, self.num_neurons],device=self.device)
+#             # C gate params
+#             self.pow_c = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
+#             self.slope_c = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
+#             self.k_c = torch.ones([self.num_channels, self.num_neurons],device=self.device)
+#             self.e_c = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
+#             self.tau_max_c = torch.ones([self.num_channels, self.num_neurons],device=self.device)
+#
+#             self.b_gate = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
+#             self.b_gate_last = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
+#             self.b_gate_0 = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons), device=self.device)
+#             self.c_gate = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
+#             self.c_gate_last = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons),device=self.device)
+#             self.c_gate_0 = torch.sparse_coo_tensor(size=(self.num_channels, self.num_neurons), device=self.device)
+#
+#         self.pops_and_nrns = []
+#         index = 0
+#         for pop in range(len(self.network.populations)):
+#             num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
+#             self.pops_and_nrns.append([])
+#             for num in range(num_neurons):
+#                 self.pops_and_nrns[pop].append(index)
+#                 index += 1
+#
+#     def __set_neurons__(self) -> None:
+#         """
+#         Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
+#         network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
+#         :return:
+#         """
+#         index = 0
+#         for pop in range(len(self.network.populations)):
+#             num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
+#             initial_value = self.network.populations[pop]['initial_value']
+#             for num in range(num_neurons):  # for each neuron, copy the parameters over
+#                 self.c_m[index] = self.network.populations[pop]['type'].params['membrane_capacitance']
+#                 self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
+#
+#                 self.i_b = self.i_b.to_dense()
+#                 self.i_b[0,index] = self.network.populations[pop]['type'].params['bias']
+#                 self.i_b = self.i_b.to_sparse()
+#
+#                 if hasattr(initial_value, '__iter__'):
+#                     self.u_last[index] = initial_value[num]
+#                 elif initial_value is None:
+#                     self.u_last[index] = 0.0
+#                 else:
+#                     self.u_last[index] = initial_value
+#
+#                 if self.spiking:
+#                     if isinstance(self.network.populations[pop]['type'], SpikingNeuron):  # if the neuron is spiking, copy more
+#                         self.theta_0[index] = self.network.populations[pop]['type'].params['threshold_initial_value']
+#
+#                         self.m = self.m.to_dense()
+#                         self.m[0,index] = self.network.populations[pop]['type'].params['threshold_proportionality_constant']
+#                         self.m = self.m.to_sparse()
+#
+#                         self.tau_theta[index] = self.network.populations[pop]['type'].params['threshold_time_constant']
+#                     else:  # otherwise, set to the special values for NonSpiking
+#                         self.theta_0[index] = torch.finfo(self.theta_0[index].dtype).max
+#
+#                         self.m = self.m.to_dense()
+#                         self.m[0,index] = 0
+#                         self.m = self.m.to_sparse()
+#
+#                         self.tau_theta[index] = 1
+#                 if self.gated:
+#                     if isinstance(self.network.populations[pop]['type'], NonSpikingNeuronWithGatedChannels):
+#                         # Channel params
+#                         self.g_ion = self.g_ion.to_dense()
+#                         self.g_ion[:, index] = self.network.populations[pop]['type'].params['Gion']
+#                         self.g_ion = self.g_ion.to_sparse()
+#
+#                         self.e_ion = self.e_ion.to_dense()
+#                         self.e_ion[:, index] = self.network.populations[pop]['type'].params['Eion']
+#                         self.e_ion = self.e_ion.to_sparse()
+#
+#                         # A gate params
+#                         self.pow_a = self.pow_a.to_dense()
+#                         self.pow_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['pow']
+#                         self.pow_a = self.pow_a.to_sparse()
+#
+#                         self.slope_a = self.slope_a.to_dense()
+#                         self.slope_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['slope']
+#                         self.slope_a = self.slope_a.to_sparse()
+#
+#                         self.k_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['k']
+#
+#                         self.e_a = self.e_a.to_dense()
+#                         self.e_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['reversal']
+#                         self.e_a = self.e_a.to_sparse()
+#
+#                         # B gate params
+#                         self.pow_b = self.pow_b.to_dense()
+#                         self.pow_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['pow']
+#                         self.pow_b = self.pow_b.to_sparse()
+#
+#                         self.slope_b = self.slope_b.to_dense()
+#                         self.slope_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['slope']
+#                         self.slope_b = self.slope_b.to_sparse()
+#
+#                         self.k_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['k']
+#
+#                         self.e_b = self.e_b.to_dense()
+#                         self.e_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['reversal']
+#                         self.e_b = self.e_b.to_sparse()
+#
+#                         self.tau_max_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['TauMax']
+#
+#                         # C gate params
+#                         self.pow_c = self.pow_c.to_dense()
+#                         self.pow_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['pow']
+#                         self.pow_c = self.pow_c.to_sparse()
+#
+#                         self.slope_c = self.slope_c.to_dense()
+#                         self.slope_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['slope']
+#                         self.slope_c = self.slope_c.to_sparse()
+#
+#                         self.k_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['k']
+#
+#                         self.e_c = self.e_c.to_dense()
+#                         self.e_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['reversal']
+#                         self.e_c = self.e_c.to_sparse()
+#
+#                         self.tau_max_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['TauMax']
+#
+#                         self.b_gate_last = self.b_gate_last.to_dense()
+#                         self.b_gate_last[:, index] = 1 / (1 + self.k_b[:, index] * np.exp(self.slope_b.to_dense()[:, index]*(self.u_last[index]-self.e_b.to_dense()[:, index])))
+#                         self.b_gate_last = self.b_gate_last.to_sparse()
+#
+#                         self.c_gate_last = self.c_gate_last.to_dense()
+#                         self.c_gate_last[:, index] = 1 / (1 + self.k_c[:, index] * np.exp(self.slope_c.to_dense()[:, index]*(self.u_last[index]-self.e_c.to_dense()[:, index])))
+#                         self.c_gate_last = self.c_gate_last.to_sparse()
+#
+#                 index += 1
+#         self.u = self.u_last.clone()
+#         if self.spiking:
+#             self.theta = self.theta_0.clone()
+#             self.theta_last = self.theta_0.clone()
+#         if self.gated:
+#             self.b_gate = torch.clone(self.b_gate_last)
+#             self.b_gate_0 = torch.clone(self.b_gate_last)
+#             self.c_gate = torch.clone(self.c_gate_last)
+#             self.c_gate_0 = torch.clone(self.c_gate_last)
+#
+#     def __set_inputs__(self) -> None:
+#         """
+#         Build the input connection matrix, and apply linear mapping coefficients.
+#         :return:    None
+#         """
+#         self.input_connectivity = torch.sparse_coo_tensor(size=(self.num_neurons, self.network.get_num_inputs_actual()),device=self.device)  # initialize connectivity matrix
+#         index = 0
+#         for inp in range(self.network.get_num_inputs()):  # iterate over the connections in the network
+#             size = self.network.inputs[inp]['size']
+#             dest_pop = self.network.inputs[inp]['destination']  # get the destination
+#
+#             self.input_connectivity = self.input_connectivity.to_dense()
+#             if size == 1:
+#                 for dest in self.pops_and_nrns[dest_pop]:
+#                     self.input_connectivity[dest][inp] = 1.0  # set the weight in the correct source and destination
+#                 index += 1
+#             else:
+#                 for dest in self.pops_and_nrns[dest_pop]:
+#                     self.input_connectivity[dest][index] = 1.0
+#                     index += 1
+#             self.input_connectivity = self.input_connectivity.to_sparse()
+#
+#     def __set_connections__(self) -> None:
+#         """
+#         Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+#         synapses.
+#         :return: None
+#         """
+#         for syn in range(len(self.network.connections)):
+#             source_pop = self.network.connections[syn]['source']
+#             dest_pop = self.network.connections[syn]['destination']
+#             g_max = self.network.connections[syn]['params']['max_conductance']
+#             if self.network.connections[syn]['params']['electrical'] is False:  # chemical connection
+#                 del_e = self.network.connections[syn]['params']['relative_reversal_potential']
+#
+#             if self.network.connections[syn]['params']['pattern']:  # pattern connection
+#                 pop_size = len(self.pops_and_nrns[source_pop])
+#                 source_index = self.pops_and_nrns[source_pop][0]
+#                 dest_index = self.pops_and_nrns[dest_pop][0]
+#
+#                 if self.network.connections[syn]['params']['spiking']:
+#                     tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
+#
+#                     self.g_max_spike = self.g_max_spike.to_dense()
+#                     self.g_max_spike[dest_index:dest_index + pop_size,source_index:source_index + pop_size] = torch.from_numpy(g_max)
+#                     self.g_max_spike = self.g_max_spike.to_sparse()
+#
+#                     self.del_e = self.del_e.to_dense()
+#                     self.del_e[dest_index:dest_index + pop_size,source_index:source_index + pop_size] = torch.from_numpy(del_e)
+#                     self.del_e = self.del_e.to_sparse()
+#
+#                     self.tau_syn[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(tau_s)
+#
+#                     if self.delay:
+#                         delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
+#                         self.spike_delays = self.spike_delays.to_dense()
+#                         self.spike_delays[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(delay)
+#                         self.spike_delays = self.spike_delays.to_sparse()
+#
+#                         for source in self.pops_and_nrns[source_pop]:
+#                             for dest in self.pops_and_nrns[dest_pop]:
+#                                 self.buffer_nrns.append(source)
+#                                 self.buffer_steps.append(delay)
+#                                 self.spike_rows.append(dest)
+#                                 self.spike_cols.append(source)
+#                 else:
+#                     self.g_max_non = self.g_max_non.to_dense()
+#                     self.g_max_non[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(g_max)
+#                     self.g_max_non = self.g_max_non.to_sparse()
+#
+#                     self.del_e = self.del_e.to_dense()
+#                     self.del_e[dest_index:dest_index+pop_size,source_index:source_index+pop_size] = torch.from_numpy(del_e)
+#                     self.del_e = self.del_e.to_sparse()
+#             elif self.network.connections[syn]['params']['electrical']:  # electrical connection
+#                 for source in self.pops_and_nrns[source_pop]:
+#                     for dest in self.pops_and_nrns[dest_pop]:
+#                         if self.network.connections[syn]['params']['rectified']:  # rectified
+#                             self.g_rectified = self.g_rectified.to_dense()
+#                             self.g_rectified[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+#                             self.g_rectified = self.g_rectified.to_sparse()
+#                         else:
+#                             self.g_electrical = self.g_electrical.to_dense()
+#                             self.g_electrical[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+#                             self.g_electrical[source][dest] = g_max / len(self.pops_and_nrns[source_pop])
+#                             self.g_electrical = self.g_electrical.to_sparse()
+#             else:   # chemical connections
+#                 if self.network.connections[syn]['params']['spiking']:  # spiking chemical synapse
+#                     tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
+#                     if self.delay:
+#                         delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
+#                     for source in self.pops_and_nrns[source_pop]:
+#                         for dest in self.pops_and_nrns[dest_pop]:
+#                             self.g_max_spike = self.g_max_spike.to_dense()
+#                             self.g_max_spike[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+#                             self.g_max_spike = self.g_max_spike.to_sparse()
+#
+#                             self.del_e = self.del_e.to_dense()
+#                             self.del_e[dest][source] = del_e
+#                             self.del_e = self.del_e.to_sparse()
+#
+#                             self.tau_syn[dest][source] = tau_s
+#
+#                             if self.delay:
+#                                 self.spike_delays = self.spike_delays.to_dense()
+#                                 self.spike_delays[dest][source] = delay
+#                                 self.spike_delays = self.spike_delays.to_sparse()
+#
+#                                 self.buffer_nrns.append(source)
+#                                 self.buffer_steps.append(delay)
+#                                 self.spike_rows.append(dest)
+#                                 self.spike_cols.append(source)
+#                 else:   # non-spiking chemical synapse
+#                     for source in self.pops_and_nrns[source_pop]:
+#                         for dest in self.pops_and_nrns[dest_pop]:
+#                             self.g_max_non = self.g_max_non.to_dense()
+#                             self.g_max_non[dest][source] = g_max / len(self.pops_and_nrns[source_pop])
+#                             self.g_max_non = self.g_max_non.to_sparse()
+#
+#                             self.del_e = self.del_e.to_dense()
+#                             self.del_e[dest][source] = del_e
+#                             self.del_e = self.del_e.to_sparse()
+#
+#     def __initialize_propagation_delay__(self) -> None:
+#         """
+#         Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
+#         :return: None
+#         """
+#         self.spike_delays = self.spike_delays.to_dense()
+#         buffer_length = int(torch.max(self.spike_delays) + 1)
+#         self.spike_delays = self.spike_delays.to_sparse()
+#
+#         self.spike_buffer = torch.sparse_coo_tensor(size=(buffer_length,self.num_neurons),device=self.device)
+#
+#     def __set_outputs__(self) -> None:
+#         """
+#         Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
+#         output monitors for each neuron in a population.
+#         :return: None
+#         """
+#         outputs = []
+#         index = 0
+#         for out in range(len(self.network.outputs)):
+#             source_pop = self.network.outputs[out]['source']
+#             num_source_neurons = self.network.populations[source_pop]['number']
+#             outputs.append([])
+#             for num in range(num_source_neurons):
+#                 outputs[out].append(index)
+#                 index += 1
+#         self.num_outputs = index
+#
+#         self.output_voltage_connectivity = torch.sparse_coo_tensor(size=(self.num_outputs, self.num_neurons),device=self.device)  # initialize connectivity matrix
+#         if self.spiking:
+#             self.output_spike_connectivity = torch.clone(self.output_voltage_connectivity)
+#         self.outputs = torch.sparse_coo_tensor(size=(1, self.num_outputs), device=self.device)
+#
+#         for out in range(len(self.network.outputs)):  # iterate over the connections in the network
+#             source_pop = self.network.outputs[out]['source']  # get the source
+#             for i in range(len(self.pops_and_nrns[source_pop])):
+#                 if self.network.outputs[out]['spiking']:
+#                     self.output_spike_connectivity = self.output_spike_connectivity.to_dense()
+#                     self.output_spike_connectivity[outputs[out][i]][
+#                         self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
+#                     self.output_spike_connectivity = self.output_spike_connectivity.to_sparse()
+#                 else:
+#                     self.output_voltage_connectivity = self.output_voltage_connectivity.to_dense()
+#                     self.output_voltage_connectivity[outputs[out][i]][
+#                         self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
+#                     self.output_voltage_connectivity = self.output_voltage_connectivity.to_sparse()
+#
+#     def reset(self, u=None, theta=None, b_gate=None, c_gate=None) -> None:
+#         if u is None:
+#             self.u = torch.clone(self.u_0)
+#             self.u_last = torch.clone(self.u_0)
+#         else:
+#             self.u = torch.clone(u)
+#             self.u_last = torch.clone(u)
+#         if self.spiking:
+#             if theta is None:
+#                 self.theta = torch.clone(self.theta_0)
+#                 self.theta_last = torch.clone(self.theta_0)
+#             else:
+#                 self.theta = torch.clone(theta)
+#                 self.theta_last = torch.clone(theta)
+#         if self.gated:
+#             if b_gate is None:
+#                 self.b_gate = torch.clone(self.b_gate_0)
+#                 self.b_gate_last = torch.clone(self.b_gate_0)
+#             else:
+#                 self.b_gate = torch.clone(b_gate)
+#                 self.b_gate_last = torch.clone(b_gate)
+#             if c_gate is None:
+#                 self.c_gate = torch.clone(self.c_gate_0)
+#                 self.c_gate_last = torch.clone(self.c_gate_0)
+#             else:
+#                 self.c_gate = torch.clone(c_gate)
+#                 self.c_gate_last = torch.clone(c_gate)
+#
+#     def __forward_pass__(self, inputs) -> Any:
+#         self.u_last = torch.clone(self.u)
+#
+#         i_app = torch.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
+#         i_app = i_app.to_sparse()
+#
+#         g_syn = torch.clamp(torch.minimum(self.g_max_non.to_dense() * self.u_last / self.R, self.g_max_non.to_dense()),min=0)
+#         g_syn = g_syn.to_sparse()
+#
+#         if self.spiking:
+#             self.theta_last = torch.clone(self.theta)
+#             self.g_spike = self.g_spike.to_dense() * (1 - self.time_factor_synapse)
+#             self.g_spike = self.g_spike.to_sparse()
+#
+#             g_syn += self.g_spike
+#
+#         if g_syn._nnz() > 0:
+#             i_syn = torch.sparse.sum(g_syn * self.del_e, 1) - (self.u_last * torch.sum(g_syn.to_dense(), 1)).to_sparse()
+#         else:
+#             i_syn = torch.sparse.sum(g_syn * self.del_e) - self.u_last * torch.sparse.sum(g_syn)
+#         if self.electrical:
+#             i_syn += (torch.sum(self.g_electrical.to_dense() * self.u_last, 1).to_sparse() -
+#                       (self.u_last * torch.sum(self.g_electrical.to_dense(), 1)).to_sparse())
+#         if self.electrical_rectified:
+#             # create mask
+#             mask = (self.u_last.reshape(-1, 1) - self.u_last).transpose(0, 1) > 0
+#             masked_g = mask * self.g_rectified.to_dense()
+#             diag_masked = masked_g + masked_g.transpose(0, 1) - torch.diag(masked_g.diagonal())
+#             i_syn += torch.sum(diag_masked * self.u_last, 1).to_sparse() - (self.u_last * torch.sum(diag_masked, 1)).to_sparse()
+#         if self.gated:
+#             a_inf = (1 / (1 + self.k_a * torch.exp(self.slope_a.to_dense()*(self.e_a.to_dense()-self.u_last)))).to_sparse()
+#             b_inf = (1 / (1 + self.k_b * torch.exp(self.slope_b.to_dense()*(self.e_b.to_dense()-self.u_last)))).to_sparse()
+#             c_inf = (1 / (1 + self.k_c * torch.exp(self.slope_c.to_dense()*(self.e_c.to_dense()-self.u_last)))).to_sparse()
+#
+#             tau_b = (self.tau_max_b * b_inf.to_dense() * torch.sqrt(self.k_b*torch.exp(self.slope_b.to_dense()*(self.e_b.to_dense()-self.u_last)))).to_sparse()
+#             tau_c = (self.tau_max_c * c_inf.to_dense() * torch.sqrt(self.k_c*torch.exp(self.slope_c.to_dense()*(self.e_c.to_dense()-self.u_last)))).to_sparse()
+#
+#             self.b_gate_last = torch.clone(self.b_gate)
+#             self.c_gate_last = torch.clone(self.c_gate)
+#
+#             self.b_gate = (self.b_gate_last.to_dense() + self.dt * ((b_inf - self.b_gate_last).to_dense() / tau_b.to_dense())).to_sparse()
+#             self.c_gate = (self.c_gate_last.to_dense() + self.dt * ((c_inf - self.c_gate_last).to_dense() / tau_c.to_dense())).to_sparse()
+#
+#             i_ion = (self.g_ion.to_dense()*(a_inf.to_dense()**self.pow_a.to_dense())*(self.b_gate.to_dense()**self.pow_b.to_dense())*(self.c_gate.to_dense()**self.pow_c.to_dense())*(self.e_ion.to_dense()-self.u_last)).to_sparse()
+#             i_gated = torch.sum(i_ion.to_dense(), 0).to_sparse()
+#
+#             self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + (self.i_b.to_dense())[0,:] + i_syn + i_app + i_gated)  # Update membrane potential
+#         else:
+#             self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + (self.i_b.to_dense())[0,:] + i_syn + i_app)  # Update membrane potential
+#         if self.spiking:
+#             self.theta = self.theta_last + self.time_factor_threshold * (-self.theta_last + self.theta_0 + (self.m.to_dense())[0,:] * self.u_last)  # Update the firing thresholds
+#
+#             self.spikes = torch.sign(torch.clamp(self.theta - self.u,max=0))  # Compute which neurons have spiked
+#             self.spikes = self.spikes.to_sparse()
+#
+#             if self.delay:
+#                 # New stuff with delay
+#                 self.spike_buffer = self.spike_buffer.to_dense()
+#                 self.spike_buffer = torch.roll(self.spike_buffer, 1, 0)   # Shift buffer entries down
+#                 self.spike_buffer[0, :] = self.spikes.to_dense()    # Replace row 0 with the current spike data
+#                 self.spike_buffer = self.spike_buffer.to_sparse()
+#
+#                 # Update a matrix with all of the appropriately delayed spike values
+#                 self.delayed_spikes = self.delayed_spikes.to_dense()
+#                 self.delayed_spikes[self.spike_rows, self.spike_cols] = (self.spike_buffer.to_dense())[self.buffer_steps, self.buffer_nrns]
+#                 self.delayed_spikes = self.delayed_spikes.to_sparse()
+#
+#                 self.g_spike = torch.maximum(self.g_spike.to_dense(), ((-self.delayed_spikes) * self.g_max_spike).to_dense())  # Update the conductance of connections which spiked
+#             else:
+#                 self.g_spike = torch.maximum(self.g_spike.to_dense(), (-self.spikes.to_dense()) * self.g_max_spike.to_dense())  # Update the conductance of connections which spiked
+#             self.g_spike = self.g_spike.to_sparse()
+#             self.u = self.u * (self.spikes.to_dense() + 1)  # Reset the membrane voltages of neurons which spiked
+#         self.outputs = torch.matmul(self.output_voltage_connectivity, self.u)
+#         if self.spiking:
+#             self.outputs += torch.matmul(self.output_spike_connectivity, -self.spikes.to_dense())
+#
+#         return self.outputs
+#
+#
+# """
+# ########################################################################################################################
+# MANUAL BACKEND
+#
+# Simulating the network using numpy vectors and matrices.
+# Note that this is not sparse, so memory may explode for large networks
+# """
+# class SNS_Manual(__Backend__):
+#     """
+#     Simulation backend based in Numpy, but computes neural and synapses states in loops. Primarily for comparison, but
+#     could be useful for giant networks that don't fit in memory. In future versions different options will be toggled
+#     automatically, but for now are implemented as boolean flags.
+#
+#     :param network: Network which will be compiled.
+#     :type network:  sns_toolbox.design.networks.Network
+#     """
+#     def __init__(self,network: Network,**kwargs):
+#         super().__init__(network,**kwargs)
+#
+#     def __initialize_vectors_and_matrices__(self) -> None:
+#         """
+#         Initialize all of the vectors and matrices needed for all of the neural states and parameters. That includes the
+#         following: U, ULast, Spikes, Cm, Gm, Ibias, Theta0, Theta, ThetaLast, m, TauTheta.
+#         :return:    None
+#         """
+#         self.u = np.zeros(self.num_neurons)
+#         self.u_0 = np.zeros(self.num_neurons)
+#         self.u_last = np.zeros(self.num_neurons)
+#         self.c_m = np.zeros(self.num_neurons)
+#         self.g_m = np.zeros(self.num_neurons)
+#         self.i_b = np.zeros(self.num_neurons)
+#         if self.spiking:
+#             self.spikes = np.zeros(self.num_neurons)
+#             self.theta_0 = np.zeros(self.num_neurons)
+#             self.theta = np.zeros(self.num_neurons)
+#             self.theta_last = np.zeros(self.num_neurons)
+#             self.m = np.zeros(self.num_neurons)
+#             self.tau_theta = np.zeros(self.num_neurons)
+#         if self.gated:
+#             # Channel params
+#             self.g_ion = np.zeros([self.num_channels, self.num_neurons])
+#             self.e_ion = np.zeros([self.num_channels, self.num_neurons])
+#             # A gate params
+#             self.pow_a = np.zeros([self.num_channels, self.num_neurons])
+#             self.slope_a = np.zeros([self.num_channels, self.num_neurons])
+#             self.k_a = np.zeros([self.num_channels, self.num_neurons])+1
+#             self.e_a = np.zeros([self.num_channels, self.num_neurons])
+#             # B gate params
+#             self.pow_b = np.zeros([self.num_channels, self.num_neurons])
+#             self.slope_b = np.zeros([self.num_channels, self.num_neurons])
+#             self.k_b = np.zeros([self.num_channels, self.num_neurons])+1
+#             self.e_b = np.zeros([self.num_channels, self.num_neurons])
+#             self.tau_max_b = np.zeros([self.num_channels, self.num_neurons])+1
+#             # C gate params
+#             self.pow_c = np.zeros([self.num_channels, self.num_neurons])
+#             self.slope_c = np.zeros([self.num_channels, self.num_neurons])
+#             self.k_c = np.zeros([self.num_channels, self.num_neurons])+1
+#             self.e_c = np.zeros([self.num_channels, self.num_neurons])
+#             self.tau_max_c = np.zeros([self.num_channels, self.num_neurons])+1
+#
+#             self.b_gate = np.zeros([self.num_channels, self.num_neurons])
+#             self.b_gate_0 = np.zeros([self.num_channels, self.num_neurons])
+#             self.b_gate_last = np.zeros([self.num_channels, self.num_neurons])
+#             self.c_gate = np.zeros([self.num_channels, self.num_neurons])
+#             self.c_gate_0 = np.zeros([self.num_channels, self.num_neurons])
+#             self.c_gate_last = np.zeros([self.num_channels, self.num_neurons])
+#
+#         self.incoming_synapses = []
+#         for i in range(self.num_neurons):
+#             self.incoming_synapses.append([])
+#
+#         self.pops_and_nrns = []
+#         index = 0
+#         for pop in range(len(self.network.populations)):
+#             num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
+#             self.pops_and_nrns.append([])
+#             for num in range(num_neurons):
+#                 self.pops_and_nrns[pop].append(index)
+#                 index += 1
+#
+#     def __set_neurons__(self) -> None:
+#         """
+#         Iterate over all populations in the network, and set the corresponding neural parameters for each neuron in the
+#         network: Cm, Gm, Ibias, ULast, U, Theta0, ThetaLast, Theta, TauTheta, m.
+#         :return:
+#         """
+#         index = 0
+#         for pop in range(len(self.network.populations)):
+#             num_neurons = self.network.populations[pop]['number']  # find the number of neurons in the population
+#             initial_value = self.network.populations[pop]['initial_value']
+#             for num in range(num_neurons):  # for each neuron, copy the parameters over
+#                 self.c_m[index] = self.network.populations[pop]['type'].params['membrane_capacitance']
+#                 self.g_m[index] = self.network.populations[pop]['type'].params['membrane_conductance']
+#                 self.i_b[index] = self.network.populations[pop]['type'].params['bias']
+#                 if hasattr(initial_value, '__iter__'):
+#                     self.u_last[index] = initial_value[num]
+#                 elif initial_value is None:
+#                     self.u_last[index] = 0.0
+#                 else:
+#                     self.u_last[index] = initial_value
+#                 if self.spiking:
+#                     if isinstance(self.network.populations[pop]['type'], SpikingNeuron):  # if the neuron is spiking, copy more
+#                         self.theta_0[index] = self.network.populations[pop]['type'].params['threshold_initial_value']
+#                         self.m[index] = self.network.populations[pop]['type'].params['threshold_proportionality_constant']
+#                         self.tau_theta[index] = self.network.populations[pop]['type'].params['threshold_time_constant']
+#                     else:  # otherwise, set to the special values for NonSpiking
+#                         self.theta_0[index] = sys.float_info.max
+#                         self.m[index] = 0
+#                         self.tau_theta[index] = 1
+#                 if self.gated:
+#                     if isinstance(self.network.populations[pop]['type'], NonSpikingNeuronWithGatedChannels):
+#                         # Channel params
+#                         self.g_ion[:, index] = self.network.populations[pop]['type'].params['Gion']
+#                         self.e_ion[:, index] = self.network.populations[pop]['type'].params['Eion']
+#                         # A gate params
+#                         self.pow_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['pow']
+#                         self.slope_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['slope']
+#                         self.k_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['k']
+#                         self.e_a[:, index] = self.network.populations[pop]['type'].params['paramsA']['reversal']
+#                         # B gate params
+#                         self.pow_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['pow']
+#                         self.slope_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['slope']
+#                         self.k_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['k']
+#                         self.e_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['reversal']
+#                         self.tau_max_b[:, index] = self.network.populations[pop]['type'].params['paramsB']['TauMax']
+#                         # C gate params
+#                         self.pow_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['pow']
+#                         self.slope_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['slope']
+#                         self.k_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['k']
+#                         self.e_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['reversal']
+#                         self.tau_max_c[:, index] = self.network.populations[pop]['type'].params['paramsC']['TauMax']
+#
+#                         self.b_gate_last[:, index] = 1 / (1 + self.k_b[:, index] * np.exp(self.slope_b[:, index]*(self.u_last[index]-self.e_b[:, index])))
+#                         self.c_gate_last[:, index] = 1 / (1 + self.k_c[:, index] * np.exp(self.slope_c[:, index]*(self.u_last[index]-self.e_c[:, index])))
+#                 index += 1
+#         self.u = np.copy(self.u_last)
+#         if self.spiking:
+#             self.theta = np.copy(self.theta_0)
+#             self.theta_last = np.copy(self.theta_0)
+#         if self.gated:
+#             self.b_gate = np.copy(self.b_gate_last)
+#             self.b_gate_0 = np.copy(self.b_gate_last)
+#             self.c_gate = np.copy(self.c_gate_last)
+#             self.c_gate_0 = np.copy(self.c_gate_last)
+#
+#     def __set_inputs__(self) -> None:
+#         """
+#         Build the input connection matrix, and apply linear mapping coefficients.
+#         :return:    None
+#         """
+#         self.input_connectivity = np.zeros([self.num_neurons, self.network.get_num_inputs_actual()])  # initialize connectivity matrix
+#         index = 0
+#         for inp in range(self.network.get_num_inputs()):  # iterate over the connections in the network
+#             size = self.network.inputs[inp]['size']
+#             dest_pop = self.network.inputs[inp]['destination']  # get the destination
+#             if size == 1:
+#                 for dest in self.pops_and_nrns[dest_pop]:
+#                     self.input_connectivity[dest][inp] = 1.0  # set the weight in the correct source and destination
+#                 index += 1
+#             else:
+#                 for dest in self.pops_and_nrns[dest_pop]:
+#                     self.input_connectivity[dest][index] = 1.0
+#                     index += 1
+#
+#     def __set_connections__(self) -> None:
+#         """
+#         Build the synaptic parameter matrices. Interpret connectivity patterns between populations into individual
+#         synapses.
+#         :return: None
+#         """
+#         for syn in range(len(self.network.connections)):
+#             source_pop = self.network.connections[syn]['source']
+#             dest_pop = self.network.connections[syn]['destination']
+#             g_max = self.network.connections[syn]['params']['max_conductance']
+#             if self.network.connections[syn]['params']['electrical'] is False:  # electrical connection
+#                 del_e = self.network.connections[syn]['params']['relative_reversal_potential']
+#
+#             if self.network.connections[syn]['params']['pattern']:  # pattern connection
+#                 pop_size = len(self.pops_and_nrns[source_pop])
+#                 source_index = self.pops_and_nrns[source_pop][0]
+#                 dest_index = self.pops_and_nrns[dest_pop][0]
+#                 if self.network.connections[syn]['params']['spiking']:
+#                     tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
+#                     if self.delay:
+#                         delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
+#
+#                     for dest in range(pop_size):
+#                         for source in range(pop_size):
+#                             g_syn = g_max[dest,source]
+#                             rev = del_e[dest,source]
+#                             time_factor_syn = self.dt/tau_s[dest,source]
+#                             if self.delay:
+#                                 buffer = np.zeros(delay[dest, source])
+#                                 self.incoming_synapses[dest+dest_index].append([source+source_index, True, False, g_syn, rev, 0, time_factor_syn, buffer])
+#                             else:
+#                                 self.incoming_synapses[dest + dest_index].append([source + source_index, True, False, g_syn, rev, 0, time_factor_syn])
+#                 else:
+#                     for dest in range(pop_size):
+#                         for source in range(pop_size):
+#                             g_syn = g_max[dest, source]
+#                             rev = del_e[dest, source]
+#
+#                             self.incoming_synapses[dest + dest_index].append([source + source_index, False, False, g_syn, rev, 0])
+#             elif self.network.connections[syn]['params']['electrical']:  # electrical connection
+#                 for dest in self.pops_and_nrns[dest_pop]:
+#                     for source in self.pops_and_nrns[source_pop]:
+#                         g_syn = g_max / len(self.pops_and_nrns[source_pop])
+#                         if self.network.connections[syn]['params']['rectified']:  # rectified
+#                             self.incoming_synapses[dest].append([source, False, True, g_syn, True, source, dest])
+#                             self.incoming_synapses[source].append([dest, False, True, g_syn, True, source, dest])
+#                         else:
+#                             self.incoming_synapses[dest].append([source, False, True, g_syn, False])
+#                             self.incoming_synapses[source].append([dest, False, True, g_syn, False])
+#             else:   # chemical connection
+#                 if self.network.connections[syn]['params']['spiking']:
+#                     tau_s = self.network.connections[syn]['params']['synapticTimeConstant']
+#                     if self.delay:
+#                         delay = self.network.connections[syn]['params']['synapticTransmissionDelay']
+#                     for dest in self.pops_and_nrns[dest_pop]:
+#                         for source in self.pops_and_nrns[source_pop]:
+#                             g_syn = g_max / len(self.pops_and_nrns[source_pop])
+#                             if self.delay:
+#                                 buffer = np.zeros(delay+1)
+#                                 self.incoming_synapses[dest].append([source, True, False, g_syn, del_e, 0, self.dt/tau_s,buffer])
+#                             else:
+#                                 self.incoming_synapses[dest].append([source, True, False, g_syn, del_e, 0, self.dt / tau_s])
+#                 else:
+#                     for dest in self.pops_and_nrns[dest_pop]:
+#                         for source in self.pops_and_nrns[source_pop]:
+#                             g_syn = g_max / len(self.pops_and_nrns[source_pop])
+#                             self.incoming_synapses[dest].append([source,False, False, g_syn,del_e,0])
+#
+#     def __calculate_time_factors__(self) -> None:
+#         """
+#         Precompute the time factors for the membrane voltage, firing threshold, and spiking synapses.
+#         :return: None
+#         """
+#         self.time_factor_membrane = self.dt / (self.c_m/self.g_m)
+#         if self.spiking:
+#             self.time_factor_threshold = self.dt / self.tau_theta
+#
+#     def __initialize_propagation_delay__(self) -> None:
+#         """
+#         Create a buffer sized to store enough spike data for the longest synaptic propagation delay.
+#         :return: None
+#         """
+#         pass
+#
+#     def __set_outputs__(self) -> None:
+#         """
+#         Build the output connectivity matrices for voltage and spike monitors and apply linear maps. Generate separate
+#         output monitors for each neuron in a population.
+#         :return: None
+#         """
+#         outputs = []
+#         index = 0
+#         for out in range(len(self.network.outputs)):
+#             source_pop = self.network.outputs[out]['source']
+#             num_source_neurons = self.network.populations[source_pop]['number']
+#             outputs.append([])
+#             for num in range(num_source_neurons):
+#                 outputs[out].append(index)
+#                 index += 1
+#         self.num_outputs = index
+#
+#         self.output_voltage_connectivity = np.zeros([self.num_outputs, self.num_neurons])  # initialize connectivity matrix
+#         if self.spiking:
+#             self.output_spike_connectivity = np.copy(self.output_voltage_connectivity)
+#         self.outputs = np.zeros(self.num_outputs)
+#         for out in range(len(self.network.outputs)):  # iterate over the connections in the network
+#             source_pop = self.network.outputs[out]['source']  # get the source
+#             for i in range(len(self.pops_and_nrns[source_pop])):
+#                 if self.network.outputs[out]['spiking']:
+#                     self.output_spike_connectivity[outputs[out][i]][
+#                         self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
+#                     # self.out_linear[outputs[out][i]] = 1.0
+#                 else:
+#                     self.output_voltage_connectivity[outputs[out][i]][
+#                         self.pops_and_nrns[source_pop][i]] = 1.0  # set the weight in the correct source and destination
+#
+#     def __debug_print__(self) -> None:
+#         """
+#         Print the values for every vector/matrix which will be used in the forward computation.
+#         :return: None
+#         """
+#         print('Input Connectivity:')
+#         print(self.input_connectivity)
+#         print('Output Voltage Connectivity')
+#         print(self.output_voltage_connectivity)
+#         if self.spiking:
+#             print('Output Spike Connectivity:')
+#             print(self.output_spike_connectivity)
+#         print('u:')
+#         print(self.u)
+#         print('u_last:')
+#         print(self.u_last)
+#         if self.spiking:
+#             print('theta_0:')
+#             print(self.theta_0)
+#             print('ThetaLast:')
+#             print(self.theta_last)
+#             print('Theta')
+#             print(self.theta)
+#         if self.gated:
+#             print('Number of Channels:')
+#             print(self.num_channels)
+#             print('Ionic Conductance:')
+#             print(self.g_ion)
+#             print('Ionic Reversal Potentials:')
+#             print(self.e_ion)
+#             print('A Gate Parameters:')
+#             print('Power:')
+#             print(self.pow_a)
+#             print('Slope:')
+#             print(self.slope_a)
+#             print('K:')
+#             print(self.k_a)
+#             print('Reversal Potential:')
+#             print(self.e_a)
+#             print('B Gate Parameters:')
+#             print('Power:')
+#             print(self.pow_b)
+#             print('Slope:')
+#             print(self.slope_b)
+#             print('K:')
+#             print(self.k_b)
+#             print('Reversal Potential:')
+#             print(self.e_b)
+#             print('Tau Max:')
+#             print(self.tau_max_b)
+#             print('B:')
+#             print(self.b_gate)
+#             print('B_last:')
+#             print(self.b_gate_last)
+#             print('C Gate Parameters:')
+#             print('Power:')
+#             print(self.pow_c)
+#             print('Slope:')
+#             print(self.slope_c)
+#             print('K:')
+#             print(self.k_c)
+#             print('Reversal Potential:')
+#             print(self.e_c)
+#             print('Tau Max:')
+#             print(self.tau_max_c)
+#             print('B:')
+#             print(self.c_gate)
+#             print('B_last:')
+#             print(self.c_gate_last)
+#
+#     def reset(self, u=None, theta=None, b_gate=None, c_gate=None) -> None:
+#         if u is None:
+#             self.u = np.copy(self.u_0)
+#             self.u_last = np.copy(self.u_0)
+#         else:
+#             self.u = np.copy(u)
+#             self.u_last = np.copy(u)
+#         if self.spiking:
+#             if theta is None:
+#                 self.theta = np.copy(self.theta_0)
+#                 self.theta_last = np.copy(self.theta_0)
+#             else:
+#                 self.theta = np.copy(theta)
+#                 self.theta_last = np.copy(theta)
+#         if self.gated:
+#             if b_gate is None:
+#                 self.b_gate = np.copy(self.b_gate_0)
+#                 self.b_gate_last = np.copy(self.b_gate_0)
+#             else:
+#                 self.b_gate = np.copy(b_gate)
+#                 self.b_gate_last = np.copy(b_gate)
+#             if c_gate is None:
+#                 self.c_gate = np.copy(self.c_gate_0)
+#                 self.c_gate_last = np.copy(self.c_gate_0)
+#             else:
+#                 self.c_gate = np.copy(c_gate)
+#                 self.c_gate_last = np.copy(c_gate)
+#
+#     def save(self, filename=None) -> None:
+#         """
+#         Save the compiled network to disc.
+#         """
+#         data = {'name':                 self.name,
+#                 'spiking':              self.spiking,
+#                 'delay':                self.delay,
+#                 'elec':                 self.electrical,
+#                 'rect':                 self.electrical_rectified,
+#                 'gated':                self.gated,
+#                 'numChannels':          self.num_channels,
+#                 'u':                    self.u,
+#                 'uLast':                self.u_last,
+#                 'u0':                   self.u_0,
+#                 'cM':                   self.c_m,
+#                 'gM':                   self.g_m,
+#                 'iB':                   self.i_b,
+#                 'timeFactorMembrane':   self.time_factor_membrane,
+#                 'inputConn':            self.input_connectivity,
+#                 'numPop':               self.num_populations,
+#                 'numNeurons':           self.num_neurons,
+#                 'numConn':              self.num_connections,
+#                 'numInputs':            self.num_inputs,
+#                 'numOutputs':           self.num_outputs,
+#                 'r':                    self.R,
+#                 'outConnVolt':          self.output_voltage_connectivity,
+#                 'incomingSynapses':     self.incoming_synapses}
+#         if self.spiking:
+#             data['spikes'] = self.spikes
+#             data['theta0'] = self.theta_0
+#             data['theta'] = self.theta
+#             data['thetaLast'] = self.theta_last
+#             data['m'] = self.m
+#             data['tauTheta'] = self.tau_theta
+#             data['timeFactorThreshold'] = self.time_factor_threshold
+#             data['outConnSpike'] = self.output_spike_connectivity
+#         if self.delay:
+#             foo = 5
+#         if self.electrical:
+#             foo = 5
+#         if self.electrical_rectified:
+#             foo = 5
+#         if self.gated:
+#             data['gIon'] = self.g_ion
+#             data['eIon'] = self.e_ion
+#             data['powA'] = self.pow_a
+#             data['slopeA'] = self.slope_a
+#             data['kA'] = self.k_a
+#             data['eA'] = self.e_a
+#             data['powB'] = self.pow_b
+#             data['slopeB'] = self.slope_b
+#             data['kB'] = self.k_b
+#             data['eB'] = self.e_b
+#             data['tauMaxB'] = self.tau_max_b
+#             data['powC'] = self.pow_c
+#             data['slopeC'] = self.slope_c
+#             data['kC'] = self.k_c
+#             data['eC'] = self.e_c
+#             data['tauMaxC'] = self.tau_max_c
+#             data['bGate'] = self.b_gate
+#             data['bGateLast'] = self.b_gate_last
+#             data['bGate0'] = self.b_gate_0
+#             data['cGate'] = self.c_gate
+#             data['cGateLast'] = self.c_gate_last
+#             data['cGate0'] = self.c_gate_0
+#
+#         if filename is None:
+#             filename = self.name + '.p'
+#         pickle.dump(data, open(filename, 'wb'))
+#
+#     def __load__(self, data):
+#         self.name = data['name']
+#         self.spiking = data['spiking']
+#         self.delay = data['delay']
+#         self.electrical = data['elec']
+#         self.electrical_rectified = data['rect']
+#         self.gated = data['gated']
+#         self.num_channels = data['numChannels']
+#         self.u = data['u']
+#         self.u_last = data['uLast']
+#         self.u_0 = data['u0']
+#         self.c_m = data['cM']
+#         self.g_m = data['gM']
+#         self.i_b = data['iB']
+#         self.time_factor_membrane = data['timeFactorMembrane']
+#         self.input_connectivity = data['inputConn']
+#         self.output_voltage_connectivity = data['outConnVolt']
+#         self.num_populations = data['numPop']
+#         self.num_neurons = data['numNeurons']
+#         self.num_connections = data['numConn']
+#         self.num_inputs = data['numInputs']
+#         self.num_outputs = data['numOutputs']
+#         self.R = data['r']
+#         self.incoming_synapses = data['incomingSynapses']
+#         if self.spiking:
+#             self.spikes = data['spikes']
+#             self.theta_0 = data['theta0']
+#             self.theta = data['theta']
+#             self.theta_last = data['thetaLast']
+#             self.m = data['m']
+#             self.tau_theta = data['tauTheta']
+#             self.time_factor_threshold = data['timeFactorThreshold']
+#             self.output_spike_connectivity = data['outConnSpike']
+#         if self.delay:
+#             foo = 5
+#         if self.electrical:
+#             foo = 5
+#         if self.electrical_rectified:
+#             foo = 5
+#         if self.gated:
+#             self.g_ion = data['gIon']
+#             self.e_ion = data['eIon']
+#             self.pow_a = data['powA']
+#             self.slope_a = data['slopeA']
+#             self.k_a = data['kA']
+#             self.e_a = data['eA']
+#             self.pow_b = data['powB']
+#             self.slope_b = data['slopeB']
+#             self.k_b = data['kB']
+#             self.e_b = data['eB']
+#             self.tau_max_b = data['tauMaxB']
+#             self.pow_c = data['powC']
+#             self.slope_c = data['slopeC']
+#             self.k_c = data['kC']
+#             self.e_c = data['eC']
+#             self.tau_max_c = data['tauMaxC']
+#             self.b_gate = data['bGate']
+#             self.b_gate_last = data['bGateLast']
+#             self.b_gate_0 = data['bGate0']
+#             self.c_gate = data['cGate']
+#             self.c_gate_last = data['cGateLast']
+#             self.c_gate_0 = data['cGate0']
+#
+#     def __forward_pass__(self, inputs) -> Any:
+#         self.u_last = np.copy(self.u)
+#         if self.spiking:
+#             self.theta_last = np.copy(self.theta)
+#         if self.gated:
+#             self.b_gate_last = np.copy(self.b_gate)
+#             self.c_gate_last = np.copy(self.c_gate)
+#
+#         i_app = np.matmul(self.input_connectivity, inputs)  # Apply external current sources to their destinations
+#
+#         for nrn in range(self.num_neurons):
+#             i_syn = 0
+#             for syn in range(len(self.incoming_synapses[nrn])):
+#                 neuron_src = self.incoming_synapses[nrn][syn]
+#                 if neuron_src[1]:  # if spiking
+#                     neuron_src[5] = neuron_src[5] * (1-neuron_src[6])
+#                     i_syn += neuron_src[5] * (neuron_src[4] - self.u_last[nrn])
+#                 elif neuron_src[2]: # if electrical
+#                     if neuron_src[4]:   # if rectified
+#                         if self.u_last[neuron_src[5]] > self.u_last[neuron_src[6]]:
+#                             i_syn += neuron_src[3] * (self.u_last[neuron_src[0]] - self.u_last[nrn])
+#                     else:
+#                         i_syn += neuron_src[3] * (self.u_last[neuron_src[0]] - self.u_last[nrn])
+#                 else:   # if chemical
+#                     neuron_src[5] = np.maximum(0, np.minimum(neuron_src[3] * self.u_last[neuron_src[0]] / self.R, neuron_src[3]))
+#                     i_syn += neuron_src[5] * (neuron_src[4] - self.u_last[nrn])
+#             i_gated = 0
+#             if self.gated:
+#                 a_inf = 1 / (1 + self.k_a[:,nrn] * np.exp(self.slope_a[:,nrn] * (self.e_a[:,nrn] - self.u_last[nrn])))
+#                 b_inf = 1 / (1 + self.k_b[:,nrn] * np.exp(self.slope_b[:,nrn] * (self.e_b[:,nrn] - self.u_last[nrn])))
+#                 c_inf = 1 / (1 + self.k_c[:,nrn] * np.exp(self.slope_c[:,nrn] * (self.e_c[:,nrn] - self.u_last[nrn])))
+#
+#                 tau_b = self.tau_max_b[:,nrn] * b_inf * np.sqrt(self.k_b[:,nrn] * np.exp(self.slope_b[:,nrn] * (self.e_b[:,nrn] - self.u_last[nrn])))
+#                 tau_c = self.tau_max_c[:,nrn] * c_inf * np.sqrt(self.k_c[:,nrn] * np.exp(self.slope_c[:,nrn] * (self.e_c[:,nrn] - self.u_last[nrn])))
+#
+#                 self.b_gate[:,nrn] = self.b_gate_last[:,nrn] + self.dt * ((b_inf - self.b_gate_last[:,nrn]) / tau_b)
+#                 self.c_gate[:,nrn] = self.c_gate_last[:,nrn] + self.dt * ((c_inf - self.c_gate_last[:,nrn]) / tau_c)
+#
+#                 i_ion = self.g_ion[:,nrn] * (a_inf ** self.pow_a[:,nrn]) * (self.b_gate[:,nrn] ** self.pow_b[:,nrn]) * (self.c_gate[:,nrn] ** self.pow_c[:,nrn]) * (self.e_ion[:,nrn] - self.u_last[nrn])
+#                 i_gated = np.sum(i_ion)
+#
+#             self.u[nrn] = self.u_last[nrn] + self.time_factor_membrane[nrn] * (-self.g_m[nrn] * self.u_last[nrn] + self.i_b[nrn] + i_syn + i_app[nrn] + i_gated)  # Update membrane potential
+#             if self.spiking:
+#                 # if self.theta_0[nrn] != sys.float_info.max:
+#                 self.theta[nrn] = self.theta_last[nrn] + self.time_factor_threshold[nrn] * (-self.theta_last[nrn] + self.theta_0[nrn] + self.m[nrn] * self.u_last[nrn])  # Update the firing thresholds
+#                 self.spikes[nrn] = np.sign(np.minimum(0, self.theta[nrn] - self.u[nrn]))  # Compute which neurons have spiked
+#         if self.spiking:
+#             for nrn in range(self.num_neurons):
+#                 if self.delay:
+#                     # New stuff with delay
+#                     for syn in range(len(self.incoming_synapses[nrn])):
+#                         neuron_src = self.incoming_synapses[nrn][syn]
+#                         if neuron_src[1]:  # if spiking
+#                             neuron_src[7] = np.roll(neuron_src[7], 1)   # Shift buffer entries down
+#                             neuron_src[7][0] = self.spikes[neuron_src[0]]    # Replace row 0 with the current spike data
+#                             neuron_src[5] = np.maximum(neuron_src[5], (-neuron_src[7][-1]) * neuron_src[3])  # Update the conductance of connections which spiked
+#                 self.u[nrn] = self.u[nrn] * (self.spikes[nrn] + 1)  # Reset the membrane voltages of neurons which spiked
+#         self.outputs = np.matmul(self.output_voltage_connectivity, self.u)
+#         if self.spiking:
+#             self.outputs += np.matmul(self.output_spike_connectivity, -self.spikes)
+#
+#         return self.outputs
