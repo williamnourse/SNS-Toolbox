@@ -63,9 +63,9 @@ data_original = np.zeros([len(t),net.get_num_outputs_actual()])
 data_load = np.zeros([len(t),net.get_num_outputs_actual()])
 
 model_original = SNS_Numpy(net,dt=dt)
-model_original.save(filename='saveTest')
+model_original.save(filename='saveTest.p')
 
-model_load = SNS_Numpy('saveTest.sns',dt=dt)
+model_load = SNS_Numpy('saveTest.p',dt=dt)
 
 """Simulate the network"""
 # At every step, apply the current input to a forward pass of the network and store the results in 'data'

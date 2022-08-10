@@ -440,8 +440,7 @@ class __Backend__:
             data['cGate0'] = self.c_gate_0
 
         if filename is None:
-            filename = self.name
-        filename += '.sns'
+            filename = self.name + '.sns'
         pickle.dump(data, open(filename, 'wb'))
 
     def reset(self, u=None, theta=None, b_gate=None, c_gate=None) -> None:
@@ -2100,12 +2099,9 @@ class SNS_Manual(__Backend__):
                 self.c_gate = np.copy(c_gate)
                 self.c_gate_last = np.copy(c_gate)
 
-    def save(self, filename=None):
+    def save(self, filename=None) -> None:
         """
         Save the compiled network to disc.
-
-        :return: Compressed dictionary of parameters and variables.
-        :rtype: .sns file
         """
         data = {'name':                 self.name,
                 'spiking':              self.spiking,
@@ -2170,8 +2166,7 @@ class SNS_Manual(__Backend__):
             data['cGate0'] = self.c_gate_0
 
         if filename is None:
-            filename = self.name
-        filename += '.sns'
+            filename = self.name + '.p'
         pickle.dump(data, open(filename, 'wb'))
 
     def __load__(self, data):

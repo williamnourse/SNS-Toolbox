@@ -808,9 +808,9 @@ data_original = np.zeros([len(t),net.get_num_outputs_actual()])
 data_load = np.zeros([len(t),net.get_num_outputs_actual()])
 
 model_original = sns_toolbox.simulate.backends.SNS_Numpy(net,dt=dt)
-model_original.save(filename='saveNumpy')
+model_original.save(filename='saveNumpy.p')
 
-model_load = sns_toolbox.simulate.backends.SNS_Numpy('saveNumpy.sns',dt=dt)
+model_load = sns_toolbox.simulate.backends.SNS_Numpy('saveNumpy.p',dt=dt)
 
 """Simulate the network"""
 # At every step, apply the current input to a forward pass of the network and store the results in 'data'
@@ -838,9 +838,9 @@ data_original = torch.zeros([len(t),net.get_num_outputs_actual()],device='cpu')
 data_load = torch.zeros([len(t),net.get_num_outputs_actual()],device='cpu')
 
 model_original = sns_toolbox.simulate.backends.SNS_Torch(netTorch,dt=dt,device='cpu')
-model_original.save(filename='saveTorch')
+model_original.save(filename='saveTorch.p')
 
-model_load = sns_toolbox.simulate.backends.SNS_Torch('saveTorch.sns',dt=dt,device='cpu')
+model_load = sns_toolbox.simulate.backends.SNS_Torch('saveTorch.p',dt=dt,device='cpu')
 
 """Simulate the network"""
 # At every step, apply the current input to a forward pass of the network and store the results in 'data'
@@ -868,9 +868,9 @@ data_original = torch.zeros([len(t),net.get_num_outputs_actual()],device='cpu')
 data_load = torch.zeros([len(t),net.get_num_outputs_actual()],device='cpu')
 
 model_original = sns_toolbox.simulate.backends.SNS_Sparse(netTorch,dt=dt,device='cpu')
-model_original.save(filename='saveSparse')
+model_original.save(filename='saveSparse.p')
 
-model_load = sns_toolbox.simulate.backends.SNS_Sparse('saveSparse.sns',dt=dt,device='cpu')
+model_load = sns_toolbox.simulate.backends.SNS_Sparse('saveSparse.p',dt=dt,device='cpu')
 
 """Simulate the network"""
 # At every step, apply the current input to a forward pass of the network and store the results in 'data'
@@ -898,9 +898,9 @@ data_original = np.zeros([len(t),net.get_num_outputs_actual()])
 data_load = np.zeros([len(t),net.get_num_outputs_actual()])
 
 model_original = sns_toolbox.simulate.backends.SNS_Manual(net,dt=dt)
-model_original.save(filename='saveManual')
+model_original.save(filename='saveManual.p')
 
-model_load = sns_toolbox.simulate.backends.SNS_Manual('saveManual.sns',dt=dt)
+model_load = sns_toolbox.simulate.backends.SNS_Manual('saveManual.p',dt=dt)
 
 """Simulate the network"""
 # At every step, apply the current input to a forward pass of the network and store the results in 'data'
