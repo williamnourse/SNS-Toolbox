@@ -10,7 +10,6 @@ from sns_toolbox.design.networks import Network
 from sns_toolbox.design.neurons import NonSpikingNeuron, SpikingNeuron, NonSpikingNeuronWithPersistentSodiumChannel, NonSpikingNeuronWithGatedChannels
 from sns_toolbox.design.connections import NonSpikingSynapse, SpikingSynapse, NonSpikingTransmissionSynapse, ElectricalSynapse
 
-import sns_toolbox.simulate.backends
 from sns_toolbox.simulate.simulate_utilities import spike_raster_plot
 import sys
 
@@ -59,19 +58,19 @@ dataManual = np.zeros([len(t),5])
 
 # Compile the network to use the Numpy CPU backend (if you want to see what's happening, set debug to true)
 
-modelNumpy = sns_toolbox.simulate.backends.SNS_Numpy(net, dt=dt, debug=False)
-modelTorch = sns_toolbox.simulate.backends.SNS_Torch(net, dt=dt, debug=False, device='cpu')
-modelSparse = sns_toolbox.simulate.backends.SNS_Sparse(net, dt=dt, debug=False, device='cpu')
-modelManual = sns_toolbox.simulate.backends.SNS_Manual(net, dt=dt, debug=False)
+modelNumpy = net.compile(backend='numpy', dt=dt, debug=False)
+modelTorch = net.compile(backend='torch', dt=dt, debug=False, device='cpu')
+modelSparse = net.compile(backend='sparse', dt=dt, debug=False, device='cpu')
+modelManual = net.compile(backend='manual', dt=dt, debug=False)
 
 """Simulate the network"""
 print('Running Network 1')
 for i in range(len(t)):
     print('1: %i / %i steps' % (i + 1, len(t)))
-    dataNumpy[i,:] = modelNumpy.forward(inputs[i,:])
-    dataTorch[i, :] = modelTorch.forward(inputsTorch[i, :])
-    dataSparse[i, :] = modelSparse.forward(inputsTorch[i, :])
-    dataManual[i, :] = modelManual.forward(inputs[i, :])
+    dataNumpy[i,:] = modelNumpy(inputs[i,:])
+    dataTorch[i, :] = modelTorch(inputsTorch[i, :])
+    dataSparse[i, :] = modelSparse(inputsTorch[i, :])
+    dataManual[i, :] = modelManual(inputs[i, :])
 dataNumpy = dataNumpy.transpose()
 dataTorch = torch.transpose(dataTorch,0,1)
 dataSparse = torch.transpose(dataSparse,0,1)
@@ -137,19 +136,19 @@ dataTorch = torch.zeros([len(t), net.get_num_outputs_actual()])
 dataSparse = torch.zeros([len(t), net.get_num_outputs_actual()])
 dataManual = np.zeros([len(t), net.get_num_outputs_actual()])
 
-modelNumpy = sns_toolbox.simulate.backends.SNS_Numpy(net, dt=dt, debug=False)
-modelTorch = sns_toolbox.simulate.backends.SNS_Torch(net, dt=dt, debug=False, device='cpu')
-modelSparse = sns_toolbox.simulate.backends.SNS_Sparse(net, dt=dt, debug=False, device='cpu')
-modelManual = sns_toolbox.simulate.backends.SNS_Manual(net, dt=dt, debug=False)
+modelNumpy = net.compile(backend='numpy', dt=dt, debug=False)
+modelTorch = net.compile(backend='torch', dt=dt, debug=False, device='cpu')
+modelSparse = net.compile(backend='sparse', dt=dt, debug=False, device='cpu')
+modelManual = net.compile(backend='manual', dt=dt, debug=False)
 
 """Simulate the network"""
 print('Running Network 2')
 for i in range(len(t)):
     print('2: %i / %i steps' % (i + 1, len(t)))
-    dataNumpy[i,:] = modelNumpy.forward(inputs[i,:])
-    dataTorch[i, :] = modelTorch.forward(inputsTorch[i, :])
-    dataSparse[i, :] = modelSparse.forward(inputsTorch[i, :])
-    dataManual[i, :] = modelManual.forward(inputs[i, :])
+    dataNumpy[i,:] = modelNumpy(inputs[i,:])
+    dataTorch[i, :] = modelTorch(inputsTorch[i, :])
+    dataSparse[i, :] = modelSparse(inputsTorch[i, :])
+    dataManual[i, :] = modelManual(inputs[i, :])
 dataNumpy = dataNumpy.transpose()
 dataTorch = torch.transpose(dataTorch,0,1)
 dataSparse = torch.transpose(dataSparse,0,1)
@@ -202,18 +201,18 @@ dataTorch = torch.zeros([len(t), net.get_num_outputs_actual()])
 dataSparse = torch.zeros([len(t), net.get_num_outputs_actual()])
 dataManual = np.zeros([len(t), net.get_num_outputs_actual()])
 
-modelNumpy = sns_toolbox.simulate.backends.SNS_Numpy(net, dt=dt, debug=False)
-modelTorch = sns_toolbox.simulate.backends.SNS_Torch(net, dt=dt, debug=False, device='cpu')
-modelSparse = sns_toolbox.simulate.backends.SNS_Sparse(net, dt=dt, debug=False, device='cpu')
-modelManual = sns_toolbox.simulate.backends.SNS_Manual(net, dt=dt, debug=False)
+modelNumpy = net.compile(backend='numpy', dt=dt, debug=False)
+modelTorch = net.compile(backend='torch', dt=dt, debug=False, device='cpu')
+modelSparse = net.compile(backend='sparse', dt=dt, debug=False, device='cpu')
+modelManual = net.compile(backend='manual', dt=dt, debug=False)
 
 print('Running Network 3')
 for i in range(len(t)):
     print('3: %i / %i steps' % (i + 1, len(t)))
-    dataNumpy[i,:] = modelNumpy.forward(inputs[i,:])
-    dataTorch[i, :] = modelTorch.forward(inputsTorch[i, :])
-    dataSparse[i, :] = modelSparse.forward(inputsTorch[i, :])
-    dataManual[i, :] = modelManual.forward(inputs[i, :])
+    dataNumpy[i,:] = modelNumpy(inputs[i,:])
+    dataTorch[i, :] = modelTorch(inputsTorch[i, :])
+    dataSparse[i, :] = modelSparse(inputsTorch[i, :])
+    dataManual[i, :] = modelManual(inputs[i, :])
 dataNumpy = dataNumpy.transpose()
 dataTorch = torch.transpose(dataTorch,0,1)
 dataSparse = torch.transpose(dataSparse,0,1)
@@ -287,18 +286,18 @@ dataSparse = torch.zeros([len(t),net.get_num_outputs_actual()])
 
 # Compile the network to use the Numpy CPU backend (if you want to see what's happening, set debug to true)
 
-modelNumpy = sns_toolbox.simulate.backends.SNS_Numpy(net, dt=dt, debug=False)
-modelTorch = sns_toolbox.simulate.backends.SNS_Torch(net, dt=dt, debug=False, device='cpu')
-modelSparse = sns_toolbox.simulate.backends.SNS_Sparse(net, dt=dt, debug=False, device='cpu')
-modelManual = sns_toolbox.simulate.backends.SNS_Manual(net, dt=dt, debug=False)
+modelNumpy = net.compile(backend='numpy', dt=dt, debug=False)
+modelTorch = net.compile(backend='torch', dt=dt, debug=False, device='cpu')
+modelSparse = net.compile(backend='sparse', dt=dt, debug=False, device='cpu')
+modelManual = net.compile(backend='manual', dt=dt, debug=False)
 
 print('Running Network 4')
 for i in range(len(t)):
     print('4: %i / %i steps' % (i + 1, len(t)))
-    dataNumpy[i,:] = modelNumpy.forward(inputsNumpy[i,:])
-    dataTorch[i, :] = modelTorch.forward(inputsTorch[i, :])
-    dataSparse[i, :] = modelSparse.forward(inputsTorch[i, :])
-    dataManual[i, :] = modelManual.forward(inputsNumpy[i, :])
+    dataNumpy[i,:] = modelNumpy(inputsNumpy[i,:])
+    dataTorch[i, :] = modelTorch(inputsTorch[i, :])
+    dataSparse[i, :] = modelSparse(inputsTorch[i, :])
+    dataManual[i, :] = modelManual(inputsNumpy[i, :])
 dataNumpy = dataNumpy.transpose()
 dataTorch = torch.transpose(dataTorch,0,1)
 dataSparse = torch.transpose(dataSparse,0,1)
@@ -475,15 +474,15 @@ def cpg(numpy,backend):
     Ipert[1, 0] = 1
     Ipert[:,1] = 20
     if numpy:
-        model = backend(net, dt=dt)
+        model = net.compile(backend=backend, dt=dt)
         data = np.zeros([len(t), net.get_num_outputs_actual()])
     else:
-        model = backend(net, dt=dt,device='cpu')
+        model = net.compile(backend=backend, dt=dt,device='cpu')
         data = torch.zeros([len(t), net.get_num_outputs_actual()])
     inputs = Iapp + Ipert
 
     for i in range(len(t)):
-        data[i] = model.forward(inputs[i])
+        data[i] = model(inputs[i])
     if numpy:
         return data.transpose()
     else:
@@ -492,13 +491,13 @@ def cpg(numpy,backend):
 
 print('Running Network 5:')
 print('5: Numpy')
-dataNumpy = cpg(True,sns_toolbox.simulate.backends.SNS_Numpy)
+dataNumpy = cpg(True,'numpy')
 print('5: Torch')
-dataTorch = cpg(False,sns_toolbox.simulate.backends.SNS_Torch)
+dataTorch = cpg(False,'torch')
 print('5: Sparse')
-dataSparse = cpg(False,sns_toolbox.simulate.backends.SNS_Sparse)
+dataSparse = cpg(False,'sparse')
 print('5: Manual')
-dataManual = cpg(True,sns_toolbox.simulate.backends.SNS_Manual)
+dataManual = cpg(True,'manual')
 
 plt.figure()
 plt.subplot(2,1,1)
@@ -626,10 +625,10 @@ def reset(numpy, backend, sparse=False):
     Ipert[:, 0] = 20
     Ipert[:, 2] = 5
     if numpy:
-        model = backend(net, dt=dt)
+        model = net.compile(backend=backend, dt=dt)
         data = np.zeros([len(t), net.get_num_outputs_actual()])
     else:
-        model = backend(net, dt=dt, device='cpu')
+        model = net.compile(backend=backend, dt=dt, device='cpu')
         data = torch.zeros([len(t), net.get_num_outputs_actual()])
 
     if numpy:
@@ -650,12 +649,10 @@ def reset(numpy, backend, sparse=False):
             c_gate = torch.tensor([[0, 0, 5]])
 
     for i in range(numSteps):
-        if i == (int(0.3 * numSteps)-1):
+        if i == (int(0.5 * numSteps)-1):
             model.reset()
-        elif i == (int(0.6 * numSteps)-1):
-            model.reset(u=u,theta=theta,b_gate=b_gate,c_gate=c_gate)
         else:
-            data[i] = model.forward(Ipert[i,:])
+            data[i] = model(Ipert[i,:])
     if numpy:
         return data.transpose(), t
     else:
@@ -663,13 +660,13 @@ def reset(numpy, backend, sparse=False):
 
 print('Running Network 6:')
 print('6: Numpy')
-dataNumpy, t = reset(True,sns_toolbox.simulate.backends.SNS_Numpy)
+dataNumpy, t = reset(True,'numpy')
 print('5: Torch')
-dataTorch, t = reset(False,sns_toolbox.simulate.backends.SNS_Torch)
+dataTorch, t = reset(False,'torch')
 print('5: Sparse')
-dataSparse, t = reset(False,sns_toolbox.simulate.backends.SNS_Sparse,sparse=True)
+dataSparse, t = reset(False,'sparse',sparse=True)
 print('5: Manual')
-dataManual, t = reset(True,sns_toolbox.simulate.backends.SNS_Manual)
+dataManual, t = reset(True,'manual')
 
 plt.figure()
 plt.subplot(3,1,1)
@@ -713,212 +710,212 @@ plt.plot(t,dataTorch[:][2]-dataManual[:][2],label='Torch',color='C1')
 plt.plot(t,dataSparse[:][2]-dataManual[:][2],label='Sparse',color='C2')
 plt.legend()
 
-"""
-Network 7: Loading network
-"""
-
-neuron_non_spike = NonSpikingNeuron()
-neuron_spike = SpikingNeuron()
-neuron_gated = NonSpikingNeuronWithPersistentSodiumChannel()
-neuron_gated_torch = NonSpikingNeuronWithPersistentSodiumChannel(g_ion=torch.tensor([1.0485070729908987],device='cpu'),
-                                                                 e_ion=torch.tensor([110],device='cpu'),
-                                                                 k_m=torch.tensor([1],device='cpu'),
-                                                                 slope_m=torch.tensor([0.05],device='cpu'),
-                                                                 e_m=torch.tensor([20],device='cpu'),
-                                                                 k_h=torch.tensor([0.5],device='cpu'),
-                                                                 slope_h=torch.tensor([-0.05],device='cpu'),
-                                                                 e_h=torch.tensor([0],device='cpu'),
-                                                                 tau_max_h=torch.tensor([300],device='cpu')
-                                                                 )
-
-synapse_non_spike = NonSpikingSynapse()
-synapse_spike = SpikingSynapse()
-synapse_spike_delay = SpikingSynapse(transmission_delay=5)
-synapse_elect = ElectricalSynapse(conductance=1)
-synapse_elect_rect = ElectricalSynapse(conductance=1,rect=True)
-
-net = Network('Tutorial 9 Network')
-net.add_neuron(neuron_non_spike,name='0',color='blue')
-net.add_neuron(neuron_non_spike,name='1',color='orange')
-net.add_neuron(neuron_spike,name='2',color='green')
-net.add_neuron(neuron_spike,name='3',color='red')
-net.add_neuron(neuron_gated,name='4',color='purple')
-net.add_neuron(neuron_non_spike,name='5',color='brown')
-net.add_neuron(neuron_non_spike,name='6',color='pink',initial_value=5)
-net.add_neuron(neuron_spike, name='7',color='gray')
-
-net.add_input('0')
-net.add_input('2')
-net.add_input('4')
-
-net.add_output('0')
-net.add_output('1')
-net.add_output('2')
-net.add_output('3')
-net.add_output('4')
-net.add_output('5')
-net.add_output('6')
-net.add_output('7')
-
-net.add_connection(synapse_non_spike,'0','1')
-net.add_connection(synapse_spike,'2','3')
-net.add_connection(synapse_elect,'0','5')
-net.add_connection(synapse_elect_rect,'6','5')
-net.add_connection(synapse_spike_delay,'2','3')
-
-netTorch = Network('Tutorial 9 Network')
-netTorch.add_neuron(neuron_non_spike,name='0',color='blue')
-netTorch.add_neuron(neuron_non_spike,name='1',color='orange')
-netTorch.add_neuron(neuron_spike,name='2',color='green')
-netTorch.add_neuron(neuron_spike,name='3',color='red')
-netTorch.add_neuron(neuron_gated_torch,name='4',color='purple')
-netTorch.add_neuron(neuron_non_spike,name='5',color='brown')
-netTorch.add_neuron(neuron_non_spike,name='6',color='pink',initial_value=5)
-netTorch.add_neuron(neuron_spike, name='7',color='gray')
-netTorch.add_input('0')
-netTorch.add_input('2')
-netTorch.add_input('4')
-netTorch.add_output('0')
-netTorch.add_output('1')
-netTorch.add_output('2')
-netTorch.add_output('3')
-netTorch.add_output('4')
-netTorch.add_output('5')
-netTorch.add_output('6')
-netTorch.add_output('7')
-netTorch.add_connection(synapse_non_spike,'0','1')
-netTorch.add_connection(synapse_spike,'2','3')
-netTorch.add_connection(synapse_elect,'0','5')
-netTorch.add_connection(synapse_elect_rect,'6','5')
-netTorch.add_connection(synapse_spike_delay,'2','3')
-
-plt.figure()
-# net.render_graph(view=True)
-dt = 0.01
-t_max = 50
-
-# Initialize a vector of timesteps
-t = np.arange(0, t_max, dt)
-
-print('Running Network 7:')
-print('7: Numpy')
-# Initialize vectors which store the input to our network, and for data to be written to during simulation from outputs
-inputs = np.zeros([len(t),net.get_num_inputs()])+5.0 # Input vector must be 2d, even if second dimension is 1
-data_original = np.zeros([len(t),net.get_num_outputs_actual()])
-data_load = np.zeros([len(t),net.get_num_outputs_actual()])
-
-model_original = sns_toolbox.simulate.backends.SNS_Numpy(net,dt=dt)
-model_original.save(filename='saveNumpy.p')
-
-model_load = sns_toolbox.simulate.backends.SNS_Numpy('saveNumpy.p',dt=dt)
-
-"""Simulate the network"""
-# At every step, apply the current input to a forward pass of the network and store the results in 'data'
-for i in range(len(t)):
-    data_original[i,:] = model_original.forward(inputs[i,:])
-    data_load[i, :] = model_load.forward(inputs[i, :])
-data_original = data_original.transpose()
-data_load = data_load.transpose()
-
-plt.subplot(2,2,1)
-plt.plot(t,data_original[:][0] - data_load[:][0],label='0',color='C0')
-plt.plot(t,data_original[:][1] - data_load[:][1],label='1',color='C1')
-plt.plot(t,data_original[:][2] - data_load[:][2],label='2',color='C2')
-plt.plot(t,data_original[:][3] - data_load[:][3],label='3',color='C3')
-plt.plot(t,data_original[:][4] - data_load[:][4],label='4',color='C4')
-plt.plot(t,data_original[:][5] - data_load[:][5],label='5',color='C5')
-plt.plot(t,data_original[:][6] - data_load[:][6],label='6',color='C6')
-plt.plot(t,data_original[:][7] - data_load[:][7],label='7',color='C7')
-plt.legend()
-
-print('7: Torch')
-# Initialize vectors which store the input to our network, and for data to be written to during simulation from outputs
-inputs = torch.zeros([len(t),net.get_num_inputs()],device='cpu')+5.0 # Input vector must be 2d, even if second dimension is 1
-data_original = torch.zeros([len(t),net.get_num_outputs_actual()],device='cpu')
-data_load = torch.zeros([len(t),net.get_num_outputs_actual()],device='cpu')
-
-model_original = sns_toolbox.simulate.backends.SNS_Torch(netTorch,dt=dt,device='cpu')
-model_original.save(filename='saveTorch.p')
-
-model_load = sns_toolbox.simulate.backends.SNS_Torch('saveTorch.p',dt=dt,device='cpu')
-
-"""Simulate the network"""
-# At every step, apply the current input to a forward pass of the network and store the results in 'data'
-for i in range(len(t)):
-    data_original[i,:] = model_original.forward(inputs[i,:])
-    data_load[i, :] = model_load.forward(inputs[i, :])
-data_original = data_original.transpose(0,1)
-data_load = data_load.transpose(0,1)
-
-plt.subplot(2,2,2)
-plt.plot(t,data_original[:][0] - data_load[:][0],label='0',color='C0')
-plt.plot(t,data_original[:][1] - data_load[:][1],label='1',color='C1')
-plt.plot(t,data_original[:][2] - data_load[:][2],label='2',color='C2')
-plt.plot(t,data_original[:][3] - data_load[:][3],label='3',color='C3')
-plt.plot(t,data_original[:][4] - data_load[:][4],label='4',color='C4')
-plt.plot(t,data_original[:][5] - data_load[:][5],label='5',color='C5')
-plt.plot(t,data_original[:][6] - data_load[:][6],label='6',color='C6')
-plt.plot(t,data_original[:][7] - data_load[:][7],label='7',color='C7')
-plt.legend()
-
-print('7: Sparse')
-# Initialize vectors which store the input to our network, and for data to be written to during simulation from outputs
-inputs = torch.zeros([len(t),net.get_num_inputs()],device='cpu')+5.0 # Input vector must be 2d, even if second dimension is 1
-data_original = torch.zeros([len(t),net.get_num_outputs_actual()],device='cpu')
-data_load = torch.zeros([len(t),net.get_num_outputs_actual()],device='cpu')
-
-model_original = sns_toolbox.simulate.backends.SNS_Sparse(netTorch,dt=dt,device='cpu')
-model_original.save(filename='saveSparse.p')
-
-model_load = sns_toolbox.simulate.backends.SNS_Sparse('saveSparse.p',dt=dt,device='cpu')
-
-"""Simulate the network"""
-# At every step, apply the current input to a forward pass of the network and store the results in 'data'
-for i in range(len(t)):
-    data_original[i,:] = model_original.forward(inputs[i,:])
-    data_load[i, :] = model_load.forward(inputs[i, :])
-data_original = data_original.transpose(0,1)
-data_load = data_load.transpose(0,1)
-
-plt.subplot(2,2,3)
-plt.plot(t,data_original[:][0] - data_load[:][0],label='0',color='C0')
-plt.plot(t,data_original[:][1] - data_load[:][1],label='1',color='C1')
-plt.plot(t,data_original[:][2] - data_load[:][2],label='2',color='C2')
-plt.plot(t,data_original[:][3] - data_load[:][3],label='3',color='C3')
-plt.plot(t,data_original[:][4] - data_load[:][4],label='4',color='C4')
-plt.plot(t,data_original[:][5] - data_load[:][5],label='5',color='C5')
-plt.plot(t,data_original[:][6] - data_load[:][6],label='6',color='C6')
-plt.plot(t,data_original[:][7] - data_load[:][7],label='7',color='C7')
-plt.legend()
-
-print('7: Manual')
-# Initialize vectors which store the input to our network, and for data to be written to during simulation from outputs
-inputs = np.zeros([len(t),net.get_num_inputs()])+5.0 # Input vector must be 2d, even if second dimension is 1
-data_original = np.zeros([len(t),net.get_num_outputs_actual()])
-data_load = np.zeros([len(t),net.get_num_outputs_actual()])
-
-model_original = sns_toolbox.simulate.backends.SNS_Manual(net,dt=dt)
-model_original.save(filename='saveManual.p')
-
-model_load = sns_toolbox.simulate.backends.SNS_Manual('saveManual.p',dt=dt)
-
-"""Simulate the network"""
-# At every step, apply the current input to a forward pass of the network and store the results in 'data'
-for i in range(len(t)):
-    data_original[i,:] = model_original.forward(inputs[i,:])
-    data_load[i, :] = model_load.forward(inputs[i, :])
-data_original = data_original.transpose()
-data_load = data_load.transpose()
-
-plt.subplot(2,2,4)
-plt.plot(t,data_original[:][0] - data_load[:][0],label='0',color='C0')
-plt.plot(t,data_original[:][1] - data_load[:][1],label='1',color='C1')
-plt.plot(t,data_original[:][2] - data_load[:][2],label='2',color='C2')
-plt.plot(t,data_original[:][3] - data_load[:][3],label='3',color='C3')
-plt.plot(t,data_original[:][4] - data_load[:][4],label='4',color='C4')
-plt.plot(t,data_original[:][5] - data_load[:][5],label='5',color='C5')
-plt.plot(t,data_original[:][6] - data_load[:][6],label='6',color='C6')
-plt.plot(t,data_original[:][7] - data_load[:][7],label='7',color='C7')
-plt.legend()
+# """
+# Network 7: Loading network
+# """
+#
+# neuron_non_spike = NonSpikingNeuron()
+# neuron_spike = SpikingNeuron()
+# neuron_gated = NonSpikingNeuronWithPersistentSodiumChannel()
+# neuron_gated_torch = NonSpikingNeuronWithPersistentSodiumChannel(g_ion=torch.tensor([1.0485070729908987],device='cpu'),
+#                                                                  e_ion=torch.tensor([110],device='cpu'),
+#                                                                  k_m=torch.tensor([1],device='cpu'),
+#                                                                  slope_m=torch.tensor([0.05],device='cpu'),
+#                                                                  e_m=torch.tensor([20],device='cpu'),
+#                                                                  k_h=torch.tensor([0.5],device='cpu'),
+#                                                                  slope_h=torch.tensor([-0.05],device='cpu'),
+#                                                                  e_h=torch.tensor([0],device='cpu'),
+#                                                                  tau_max_h=torch.tensor([300],device='cpu')
+#                                                                  )
+#
+# synapse_non_spike = NonSpikingSynapse()
+# synapse_spike = SpikingSynapse()
+# synapse_spike_delay = SpikingSynapse(transmission_delay=5)
+# synapse_elect = ElectricalSynapse(conductance=1)
+# synapse_elect_rect = ElectricalSynapse(conductance=1,rect=True)
+#
+# net = Network('Tutorial 9 Network')
+# net.add_neuron(neuron_non_spike,name='0',color='blue')
+# net.add_neuron(neuron_non_spike,name='1',color='orange')
+# net.add_neuron(neuron_spike,name='2',color='green')
+# net.add_neuron(neuron_spike,name='3',color='red')
+# net.add_neuron(neuron_gated,name='4',color='purple')
+# net.add_neuron(neuron_non_spike,name='5',color='brown')
+# net.add_neuron(neuron_non_spike,name='6',color='pink',initial_value=5)
+# net.add_neuron(neuron_spike, name='7',color='gray')
+#
+# net.add_input('0')
+# net.add_input('2')
+# net.add_input('4')
+#
+# net.add_output('0')
+# net.add_output('1')
+# net.add_output('2')
+# net.add_output('3')
+# net.add_output('4')
+# net.add_output('5')
+# net.add_output('6')
+# net.add_output('7')
+#
+# net.add_connection(synapse_non_spike,'0','1')
+# net.add_connection(synapse_spike,'2','3')
+# net.add_connection(synapse_elect,'0','5')
+# net.add_connection(synapse_elect_rect,'6','5')
+# net.add_connection(synapse_spike_delay,'2','3')
+#
+# netTorch = Network('Tutorial 9 Network')
+# netTorch.add_neuron(neuron_non_spike,name='0',color='blue')
+# netTorch.add_neuron(neuron_non_spike,name='1',color='orange')
+# netTorch.add_neuron(neuron_spike,name='2',color='green')
+# netTorch.add_neuron(neuron_spike,name='3',color='red')
+# netTorch.add_neuron(neuron_gated_torch,name='4',color='purple')
+# netTorch.add_neuron(neuron_non_spike,name='5',color='brown')
+# netTorch.add_neuron(neuron_non_spike,name='6',color='pink',initial_value=5)
+# netTorch.add_neuron(neuron_spike, name='7',color='gray')
+# netTorch.add_input('0')
+# netTorch.add_input('2')
+# netTorch.add_input('4')
+# netTorch.add_output('0')
+# netTorch.add_output('1')
+# netTorch.add_output('2')
+# netTorch.add_output('3')
+# netTorch.add_output('4')
+# netTorch.add_output('5')
+# netTorch.add_output('6')
+# netTorch.add_output('7')
+# netTorch.add_connection(synapse_non_spike,'0','1')
+# netTorch.add_connection(synapse_spike,'2','3')
+# netTorch.add_connection(synapse_elect,'0','5')
+# netTorch.add_connection(synapse_elect_rect,'6','5')
+# netTorch.add_connection(synapse_spike_delay,'2','3')
+#
+# plt.figure()
+# # net.render_graph(view=True)
+# dt = 0.01
+# t_max = 50
+#
+# # Initialize a vector of timesteps
+# t = np.arange(0, t_max, dt)
+#
+# print('Running Network 7:')
+# print('7: Numpy')
+# # Initialize vectors which store the input to our network, and for data to be written to during simulation from outputs
+# inputs = np.zeros([len(t),net.get_num_inputs()])+5.0 # Input vector must be 2d, even if second dimension is 1
+# data_original = np.zeros([len(t),net.get_num_outputs_actual()])
+# data_load = np.zeros([len(t),net.get_num_outputs_actual()])
+#
+# model_original = net.compile(backend='numpy',dt=dt)
+# model_original.save(filename='saveNumpy.p')
+#
+# model_load = sns_toolbox.simulate.backends.SNS_Numpy('saveNumpy.p',dt=dt)
+#
+# """Simulate the network"""
+# # At every step, apply the current input to a forward pass of the network and store the results in 'data'
+# for i in range(len(t)):
+#     data_original[i,:] = model_original(inputs[i,:])
+#     data_load[i, :] = model_load(inputs[i, :])
+# data_original = data_original.transpose()
+# data_load = data_load.transpose()
+#
+# plt.subplot(2,2,1)
+# plt.plot(t,data_original[:][0] - data_load[:][0],label='0',color='C0')
+# plt.plot(t,data_original[:][1] - data_load[:][1],label='1',color='C1')
+# plt.plot(t,data_original[:][2] - data_load[:][2],label='2',color='C2')
+# plt.plot(t,data_original[:][3] - data_load[:][3],label='3',color='C3')
+# plt.plot(t,data_original[:][4] - data_load[:][4],label='4',color='C4')
+# plt.plot(t,data_original[:][5] - data_load[:][5],label='5',color='C5')
+# plt.plot(t,data_original[:][6] - data_load[:][6],label='6',color='C6')
+# plt.plot(t,data_original[:][7] - data_load[:][7],label='7',color='C7')
+# plt.legend()
+#
+# print('7: Torch')
+# # Initialize vectors which store the input to our network, and for data to be written to during simulation from outputs
+# inputs = torch.zeros([len(t),net.get_num_inputs()],device='cpu')+5.0 # Input vector must be 2d, even if second dimension is 1
+# data_original = torch.zeros([len(t),net.get_num_outputs_actual()],device='cpu')
+# data_load = torch.zeros([len(t),net.get_num_outputs_actual()],device='cpu')
+#
+# model_original = net.compile(backend='torch'Torch,dt=dt,device='cpu')
+# model_original.save(filename='saveTorch.p')
+#
+# model_load = sns_toolbox.simulate.backends.SNS_Torch('saveTorch.p',dt=dt,device='cpu')
+#
+# """Simulate the network"""
+# # At every step, apply the current input to a forward pass of the network and store the results in 'data'
+# for i in range(len(t)):
+#     data_original[i,:] = model_original(inputs[i,:])
+#     data_load[i, :] = model_load(inputs[i, :])
+# data_original = data_original.transpose(0,1)
+# data_load = data_load.transpose(0,1)
+#
+# plt.subplot(2,2,2)
+# plt.plot(t,data_original[:][0] - data_load[:][0],label='0',color='C0')
+# plt.plot(t,data_original[:][1] - data_load[:][1],label='1',color='C1')
+# plt.plot(t,data_original[:][2] - data_load[:][2],label='2',color='C2')
+# plt.plot(t,data_original[:][3] - data_load[:][3],label='3',color='C3')
+# plt.plot(t,data_original[:][4] - data_load[:][4],label='4',color='C4')
+# plt.plot(t,data_original[:][5] - data_load[:][5],label='5',color='C5')
+# plt.plot(t,data_original[:][6] - data_load[:][6],label='6',color='C6')
+# plt.plot(t,data_original[:][7] - data_load[:][7],label='7',color='C7')
+# plt.legend()
+#
+# print('7: Sparse')
+# # Initialize vectors which store the input to our network, and for data to be written to during simulation from outputs
+# inputs = torch.zeros([len(t),net.get_num_inputs()],device='cpu')+5.0 # Input vector must be 2d, even if second dimension is 1
+# data_original = torch.zeros([len(t),net.get_num_outputs_actual()],device='cpu')
+# data_load = torch.zeros([len(t),net.get_num_outputs_actual()],device='cpu')
+#
+# model_original = net.compile(backend='sparse'Torch,dt=dt,device='cpu')
+# model_original.save(filename='saveSparse.p')
+#
+# model_load = sns_toolbox.simulate.backends.SNS_Sparse('saveSparse.p',dt=dt,device='cpu')
+#
+# """Simulate the network"""
+# # At every step, apply the current input to a forward pass of the network and store the results in 'data'
+# for i in range(len(t)):
+#     data_original[i,:] = model_original(inputs[i,:])
+#     data_load[i, :] = model_load(inputs[i, :])
+# data_original = data_original.transpose(0,1)
+# data_load = data_load.transpose(0,1)
+#
+# plt.subplot(2,2,3)
+# plt.plot(t,data_original[:][0] - data_load[:][0],label='0',color='C0')
+# plt.plot(t,data_original[:][1] - data_load[:][1],label='1',color='C1')
+# plt.plot(t,data_original[:][2] - data_load[:][2],label='2',color='C2')
+# plt.plot(t,data_original[:][3] - data_load[:][3],label='3',color='C3')
+# plt.plot(t,data_original[:][4] - data_load[:][4],label='4',color='C4')
+# plt.plot(t,data_original[:][5] - data_load[:][5],label='5',color='C5')
+# plt.plot(t,data_original[:][6] - data_load[:][6],label='6',color='C6')
+# plt.plot(t,data_original[:][7] - data_load[:][7],label='7',color='C7')
+# plt.legend()
+#
+# print('7: Manual')
+# # Initialize vectors which store the input to our network, and for data to be written to during simulation from outputs
+# inputs = np.zeros([len(t),net.get_num_inputs()])+5.0 # Input vector must be 2d, even if second dimension is 1
+# data_original = np.zeros([len(t),net.get_num_outputs_actual()])
+# data_load = np.zeros([len(t),net.get_num_outputs_actual()])
+#
+# model_original = net.compile(backend='manual',dt=dt)
+# model_original.save(filename='saveManual.p')
+#
+# model_load = sns_toolbox.simulate.backends.SNS_Manual('saveManual.p',dt=dt)
+#
+# """Simulate the network"""
+# # At every step, apply the current input to a forward pass of the network and store the results in 'data'
+# for i in range(len(t)):
+#     data_original[i,:] = model_original(inputs[i,:])
+#     data_load[i, :] = model_load(inputs[i, :])
+# data_original = data_original.transpose()
+# data_load = data_load.transpose()
+#
+# plt.subplot(2,2,4)
+# plt.plot(t,data_original[:][0] - data_load[:][0],label='0',color='C0')
+# plt.plot(t,data_original[:][1] - data_load[:][1],label='1',color='C1')
+# plt.plot(t,data_original[:][2] - data_load[:][2],label='2',color='C2')
+# plt.plot(t,data_original[:][3] - data_load[:][3],label='3',color='C3')
+# plt.plot(t,data_original[:][4] - data_load[:][4],label='4',color='C4')
+# plt.plot(t,data_original[:][5] - data_load[:][5],label='5',color='C5')
+# plt.plot(t,data_original[:][6] - data_load[:][6],label='6',color='C6')
+# plt.plot(t,data_original[:][7] - data_load[:][7],label='7',color='C7')
+# plt.legend()
 
 plt.show()
