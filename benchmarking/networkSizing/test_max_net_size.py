@@ -38,11 +38,11 @@ def build_network(net,backend,cpu,variant):
         device = 'cuda'
     if backend == 0:
         if variant == 0:
-            model = backends.SNS_Manual(net)
+            model = backends.SNS_Iterative(net)
         elif variant == 1:
-            model = backends.SNS_Manual(net, delay=False)
+            model = backends.SNS_Iterative(net, delay=False)
         else:
-            model = backends.SNS_Manual(net, spiking=False)
+            model = backends.SNS_Iterative(net, spiking=False)
     elif backend == 1:
         if variant == 0:
             model = backends.SNS_Numpy(net)

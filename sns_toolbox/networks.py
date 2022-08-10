@@ -630,9 +630,9 @@ class Network:
             model = __compile_torch__(self, dt=dt, debug=debug, device=device)
         elif backend == 'sparse':
             model = __compile_sparse__(self, dt=dt, debug=debug, device=device)
-        elif backend == 'manual':
+        elif backend == 'iterative':
             if device != 'cpu':
-                warnings.warn('Warning: Only CPU device is supported with SNS_Manual. Switching to CPU')
+                warnings.warn('Warning: Only CPU device is supported with SNS_Iterative. Switching to CPU')
             model = __compile_manual__(self, dt=dt, debug=debug)
         else:
             raise ValueError(

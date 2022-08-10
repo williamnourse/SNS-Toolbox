@@ -1,4 +1,4 @@
-from sns_toolbox.backends import SNS_Numpy, SNS_Torch, SNS_Sparse, SNS_Manual
+from sns_toolbox.backends import SNS_Numpy, SNS_Torch, SNS_Sparse, SNS_Iterative
 from sns_toolbox.neurons import SpikingNeuron, NonSpikingNeuronWithGatedChannels
 
 import numpy as np
@@ -1766,7 +1766,7 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
 
     return model
 
-def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Manual:
+def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
     if debug:
         print('-------------------------------------------------------------------------------------------------------')
         print('COMPILING NETWORK USING NUMPY (ITERATIVE):')
@@ -2174,7 +2174,7 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Manual:
         print('-------------------------------------------------')
         print('Passing states and parameters to SNS_Numpy object')
         print('-------------------------------------------------')
-    model = SNS_Manual(params)
+    model = SNS_Iterative(params)
 
     """
     --------------------------------------------------------------------------------------------------------------------

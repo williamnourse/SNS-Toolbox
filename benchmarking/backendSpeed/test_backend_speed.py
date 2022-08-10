@@ -13,7 +13,7 @@ import pickle
 from sns_toolbox.neurons import SpikingNeuron
 from sns_toolbox.connections import SpikingSynapse
 from sns_toolbox.networks import Network
-from sns_toolbox.backends import SNS_Numpy, SNS_Torch, SNS_Sparse, SNS_Manual
+from sns_toolbox.backends import SNS_Numpy, SNS_Torch, SNS_Sparse, SNS_Iterative
 
 """
 ########################################################################################################################
@@ -166,7 +166,7 @@ for num in range(numSamples):
             sparseGPUTimes[num, i] = 0
 
     # Numpy
-    manModel = SNS_Manual(net, dt=dt)
+    manModel = SNS_Iterative(net, dt=dt)
     manInput = np.array([current])
     for i in range(len(t)):
         print('%i Neurons Manual Step %i/%i' % (numNeurons[num], i + 1, len(t)))

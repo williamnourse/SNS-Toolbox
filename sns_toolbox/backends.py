@@ -376,7 +376,7 @@ class SNS_Sparse(Backend):
             self.c_gate = torch.clone(self.c_gate_0)
             self.c_gate_last = torch.clone(self.c_gate_0)
 
-class SNS_Manual(Backend):
+class SNS_Iterative(Backend):
     def __init__(self, params: Dict) -> None:
         super().__init__(params)
 

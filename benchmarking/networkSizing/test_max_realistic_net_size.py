@@ -44,7 +44,7 @@ def build_network(net,backend,cpu):
     else:
         device = 'cuda'
     if backend == 0:
-        model = backends.SNS_Manual(net)
+        model = backends.SNS_Iterative(net)
     elif backend == 1:
         model = backends.SNS_Numpy(net)
     elif backend == 2:
