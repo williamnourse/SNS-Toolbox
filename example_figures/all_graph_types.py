@@ -1,6 +1,6 @@
-from sns_toolbox.design.neurons import SpikingNeuron
-from sns_toolbox.design.connections import NonSpikingSynapse, NonSpikingPatternConnection
-from sns_toolbox.design.networks import Network
+from sns_toolbox.neurons import SpikingNeuron
+from sns_toolbox.connections import NonSpikingSynapse, NonSpikingPatternConnection
+from sns_toolbox.networks import Network
 
 import numpy as np
 

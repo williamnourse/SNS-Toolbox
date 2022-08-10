@@ -3,11 +3,11 @@ Demo saving a compiled network, then loading and executing.
 """
 import pickle
 
-from sns_toolbox.design.neurons import NonSpikingNeuron, NonSpikingNeuronWithPersistentSodiumChannel, SpikingNeuron
-from sns_toolbox.design.connections import NonSpikingSynapse, SpikingSynapse, ElectricalSynapse
-from sns_toolbox.design.networks import Network
+from sns_toolbox.neurons import NonSpikingNeuron, NonSpikingNeuronWithPersistentSodiumChannel, SpikingNeuron
+from sns_toolbox.connections import NonSpikingSynapse, SpikingSynapse, ElectricalSynapse
+from sns_toolbox.networks import Network
 
-from sns_toolbox.simulate.backends import SNS_Numpy
+from sns_toolbox.backends import SNS_Numpy
 
 import numpy as np
 import matplotlib.pyplot as plt

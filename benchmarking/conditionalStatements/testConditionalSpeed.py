@@ -1,11 +1,10 @@
-from sns_toolbox.design.connections import NonSpikingPatternConnection
-from sns_toolbox.design.networks import Network
-from sns_toolbox.design.neurons import NonSpikingNeuron
+from sns_toolbox.connections import NonSpikingPatternConnection
+from sns_toolbox.networks import Network
+from sns_toolbox.neurons import NonSpikingNeuron
 
-import sns_toolbox.simulate.backends as backends
+import sns_toolbox.backends as backends
 
 import numpy as np
-import matplotlib.pyplot as plt
 import cv2 as cv
 import sys
 import time
@@ -78,8 +77,8 @@ NETWORK COMPILATION
 
 dt = neuron_type.params['membrane_capacitance']/neuron_type.params['membrane_conductance']  # calculate the ideal dt
 
-model_cond = backends.__SNS_Numpy_Full__(net,dt=dt,debug=False,spiking=False,delay=False) # compile using the numpy backend
-model_no_cond = backends.__SNS_Numpy_Non_Spiking__(net,dt=dt,debug=False) # compile using the numpy backend
+model_cond = backends.__SNS_Numpy_Full__(net, dt=dt, debug=False, spiking=False, delay=False) # compile using the numpy backend
+model_no_cond = backends.__SNS_Numpy_Non_Spiking__(net, dt=dt, debug=False) # compile using the numpy backend
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

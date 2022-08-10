@@ -6,11 +6,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torch
 
-from sns_toolbox.design.networks import Network
-from sns_toolbox.design.neurons import NonSpikingNeuron, SpikingNeuron, NonSpikingNeuronWithPersistentSodiumChannel, NonSpikingNeuronWithGatedChannels
-from sns_toolbox.design.connections import NonSpikingSynapse, SpikingSynapse, NonSpikingTransmissionSynapse, ElectricalSynapse
+from sns_toolbox.networks import Network
+from sns_toolbox.neurons import NonSpikingNeuron, SpikingNeuron, NonSpikingNeuronWithPersistentSodiumChannel, NonSpikingNeuronWithGatedChannels
+from sns_toolbox.connections import NonSpikingSynapse, SpikingSynapse, NonSpikingTransmissionSynapse, ElectricalSynapse
 
-from sns_toolbox.simulate.simulate_utilities import spike_raster_plot
+from sns_toolbox.utilities import spike_raster_plot
 import sys
 
 """

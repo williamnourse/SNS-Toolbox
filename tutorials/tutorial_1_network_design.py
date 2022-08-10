@@ -8,9 +8,9 @@ November 29 2021
 """
 1. Import necessary packages and modules/classes
 """
-from sns_toolbox.design.neurons import NonSpikingNeuron
-from sns_toolbox.design.networks import Network
-from sns_toolbox.design.connections import NonSpikingSynapse
+from sns_toolbox.neurons import NonSpikingNeuron
+from sns_toolbox.networks import Network
+from sns_toolbox.connections import NonSpikingSynapse
 
 """
 2. Define a neuron type. In a network we can have many different types, but for now we're just going to use one

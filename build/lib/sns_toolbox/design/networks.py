@@ -8,16 +8,16 @@ simulated directly, they are used as a template for compilation.
 IMPORTS
 """
 
-from typing import Dict, Any, List, Type, TypeVar
+from typing import Dict, Any
 from numbers import Number
 import copy
 from graphviz import Digraph
 import warnings
 import numpy as np
 
-from sns_toolbox.design.neurons import Neuron, NonSpikingNeuron, SpikingNeuron
-from sns_toolbox.design.connections import Connection, NonSpikingSynapse, NonSpikingTransmissionSynapse, NonSpikingModulationSynapse
-from sns_toolbox.design.design_utilities import valid_color, set_text_color
+from sns_toolbox.neurons import Neuron, NonSpikingNeuron, SpikingNeuron
+from sns_toolbox.connections import Connection, NonSpikingSynapse, NonSpikingTransmissionSynapse, NonSpikingModulationSynapse
+from sns_toolbox.utilities import valid_color, set_text_color
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

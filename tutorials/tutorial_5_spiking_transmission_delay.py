@@ -7,12 +7,12 @@ December 10th 2021
 import numpy as np
 import matplotlib.pyplot as plt
 
-from sns_toolbox.design.networks import Network
-from sns_toolbox.design.neurons import SpikingNeuron
-from sns_toolbox.design.connections import SpikingSynapse
+from sns_toolbox.networks import Network
+from sns_toolbox.neurons import SpikingNeuron
+from sns_toolbox.connections import SpikingSynapse
 
-from sns_toolbox.simulate.backends import SNS_Numpy
-from sns_toolbox.simulate.simulate_utilities import spike_raster_plot
+from sns_toolbox.backends import SNS_Numpy
+from sns_toolbox.utilities import spike_raster_plot
 
 """Define our types"""
 neuron_type = SpikingNeuron()

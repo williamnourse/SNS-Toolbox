@@ -15,8 +15,8 @@ import torch
 import sys
 import warnings
 
-from sns_toolbox.design.networks import Network
-from sns_toolbox.design.neurons import SpikingNeuron, NonSpikingNeuronWithGatedChannels
+from sns_toolbox.networks import Network
+from sns_toolbox.neurons import SpikingNeuron, NonSpikingNeuronWithGatedChannels
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

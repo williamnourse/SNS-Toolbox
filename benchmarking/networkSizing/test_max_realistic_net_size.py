@@ -2,11 +2,11 @@ import numpy as np
 import torch
 import time
 
-from sns_toolbox.design.networks import Network
-from sns_toolbox.design.neurons import SpikingNeuron
-from sns_toolbox.design.connections import SpikingSynapse
+from sns_toolbox.networks import Network
+from sns_toolbox.neurons import SpikingNeuron
+from sns_toolbox.connections import SpikingSynapse
 
-from sns_toolbox.simulate import backends
+from sns_toolbox import backends
 
 backend = 2 # 0: manual
             # 1: Numpy
@@ -48,9 +48,9 @@ def build_network(net,backend,cpu):
     elif backend == 1:
         model = backends.SNS_Numpy(net)
     elif backend == 2:
-        model = backends.SNS_Torch(net,device=device)
+        model = backends.SNS_Torch(net, device=device)
     else:
-        model = backends.SNS_Sparse(net,device=device)
+        model = backends.SNS_Sparse(net, device=device)
     return model, device
 
 def run_network(model,backend,device):

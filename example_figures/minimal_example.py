@@ -1,8 +1,8 @@
-from sns_toolbox.design.neurons import NonSpikingNeuron
-from sns_toolbox.design.connections import NonSpikingSynapse
-from sns_toolbox.design.networks import Network
+from sns_toolbox.neurons import NonSpikingNeuron
+from sns_toolbox.connections import NonSpikingSynapse
+from sns_toolbox.networks import Network
 import numpy as np
-from sns_toolbox.simulate.backends import SNS_Numpy
+from sns_toolbox.backends import SNS_Numpy
 
 delay = True
 spiking = True

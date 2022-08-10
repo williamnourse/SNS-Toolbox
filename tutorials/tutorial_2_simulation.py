@@ -7,9 +7,9 @@ December 1st, 2021
 
 """Imports"""
 # Import packages and modules for designing the network
-from sns_toolbox.design.neurons import NonSpikingNeuron
-from sns_toolbox.design.connections import NonSpikingSynapse
-from sns_toolbox.design.networks import Network
+from sns_toolbox.neurons import NonSpikingNeuron
+from sns_toolbox.connections import NonSpikingSynapse
+from sns_toolbox.networks import Network
 
 # Import packages and modules for simulating the network
 import numpy as np
