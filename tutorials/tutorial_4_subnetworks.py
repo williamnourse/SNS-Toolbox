@@ -4,11 +4,11 @@ William Nourse
 December 3rd 2021
 """
 
-from sns_toolbox.design.networks import Network #, AdditionNetwork (This would import the code that we remake here
-from sns_toolbox.design.neurons import NonSpikingNeuron
-from sns_toolbox.design.connections import NonSpikingTransmissionSynapse
-from sns_toolbox.design.networks import DivisionNetwork, MultiplicationNetwork, DifferentiatorNetwork
-from sns_toolbox.design.networks import IntegratorNetwork
+from sns_toolbox.networks import Network #, AdditionNetwork (This would import the code that we remake here
+from sns_toolbox.neurons import NonSpikingNeuron
+from sns_toolbox.connections import NonSpikingTransmissionSynapse
+from sns_toolbox.networks import DivisionNetwork, MultiplicationNetwork, DifferentiatorNetwork
+from sns_toolbox.networks import IntegratorNetwork
 
 # Let's define a custom functional subnetwork 'preset', in this case a network which takes a weighted sum of inputs
 

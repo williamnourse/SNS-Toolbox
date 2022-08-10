@@ -8,16 +8,18 @@ simulated directly, they are used as a template for compilation.
 IMPORTS
 """
 
-from typing import Dict, Any, List, Type, TypeVar
+from typing import Dict, Any
 from numbers import Number
 import copy
 from graphviz import Digraph
 import warnings
 import numpy as np
 
-from sns_toolbox.design.neurons import Neuron, NonSpikingNeuron, SpikingNeuron
-from sns_toolbox.design.connections import Connection, NonSpikingSynapse, NonSpikingTransmissionSynapse, NonSpikingModulationSynapse
-from sns_toolbox.design.design_utilities import valid_color, set_text_color
+from sns_toolbox.neurons import Neuron, NonSpikingNeuron, SpikingNeuron
+from sns_toolbox.connections import Connection, NonSpikingSynapse, NonSpikingTransmissionSynapse, NonSpikingModulationSynapse
+from sns_toolbox.color_utilities import valid_color, set_text_color
+from sns_toolbox.compilers import __compile_numpy__, __compile_torch__, __compile_manual__, __compile_sparse__
+from sns_toolbox.backends import Backend
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -62,6 +64,11 @@ class Network:
         self.params['gated'] = False
         self.params['numChannels'] = 0
 
+    """
+    --------------------------------------------------------------------------------------------------------------------
+    Getter Functions
+    --------------------------------------------------------------------------------------------------------------------
+    """
     def get_num_neurons(self) -> int:
         """
         Calculate the number of neurons in the network, including within populations.
@@ -188,23 +195,12 @@ class Network:
                 return index
         raise ValueError('Input not found by name \'%s\'' % str(name))
 
-    def render_graph(self, imgFormat: str = 'png', view: bool = False) -> None:
-        """
-        Render an image of the network in the form of a directed graph (DG) using graphviz.
+    """
+    --------------------------------------------------------------------------------------------------------------------
+    Network Construction
+    --------------------------------------------------------------------------------------------------------------------
+    """
 
-        :param imgFormat: File extension of the resulting image, default is 'png'.
-        :type imgFormat: str, optional
-        :param view: Boolean flag to view the image, default is 'False'.
-        :type view: bool, optional
-        :return: None
-        :rtype: N/A
-        """
-        if not isinstance(view,bool):
-            raise TypeError('View must be a boolean')
-        self.graph.format = imgFormat
-        self.graph.render(view=view,cleanup=True)
-
-    # Construction
     def add_population(self, neuron_type: Neuron, shape, name: str = None, color=None, initial_value=None) -> None:
         """
         Add a neural population to the network.
@@ -588,6 +584,12 @@ class Network:
                 self.add_connection(connection_type=connection['type'], source=connection['source'] + num_populations,
                                     destination=connection['destination']+num_populations, view_label=connection['view'])
 
+    """
+    --------------------------------------------------------------------------------------------------------------------
+    Other Functionality
+    --------------------------------------------------------------------------------------------------------------------
+    """
+
     def copy(self):
         """
         Create a copy of the network.
@@ -599,6 +601,43 @@ class Network:
         new_net.add_network(self)
 
         return new_net
+
+    def render_graph(self, imgFormat: str = 'png', view: bool = False) -> None:
+        """
+        Render an image of the network in the form of a directed graph (DG) using graphviz.
+
+        :param imgFormat: File extension of the resulting image, default is 'png'.
+        :type imgFormat: str, optional
+        :param view: Boolean flag to view the image, default is 'False'.
+        :type view: bool, optional
+        :return: None
+        :rtype: N/A
+        """
+        if not isinstance(view,bool):
+            raise TypeError('View must be a boolean')
+        self.graph.format = imgFormat
+        self.graph.render(view=view,cleanup=True)
+
+    def compile(self, dt=0.01, backend='numpy', device='cpu', debug=False) -> Backend:
+        if not isinstance(backend, str):
+            raise TypeError(
+                'Backend selection must be a string. Options are \'numpy\', \'torch\', \'sparse\', or \'iterative\'')
+        if backend == 'numpy':
+            if device != 'cpu':
+                warnings.warn('Warning: Only CPU device is supported with SNS_Numpy. Switching to CPU')
+            model = __compile_numpy__(self, dt=dt, debug=debug)
+        elif backend == 'torch':
+            model = __compile_torch__(self, dt=dt, debug=debug, device=device)
+        elif backend == 'sparse':
+            model = __compile_sparse__(self, dt=dt, debug=debug, device=device)
+        elif backend == 'iterative':
+            if device != 'cpu':
+                warnings.warn('Warning: Only CPU device is supported with SNS_Iterative. Switching to CPU')
+            model = __compile_manual__(self, dt=dt, debug=debug)
+        else:
+            raise ValueError(
+                backend + 'is not a valid simulation backend. Options are \'numpy\', \'torch\', \'sparse\', or \'iterative\'')
+        return model
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

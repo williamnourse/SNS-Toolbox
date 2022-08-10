@@ -2,11 +2,11 @@
 Tutorial demonstrating a network with electrical synapses, both bidirectional and rectified.
 """
 
-from sns_toolbox.design.connections import ElectricalSynapse, NonSpikingTransmissionSynapse
-from sns_toolbox.design.neurons import NonSpikingNeuron
-from sns_toolbox.design.networks import Network
+from sns_toolbox.connections import ElectricalSynapse, NonSpikingTransmissionSynapse
+from sns_toolbox.neurons import NonSpikingNeuron
+from sns_toolbox.networks import Network
 
-from sns_toolbox.simulate.backends import SNS_Numpy
+from sns_toolbox.backends import SNS_Numpy
 
 import numpy as np
 import matplotlib.pyplot as plt

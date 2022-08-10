@@ -6,15 +6,15 @@ December 2nd 2021
 
 """Imports"""
 # Import packages and modules for designing the network
-from sns_toolbox.design.networks import Network
-from sns_toolbox.design.connections import SpikingSynapse
-from sns_toolbox.design.neurons import SpikingNeuron
+from sns_toolbox.networks import Network
+from sns_toolbox.connections import SpikingSynapse
+from sns_toolbox.neurons import SpikingNeuron
 
 # Import packages and modules for simulating the network
-from sns_toolbox.simulate.backends import SNS_Numpy
+from sns_toolbox.backends import SNS_Numpy
 import numpy as np
 import matplotlib.pyplot as plt
-from sns_toolbox.simulate.simulate_utilities import spike_raster_plot
+from sns_toolbox.color_utilities import spike_raster_plot
 
 """Design the first Network"""
 # Create spiking neurons with different values of 'm'

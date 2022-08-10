@@ -2,11 +2,11 @@ import numpy as np
 import torch
 import time
 
-from sns_toolbox.design.networks import Network
-from sns_toolbox.design.neurons import NonSpikingNeuron
-from sns_toolbox.design.connections import NonSpikingSynapse
+from sns_toolbox.networks import Network
+from sns_toolbox.neurons import NonSpikingNeuron
+from sns_toolbox.connections import NonSpikingSynapse
 
-from sns_toolbox.simulate import backends
+from sns_toolbox import backends
 
 backend = 3 # 0: manual
             # 1: Numpy
@@ -38,32 +38,32 @@ def build_network(net,backend,cpu,variant):
         device = 'cuda'
     if backend == 0:
         if variant == 0:
-            model = backends.SNS_Manual(net)
+            model = backends.SNS_Iterative(net)
         elif variant == 1:
-            model = backends.SNS_Manual(net,delay=False)
+            model = backends.SNS_Iterative(net, delay=False)
         else:
-            model = backends.SNS_Manual(net,spiking=False)
+            model = backends.SNS_Iterative(net, spiking=False)
     elif backend == 1:
         if variant == 0:
             model = backends.SNS_Numpy(net)
         elif variant == 1:
-            model = backends.SNS_Numpy(net,delay=False)
+            model = backends.SNS_Numpy(net, delay=False)
         else:
-            model = backends.SNS_Numpy(net,spiking=False)
+            model = backends.SNS_Numpy(net, spiking=False)
     elif backend == 2:
         if variant == 0:
-            model = backends.SNS_Torch(net,device=device)
+            model = backends.SNS_Torch(net, device=device)
         elif variant == 1:
-            model = backends.SNS_Torch(net,device=device,delay=False)
+            model = backends.SNS_Torch(net, device=device, delay=False)
         else:
-            model = backends.SNS_Torch(net,device=device,spiking=False)
+            model = backends.SNS_Torch(net, device=device, spiking=False)
     else:
         if variant == 0:
-            model = backends.SNS_Sparse(net,device=device)
+            model = backends.SNS_Sparse(net, device=device)
         elif variant == 1:
-            model = backends.SNS_Sparse(net,device=device,delay=False)
+            model = backends.SNS_Sparse(net, device=device, delay=False)
         else:
-            model = backends.SNS_Sparse(net,device=device,spiking=False)
+            model = backends.SNS_Sparse(net, device=device, spiking=False)
     return model, device
 
 def run_network(model,backend,device):

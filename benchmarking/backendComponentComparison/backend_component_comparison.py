@@ -7,11 +7,11 @@ import numpy as np
 import time
 import pickle
 
-from sns_toolbox.design.networks import Network
-from sns_toolbox.design.neurons import NonSpikingNeuron, SpikingNeuron
-from sns_toolbox.design.connections import NonSpikingSynapse, SpikingSynapse
+from sns_toolbox.networks import Network
+from sns_toolbox.neurons import NonSpikingNeuron, SpikingNeuron
+from sns_toolbox.connections import NonSpikingSynapse, SpikingSynapse
 
-from sns_toolbox.simulate.backends import __SNS_Numpy_Full__, __SNS_Numpy_Non_Spiking__, __SNS_Numpy_No_Delay__
+from sns_toolbox.backends import __SNS_Numpy_Full__, __SNS_Numpy_Non_Spiking__, __SNS_Numpy_No_Delay__
 
 def build_full_spiking_net(num_neurons,dt):
     net = Network()

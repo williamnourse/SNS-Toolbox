@@ -3,11 +3,11 @@ Connect populations of neurons with patterns more complicated than simple 'all-t
 William Nourse
 January 12, 2022
 """
-from sns_toolbox.design.connections import NonSpikingPatternConnection
-from sns_toolbox.design.networks import Network
-from sns_toolbox.design.neurons import NonSpikingNeuron
+from sns_toolbox.connections import NonSpikingPatternConnection
+from sns_toolbox.networks import Network
+from sns_toolbox.neurons import NonSpikingNeuron
 
-import sns_toolbox.simulate.backends as backends
+import sns_toolbox.backends as backends
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -89,7 +89,7 @@ dt = neuron_type.params['membrane_capacitance']/neuron_type.params['membrane_con
 t_max = 15  # run for 15 ms
 steps = int(t_max/dt)   # number of steps to simulate
 
-model = backends.SNS_Numpy(net,dt=dt,debug=False) # compile using the numpy backend
+model = backends.SNS_Numpy(net, dt=dt, debug=False) # compile using the numpy backend
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

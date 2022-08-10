@@ -2,11 +2,11 @@
 Tutorial demonstrating the use of neurons with voltage-gated ion channels.
 """
 
-from sns_toolbox.design.neurons import NonSpikingNeuronWithGatedChannels, NonSpikingNeuronWithPersistentSodiumChannel
-from sns_toolbox.design.connections import NonSpikingSynapse
-from sns_toolbox.design.networks import Network
+from sns_toolbox.neurons import NonSpikingNeuronWithGatedChannels, NonSpikingNeuronWithPersistentSodiumChannel
+from sns_toolbox.connections import NonSpikingSynapse
+from sns_toolbox.networks import Network
 
-from sns_toolbox.simulate.backends import SNS_Numpy
+from sns_toolbox.backends import SNS_Numpy
 
 import numpy as np
 import matplotlib.pyplot as plt
