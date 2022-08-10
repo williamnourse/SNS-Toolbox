@@ -18,8 +18,8 @@ import numpy as np
 from sns_toolbox.design.neurons import Neuron, NonSpikingNeuron, SpikingNeuron
 from sns_toolbox.design.connections import Connection, NonSpikingSynapse, NonSpikingTransmissionSynapse, NonSpikingModulationSynapse
 from sns_toolbox.design.design_utilities import valid_color, set_text_color
-
-from sns_toolbox.simulate.backends import __compile_numpy__
+from sns_toolbox.design.compilers import __compile_numpy__, __compile_torch__, __compile_manual__, __compile_sparse__
+from sns_toolbox.simulate.backends import __Backend_New__
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -618,26 +618,26 @@ class Network:
         self.graph.format = imgFormat
         self.graph.render(view=view,cleanup=True)
 
-    def compile(self, dt=0.01, backend='numpy', device='cpu', debug=False):
+    def compile(self, dt=0.01, backend='numpy', device='cpu', debug=False) -> __Backend_New__:
         if not isinstance(backend, str):
             raise TypeError(
                 'Backend selection must be a string. Options are \'numpy\', \'torch\', \'sparse\', or \'iterative\'')
         if backend == 'numpy':
             if device != 'cpu':
-                raise Warning('Warning: Only CPU device is supported with SNS_Numpy. Switching to CPU')
+                warnings.warn('Warning: Only CPU device is supported with SNS_Numpy. Switching to CPU')
             model = __compile_numpy__(self, dt=dt, debug=debug)
-            return model
         elif backend == 'torch':
-            pass
+            model = __compile_torch__(self, dt=dt, debug=debug, device=device)
         elif backend == 'sparse':
-            pass
+            model = __compile_sparse__(self, dt=dt, debug=debug, device=device)
         elif backend == 'manual':
             if device != 'cpu':
-                raise Warning('Warning: Only CPU device is supported with SNS_Manual. Switching to CPU')
-            pass
+                warnings.warn('Warning: Only CPU device is supported with SNS_Manual. Switching to CPU')
+            model = __compile_manual__(self, dt=dt, debug=debug)
         else:
             raise ValueError(
                 backend + 'is not a valid simulation backend. Options are \'numpy\', \'torch\', \'sparse\', or \'iterative\'')
+        return model
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
