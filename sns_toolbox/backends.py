@@ -18,7 +18,7 @@ import torch
 BACKENDS
 """
 
-class __Backend_New__:
+class Backend:
 
     def __init__(self, params: Dict) -> None:
         self.set_params(params)
@@ -107,7 +107,7 @@ class __Backend_New__:
     def reset(self):
         raise NotImplementedError
 
-class SNS_Numpy(__Backend_New__):
+class SNS_Numpy(Backend):
     def __init__(self, params: Dict) -> None:
         super().__init__(params)
 
@@ -189,7 +189,7 @@ class SNS_Numpy(__Backend_New__):
             self.c_gate = np.copy(self.c_gate_0)
             self.c_gate_last = np.copy(self.c_gate_0)
 
-class SNS_Torch(__Backend_New__):
+class SNS_Torch(Backend):
     def __init__(self, params: Dict) -> None:
         super().__init__(params)
 
@@ -263,7 +263,7 @@ class SNS_Torch(__Backend_New__):
             self.c_gate = torch.clone(self.c_gate_0)
             self.c_gate_last = torch.clone(self.c_gate_0)
 
-class SNS_Sparse(__Backend_New__):
+class SNS_Sparse(Backend):
     def __init__(self, params: Dict) -> None:
         super().__init__(params)
 
@@ -376,7 +376,7 @@ class SNS_Sparse(__Backend_New__):
             self.c_gate = torch.clone(self.c_gate_0)
             self.c_gate_last = torch.clone(self.c_gate_0)
 
-class SNS_Manual(__Backend_New__):
+class SNS_Manual(Backend):
     def __init__(self, params: Dict) -> None:
         super().__init__(params)
 

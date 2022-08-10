@@ -19,7 +19,7 @@ from sns_toolbox.neurons import Neuron, NonSpikingNeuron, SpikingNeuron
 from sns_toolbox.connections import Connection, NonSpikingSynapse, NonSpikingTransmissionSynapse, NonSpikingModulationSynapse
 from sns_toolbox.color_utilities import valid_color, set_text_color
 from sns_toolbox.compilers import __compile_numpy__, __compile_torch__, __compile_manual__, __compile_sparse__
-from sns_toolbox.backends import __Backend_New__
+from sns_toolbox.backends import Backend
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -618,7 +618,7 @@ class Network:
         self.graph.format = imgFormat
         self.graph.render(view=view,cleanup=True)
 
-    def compile(self, dt=0.01, backend='numpy', device='cpu', debug=False) -> __Backend_New__:
+    def compile(self, dt=0.01, backend='numpy', device='cpu', debug=False) -> Backend:
         if not isinstance(backend, str):
             raise TypeError(
                 'Backend selection must be a string. Options are \'numpy\', \'torch\', \'sparse\', or \'iterative\'')
