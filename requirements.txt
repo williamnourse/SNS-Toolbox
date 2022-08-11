@@ -3,6 +3,5 @@ setuptools~=44.0.0
 numpy>=1.22
 matplotlib~=3.4.1
 opencv-python~=4.5.5.64
-graphviz~=0.16
 torch~=1.8.1
 scipy~=1.6.3
