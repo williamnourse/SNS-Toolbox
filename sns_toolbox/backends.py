@@ -38,6 +38,7 @@ class Backend:
         self.u = params['u']
         self.u_last = params['uLast']
         self.u_0 = params['u0']
+        self.u_rest = params['uRest']
         self.c_m = params['cM']
         self.g_m = params['gM']
         self.i_b = params['iB']
@@ -148,10 +149,10 @@ class SNS_Numpy(Backend):
             i_gated = np.sum(i_ion, axis=0)
 
             self.u = self.u_last + self.time_factor_membrane * (
-                        -self.g_m * self.u_last + self.i_b + i_syn + i_app + i_gated)  # Update membrane potential
+                        -self.g_m * (self.u_last - self.u_rest) + self.i_b + i_syn + i_app + i_gated)  # Update membrane potential
         else:
             self.u = self.u_last + self.time_factor_membrane * (
-                        -self.g_m * self.u_last + self.i_b + i_syn + i_app)  # Update membrane potential
+                        -self.g_m * (self.u_last - self.u_rest) + self.i_b + i_syn + i_app)  # Update membrane potential
         if self.spiking:
             self.theta = self.theta_last + self.time_factor_threshold * (
                         -self.theta_last + self.theta_0 + self.m * self.u_last)  # Update the firing thresholds
@@ -227,9 +228,9 @@ class SNS_Torch(Backend):
             i_ion = self.g_ion*(a_inf**self.pow_a)*(self.b_gate**self.pow_b)*(self.c_gate**self.pow_c)*(self.e_ion-self.u_last)
             i_gated = torch.sum(i_ion, 0)
 
-            self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + self.i_b + i_syn + i_app + i_gated)  # Update membrane potential
+            self.u = self.u_last + self.time_factor_membrane * (-self.g_m * (self.u_last - self.u_rest) + self.i_b + i_syn + i_app + i_gated)  # Update membrane potential
         else:
-            self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + self.i_b + i_syn + i_app)  # Update membrane potential
+            self.u = self.u_last + self.time_factor_membrane * (-self.g_m * (self.u_last - self.u_rest) + self.i_b + i_syn + i_app)  # Update membrane potential
         if self.spiking:
             self.theta = self.theta_last + self.time_factor_threshold * (-self.theta_last + self.theta_0 + self.m * self.u_last)  # Update the firing thresholds
             self.spikes = torch.sign(torch.clamp(self.theta - self.u,max=0))  # Compute which neurons have spiked
@@ -325,10 +326,10 @@ class SNS_Sparse(Backend):
                                  self.e_ion.to_dense() - self.u_last)).to_sparse()
             i_gated = torch.sum(i_ion.to_dense(), 0).to_sparse()
 
-            self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + (self.i_b.to_dense())[0,
+            self.u = self.u_last + self.time_factor_membrane * (-self.g_m * (self.u_last - self.u_rest) + (self.i_b.to_dense())[0,
                                                                                           :] + i_syn + i_app + i_gated)  # Update membrane potential
         else:
-            self.u = self.u_last + self.time_factor_membrane * (-self.g_m * self.u_last + (self.i_b.to_dense())[0,
+            self.u = self.u_last + self.time_factor_membrane * (-self.g_m * (self.u_last - self.u_rest) + (self.i_b.to_dense())[0,
                                                                                           :] + i_syn + i_app)  # Update membrane potential
         if self.spiking:
             self.theta = self.theta_last + self.time_factor_threshold * (
@@ -392,6 +393,7 @@ class SNS_Iterative(Backend):
         self.u = params['u']
         self.u_last = params['uLast']
         self.u_0 = params['u0']
+        self.u_rest = params['uRest']
         self.c_m = params['cM']
         self.g_m = params['gM']
         self.i_b = params['iB']
@@ -494,7 +496,7 @@ class SNS_Iterative(Backend):
                 i_gated = np.sum(i_ion)
 
             self.u[nrn] = self.u_last[nrn] + self.time_factor_membrane[nrn] * (
-                        -self.g_m[nrn] * self.u_last[nrn] + self.i_b[nrn] + i_syn + i_app[
+                        -self.g_m[nrn] * (self.u_last[nrn] - self.u_rest[nrn]) + self.i_b[nrn] + i_syn + i_app[
                     nrn] + i_gated)  # Update membrane potential
             if self.spiking:
                 # if self.theta_0[nrn] != sys.float_info.max:
