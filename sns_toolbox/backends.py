@@ -35,10 +35,10 @@ class Backend:
         self.electrical_rectified = params['rect']
         self.gated = params['gated']
         self.num_channels = params['numChannels']
-        self.u = params['u']
-        self.u_last = params['uLast']
-        self.u_0 = params['u0']
-        self.u_rest = params['uRest']
+        self.V = params['v']
+        self.V_last = params['vLast']
+        self.V_0 = params['v0']
+        self.V_rest = params['vRest']
         self.c_m = params['cM']
         self.g_m = params['gM']
         self.i_b = params['iB']
@@ -113,30 +113,30 @@ class SNS_Numpy(Backend):
         super().__init__(params)
 
     def forward(self, x):
-        self.u_last = np.copy(self.u)
+        self.V_last = np.copy(self.V)
         i_app = np.matmul(self.input_connectivity, x)  # Apply external current sources to their destinations
-        g_syn = np.maximum(0, np.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non))
+        g_syn = np.maximum(0, np.minimum(self.g_max_non * self.V_last / self.R, self.g_max_non))
         if self.spiking:
             self.theta_last = np.copy(self.theta)
             self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
             g_syn += self.g_spike
 
-        i_syn = np.sum(g_syn * self.del_e, axis=1) - self.u_last * np.sum(g_syn, axis=1)
+        i_syn = np.sum(g_syn * self.del_e, axis=1) - self.V_last * np.sum(g_syn, axis=1)
         if self.electrical:
-            i_syn += (np.sum(self.g_electrical * self.u_last, axis=1) - self.u_last * np.sum(self.g_electrical, axis=1))
+            i_syn += (np.sum(self.g_electrical * self.V_last, axis=1) - self.V_last * np.sum(self.g_electrical, axis=1))
         if self.electrical_rectified:
             # create mask
-            mask = np.subtract.outer(self.u_last, self.u_last).transpose() > 0
+            mask = np.subtract.outer(self.V_last, self.V_last).transpose() > 0
             masked_g = mask * self.g_rectified
             diag_masked = masked_g + masked_g.transpose() - np.diag(masked_g.diagonal())
-            i_syn += np.sum(diag_masked * self.u_last, axis=1) - self.u_last * np.sum(diag_masked, axis=1)
+            i_syn += np.sum(diag_masked * self.V_last, axis=1) - self.V_last * np.sum(diag_masked, axis=1)
         if self.gated:
-            a_inf = 1 / (1 + self.k_a * np.exp(self.slope_a * (self.e_a - self.u_last)))
-            b_inf = 1 / (1 + self.k_b * np.exp(self.slope_b * (self.e_b - self.u_last)))
-            c_inf = 1 / (1 + self.k_c * np.exp(self.slope_c * (self.e_c - self.u_last)))
+            a_inf = 1 / (1 + self.k_a * np.exp(self.slope_a * (self.e_a - self.V_last)))
+            b_inf = 1 / (1 + self.k_b * np.exp(self.slope_b * (self.e_b - self.V_last)))
+            c_inf = 1 / (1 + self.k_c * np.exp(self.slope_c * (self.e_c - self.V_last)))
 
-            tau_b = self.tau_max_b * b_inf * np.sqrt(self.k_b * np.exp(self.slope_b * (self.e_b - self.u_last)))
-            tau_c = self.tau_max_c * c_inf * np.sqrt(self.k_c * np.exp(self.slope_c * (self.e_c - self.u_last)))
+            tau_b = self.tau_max_b * b_inf * np.sqrt(self.k_b * np.exp(self.slope_b * (self.e_b - self.V_last)))
+            tau_c = self.tau_max_c * c_inf * np.sqrt(self.k_c * np.exp(self.slope_c * (self.e_c - self.V_last)))
 
             self.b_gate_last = np.copy(self.b_gate)
             self.c_gate_last = np.copy(self.c_gate)
@@ -145,18 +145,18 @@ class SNS_Numpy(Backend):
             self.c_gate = self.c_gate_last + self.dt * ((c_inf - self.c_gate_last) / tau_c)
 
             i_ion = self.g_ion * (a_inf ** self.pow_a) * (self.b_gate ** self.pow_b) * (self.c_gate ** self.pow_c) * (
-                        self.e_ion - self.u_last)
+                        self.e_ion - self.V_last)
             i_gated = np.sum(i_ion, axis=0)
 
-            self.u = self.u_last + self.time_factor_membrane * (
-                        -self.g_m * (self.u_last - self.u_rest) + self.i_b + i_syn + i_app + i_gated)  # Update membrane potential
+            self.V = self.V_last + self.time_factor_membrane * (
+                        -self.g_m * (self.V_last - self.V_rest) + self.i_b + i_syn + i_app + i_gated)  # Update membrane potential
         else:
-            self.u = self.u_last + self.time_factor_membrane * (
-                        -self.g_m * (self.u_last - self.u_rest) + self.i_b + i_syn + i_app)  # Update membrane potential
+            self.V = self.V_last + self.time_factor_membrane * (
+                        -self.g_m * (self.V_last - self.V_rest) + self.i_b + i_syn + i_app)  # Update membrane potential
         if self.spiking:
             self.theta = self.theta_last + self.time_factor_threshold * (
-                        -self.theta_last + self.theta_0 + self.m * self.u_last)  # Update the firing thresholds
-            self.spikes = np.sign(np.minimum(0, self.theta - self.u))  # Compute which neurons have spiked
+                        -self.theta_last + self.theta_0 + self.m * self.V_last)  # Update the firing thresholds
+            self.spikes = np.sign(np.minimum(0, self.theta - self.V))  # Compute which neurons have spiked
 
             # New stuff with delay
             if self.delay:
@@ -171,16 +171,16 @@ class SNS_Numpy(Backend):
             else:
                 self.g_spike = np.maximum(self.g_spike, (
                     -self.spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
-            self.u = self.u * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
-        self.outputs = np.matmul(self.output_voltage_connectivity, self.u)
+            self.V = ((self.V-self.V_rest) * (self.spikes + 1))+self.V_rest  # Reset the membrane voltages of neurons which spiked
+        self.outputs = np.matmul(self.output_voltage_connectivity, self.V)
         if self.spiking:
             self.outputs += np.matmul(self.output_spike_connectivity, -self.spikes)
 
         return self.outputs
 
     def reset(self):
-        self.u = np.copy(self.u_0)
-        self.u_last = np.copy(self.u_0)
+        self.V = np.copy(self.V_0)
+        self.V_last = np.copy(self.V_0)
         if self.spiking:
             self.theta = np.copy(self.theta_0)
             self.theta_last = np.copy(self.theta_0)
@@ -195,29 +195,29 @@ class SNS_Torch(Backend):
         super().__init__(params)
 
     def forward(self, x):
-        self.u_last = torch.clone(self.u)
+        self.V_last = torch.clone(self.V)
         i_app = torch.matmul(self.input_connectivity, x)  # Apply external current sources to their destinations
-        g_syn = torch.clamp(torch.minimum(self.g_max_non * self.u_last / self.R, self.g_max_non),min=0)
+        g_syn = torch.clamp(torch.minimum(self.g_max_non * self.V_last / self.R, self.g_max_non),min=0)
         if self.spiking:
             self.theta_last = torch.clone(self.theta)
             self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
             g_syn += self.g_spike
-        i_syn = torch.sum(g_syn * self.del_e, 1) - self.u_last * torch.sum(g_syn, 1)
+        i_syn = torch.sum(g_syn * self.del_e, 1) - self.V_last * torch.sum(g_syn, 1)
         if self.electrical:
-            i_syn += (torch.sum(self.g_electrical * self.u_last, 1) - self.u_last * torch.sum(self.g_electrical, 1))
+            i_syn += (torch.sum(self.g_electrical * self.V_last, 1) - self.V_last * torch.sum(self.g_electrical, 1))
         if self.electrical_rectified:
             # create mask
-            mask = (self.u_last.reshape(-1,1)-self.u_last).transpose(0,1) > 0
+            mask = (self.V_last.reshape(-1,1)-self.V_last).transpose(0,1) > 0
             masked_g = mask * self.g_rectified
             diag_masked = masked_g + masked_g.transpose(0,1) - torch.diag(masked_g.diagonal())
-            i_syn += torch.sum(diag_masked * self.u_last, 1) - self.u_last * torch.sum(diag_masked, 1)
+            i_syn += torch.sum(diag_masked * self.V_last, 1) - self.V_last * torch.sum(diag_masked, 1)
         if self.gated:
-            a_inf = 1 / (1 + self.k_a * torch.exp(self.slope_a*(self.e_a-self.u_last)))
-            b_inf = 1 / (1 + self.k_b * torch.exp(self.slope_b*(self.e_b-self.u_last)))
-            c_inf = 1 / (1 + self.k_c * torch.exp(self.slope_c*(self.e_c-self.u_last)))
+            a_inf = 1 / (1 + self.k_a * torch.exp(self.slope_a*(self.e_a-self.V_last)))
+            b_inf = 1 / (1 + self.k_b * torch.exp(self.slope_b*(self.e_b-self.V_last)))
+            c_inf = 1 / (1 + self.k_c * torch.exp(self.slope_c*(self.e_c-self.V_last)))
 
-            tau_b = self.tau_max_b * b_inf * torch.sqrt(self.k_b*torch.exp(self.slope_b*(self.e_b-self.u_last)))
-            tau_c = self.tau_max_c * c_inf * torch.sqrt(self.k_c*torch.exp(self.slope_c*(self.e_c-self.u_last)))
+            tau_b = self.tau_max_b * b_inf * torch.sqrt(self.k_b*torch.exp(self.slope_b*(self.e_b-self.V_last)))
+            tau_c = self.tau_max_c * c_inf * torch.sqrt(self.k_c*torch.exp(self.slope_c*(self.e_c-self.V_last)))
 
             self.b_gate_last = torch.clone(self.b_gate)
             self.c_gate_last = torch.clone(self.c_gate)
@@ -225,15 +225,15 @@ class SNS_Torch(Backend):
             self.b_gate = self.b_gate_last + self.dt * ((b_inf - self.b_gate_last) / tau_b)
             self.c_gate = self.c_gate_last + self.dt * ((c_inf - self.c_gate_last) / tau_c)
 
-            i_ion = self.g_ion*(a_inf**self.pow_a)*(self.b_gate**self.pow_b)*(self.c_gate**self.pow_c)*(self.e_ion-self.u_last)
+            i_ion = self.g_ion*(a_inf**self.pow_a)*(self.b_gate**self.pow_b)*(self.c_gate**self.pow_c)*(self.e_ion-self.V_last)
             i_gated = torch.sum(i_ion, 0)
 
-            self.u = self.u_last + self.time_factor_membrane * (-self.g_m * (self.u_last - self.u_rest) + self.i_b + i_syn + i_app + i_gated)  # Update membrane potential
+            self.V = self.V_last + self.time_factor_membrane * (-self.g_m * (self.V_last - self.V_rest) + self.i_b + i_syn + i_app + i_gated)  # Update membrane potential
         else:
-            self.u = self.u_last + self.time_factor_membrane * (-self.g_m * (self.u_last - self.u_rest) + self.i_b + i_syn + i_app)  # Update membrane potential
+            self.V = self.V_last + self.time_factor_membrane * (-self.g_m * (self.V_last - self.V_rest) + self.i_b + i_syn + i_app)  # Update membrane potential
         if self.spiking:
-            self.theta = self.theta_last + self.time_factor_threshold * (-self.theta_last + self.theta_0 + self.m * self.u_last)  # Update the firing thresholds
-            self.spikes = torch.sign(torch.clamp(self.theta - self.u,max=0))  # Compute which neurons have spiked
+            self.theta = self.theta_last + self.time_factor_threshold * (-self.theta_last + self.theta_0 + self.m * self.V_last)  # Update the firing thresholds
+            self.spikes = torch.sign(torch.clamp(self.theta - self.V,max=0))  # Compute which neurons have spiked
 
             # New stuff with delay
             if self.delay:
@@ -245,16 +245,16 @@ class SNS_Torch(Backend):
                 self.g_spike = torch.maximum(self.g_spike, (-self.delayed_spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
             else:
                 self.g_spike = torch.maximum(self.g_spike, (-self.spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
-            self.u = self.u * (self.spikes + 1)  # Reset the membrane voltages of neurons which spiked
-        self.outputs = torch.matmul(self.output_voltage_connectivity, self.u)
+            self.V = ((self.V - self.V_rest) * (self.spikes + 1)) + self.V_rest  # Reset the membrane voltages of neurons which spiked
+        self.outputs = torch.matmul(self.output_voltage_connectivity, self.V)
         if self.spiking:
             self.outputs += torch.matmul(self.output_spike_connectivity, -self.spikes)
 
         return self.outputs
 
     def reset(self):
-        self.u = torch.clone(self.u_0)
-        self.u_last = torch.clone(self.u_0)
+        self.V = torch.clone(self.V_0)
+        self.V_last = torch.clone(self.V_0)
         if self.spiking:
             self.theta = torch.clone(self.theta_0)
             self.theta_last = torch.clone(self.theta_0)
@@ -269,12 +269,12 @@ class SNS_Sparse(Backend):
         super().__init__(params)
 
     def forward(self, x):
-        self.u_last = torch.clone(self.u)
+        self.V_last = torch.clone(self.V)
 
         i_app = torch.matmul(self.input_connectivity, x)  # Apply external current sources to their destinations
         i_app = i_app.to_sparse()
 
-        g_syn = torch.clamp(torch.minimum(self.g_max_non.to_dense() * self.u_last / self.R, self.g_max_non.to_dense()),
+        g_syn = torch.clamp(torch.minimum(self.g_max_non.to_dense() * self.V_last / self.R, self.g_max_non.to_dense()),
                             min=0)
         g_syn = g_syn.to_sparse()
 
@@ -286,31 +286,31 @@ class SNS_Sparse(Backend):
             g_syn += self.g_spike
 
         if g_syn._nnz() > 0:
-            i_syn = torch.sparse.sum(g_syn * self.del_e, 1) - (self.u_last * torch.sum(g_syn.to_dense(), 1)).to_sparse()
+            i_syn = torch.sparse.sum(g_syn * self.del_e, 1) - (self.V_last * torch.sum(g_syn.to_dense(), 1)).to_sparse()
         else:
-            i_syn = torch.sparse.sum(g_syn * self.del_e) - self.u_last * torch.sparse.sum(g_syn)
+            i_syn = torch.sparse.sum(g_syn * self.del_e) - self.V_last * torch.sparse.sum(g_syn)
         if self.electrical:
-            i_syn += (torch.sum(self.g_electrical.to_dense() * self.u_last, 1).to_sparse() -
-                      (self.u_last * torch.sum(self.g_electrical.to_dense(), 1)).to_sparse())
+            i_syn += (torch.sum(self.g_electrical.to_dense() * self.V_last, 1).to_sparse() -
+                      (self.V_last * torch.sum(self.g_electrical.to_dense(), 1)).to_sparse())
         if self.electrical_rectified:
             # create mask
-            mask = (self.u_last.reshape(-1, 1) - self.u_last).transpose(0, 1) > 0
+            mask = (self.V_last.reshape(-1, 1) - self.V_last).transpose(0, 1) > 0
             masked_g = mask * self.g_rectified.to_dense()
             diag_masked = masked_g + masked_g.transpose(0, 1) - torch.diag(masked_g.diagonal())
-            i_syn += torch.sum(diag_masked * self.u_last, 1).to_sparse() - (
-                        self.u_last * torch.sum(diag_masked, 1)).to_sparse()
+            i_syn += torch.sum(diag_masked * self.V_last, 1).to_sparse() - (
+                        self.V_last * torch.sum(diag_masked, 1)).to_sparse()
         if self.gated:
             a_inf = (1 / (1 + self.k_a * torch.exp(
-                self.slope_a.to_dense() * (self.e_a.to_dense() - self.u_last)))).to_sparse()
+                self.slope_a.to_dense() * (self.e_a.to_dense() - self.V_last)))).to_sparse()
             b_inf = (1 / (1 + self.k_b * torch.exp(
-                self.slope_b.to_dense() * (self.e_b.to_dense() - self.u_last)))).to_sparse()
+                self.slope_b.to_dense() * (self.e_b.to_dense() - self.V_last)))).to_sparse()
             c_inf = (1 / (1 + self.k_c * torch.exp(
-                self.slope_c.to_dense() * (self.e_c.to_dense() - self.u_last)))).to_sparse()
+                self.slope_c.to_dense() * (self.e_c.to_dense() - self.V_last)))).to_sparse()
 
             tau_b = (self.tau_max_b * b_inf.to_dense() * torch.sqrt(
-                self.k_b * torch.exp(self.slope_b.to_dense() * (self.e_b.to_dense() - self.u_last)))).to_sparse()
+                self.k_b * torch.exp(self.slope_b.to_dense() * (self.e_b.to_dense() - self.V_last)))).to_sparse()
             tau_c = (self.tau_max_c * c_inf.to_dense() * torch.sqrt(
-                self.k_c * torch.exp(self.slope_c.to_dense() * (self.e_c.to_dense() - self.u_last)))).to_sparse()
+                self.k_c * torch.exp(self.slope_c.to_dense() * (self.e_c.to_dense() - self.V_last)))).to_sparse()
 
             self.b_gate_last = torch.clone(self.b_gate)
             self.c_gate_last = torch.clone(self.c_gate)
@@ -323,20 +323,20 @@ class SNS_Sparse(Backend):
             i_ion = (self.g_ion.to_dense() * (a_inf.to_dense() ** self.pow_a.to_dense()) * (
                         self.b_gate.to_dense() ** self.pow_b.to_dense()) * (
                                  self.c_gate.to_dense() ** self.pow_c.to_dense()) * (
-                                 self.e_ion.to_dense() - self.u_last)).to_sparse()
+                                 self.e_ion.to_dense() - self.V_last)).to_sparse()
             i_gated = torch.sum(i_ion.to_dense(), 0).to_sparse()
 
-            self.u = self.u_last + self.time_factor_membrane * (-self.g_m * (self.u_last - self.u_rest) + (self.i_b.to_dense())[0,
+            self.V = self.V_last + self.time_factor_membrane * (-self.g_m * (self.V_last - self.V_rest) + (self.i_b.to_dense())[0,
                                                                                           :] + i_syn + i_app + i_gated)  # Update membrane potential
         else:
-            self.u = self.u_last + self.time_factor_membrane * (-self.g_m * (self.u_last - self.u_rest) + (self.i_b.to_dense())[0,
+            self.V = self.V_last + self.time_factor_membrane * (-self.g_m * (self.V_last - self.V_rest) + (self.i_b.to_dense())[0,
                                                                                           :] + i_syn + i_app)  # Update membrane potential
         if self.spiking:
             self.theta = self.theta_last + self.time_factor_threshold * (
                         -self.theta_last + self.theta_0 + (self.m.to_dense())[0,
-                                                          :] * self.u_last)  # Update the firing thresholds
+                                                          :] * self.V_last)  # Update the firing thresholds
 
-            self.spikes = torch.sign(torch.clamp(self.theta - self.u, max=0))  # Compute which neurons have spiked
+            self.spikes = torch.sign(torch.clamp(self.theta - self.V, max=0))  # Compute which neurons have spiked
             self.spikes = self.spikes.to_sparse()
 
             if self.delay:
@@ -358,16 +358,16 @@ class SNS_Sparse(Backend):
                 self.g_spike = torch.maximum(self.g_spike.to_dense(), (
                     -self.spikes.to_dense()) * self.g_max_spike.to_dense())  # Update the conductance of connections which spiked
             self.g_spike = self.g_spike.to_sparse()
-            self.u = self.u * (self.spikes.to_dense() + 1)  # Reset the membrane voltages of neurons which spiked
-        self.outputs = torch.matmul(self.output_voltage_connectivity, self.u)
+            self.V = ((self.V - self.V_rest) * (self.spikes.to_dense() + 1)) + self.V_rest  # Reset the membrane voltages of neurons which spiked
+        self.outputs = torch.matmul(self.output_voltage_connectivity, self.V)
         if self.spiking:
             self.outputs += torch.matmul(self.output_spike_connectivity, -self.spikes.to_dense())
 
         return self.outputs
 
     def reset(self):
-        self.u = torch.clone(self.u_0)
-        self.u_last = torch.clone(self.u_0)
+        self.V = torch.clone(self.V_0)
+        self.V_last = torch.clone(self.V_0)
         if self.spiking:
             self.theta = torch.clone(self.theta_0)
             self.theta_last = torch.clone(self.theta_0)
@@ -390,10 +390,10 @@ class SNS_Iterative(Backend):
         self.electrical_rectified = params['rect']
         self.gated = params['gated']
         self.num_channels = params['numChannels']
-        self.u = params['u']
-        self.u_last = params['uLast']
-        self.u_0 = params['u0']
-        self.u_rest = params['uRest']
+        self.V = params['v']
+        self.V_last = params['vLast']
+        self.V_0 = params['v0']
+        self.V_rest = params['vRest']
         self.c_m = params['cM']
         self.g_m = params['gM']
         self.i_b = params['iB']
@@ -447,7 +447,7 @@ class SNS_Iterative(Backend):
             self.c_gate_0 = params['cGate0']
 
     def forward(self, x):
-        self.u_last = np.copy(self.u)
+        self.V_last = np.copy(self.V)
         if self.spiking:
             self.theta_last = np.copy(self.theta)
         if self.gated:
@@ -462,49 +462,49 @@ class SNS_Iterative(Backend):
                 neuron_src = self.incoming_synapses[nrn][syn]
                 if neuron_src[1]:  # if spiking
                     neuron_src[5] = neuron_src[5] * (1 - neuron_src[6])
-                    i_syn += neuron_src[5] * (neuron_src[4] - self.u_last[nrn])
+                    i_syn += neuron_src[5] * (neuron_src[4] - self.V_last[nrn])
                 elif neuron_src[2]:  # if electrical
                     if neuron_src[4]:  # if rectified
-                        if self.u_last[neuron_src[5]] > self.u_last[neuron_src[6]]:
-                            i_syn += neuron_src[3] * (self.u_last[neuron_src[0]] - self.u_last[nrn])
+                        if self.V_last[neuron_src[5]] > self.V_last[neuron_src[6]]:
+                            i_syn += neuron_src[3] * (self.V_last[neuron_src[0]] - self.V_last[nrn])
                     else:
-                        i_syn += neuron_src[3] * (self.u_last[neuron_src[0]] - self.u_last[nrn])
+                        i_syn += neuron_src[3] * (self.V_last[neuron_src[0]] - self.V_last[nrn])
                 else:  # if chemical
-                    neuron_src[5] = np.maximum(0, np.minimum(neuron_src[3] * self.u_last[neuron_src[0]] / self.R,
+                    neuron_src[5] = np.maximum(0, np.minimum(neuron_src[3] * self.V_last[neuron_src[0]] / self.R,
                                                              neuron_src[3]))
-                    i_syn += neuron_src[5] * (neuron_src[4] - self.u_last[nrn])
+                    i_syn += neuron_src[5] * (neuron_src[4] - self.V_last[nrn])
             i_gated = 0
             if self.gated:
                 a_inf = 1 / (
-                            1 + self.k_a[:, nrn] * np.exp(self.slope_a[:, nrn] * (self.e_a[:, nrn] - self.u_last[nrn])))
+                            1 + self.k_a[:, nrn] * np.exp(self.slope_a[:, nrn] * (self.e_a[:, nrn] - self.V_last[nrn])))
                 b_inf = 1 / (
-                            1 + self.k_b[:, nrn] * np.exp(self.slope_b[:, nrn] * (self.e_b[:, nrn] - self.u_last[nrn])))
+                            1 + self.k_b[:, nrn] * np.exp(self.slope_b[:, nrn] * (self.e_b[:, nrn] - self.V_last[nrn])))
                 c_inf = 1 / (
-                            1 + self.k_c[:, nrn] * np.exp(self.slope_c[:, nrn] * (self.e_c[:, nrn] - self.u_last[nrn])))
+                            1 + self.k_c[:, nrn] * np.exp(self.slope_c[:, nrn] * (self.e_c[:, nrn] - self.V_last[nrn])))
 
                 tau_b = self.tau_max_b[:, nrn] * b_inf * np.sqrt(
-                    self.k_b[:, nrn] * np.exp(self.slope_b[:, nrn] * (self.e_b[:, nrn] - self.u_last[nrn])))
+                    self.k_b[:, nrn] * np.exp(self.slope_b[:, nrn] * (self.e_b[:, nrn] - self.V_last[nrn])))
                 tau_c = self.tau_max_c[:, nrn] * c_inf * np.sqrt(
-                    self.k_c[:, nrn] * np.exp(self.slope_c[:, nrn] * (self.e_c[:, nrn] - self.u_last[nrn])))
+                    self.k_c[:, nrn] * np.exp(self.slope_c[:, nrn] * (self.e_c[:, nrn] - self.V_last[nrn])))
 
                 self.b_gate[:, nrn] = self.b_gate_last[:, nrn] + self.dt * ((b_inf - self.b_gate_last[:, nrn]) / tau_b)
                 self.c_gate[:, nrn] = self.c_gate_last[:, nrn] + self.dt * ((c_inf - self.c_gate_last[:, nrn]) / tau_c)
 
                 i_ion = self.g_ion[:, nrn] * (a_inf ** self.pow_a[:, nrn]) * (
                             self.b_gate[:, nrn] ** self.pow_b[:, nrn]) * (self.c_gate[:, nrn] ** self.pow_c[:, nrn]) * (
-                                    self.e_ion[:, nrn] - self.u_last[nrn])
+                                    self.e_ion[:, nrn] - self.V_last[nrn])
                 i_gated = np.sum(i_ion)
 
-            self.u[nrn] = self.u_last[nrn] + self.time_factor_membrane[nrn] * (
-                        -self.g_m[nrn] * (self.u_last[nrn] - self.u_rest[nrn]) + self.i_b[nrn] + i_syn + i_app[
+            self.V[nrn] = self.V_last[nrn] + self.time_factor_membrane[nrn] * (
+                        -self.g_m[nrn] * (self.V_last[nrn] - self.V_rest[nrn]) + self.i_b[nrn] + i_syn + i_app[
                     nrn] + i_gated)  # Update membrane potential
             if self.spiking:
                 # if self.theta_0[nrn] != sys.float_info.max:
                 self.theta[nrn] = self.theta_last[nrn] + self.time_factor_threshold[nrn] * (
-                            -self.theta_last[nrn] + self.theta_0[nrn] + self.m[nrn] * self.u_last[
+                            -self.theta_last[nrn] + self.theta_0[nrn] + self.m[nrn] * self.V_last[
                         nrn])  # Update the firing thresholds
                 self.spikes[nrn] = np.sign(
-                    np.minimum(0, self.theta[nrn] - self.u[nrn]))  # Compute which neurons have spiked
+                    np.minimum(0, self.theta[nrn] - self.V[nrn]))  # Compute which neurons have spiked
         if self.spiking:
             for nrn in range(self.num_neurons):
                 if self.delay:
@@ -516,17 +516,16 @@ class SNS_Iterative(Backend):
                             neuron_src[7][0] = self.spikes[neuron_src[0]]  # Replace row 0 with the current spike data
                             neuron_src[5] = np.maximum(neuron_src[5], (-neuron_src[7][-1]) * neuron_src[
                                 3])  # Update the conductance of connections which spiked
-                self.u[nrn] = self.u[nrn] * (
-                            self.spikes[nrn] + 1)  # Reset the membrane voltages of neurons which spiked
-        self.outputs = np.matmul(self.output_voltage_connectivity, self.u)
+                self.V[nrn] = ((self.V[nrn] - self.V_rest[nrn]) * (self.spikes[nrn] + 1)) + self.V_rest[nrn]  # Reset the membrane voltages of neurons which spiked
+        self.outputs = np.matmul(self.output_voltage_connectivity, self.V)
         if self.spiking:
             self.outputs += np.matmul(self.output_spike_connectivity, -self.spikes)
 
         return self.outputs
 
     def reset(self):
-        self.u = np.copy(self.u_0)
-        self.u_last = np.copy(self.u_0)
+        self.V = np.copy(self.V_0)
+        self.V_last = np.copy(self.V_0)
         if self.spiking:
             self.theta = np.copy(self.theta_0)
             self.theta_last = np.copy(self.theta_0)
