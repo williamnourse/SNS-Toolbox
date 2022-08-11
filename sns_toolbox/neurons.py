@@ -33,6 +33,8 @@ class Neuron:
     :type membrane_capacitance:     Number, optional
     :param membrane_conductance:    Neural membrane conductance, default is 1.0. Units are microsiemens (uS).
     :type membrane_conductance:     Number, optional
+    :param resting_potential:       Neural resting potential, default is 0.0. Units are millivolts (mV).
+    :type resting_potential:        Number, optional
     :param bias:                    Internal bias current, default is 0.0. Units are nanoamps (nA).
     :type bias:                     Number, optional
     """
@@ -40,6 +42,7 @@ class Neuron:
                  color: str = 'white',
                  membrane_capacitance: float = 5.0,
                  membrane_conductance: float = 1.0,
+                 resting_potential: float = 0.0,
                  bias: float = 0.0) -> None:
 
         self.params: Dict[str, Any] = {}
@@ -60,6 +63,10 @@ class Neuron:
             self.params['membrane_conductance'] = membrane_conductance
         else:
             raise TypeError('Membrane conductance must be a number (int, float, double, etc.)')
+        if isinstance(resting_potential, numbers.Number):
+            self.params['resting_potential'] = resting_potential
+        else:
+            raise TypeError('Resting potential must be a number (int, float, double, etc.)')
         if isinstance(bias,numbers.Number):
             self.params['bias'] = bias
         else:
