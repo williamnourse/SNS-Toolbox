@@ -44,10 +44,24 @@ def render(net: Network, view=True, save=False, filename=None, img_format='png')
             else:   # population is 1 neuron
                 shape = 'ellipse'
                 style = 'filled'
-
             graph.node(str(i), label=name, style=style, shape=shape, fillcolor=color_cell, fontcolor=color_font)
 
-        # Display the network graph
+        """Add the inputs"""
+        for i in range(len(net.inputs)):
+            inp = net.inputs[i]
+            name = inp['name']
+            size = inp['size']
+            color_cell = inp['color']
+            color_font = set_text_color(color_cell)
+            destination = inp['destination']
+            if size > 1:
+                style = 'filled, diagonals'
+            else:
+                style = 'filled'
+            graph.node('In'+str(i), label=name, style=style, shape='invhouse', fillcolor=color_cell, fontcolor=color_font)
+            graph.edge('In'+str(i), str(destination))
+
+        """Display and/or save the network graph"""
         graph.format = img_format
         if save:
             graph.render(view=False,cleanup=True)
