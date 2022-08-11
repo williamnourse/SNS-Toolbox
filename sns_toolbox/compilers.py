@@ -65,10 +65,10 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
         print('---------------------------------')
         print('Initializing vectors and matrices')
         print('---------------------------------')
-    u = np.zeros(num_neurons)
-    u_last = np.zeros(num_neurons)
-    u_0 = np.zeros(num_neurons)
-    u_rest = np.zeros(num_neurons)
+    V = np.zeros(num_neurons)
+    V_last = np.zeros(num_neurons)
+    V_0 = np.zeros(num_neurons)
+    V_rest = np.zeros(num_neurons)
     c_m = np.zeros(num_neurons)
     g_m = np.zeros(num_neurons)
     i_b = np.zeros(num_neurons)
@@ -152,13 +152,13 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
             c_m[index] = network.populations[pop]['type'].params['membrane_capacitance']
             g_m[index] = network.populations[pop]['type'].params['membrane_conductance']
             i_b[index] = network.populations[pop]['type'].params['bias']
-            u_rest[index] = network.populations[pop]['type'].params['resting_potential']
+            V_rest[index] = network.populations[pop]['type'].params['resting_potential']
             if hasattr(initial_value, '__iter__'):
-                u_last[index] = initial_value[num]
+                V_last[index] = initial_value[num]
             elif initial_value is None:
-                u_last[index] = u_rest[index]
+                V_last[index] = V_rest[index]
             else:
-                u_last[index] = initial_value
+                V_last[index] = initial_value
             if spiking:
                 if isinstance(network.populations[pop]['type'],
                               SpikingNeuron):  # if the neuron is spiking, copy more
@@ -193,12 +193,12 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
                     tau_max_c[:, index] = network.populations[pop]['type'].params['paramsC']['TauMax']
 
                     b_gate_last[:, index] = 1 / (1 + k_b[:, index] * np.exp(
-                        slope_b[:, index] * (u_last[index] - e_b[:, index])))
+                        slope_b[:, index] * (V_last[index] - e_b[:, index])))
                     c_gate_last[:, index] = 1 / (1 + k_c[:, index] * np.exp(
-                        slope_c[:, index] * (u_last[index] - e_c[:, index])))
+                        slope_c[:, index] * (V_last[index] - e_c[:, index])))
             index += 1
-    u = np.copy(u_last)
-    u_0 = np.copy(u_last)
+    V = np.copy(V_last)
+    V_0 = np.copy(V_last)
     if spiking:
         theta = np.copy(theta_0)
         theta_last = np.copy(theta_0)
@@ -380,10 +380,10 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
               'rect': electrical_rectified,
               'gated': gated,
               'numChannels': num_channels,
-              'u': u,
-              'uLast': u_last,
-              'uRest': u_rest,
-              'u0': u_0,
+              'v': V,
+              'vLast': V_last,
+              'vRest': V_rest,
+              'v0': V_0,
               'cM': c_m,
               'gM': g_m,
               'iB': i_b,
@@ -487,12 +487,12 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
         if spiking:
             print('Output Spike Connectivity:')
             print(output_spike_connectivity)
-        print('u:')
-        print(u)
-        print('u_last:')
-        print(u_last)
-        print('u_rest:')
-        print(u_rest)
+        print('v:')
+        print(V)
+        print('v_last:')
+        print(V_last)
+        print('v_rest:')
+        print(V_rest)
         if spiking:
             print('theta_0:')
             print(theta_0)
@@ -624,10 +624,10 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
         print('---------------------------------')
         print('Initializing vectors and matrices')
         print('---------------------------------')
-    u = torch.zeros(num_neurons, device=device)
-    u_last = torch.zeros(num_neurons, device=device)
-    u_rest = torch.zeros(num_neurons, device=device)
-    u_0 = torch.zeros(num_neurons, device=device)
+    V = torch.zeros(num_neurons, device=device)
+    V_last = torch.zeros(num_neurons, device=device)
+    V_rest = torch.zeros(num_neurons, device=device)
+    V_0 = torch.zeros(num_neurons, device=device)
     c_m = torch.zeros(num_neurons, device=device)
     g_m = torch.zeros(num_neurons, device=device)
     i_b = torch.zeros(num_neurons, device=device)
@@ -711,13 +711,13 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
             c_m[index] = network.populations[pop]['type'].params['membrane_capacitance']
             g_m[index] = network.populations[pop]['type'].params['membrane_conductance']
             i_b[index] = network.populations[pop]['type'].params['bias']
-            u_rest[index] = network.populations[pop]['type'].params['resting_potential']
+            V_rest[index] = network.populations[pop]['type'].params['resting_potential']
             if hasattr(initial_value, '__iter__'):
-                u_last[index] = initial_value[num]
+                V_last[index] = initial_value[num]
             elif initial_value is None:
-                u_last[index] = u_rest[index]
+                V_last[index] = V_rest[index]
             else:
-                u_last[index] = initial_value
+                V_last[index] = initial_value
 
             if spiking:
                 if isinstance(network.populations[pop]['type'],
@@ -753,11 +753,11 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
                     tau_max_c[:, index] = network.populations[pop]['type'].params['paramsC']['TauMax']
 
                     b_gate_last[:, index] = 1 / (1 + k_b[:, index] * torch.exp(
-                        slope_b[:, index] * (u_last[index] - e_b[:, index])))
+                        slope_b[:, index] * (V_last[index] - e_b[:, index])))
                     c_gate_last[:, index] = 1 / (1 + k_c[:, index] * torch.exp(
-                        slope_c[:, index] * (u_last[index] - e_c[:, index])))
+                        slope_c[:, index] * (V_last[index] - e_c[:, index])))
             index += 1
-    u = u_last.clone()
+    V = V_last.clone()
     if spiking:
         theta = theta_0.clone()
         theta_last = theta_0.clone()
@@ -946,10 +946,10 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
               'rect': electrical_rectified,
               'gated': gated,
               'numChannels': num_channels,
-              'u': u,
-              'uLast': u_last,
-              'uRest': u_rest,
-              'u0': u_0,
+              'v': V,
+              'vLast': V_last,
+              'vRest': V_rest,
+              'v0': V_0,
               'cM': c_m,
               'gM': g_m,
               'iB': i_b,
@@ -1053,12 +1053,12 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
         if spiking:
             print('Output Spike Connectivity:')
             print(output_spike_connectivity)
-        print('u:')
-        print(u)
-        print('u_last:')
-        print(u_last)
-        print('u_rest:')
-        print(u_rest)
+        print('v:')
+        print(V)
+        print('v_last:')
+        print(V_last)
+        print('v_rest:')
+        print(V_rest)
         if spiking:
             print('theta_0:')
             print(theta_0)
@@ -1612,10 +1612,10 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
               'rect': electrical_rectified,
               'gated': gated,
               'numChannels': num_channels,
-              'u': u,
-              'uLast': u_last,
-              'uRest': u_rest,
-              'u0': u_0,
+              'v': u,
+              'vLast': u_last,
+              'vRest': u_rest,
+              'v0': u_0,
               'cM': c_m,
               'gM': g_m,
               'iB': i_b,
@@ -1719,11 +1719,11 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
         if spiking:
             print('Output Spike Connectivity:')
             print(output_spike_connectivity)
-        print('u:')
+        print('v:')
         print(u)
-        print('u_last:')
+        print('v_last:')
         print(u_last)
-        print('u_rest:')
+        print('v_rest:')
         print(u_rest)
         if spiking:
             print('theta_0:')
@@ -1840,10 +1840,10 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
         print('---------------------------------')
         print('Initializing vectors and matrices')
         print('---------------------------------')
-    u = np.zeros(num_neurons)
-    u_0 = np.zeros(num_neurons)
-    u_last = np.zeros(num_neurons)
-    u_rest = np.zeros(num_neurons)
+    V = np.zeros(num_neurons)
+    V_0 = np.zeros(num_neurons)
+    V_last = np.zeros(num_neurons)
+    V_rest = np.zeros(num_neurons)
     c_m = np.zeros(num_neurons)
     g_m = np.zeros(num_neurons)
     i_b = np.zeros(num_neurons)
@@ -1913,13 +1913,13 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
             c_m[index] = network.populations[pop]['type'].params['membrane_capacitance']
             g_m[index] = network.populations[pop]['type'].params['membrane_conductance']
             i_b[index] = network.populations[pop]['type'].params['bias']
-            u_rest[index] = network.populations[pop]['type'].params['resting_potential']
+            V_rest[index] = network.populations[pop]['type'].params['resting_potential']
             if hasattr(initial_value, '__iter__'):
-                u_last[index] = initial_value[num]
+                V_last[index] = initial_value[num]
             elif initial_value is None:
-                u_last[index] = 0.0
+                V_last[index] = 0.0
             else:
-                u_last[index] = initial_value
+                V_last[index] = initial_value
             if spiking:
                 if isinstance(network.populations[pop]['type'],
                               SpikingNeuron):  # if the neuron is spiking, copy more
@@ -1954,11 +1954,11 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
                     tau_max_c[:, index] = network.populations[pop]['type'].params['paramsC']['TauMax']
 
                     b_gate_last[:, index] = 1 / (1 + k_b[:, index] * np.exp(
-                        slope_b[:, index] * (u_last[index] - e_b[:, index])))
+                        slope_b[:, index] * (V_last[index] - e_b[:, index])))
                     c_gate_last[:, index] = 1 / (1 + k_c[:, index] * np.exp(
-                        slope_c[:, index] * (u_last[index] - e_c[:, index])))
+                        slope_c[:, index] * (V_last[index] - e_c[:, index])))
             index += 1
-    u = np.copy(u_last)
+    V = np.copy(V_last)
     if spiking:
         theta = np.copy(theta_0)
         theta_last = np.copy(theta_0)
@@ -2133,10 +2133,10 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
             'rect': electrical_rectified,
             'gated': gated,
             'numChannels': num_channels,
-            'u': u,
-            'uLast': u_last,
-            'uRest': u_rest,
-            'u0': u_0,
+            'v': V,
+            'vLast': V_last,
+            'vRest': V_rest,
+            'v0': V_0,
             'cM': c_m,
             'gM': g_m,
             'iB': i_b,
@@ -2210,12 +2210,12 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
     if spiking:
         print('Output Spike Connectivity:')
         print(output_spike_connectivity)
-    print('u:')
-    print(u)
-    print('u_last:')
-    print(u_last)
-    print('u_rest:')
-    print(u_rest)
+    print('v:')
+    print(V)
+    print('v_last:')
+    print(V_last)
+    print('v_rest:')
+    print(V_rest)
     if spiking:
         print('theta_0:')
         print(theta_0)
