@@ -82,7 +82,7 @@ SPECIFIC MODELS
 class NonSpikingNeuron(Neuron):
     """
     Classic non-spiking neuron model, whose dynamics are as follows:
-    membrane_capacitance*dU/dt = -membrane_conductance*u + bias current + synaptic current + external current.
+    membrane_capacitance*dV/dt = -membrane_conductance*(V - Er) + bias current + synaptic current + external current.
     """
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
@@ -90,12 +90,12 @@ class NonSpikingNeuron(Neuron):
 
 class NonSpikingNeuronWithGatedChannels(NonSpikingNeuron):
     """
-    Iion = sum_j[Gj * A_(inf,j)^Pa * Bj^Pb * Cj^Pc * (Ej - U)]
+    Iion = sum_j[Gj * A_(inf,j)^Pa * Bj^Pb * Cj^Pc * (Ej - V)]
     """
-    def __init__(self, g_ion=None, e_ion=None,
-                 pow_a=None, k_a=None, slope_a=None, e_a=None,
-                 pow_b=None, k_b=None, slope_b=None, e_b=None, tau_max_b=None,
-                 pow_c=None, k_c=None, slope_c=None, e_c=None, tau_max_c=None, **kwargs) -> None:
+    def __init__(self, g_ion, e_ion,
+                 pow_a, k_a, slope_a, e_a,
+                 pow_b, k_b, slope_b, e_b, tau_max_b,
+                 pow_c, k_c, slope_c, e_c, tau_max_c, **kwargs) -> None:
         super().__init__(**kwargs)
 
         inputs = [g_ion, e_ion,                         # Channel params
@@ -176,9 +176,9 @@ class NonSpikingNeuronWithPersistentSodiumChannel(NonSpikingNeuronWithGatedChann
 class SpikingNeuron(Neuron):
     """
     Generalized leaky integrate-and-fire neuron model, whose dynamics are as follows:
-    membrane_capacitance*dU/dt = -membrane_conductance*u + bias current + synaptic current + external current;
-    threshold_time_constant*dTheta/dt = -Theta + threshold_initial_value + threshold_proportionality_constant*u;
-    if u > Theta, u->0.
+    membrane_capacitance*dV/dt = -membrane_conductance*(V-Er) + bias current + synaptic current + external current;
+    threshold_time_constant*dTheta/dt = -Theta + threshold_initial_value + threshold_proportionality_constant*V;
+    if V > Theta, V->Er.
 
     :param threshold_time_constant: Rate that the firing threshold moves to the baseline value, default is 5.0. Units
         are milliseconds (ms).
