@@ -67,8 +67,8 @@ class NonSpikingConnection(Connection):
         super().__init__(max_conductance, name)
         self.params['reversal_potential'] = reversal_potential
         self.params['spiking'] = False
-        self.params['Elo'] = e_lo
-        self.params['Ehi'] = e_hi
+        self.params['e_lo'] = e_lo
+        self.params['e_hi'] = e_hi
 
 class SpikingConnection(Connection):
     """

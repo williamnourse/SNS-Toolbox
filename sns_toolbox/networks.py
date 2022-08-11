@@ -486,6 +486,12 @@ class Network:
                 del_e = __kernel_connections_2d__(self.populations[source]['shape'],
                                                   connection_type.params['reversal_potential'])
                 self.connections[-1]['params']['reversal_potential'] = del_e
+                e_hi = __kernel_connections_2d__(self.populations[source]['shape'],
+                                                 connection_type.params['e_hi'])
+                self.connections[-1]['params']['e_hi'] = e_hi
+                e_lo = __kernel_connections_2d__(self.populations[source]['shape'],
+                                                 connection_type.params['e_lo'])
+                self.connections[-1]['params']['e_lo'] = e_lo
                 if connection_type.params['spiking']:
                     time_constant = __kernel_connections_2d__(self.populations[source]['shape'],
                                                               connection_type.params['synapticTimeConstant'])
@@ -501,6 +507,12 @@ class Network:
                 del_e = __kernel_connections_1d__(self.populations[source]['number'],
                                                   connection_type.params['reversal_potential'])
                 self.connections[-1]['params']['reversal_potential'] = del_e
+                e_hi = __kernel_connections_1d__(self.populations[source]['shape'],
+                                                 connection_type.params['e_hi'])
+                self.connections[-1]['params']['e_hi'] = e_hi
+                e_lo = __kernel_connections_1d__(self.populations[source]['shape'],
+                                                 connection_type.params['e_lo'])
+                self.connections[-1]['params']['e_lo'] = e_lo
                 if connection_type.params['spiking']:
                     time_constant = __kernel_connections_1d__(self.populations[source]['number'],
                                                               connection_type.params['synapticTimeConstant'])
