@@ -6,8 +6,6 @@ from sns_toolbox.connections import ElectricalSynapse, NonSpikingTransmissionSyn
 from sns_toolbox.neurons import NonSpikingNeuron
 from sns_toolbox.networks import Network
 
-from sns_toolbox.backends import SNS_Numpy
-
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -62,12 +60,12 @@ data = np.zeros([len(t),net.get_num_outputs_actual()])
 
 # Compile the network to use the Numpy CPU backend (if you want to see what's happening, set debug to true)
 
-model = SNS_Numpy(net, dt=dt, debug=True)
+model = net.compile(backend='numpy', dt=dt, debug=True)
 
 """Simulate the network"""
 # At every step, apply the current input to a forward pass of the network and store the results in 'data'
 for i in range(len(t)):
-    data[i,:] = model.forward(inputs[i,:])
+    data[i,:] = model(inputs[i,:])
 data = data.transpose()
 
 """Plot the data"""

@@ -26,6 +26,7 @@ class AdditionNetwork(Network): # inherit from the general 'Network' class
                 conn = NonSpikingTransmissionSynapse(gain=gain, relative_reversal_potential=sub_del_e, R=self.params['R'])
             self.add_connection(conn, i + 1, name + 'Sum')    # add the synapse to the network
 
+
 # Now let's import our network into another one, as we would normally use this functionality
 net = Network(name='Tutorial 4 Network')
 

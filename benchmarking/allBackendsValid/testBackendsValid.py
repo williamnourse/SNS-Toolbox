@@ -11,7 +11,7 @@ from sns_toolbox.networks import Network
 from sns_toolbox.neurons import NonSpikingNeuron, SpikingNeuron, NonSpikingNeuronWithPersistentSodiumChannel, NonSpikingNeuronWithGatedChannels
 from sns_toolbox.connections import NonSpikingSynapse, SpikingSynapse, NonSpikingTransmissionSynapse, ElectricalSynapse
 
-from sns_toolbox.color_utilities import spike_raster_plot
+from sns_toolbox.plot_utilities import spike_raster_plot
 import sys
 
 """

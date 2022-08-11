@@ -10,9 +10,7 @@ import matplotlib.pyplot as plt
 from sns_toolbox.networks import Network
 from sns_toolbox.neurons import SpikingNeuron
 from sns_toolbox.connections import SpikingSynapse
-
-from sns_toolbox.backends import SNS_Numpy
-from sns_toolbox.color_utilities import spike_raster_plot
+from sns_toolbox.plot_utilities import spike_raster_plot
 
 """Define our types"""
 neuron_type = SpikingNeuron()
@@ -56,11 +54,11 @@ data = np.zeros([len(t), net.get_num_outputs_actual()])    # getNumOutputsActual
                                                             # nodes in a network (since this net has populations, each
                                                             # population has n output nodes)
 # Compile to numpy
-model = SNS_Numpy(net, dt=dt, debug=False)
+model = net.compile(backend='numpy', dt=dt, debug=False)
 
 # Run for all steps
 for i in range(len(t)):
-    data[i,:] = model.forward(inputs[i,:])
+    data[i,:] = model(inputs[i,:])
 data = data.transpose()
 
 """Plotting the results"""

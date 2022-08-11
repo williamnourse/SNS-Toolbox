@@ -7,8 +7,6 @@ from sns_toolbox.connections import NonSpikingPatternConnection
 from sns_toolbox.networks import Network
 from sns_toolbox.neurons import NonSpikingNeuron
 
-import sns_toolbox.backends as backends
-
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2 as cv
@@ -89,7 +87,7 @@ dt = neuron_type.params['membrane_capacitance']/neuron_type.params['membrane_con
 t_max = 15  # run for 15 ms
 steps = int(t_max/dt)   # number of steps to simulate
 
-model = backends.SNS_Numpy(net, dt=dt, debug=False) # compile using the numpy backend
+model = net.compile(backend='numpy', dt=dt, debug=False) # compile using the numpy backend
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -107,7 +105,7 @@ plt.pause(0.5)
 
 for i in range(steps):
     print('%i / %i steps'%(i+1,steps))
-    out = model.forward(img_flat)   # run the network for one dt
+    out = model(img_flat)   # run the network for one dt
     retina = out[:flat_size]    # separate the retina and lamina states
     lamina = out[flat_size:]
     retina_reshape = np.reshape(retina,shape)   # reshape to from flat to an image

@@ -10,11 +10,9 @@ from sns_toolbox.networks import Network
 from sns_toolbox.connections import SpikingSynapse
 from sns_toolbox.neurons import SpikingNeuron
 
-# Import packages and modules for simulating the network
-from sns_toolbox.backends import SNS_Numpy
 import numpy as np
 import matplotlib.pyplot as plt
-from sns_toolbox.color_utilities import spike_raster_plot
+from sns_toolbox.plot_utilities import spike_raster_plot
 
 """Design the first Network"""
 # Create spiking neurons with different values of 'm'
@@ -72,7 +70,7 @@ net_comb = Network(name='Tutorial 3 Network Combined')
 net_comb.add_network(net)
 net_comb.add_network(net_pop)
 
-net_comb.render_graph(view=True)
+# net_comb.render_graph(view=True)
 
 """Simulate both networks"""
 dt = 0.01
@@ -84,11 +82,11 @@ data = np.zeros([len(t), net_comb.get_num_outputs_actual()])    # getNumOutputsA
                                                             # nodes in a network (since this net has populations, each
                                                             # population has n output nodes)
 # Compile to numpy
-model = SNS_Numpy(net_comb, dt=dt, debug=False)
+model = net_comb.compile(backend='numpy', dt=dt, debug=False)
 
 # Run for all steps
 for i in range(len(t)):
-    data[i,:] = model.forward(inputs[i,:])
+    data[i,:] = model(inputs[i,:])
 data = data.transpose()
 
 """Plotting the results"""

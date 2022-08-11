@@ -6,8 +6,6 @@ from sns_toolbox.neurons import NonSpikingNeuronWithGatedChannels, NonSpikingNeu
 from sns_toolbox.connections import NonSpikingSynapse
 from sns_toolbox.networks import Network
 
-from sns_toolbox.backends import SNS_Numpy
-
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -115,12 +113,12 @@ Iapp[tStart:tEnd,:] = I
 Ipert = np.zeros([numSteps,1])
 Ipert[1,0] = 1
 
-model = SNS_Numpy(net,dt=dt)
+model = net.compile(backend='numpy',dt=dt)
 data = np.zeros([len(t), net.get_num_outputs_actual()])
 inputs = Iapp + Ipert
 
 for i in range(len(t)):
-    data[i] = model.forward(inputs[i])
+    data[i] = model(inputs[i])
 data = data.transpose()
 
 plt.figure()
@@ -213,12 +211,12 @@ def cpg(delta=-0.01):
     Ipert = np.zeros([numSteps,1])
     Ipert[1,0] = 1
 
-    model = SNS_Numpy(net, dt=dt)
+    model = net.compile(backend='numpy', dt=dt)
     data = np.zeros([len(t), net.get_num_outputs_actual()])
     inputs = Iapp + Ipert
 
     for i in range(len(t)):
-        data[i] = model.forward(inputs[i])
+        data[i] = model(inputs[i])
     data = data.transpose()
 
     return data
