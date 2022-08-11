@@ -61,6 +61,26 @@ def render(net: Network, view=True, save=False, filename=None, img_format='png')
             graph.node('In'+str(i), label=name, style=style, shape='invhouse', fillcolor=color_cell, fontcolor=color_font)
             graph.edge('In'+str(i), str(destination))
 
+        """Add the outputs"""
+        for i in range(len(net.outputs)):
+            out = net.outputs[i]
+            name = out['name']
+            color_cell = out['color']
+            color_font = set_text_color(color_cell)
+            source = out['source']
+            spiking = out['spiking']
+            if spiking:
+                shape = 'triangle'
+            else:
+                shape = 'house'
+            if net.populations[source]['number'] > 1:
+                style = 'filled, diagonals'
+            else:
+                style = 'filled'
+            graph.node('Out' + str(i), label=name, style=style, shape=shape, fillcolor=color_cell,
+                       fontcolor=color_font)
+            graph.edge(str(source), 'Out' + str(i))
+
         """Display and/or save the network graph"""
         graph.format = img_format
         if save:
