@@ -1,3 +1,6 @@
 .idea/*
 .eggs/*
 .ipynb_checkpoints/*
+example_figures/.ipynb_checkpoints/*
+tutorials/.ipynb_checkpoints/*
+sns_toolbox.egg-info/*
