@@ -1,3 +1,0 @@
-graphviz
-numpy>=1.17
-torch
