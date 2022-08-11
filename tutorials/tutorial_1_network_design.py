@@ -11,6 +11,7 @@ November 29 2021
 from sns_toolbox.neurons import NonSpikingNeuron
 from sns_toolbox.networks import Network
 from sns_toolbox.connections import NonSpikingSynapse
+from sns_toolbox.renderer import render
 
 """
 2. Define a neuron type. In a network we can have many different types, but for now we're just going to use one
@@ -51,4 +52,4 @@ net.add_connection(synapse_inhibitory, 'Neuron 2', 'Neuron 1')   # Add an inhibi
 """
 6. View our network as a visual graph
 """
-net.render_graph(view=True)
+render(net, view=True)

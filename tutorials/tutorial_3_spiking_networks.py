@@ -9,6 +9,7 @@ December 2nd 2021
 from sns_toolbox.networks import Network
 from sns_toolbox.connections import SpikingSynapse
 from sns_toolbox.neurons import SpikingNeuron
+from sns_toolbox.renderer import render
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -48,7 +49,7 @@ net.add_output('m<0', name='O3S', color='grey', spiking=True)  # Records spikes 
 net.add_output('m>0', name='O4V', color='grey')
 net.add_output('m>0', name='O5S', color='grey', spiking=True)  # Records spikes instead of voltage
 
-net.render_graph(view=False)
+# render(net, view=True)
 
 """Define the second network"""
 pop_size = 5
@@ -63,14 +64,14 @@ net_pop.add_output('Source', name='O7V', color='grey', spiking=False)
 net_pop.add_output('Destination', name='O8S', color='grey', spiking=True)
 net_pop.add_output('Destination', name='O9V', color='grey', spiking=False)
 
-net_pop.render_graph(view=False)
+# render(net_pop, view=True)
 
 """Combine both networks into one for easier simulation"""
 net_comb = Network(name='Tutorial 3 Network Combined')
 net_comb.add_network(net)
 net_comb.add_network(net_pop)
 
-# net_comb.render_graph(view=True)
+render(net_comb, view=True)
 
 """Simulate both networks"""
 dt = 0.01

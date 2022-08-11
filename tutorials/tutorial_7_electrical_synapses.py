@@ -5,6 +5,7 @@ Tutorial demonstrating a network with electrical synapses, both bidirectional an
 from sns_toolbox.connections import ElectricalSynapse, NonSpikingTransmissionSynapse
 from sns_toolbox.neurons import NonSpikingNeuron
 from sns_toolbox.networks import Network
+from sns_toolbox.renderer import render
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -44,7 +45,7 @@ net.add_input('7')
 net.add_output('6')
 net.add_output('7')
 
-# net.render_graph(view=True)
+render(net)
 
 """Prep the Simulation"""
 # Set simulation parameters
