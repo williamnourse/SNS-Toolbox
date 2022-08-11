@@ -919,4 +919,65 @@ plt.plot(t,data_original[:][6] - data_load[:][6],label='6',color='C6')
 plt.plot(t,data_original[:][7] - data_load[:][7],label='7',color='C7')
 plt.legend()
 
+"""
+Network 8: Resting potential
+"""
+
+net = Network()
+net.add_neuron(NonSpikingNeuron(resting_potential=-60))
+net.add_neuron(NonSpikingNeuron())
+net.add_input(0)
+net.add_output(0)
+net.add_input(1)
+net.add_output(1)
+
+"""Prep the Simulation"""
+# Set simulation parameters
+dt = 0.01
+t_max = 50
+
+# Initialize a vector of timesteps
+t = np.arange(0, t_max, dt)
+
+# Initialize vectors which store the input to our network, and for data to be written to during simulation from outputs
+inputsNumpy = np.zeros([len(t),net.get_num_inputs_actual()])+20.0  # Input vector must be 2d, even if second dimension is 1
+inputsTorch = torch.zeros([len(t),net.get_num_inputs_actual()])+20.0  # Input vector must be 2d, even if second dimension is 1
+dataNumpy = np.zeros([len(t),net.get_num_outputs_actual()])
+dataTorch = torch.zeros([len(t),net.get_num_outputs_actual()])
+dataIterative = np.zeros([len(t),net.get_num_outputs_actual()])
+dataSparse = torch.zeros([len(t),net.get_num_outputs_actual()])
+
+# Compile the network to use the Numpy CPU backend (if you want to see what's happening, set debug to true)
+
+modelNumpy = net.compile(backend='numpy', dt=dt, debug=False)
+modelTorch = net.compile(backend='torch', dt=dt, debug=False, device='cpu')
+modelSparse = net.compile(backend='sparse', dt=dt, debug=False, device='cpu')
+modelIterative = net.compile(backend='iterative', dt=dt, debug=False)
+
+print('Running Network 8')
+for i in range(len(t)):
+    print('8: %i / %i steps' % (i + 1, len(t)))
+    dataNumpy[i,:] = modelNumpy(inputsNumpy[i,:])
+    dataTorch[i, :] = modelTorch(inputsTorch[i, :])
+    dataSparse[i, :] = modelSparse(inputsTorch[i, :])
+    dataIterative[i, :] = modelIterative(inputsNumpy[i, :])
+dataNumpy = dataNumpy.transpose()
+dataTorch = torch.transpose(dataTorch,0,1)
+dataSparse = torch.transpose(dataSparse,0,1)
+dataIterative = dataIterative.transpose()
+
+"""Plot the data"""
+plt.figure()
+plt.plot(t,dataNumpy[:][0],label='0',color='C0')
+plt.plot(t,dataTorch[:][0],label='0',color='C1')
+plt.plot(t,dataSparse[:][0],label='0',color='C2')
+plt.plot(t,dataIterative[:][0],label='0',color='C3')
+plt.plot(t,dataNumpy[:][1],label='0',color='C0',linestyle='--')
+plt.plot(t,dataTorch[:][1],label='0',color='C1',linestyle='--')
+plt.plot(t,dataSparse[:][1],label='0',color='C2',linestyle='--')
+plt.plot(t,dataIterative[:][1],label='0',color='C3',linestyle='--')
+plt.xlabel('t (ms)')
+plt.ylabel('U (mV)')
+plt.title('Non-spiking Chemical Synapse')
+
 plt.show()
