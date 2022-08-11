@@ -61,7 +61,7 @@ class NonSpikingConnection(Connection):
     """
     def __init__(self, max_conductance, relative_reversal_potential, name: str = 'Non-Spiking Connection') -> None:
         super().__init__(max_conductance, name)
-        self.params['relative_reversal_potential'] = relative_reversal_potential
+        self.params['reversal_potential'] = relative_reversal_potential
         self.params['spiking'] = False
 
 class SpikingConnection(Connection):
@@ -82,14 +82,14 @@ class SpikingConnection(Connection):
                  name: str = 'Spiking Connection') -> None:
         super().__init__(max_conductance, name)
         self.params['spiking'] = True
-        self.params['relative_reversal_potential'] = relative_reversal_potential
+        self.params['reversal_potential'] = relative_reversal_potential
         self.params['synapticTimeConstant'] = time_constant
         self.params['transmissionDelay'] = transmission_delay
 
 class NonSpikingSynapse(NonSpikingConnection):
     """
     An individual non-spiking synapse, where the conductance is defined as Conductance = max_conductance * max(0,
-    min(1, Upre/R)), and the synaptic current is i_syn = Conductance*(relative_reversal_potential - Upost).
+    min(1, Upre/R)), and the synaptic current is i_syn = Conductance*(reversal_potential - Upost).
 
     :param max_conductance: Maximum synaptic conductance, defaults to 1.0. Units are micro-siemens (uS).
     :type max_conductance: float, optional
@@ -105,7 +105,7 @@ class NonSpikingSynapse(NonSpikingConnection):
         else:
             raise TypeError('max_conductance (gMax) must be a number (int, float, double, etc.')
         if not isinstance(relative_reversal_potential, numbers.Number):
-            raise TypeError('relative_reversal_potential (deltaEsyn) must be a number (int, float, double, etc.')
+            raise TypeError('reversal_potential (deltaEsyn) must be a number (int, float, double, etc.')
         super().__init__(max_conductance, relative_reversal_potential,**kwargs)  # Call to constructor of parent class
         self.params['pattern'] = False
 
@@ -113,7 +113,7 @@ class SpikingSynapse(SpikingConnection):
     """
     An individual spiking synapse, where the conductance is reset to max_conductance whenever the pre-synaptic
     neuron spikes, and otherwise decays to zero according to the time constant. Synaptic current
-    is i_syn = Conductance*(relative_reversal_potential - Upost). Synaptic propagation can be delayed by a set number
+    is i_syn = Conductance*(reversal_potential - Upost). Synaptic propagation can be delayed by a set number
     of timesteps.
 
     :param max_conductance: Maximum synaptic conductance, defaults to 1.0. Units are micro-siemens (uS).
@@ -136,7 +136,7 @@ class SpikingSynapse(SpikingConnection):
         else:
             raise TypeError('max_conductance (gMax) must be a number (int, float, double, etc.')
         if not isinstance(relative_reversal_potential, numbers.Number):
-            raise TypeError('relative_reversal_potential (deltaEsyn) must be a number (int, float, double, etc.')
+            raise TypeError('reversal_potential (deltaEsyn) must be a number (int, float, double, etc.')
         super().__init__(max_conductance, relative_reversal_potential, time_constant, transmission_delay, **kwargs)  # Call to constructor of parent class
         self.params['pattern'] = False
         if isinstance(time_constant, numbers.Number):
@@ -211,7 +211,7 @@ SPECIFIC MODELS
 class NonSpikingTransmissionSynapse(NonSpikingSynapse):
     """
     A non-spiking transmission synapse, where (given some integration_gain) the maximum conductance is
-    max_conductance = (integration_gain*R)/(relative_reversal_potential - integration_gain*R).
+    max_conductance = (integration_gain*R)/(reversal_potential - integration_gain*R).
 
     :param gain: Transmission integration gain, defaults to 1.0.
     :type gain: Number, optional
@@ -228,15 +228,15 @@ class NonSpikingTransmissionSynapse(NonSpikingSynapse):
         if isinstance(gain,numbers.Number): # Gain error handling
             if gain == 0:
                 raise ValueError('Gain must be nonzero')
-            elif math.copysign(1,gain) != math.copysign(1,self.params['relative_reversal_potential']):    # sign of integration_gain and DeltaE don't match
+            elif math.copysign(1,gain) != math.copysign(1,self.params['reversal_potential']):    # sign of integration_gain and DeltaE don't match
                 raise ValueError('Gain of '+str(gain)+' and Relative Reversal Potential must have the same sign')
             else:
                 try:
-                    self.params['max_conductance'] = (gain*R)/(self.params['relative_reversal_potential']-gain*R)
+                    self.params['max_conductance'] = (gain*R)/(self.params['reversal_potential']-gain*R)
                 except ZeroDivisionError:
-                    raise ValueError('Gain of '+str(gain)+' causes division by 0, decrease integration_gain or increase relative_reversal_potential')
+                    raise ValueError('Gain of '+str(gain)+' causes division by 0, decrease integration_gain or increase reversal_potential')
                 if self.params['max_conductance'] < 0:
-                    raise ValueError('Gain of '+str(gain)+' causes max_conductance to be negative, decrease integration_gain or increase relative_reversal_potential_kernel')
+                    raise ValueError('Gain of '+str(gain)+' causes max_conductance to be negative, decrease integration_gain or increase reversal_potential_kernel')
         else:
             raise TypeError('Gain must be a number (int, float, double, etc.)')
         if isinstance(R, numbers.Number):   # R error handling
@@ -247,7 +247,7 @@ class NonSpikingTransmissionSynapse(NonSpikingSynapse):
 
 class NonSpikingModulationSynapse(NonSpikingSynapse):
     """
-    A non-spiking modulation synapse, where the relative_reversal_potential is set to 0.
+    A non-spiking modulation synapse, where the reversal_potential is set to 0.
 
     :param ratio: The desired ratio Upost/Upre when Upre is at max activity (R mV).
     :type ratio: Number
@@ -256,7 +256,7 @@ class NonSpikingModulationSynapse(NonSpikingSynapse):
     """
     def __init__(self,ratio, name: str = 'Modulate', **kwargs) -> None:
         super().__init__(name=name,**kwargs)
-        self.params['relative_reversal_potential'] = 0.0
+        self.params['reversal_potential'] = 0.0
         if isinstance(ratio, numbers.Number):   # ratio error handling
             if ratio <= 0:
                 raise ValueError('Ratio must be greater than zero')
@@ -295,15 +295,15 @@ class SpikingTransmissionSynapse(SpikingSynapse):
         if isinstance(gain,numbers.Number):
             if gain == 0:
                 raise ValueError('Gain must be nonzero')
-            elif math.copysign(1,gain) != math.copysign(1,self.params['relative_reversal_potential']):    # sign of integration_gain and DeltaE don't match
+            elif math.copysign(1,gain) != math.copysign(1,self.params['reversal_potential']):    # sign of integration_gain and DeltaE don't match
                 raise ValueError('Gain of '+str(gain)+' and Relative Reversal Potential must have the same sign')
             else:
                 try:
-                    self.params['max_conductance'] = (gain*self.params['R'])/((self.params['relative_reversal_potential']-gain*-self.params['R'])*time_constant*max_frequency)
+                    self.params['max_conductance'] = (gain*self.params['R'])/((self.params['reversal_potential']-gain*-self.params['R'])*time_constant*max_frequency)
                 except ZeroDivisionError:
-                    raise ValueError('Gain of '+str(gain)+' causes division by 0, decrease integration_gain or increase relative_reversal_potential')
+                    raise ValueError('Gain of '+str(gain)+' causes division by 0, decrease integration_gain or increase reversal_potential')
                 if self.params['max_conductance'] < 0:
-                    raise ValueError('Gain of '+str(gain)+' causes max_conductance to be negative, decrease integration_gain or increase relative_reversal_potential')
+                    raise ValueError('Gain of '+str(gain)+' causes max_conductance to be negative, decrease integration_gain or increase reversal_potential')
         else:
             raise TypeError('Gain of '+str(gain)+' must be a number (int, float, double, etc.)')
 
@@ -327,8 +327,8 @@ Classes and functions for an easier pattern connection, just based on gains. Not
 #         :param wrap:    Flag for if connections should wrap from one end of the population to the other
 #         """
 #         max_conductance = []
-#         relative_reversal_potential = []
-#         super().__init__(max_conductance,relative_reversal_potential,name=name)
+#         reversal_potential = []
+#         super().__init__(max_conductance,reversal_potential,name=name)
 #         self.params['wrap'] = wrap
 #         self.params['R'] = R
 #         self.params['pattern'] = True
@@ -348,7 +348,7 @@ Classes and functions for an easier pattern connection, just based on gains. Not
 #                     cond_values.append(calc_max_conductance)
 #                     del_e_values.append(calc_relative_reversal_potential)
 #                 self.params['max_conductance_kernel'].append(cond_values)
-#                 self.params['relative_reversal_potential_kernel'].append(del_e_values)
+#                 self.params['reversal_potential_kernel'].append(del_e_values)
 #         else:   # 1D kernel
 #             for i in range(len(gain_matrix)):
 #                 calc_max_conductance, calc_relative_reversal_potential = __calc_synaptic_parameters_from_gain__(gain_matrix[i],
@@ -356,19 +356,19 @@ Classes and functions for an easier pattern connection, just based on gains. Not
 #                                                                                                                 negative_reversal_potential,
 #                                                                                                                 self.params['R'])
 #                 self.params['max_conductance_kernel'].append(calc_max_conductance)
-#                 self.params['relative_reversal_potential_kernel'].append(calc_relative_reversal_potential)
+#                 self.params['reversal_potential_kernel'].append(calc_relative_reversal_potential)
 
 # def __calc_synaptic_parameters_from_gain__(gain, positive_reversal_potential, negative_reversal_potential, R):
 #     if gain == 0.0:
 #         return 0.0, 0.0
 #     else:
 #         if gain > 0.0:
-#             relative_reversal_potential = positive_reversal_potential
+#             reversal_potential = positive_reversal_potential
 #         else:
-#             relative_reversal_potential = negative_reversal_potential
-#         max_conductance = gain * R / (relative_reversal_potential - gain * R)
+#             reversal_potential = negative_reversal_potential
+#         max_conductance = gain * R / (reversal_potential - gain * R)
 #
-#         return max_conductance, relative_reversal_potential
+#         return max_conductance, reversal_potential
 #
 # def __calc_spiking_synaptic_parameters_from_gain__(gain, positive_reversal_potential, negative_reversal_potential, R,
 #                                                    time_constant, max_frequency):
@@ -376,9 +376,9 @@ Classes and functions for an easier pattern connection, just based on gains. Not
 #         return 0.0, 0.0
 #     else:
 #         if gain > 0.0:
-#             relative_reversal_potential = positive_reversal_potential
+#             reversal_potential = positive_reversal_potential
 #         else:
-#             relative_reversal_potential = negative_reversal_potential
-#         max_conductance = gain * R / ((relative_reversal_potential - gain * R)*time_constant*max_frequency)
+#             reversal_potential = negative_reversal_potential
+#         max_conductance = gain * R / ((reversal_potential - gain * R)*time_constant*max_frequency)
 #
-#         return max_conductance, relative_reversal_potential
+#         return max_conductance, reversal_potential

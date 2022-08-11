@@ -100,9 +100,9 @@ def render(net: Network, view=True, save=False, filename=None, img_format='png')
                     direction = 'both'
             else:   # chemical synapse
                 direction = 'forward'
-                if params['relative_reversal_potential'] > 0:   # excitatory
+                if params['reversal_potential'] > 0:   # excitatory
                     style = 'invempty'
-                elif params['relative_reversal_potential'] < 0: # inhibitory
+                elif params['reversal_potential'] < 0: # inhibitory
                     style = 'dot'
                 else:   # modulatory
                     style = 'odot'

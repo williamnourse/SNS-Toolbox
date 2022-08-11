@@ -17,9 +17,9 @@ delay = True
 
 neuron_type = NonSpikingNeuron()
 slow_neuron_type = NonSpikingNeuron(membrane_capacitance=50.0)
-synapse_excitatory = NonSpikingSynapse(relative_reversal_potential=40.0)
-synapse_inhibitory = NonSpikingSynapse(max_conductance=1.0,relative_reversal_potential=-40.0)
-synapse_modulatory = NonSpikingSynapse(relative_reversal_potential=0.0)
+synapse_excitatory = NonSpikingSynapse(reversal_potential=40.0)
+synapse_inhibitory = NonSpikingSynapse(max_conductance=1.0, reversal_potential=-40.0)
+synapse_modulatory = NonSpikingSynapse(reversal_potential=0.0)
 
 net = Network(name='Network')
 net.add_neuron(neuron_type,name='0',color='cornflowerblue')

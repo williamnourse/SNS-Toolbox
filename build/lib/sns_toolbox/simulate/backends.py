@@ -503,7 +503,7 @@ class SNS_Numpy(__Backend__):
             dest_pop = self.network.connections[syn]['destination']
             g_max = self.network.connections[syn]['params']['max_conductance']
             if self.network.connections[syn]['params']['electrical'] is False: # electrical connection
-                del_e = self.network.connections[syn]['params']['relative_reversal_potential']
+                del_e = self.network.connections[syn]['params']['reversal_potential']
 
             if self.network.connections[syn]['params']['pattern']:  # pattern connection
                 pop_size = len(self.pops_and_nrns[source_pop])
@@ -876,7 +876,7 @@ class SNS_Torch(__Backend__):
             dest_pop = self.network.connections[syn]['destination']
             g_max = self.network.connections[syn]['params']['max_conductance']
             if self.network.connections[syn]['params']['electrical'] is False:  # Chemical connection
-                del_e = self.network.connections[syn]['params']['relative_reversal_potential']
+                del_e = self.network.connections[syn]['params']['reversal_potential']
 
             if self.network.connections[syn]['params']['pattern']:  # pattern connection
                 pop_size = len(self.pops_and_nrns[source_pop])
@@ -1310,7 +1310,7 @@ class SNS_Sparse(__Backend__):
             dest_pop = self.network.connections[syn]['destination']
             g_max = self.network.connections[syn]['params']['max_conductance']
             if self.network.connections[syn]['params']['electrical'] is False:  # chemical connection
-                del_e = self.network.connections[syn]['params']['relative_reversal_potential']
+                del_e = self.network.connections[syn]['params']['reversal_potential']
 
             if self.network.connections[syn]['params']['pattern']:  # pattern connection
                 pop_size = len(self.pops_and_nrns[source_pop])
@@ -1728,7 +1728,7 @@ class SNS_Manual(__Backend__):
             dest_pop = self.network.connections[syn]['destination']
             g_max = self.network.connections[syn]['params']['max_conductance']
             if self.network.connections[syn]['params']['electrical'] is False:  # electrical connection
-                del_e = self.network.connections[syn]['params']['relative_reversal_potential']
+                del_e = self.network.connections[syn]['params']['reversal_potential']
 
             if self.network.connections[syn]['params']['pattern']:  # pattern connection
                 pop_size = len(self.pops_and_nrns[source_pop])

@@ -37,7 +37,7 @@ net.add_neuron(neuron_type, name='Neuron 2', color='black')
 4. Define some synapse types
 """
 synapse_excitatory = NonSpikingSynapse()    # default parameters lead to strong excitation
-synapse_inhibitory = NonSpikingSynapse(relative_reversal_potential=-40.0) # make an inhibitory synapse
+synapse_inhibitory = NonSpikingSynapse(reversal_potential=-40.0) # make an inhibitory synapse
 
 """
 5. Use our synapse types to connect the neurons in the network

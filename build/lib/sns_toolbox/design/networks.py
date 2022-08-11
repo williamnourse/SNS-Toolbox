@@ -487,8 +487,8 @@ class Network:
                                                   connection_type.params['max_conductance'])
                 self.connections[-1]['params']['max_conductance'] = g_max
                 del_e = __kernel_connections_2d__(self.populations[source]['shape'],
-                                                  connection_type.params['relative_reversal_potential'])
-                self.connections[-1]['params']['relative_reversal_potential'] = del_e
+                                                  connection_type.params['reversal_potential'])
+                self.connections[-1]['params']['reversal_potential'] = del_e
                 if connection_type.params['spiking']:
                     time_constant = __kernel_connections_2d__(self.populations[source]['shape'],
                                                               connection_type.params['synapticTimeConstant'])
@@ -502,8 +502,8 @@ class Network:
                                                   connection_type.params['max_conductance'])
                 self.connections[-1]['params']['max_conductance'] = g_max
                 del_e = __kernel_connections_1d__(self.populations[source]['number'],
-                                                  connection_type.params['relative_reversal_potential'])
-                self.connections[-1]['params']['relative_reversal_potential'] = del_e
+                                                  connection_type.params['reversal_potential'])
+                self.connections[-1]['params']['reversal_potential'] = del_e
                 if connection_type.params['spiking']:
                     time_constant = __kernel_connections_1d__(self.populations[source]['number'],
                                                               connection_type.params['synapticTimeConstant'])
@@ -521,9 +521,9 @@ class Network:
                 self.params['electricalRectified'] = True
         else:   # Chemical synapse
             direction = 'forward'
-            if connection_type.params['relative_reversal_potential'] > 0:
+            if connection_type.params['reversal_potential'] > 0:
                 style = 'invempty'
-            elif connection_type.params['relative_reversal_potential'] < 0:
+            elif connection_type.params['reversal_potential'] < 0:
                 style = 'dot'
             else:
                 style = 'odot'
@@ -715,7 +715,7 @@ class MultiplicationNetwork(Network):
 
         transmit = NonSpikingTransmissionSynapse(gain=1.0,R=self.params['R'])
         conductance = -self.params['R']/-1.0
-        modulate_special = NonSpikingSynapse(max_conductance=conductance, relative_reversal_potential=-1.0)
+        modulate_special = NonSpikingSynapse(max_conductance=conductance, reversal_potential=-1.0)
 
         self.add_connection(transmit, name + '0', name + 'Result')
         self.add_connection(modulate_special, name + '1', name + 'Inter')
@@ -800,7 +800,7 @@ class IntegratorNetwork(Network):
         neuron_type = NonSpikingNeuron(membrane_capacitance=membrane_capacitance,membrane_conductance=1.0,
                                        bias=self.params['R'])
         synapse_type = NonSpikingSynapse(max_conductance=synaptic_conductance,
-                                         relative_reversal_potential=relative_reversal_potential)
+                                         reversal_potential=relative_reversal_potential)
 
         self.add_neuron(neuron_type,name='Uint')
         self.add_neuron(neuron_type)
@@ -812,17 +812,17 @@ class IntegratorNetwork(Network):
 # class AdaptationNetwork(Network):
 #     def __init__(self,ratio=0.5,name='Adaptation',neuron_type=NonSpikingNeuron(),**kwargs):
 #         super().__init__(name=name,**kwargs)
-#         relative_reversal_potential = 2*(self.params['R']**2 + 1)/self.params['R']
-#         conductance_fast_slow = self.params['R']/(relative_reversal_potential - self.params['R'])
-#         conductance_slow_fast = (self.params['R']*(ratio-1)*(relative_reversal_potential - self.params['R'] +
+#         reversal_potential = 2*(self.params['R']**2 + 1)/self.params['R']
+#         conductance_fast_slow = self.params['R']/(reversal_potential - self.params['R'])
+#         conductance_slow_fast = (self.params['R']*(ratio-1)*(reversal_potential - self.params['R'] +
 #                                                              ratio*self.params['R']))/(ratio *
-#                                                                                        relative_reversal_potential *
-#                                                                                        (-relative_reversal_potential -
+#                                                                                        reversal_potential *
+#                                                                                        (-reversal_potential -
 #                                                                                         ratio*self.params['R']))
 #         fast_slow = NonSpikingSynapse(max_conductance=conductance_fast_slow,
-#                                       relative_reversal_potential=relative_reversal_potential)
+#                                       reversal_potential=reversal_potential)
 #         slow_fast = NonSpikingSynapse(max_conductance=conductance_slow_fast,
-#                                       relative_reversal_potential=-relative_reversal_potential)
+#                                       reversal_potential=-reversal_potential)
 #
 #         self.add_neuron(neuron_type,name='Uadapt')
 #         self.add_neuron(neuron_type)

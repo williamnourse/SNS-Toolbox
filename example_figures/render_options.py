@@ -11,8 +11,8 @@ import numpy as np
 neuron_type = SpikingNeuron()
 
 synapse_excitatory = NonSpikingSynapse()
-synapse_inhibitory = NonSpikingSynapse(relative_reversal_potential=-40.0)
-synapse_modulatory = NonSpikingSynapse(relative_reversal_potential=0.0)
+synapse_inhibitory = NonSpikingSynapse(reversal_potential=-40.0)
+synapse_modulatory = NonSpikingSynapse(reversal_potential=0.0)
 
 kernel_1d = np.array([-1,1,-1])
 synapse_pattern = NonSpikingPatternConnection(kernel_1d+2,kernel_1d)

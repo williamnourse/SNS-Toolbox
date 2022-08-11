@@ -19,9 +19,9 @@ import sys
 Network 1: NonSpiking
 """
 neuron_type = NonSpikingNeuron()
-synapse_excitatory = NonSpikingSynapse(max_conductance=1.0, relative_reversal_potential=50.0)
-synapse_inhibitory = NonSpikingSynapse(max_conductance=1.0, relative_reversal_potential=-40.0)
-synapse_modulatory = NonSpikingSynapse(max_conductance=1.0, relative_reversal_potential=0.0)
+synapse_excitatory = NonSpikingSynapse(max_conductance=1.0, reversal_potential=50.0)
+synapse_inhibitory = NonSpikingSynapse(max_conductance=1.0, reversal_potential=-40.0)
+synapse_modulatory = NonSpikingSynapse(max_conductance=1.0, reversal_potential=0.0)
 net = Network(name='Tutorial 2 Network',R=20.0)
 net.add_neuron(neuron_type, name='SourceNrn', color='black')
 net.add_neuron(neuron_type, name='Dest1', color='blue')
@@ -438,7 +438,7 @@ def cpg(numpy,backend):
     gSyn = (-delta - delta * Gna * minf(delta) * hinf(delta) + Gna * minf(delta) * hinf(delta) * delEna) / (
                 delta - delEsyn)
 
-    synapse_cpg = NonSpikingSynapse(max_conductance=gSyn, relative_reversal_potential=delEsyn)
+    synapse_cpg = NonSpikingSynapse(max_conductance=gSyn, reversal_potential=delEsyn)
 
     net = Network()
     net.add_neuron(neuron_cpg, name='HC0', color='blue')
