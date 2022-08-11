@@ -68,6 +68,7 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
     u = np.zeros(num_neurons)
     u_last = np.zeros(num_neurons)
     u_0 = np.zeros(num_neurons)
+    u_rest = np.zeros(num_neurons)
     c_m = np.zeros(num_neurons)
     g_m = np.zeros(num_neurons)
     i_b = np.zeros(num_neurons)
@@ -151,10 +152,11 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
             c_m[index] = network.populations[pop]['type'].params['membrane_capacitance']
             g_m[index] = network.populations[pop]['type'].params['membrane_conductance']
             i_b[index] = network.populations[pop]['type'].params['bias']
+            u_rest[index] = network.populations[pop]['type'].params['resting_potential']
             if hasattr(initial_value, '__iter__'):
                 u_last[index] = initial_value[num]
             elif initial_value is None:
-                u_last[index] = 0.0
+                u_last[index] = u_rest[index]
             else:
                 u_last[index] = initial_value
             if spiking:
@@ -380,6 +382,7 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
               'numChannels': num_channels,
               'u': u,
               'uLast': u_last,
+              'uRest': u_rest,
               'u0': u_0,
               'cM': c_m,
               'gM': g_m,
@@ -488,6 +491,8 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
         print(u)
         print('u_last:')
         print(u_last)
+        print('u_rest:')
+        print(u_rest)
         if spiking:
             print('theta_0:')
             print(theta_0)
@@ -621,6 +626,7 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
         print('---------------------------------')
     u = torch.zeros(num_neurons, device=device)
     u_last = torch.zeros(num_neurons, device=device)
+    u_rest = torch.zeros(num_neurons, device=device)
     u_0 = torch.zeros(num_neurons, device=device)
     c_m = torch.zeros(num_neurons, device=device)
     g_m = torch.zeros(num_neurons, device=device)
@@ -705,10 +711,11 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
             c_m[index] = network.populations[pop]['type'].params['membrane_capacitance']
             g_m[index] = network.populations[pop]['type'].params['membrane_conductance']
             i_b[index] = network.populations[pop]['type'].params['bias']
+            u_rest[index] = network.populations[pop]['type'].params['resting_potential']
             if hasattr(initial_value, '__iter__'):
                 u_last[index] = initial_value[num]
             elif initial_value is None:
-                u_last[index] = 0.0
+                u_last[index] = u_rest[index]
             else:
                 u_last[index] = initial_value
 
@@ -941,6 +948,7 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
               'numChannels': num_channels,
               'u': u,
               'uLast': u_last,
+              'uRest': u_rest,
               'u0': u_0,
               'cM': c_m,
               'gM': g_m,
@@ -1049,6 +1057,8 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
         print(u)
         print('u_last:')
         print(u_last)
+        print('u_rest:')
+        print(u_rest)
         if spiking:
             print('theta_0:')
             print(theta_0)
@@ -1183,6 +1193,7 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
     u = torch.zeros(num_neurons, device=device)
     u_0 = torch.zeros(num_neurons, device=device)
     u_last = torch.zeros(num_neurons, device=device)
+    u_rest = torch.zeros(num_neurons, device=device)
     c_m = torch.zeros(num_neurons, device=device)
     g_m = torch.zeros(num_neurons, device=device)
     i_b = torch.sparse_coo_tensor(size=(1, num_neurons), device=device)
@@ -1265,6 +1276,7 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
         for num in range(num_neurons_in_pop):  # for each neuron, copy the parameters over
             c_m[index] = network.populations[pop]['type'].params['membrane_capacitance']
             g_m[index] = network.populations[pop]['type'].params['membrane_conductance']
+            u_rest[index] = network.populations[pop]['type'].params['resting_potential']
 
             i_b = i_b.to_dense()
             i_b[0, index] = network.populations[pop]['type'].params['bias']
@@ -1273,7 +1285,7 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
             if hasattr(initial_value, '__iter__'):
                 u_last[index] = initial_value[num]
             elif initial_value is None:
-                u_last[index] = 0.0
+                u_last[index] = u_rest[index]
             else:
                 u_last[index] = initial_value
 
@@ -1602,6 +1614,7 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
               'numChannels': num_channels,
               'u': u,
               'uLast': u_last,
+              'uRest': u_rest,
               'u0': u_0,
               'cM': c_m,
               'gM': g_m,
@@ -1710,6 +1723,8 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
         print(u)
         print('u_last:')
         print(u_last)
+        print('u_rest:')
+        print(u_rest)
         if spiking:
             print('theta_0:')
             print(theta_0)
@@ -1828,6 +1843,7 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
     u = np.zeros(num_neurons)
     u_0 = np.zeros(num_neurons)
     u_last = np.zeros(num_neurons)
+    u_rest = np.zeros(num_neurons)
     c_m = np.zeros(num_neurons)
     g_m = np.zeros(num_neurons)
     i_b = np.zeros(num_neurons)
@@ -1897,6 +1913,7 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
             c_m[index] = network.populations[pop]['type'].params['membrane_capacitance']
             g_m[index] = network.populations[pop]['type'].params['membrane_conductance']
             i_b[index] = network.populations[pop]['type'].params['bias']
+            u_rest[index] = network.populations[pop]['type'].params['resting_potential']
             if hasattr(initial_value, '__iter__'):
                 u_last[index] = initial_value[num]
             elif initial_value is None:
@@ -2118,6 +2135,7 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
             'numChannels': num_channels,
             'u': u,
             'uLast': u_last,
+            'uRest': u_rest,
             'u0': u_0,
             'cM': c_m,
             'gM': g_m,
@@ -2196,6 +2214,8 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
     print(u)
     print('u_last:')
     print(u_last)
+    print('u_rest:')
+    print(u_rest)
     if spiking:
         print('theta_0:')
         print(theta_0)

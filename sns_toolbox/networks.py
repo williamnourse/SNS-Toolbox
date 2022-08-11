@@ -236,13 +236,14 @@ class Network:
             color = neuron_type.color
         # font_color = set_text_color(color)
         if initial_value is None:
+            rest = neuron_type.params['resting_potential']
             if total_num_neurons > 1:
                 if neuron_type is SpikingNeuron:
-                    initial_value = np.linspace(0,neuron_type.params['threshold_initial_value'],num=total_num_neurons)
+                    initial_value = np.linspace(rest,neuron_type.params['threshold_initial_value'],num=total_num_neurons)
                 else:
-                    initial_value = np.linspace(0,self.params['R'],num=total_num_neurons)
+                    initial_value = np.linspace(rest,self.params['R'],num=total_num_neurons)
             else:
-                initial_value = 0.0
+                initial_value = rest
         self.populations.append({'type': copy.deepcopy(neuron_type),
                                  'number': int(total_num_neurons),
                                  'shape': shape,
@@ -275,7 +276,7 @@ class Network:
             self.params['gated'] = True
             self.params['numChannels'] = max(self.params['numChannels'], neuron_type.params['numChannels'])
 
-    def add_neuron(self, neuron_type: Neuron, name=None, color=None, initial_value=0.0) -> None:
+    def add_neuron(self, neuron_type: Neuron, name=None, color=None, initial_value=None) -> None:
         """
         Add a neuron to the network. Note that this is just a special case of addPopulation, which makes a
         population of 1 neuron.
