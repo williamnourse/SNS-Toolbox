@@ -11,13 +11,13 @@ IMPORTS
 from typing import Dict, Any
 from numbers import Number
 import copy
-from graphviz import Digraph
+# from graphviz import Digraph
 import warnings
 import numpy as np
 
 from sns_toolbox.neurons import Neuron, NonSpikingNeuron, SpikingNeuron
 from sns_toolbox.connections import Connection, NonSpikingSynapse, NonSpikingTransmissionSynapse, NonSpikingModulationSynapse
-from sns_toolbox.color_utilities import valid_color, set_text_color
+from sns_toolbox.color_utilities import valid_color #, set_text_color
 from sns_toolbox.compilers import __compile_numpy__, __compile_torch__, __compile_manual__, __compile_sparse__
 from sns_toolbox.backends import Backend
 
@@ -54,7 +54,7 @@ class Network:
         self.outputs = []
         self.outputConns = []
         self.connections = []
-        self.graph = Digraph(filename=(self.params['name']+'.gv'))
+        # self.graph = Digraph(filename=(self.params['name']+'.gv'))
 
         # Compiler options
         self.params['spiking'] = False
@@ -234,7 +234,7 @@ class Network:
         elif not valid_color(color):
             warnings.warn('Specified color is not in the standard SVG set. Defaulting to base type color.')
             color = neuron_type.color
-        font_color = set_text_color(color)
+        # font_color = set_text_color(color)
         if initial_value is None:
             if total_num_neurons > 1:
                 if neuron_type is SpikingNeuron:
@@ -249,24 +249,24 @@ class Network:
                                  'name': name,
                                  'color': color,
                                  'initial_value': initial_value})
-        if total_num_neurons > 1:
-            if len(shape) > 1:
-                self.graph.node(str(len(self.populations) - 1), name,
-                                style='filled, rounded',
-                                shape='box3d',  # Populations with multiple neurons are marked with an outline
-                                fillcolor=color,
-                                fontcolor=font_color)
-            else:
-                self.graph.node(str(len(self.populations)-1), name,
-                                style='filled, rounded',
-                                shape='rect',   # Populations with multiple neurons are marked with an outline
-                                fillcolor=color,
-                                fontcolor=font_color)
-        else:
-            self.graph.node(str(len(self.populations) - 1), name,
-                            style='filled',
-                            fillcolor=color,
-                            fontcolor=font_color)
+        # if total_num_neurons > 1:
+        #     if len(shape) > 1:
+        #         self.graph.node(str(len(self.populations) - 1), name,
+        #                         style='filled, rounded',
+        #                         shape='box3d',  # Populations with multiple neurons are marked with an outline
+        #                         fillcolor=color,
+        #                         fontcolor=font_color)
+        #     else:
+        #         self.graph.node(str(len(self.populations)-1), name,
+        #                         style='filled, rounded',
+        #                         shape='rect',   # Populations with multiple neurons are marked with an outline
+        #                         fillcolor=color,
+        #                         fontcolor=font_color)
+        # else:
+        #     self.graph.node(str(len(self.populations) - 1), name,
+        #                     style='filled',
+        #                     fillcolor=color,
+        #                     fontcolor=font_color)
 
         if neuron_type.params['spiking']:
             self.params['spiking'] = True
@@ -327,24 +327,24 @@ class Network:
             raise ValueError('Destination index is out of range')
         if (size > 1) and (self.populations[dest]['number'] != size):
             raise ValueError('Input vector must be either size 1 or same size as destination population')
-        font_color = set_text_color(color)
+        # font_color = set_text_color(color)
         self.inputs.append({'name': name,
                             'size': size,
                             'destination': dest,
                             'color': color})
-        if size == 1:
-            self.graph.node('In'+str(len(self.inputs) - 1), name,
-                            style='filled',
-                            shape='invhouse',
-                            fillcolor=color,
-                            fontcolor=font_color)
-        else:
-            self.graph.node('In' + str(len(self.inputs) - 1), name,
-                            style='filled,diagonals',
-                            shape='invhouse',
-                            fillcolor=color,
-                            fontcolor=font_color)
-        self.graph.edge('In'+str(len(self.inputs) - 1), str(dest))
+        # if size == 1:
+        #     self.graph.node('In'+str(len(self.inputs) - 1), name,
+        #                     style='filled',
+        #                     shape='invhouse',
+        #                     fillcolor=color,
+        #                     fontcolor=font_color)
+        # else:
+        #     self.graph.node('In' + str(len(self.inputs) - 1), name,
+        #                     style='filled,diagonals',
+        #                     shape='invhouse',
+        #                     fillcolor=color,
+        #                     fontcolor=font_color)
+        # self.graph.edge('In'+str(len(self.inputs) - 1), str(dest))
 
     def add_output(self, source: Any, name: str = 'Output', spiking: bool = False, color: str = 'white') -> None:
         """
@@ -377,39 +377,39 @@ class Network:
         if not valid_color(color):
             warnings.warn('Specified color is not in the standard SVG set. Defaulting to white.')
             color = 'white'
-        font_color = set_text_color(color)
+        # font_color = set_text_color(color)
         self.outputs.append({'name': name,
                              'source': source,
                              'spiking': spiking,
                              'color': color})
-        if spiking:
-            if self.populations[source]['number'] == 1:
-                self.graph.node('Out'+str(len(self.outputs) - 1), name,
-                                style='filled',
-                                shape='triangle',
-                                fillcolor=color,
-                                fontcolor=font_color)
-            else:
-                self.graph.node('Out'+str(len(self.outputs) - 1), name,
-                                style='filled,diagonals',
-                                shape='triangle',
-                                fillcolor=color,
-                                fontcolor=font_color)
-        else:
-            if self.populations[source]['number'] == 1:
-                self.graph.node('Out' + str(len(self.outputs) - 1), name,
-                                style='filled',
-                                shape='house',
-                                fillcolor=color,
-                                fontcolor=font_color)
-            else:
-                self.graph.node('Out' + str(len(self.outputs) - 1), name,
-                                style='filled,diagonals',
-                                shape='house',
-                                fillcolor=color,
-                                fontcolor=font_color)
-
-        self.graph.edge(str(source),'Out'+str(len(self.outputs)-1))
+        # if spiking:
+        #     if self.populations[source]['number'] == 1:
+        #         self.graph.node('Out'+str(len(self.outputs) - 1), name,
+        #                         style='filled',
+        #                         shape='triangle',
+        #                         fillcolor=color,
+        #                         fontcolor=font_color)
+        #     else:
+        #         self.graph.node('Out'+str(len(self.outputs) - 1), name,
+        #                         style='filled,diagonals',
+        #                         shape='triangle',
+        #                         fillcolor=color,
+        #                         fontcolor=font_color)
+        # else:
+        #     if self.populations[source]['number'] == 1:
+        #         self.graph.node('Out' + str(len(self.outputs) - 1), name,
+        #                         style='filled',
+        #                         shape='house',
+        #                         fillcolor=color,
+        #                         fontcolor=font_color)
+        #     else:
+        #         self.graph.node('Out' + str(len(self.outputs) - 1), name,
+        #                         style='filled,diagonals',
+        #                         shape='house',
+        #                         fillcolor=color,
+        #                         fontcolor=font_color)
+        #
+        # self.graph.edge(str(source),'Out'+str(len(self.outputs)-1))
 
     def add_connection(self, connection_type: Connection, source: Any,
                        destination: Any, name: str = None, view_label: bool = False) -> None:
@@ -475,8 +475,8 @@ class Network:
                 raise TypeError('Pattern connections are not supported for source populations of size 1')
             elif self.populations[source]['shape'] != self.populations[destination]['shape']:
                 raise TypeError('Pattern connections are not currently supported for populations of different shape')
-            style = 'vee'
-            direction = 'forward'
+            # style = 'vee'
+            # direction = 'forward'
             # 2d populations
             if len(self.populations[source]['shape']) > 1:
                 g_max = __kernel_connections_2d__(self.populations[source]['shape'],
@@ -508,28 +508,28 @@ class Network:
                                                                connection_type.params['transmissionDelay'])
                     self.connections[-1]['params']['transmissionDelay'] = transmit_delay
         elif connection_type.params['electrical']:
-            style = 'odiamond'
+            # style = 'odiamond'
             if connection_type.params['rectified'] is False:
-                direction = 'both'
+                # direction = 'both'
                 self.params['electrical'] = True
             else:
-                direction = 'forward'
+                # direction = 'forward'
                 self.params['electricalRectified'] = True
-        else:   # Chemical synapse
-            direction = 'forward'
-            if connection_type.params['relative_reversal_potential'] > 0:
-                style = 'invempty'
-            elif connection_type.params['relative_reversal_potential'] < 0:
-                style = 'dot'
-            else:
-                style = 'odot'
+        # else:   # Chemical synapse
+        #     direction = 'forward'
+        #     if connection_type.params['relative_reversal_potential'] > 0:
+        #         style = 'invempty'
+        #     elif connection_type.params['relative_reversal_potential'] < 0:
+        #         style = 'dot'
+        #     else:
+        #         style = 'odot'
 
-        if view_label:
-            self.graph.edge(str(source),
-                            str(destination), dir=direction, arrowhead=style, label=label, arrowtail=style)
-        else:
-            self.graph.edge(str(source),
-                            str(destination), dir=direction, arrowhead=style, arrowtail=style)
+        # if view_label:
+        #     self.graph.edge(str(source),
+        #                     str(destination), dir=direction, arrowhead=style, label=label, arrowtail=style)
+        # else:
+        #     self.graph.edge(str(source),
+        #                     str(destination), dir=direction, arrowhead=style, arrowtail=style)
 
         if connection_type.params['spiking']:
             self.params['spiking'] = True
@@ -602,21 +602,21 @@ class Network:
 
         return new_net
 
-    def render_graph(self, imgFormat: str = 'png', view: bool = False) -> None:
-        """
-        Render an image of the network in the form of a directed graph (DG) using graphviz.
-
-        :param imgFormat: File extension of the resulting image, default is 'png'.
-        :type imgFormat: str, optional
-        :param view: Boolean flag to view the image, default is 'False'.
-        :type view: bool, optional
-        :return: None
-        :rtype: N/A
-        """
-        if not isinstance(view,bool):
-            raise TypeError('View must be a boolean')
-        self.graph.format = imgFormat
-        self.graph.render(view=view,cleanup=True)
+    # def render_graph(self, imgFormat: str = 'png', view: bool = False) -> None:
+    #     """
+    #     Render an image of the network in the form of a directed graph (DG) using graphviz.
+    #
+    #     :param imgFormat: File extension of the resulting image, default is 'png'.
+    #     :type imgFormat: str, optional
+    #     :param view: Boolean flag to view the image, default is 'False'.
+    #     :type view: bool, optional
+    #     :return: None
+    #     :rtype: N/A
+    #     """
+    #     if not isinstance(view,bool):
+    #         raise TypeError('View must be a boolean')
+    #     self.graph.format = imgFormat
+    #     self.graph.render(view=view,cleanup=True)
 
     def compile(self, dt=0.01, backend='numpy', device='cpu', debug=False) -> Backend:
         if not isinstance(backend, str):
