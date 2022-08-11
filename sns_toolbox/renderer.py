@@ -81,6 +81,36 @@ def render(net: Network, view=True, save=False, filename=None, img_format='png')
                        fontcolor=color_font)
             graph.edge(str(source), 'Out' + str(i))
 
+        """Add the connections"""
+        for i in range(len(net.connections)):
+            conn = net.connections[i]
+            label = conn['name']
+            source = conn['source']
+            destination = conn['destination']
+            params = conn['params']
+            view_label = conn['view']
+            if params['pattern']:   # pattern connection
+                style = 'vee'
+                direction = 'forward'
+            elif params['electrical']:  # electrical synapese
+                style = 'odiamond'
+                if params['rectified']: # rectified
+                    direction = 'forward'
+                else:   # not rectified
+                    direction = 'both'
+            else:   # chemical synapse
+                direction = 'forward'
+                if params['relative_reversal_potential'] > 0:   # excitatory
+                    style = 'invempty'
+                elif params['relative_reversal_potential'] < 0: # inhibitory
+                    style = 'dot'
+                else:   # modulatory
+                    style = 'odot'
+            if view_label:
+                graph.edge(str(source), str(destination), dir=direction, arrowhead=style, label=label, arrowtail=style)
+            else:
+                graph.edge(str(source), str(destination), dir=direction, arrowhead=style, arrowtail=style)
+
         """Display and/or save the network graph"""
         graph.format = img_format
         if save:
