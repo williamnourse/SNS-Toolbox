@@ -11,6 +11,7 @@ from sns_toolbox.networks import Network
 from sns_toolbox.neurons import SpikingNeuron
 from sns_toolbox.connections import SpikingSynapse
 from sns_toolbox.plot_utilities import spike_raster_plot
+from sns_toolbox.renderer import render
 
 """Define our types"""
 neuron_type = SpikingNeuron()
@@ -41,7 +42,7 @@ net.add_output('D20', name='O20S', spiking=True)
 
 net.add_input('Source')
 
-# net.render_graph(view=True)
+render(net)
 
 """Simulate the network"""
 dt = 0.01

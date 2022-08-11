@@ -6,6 +6,7 @@ January 12, 2022
 from sns_toolbox.connections import NonSpikingPatternConnection
 from sns_toolbox.networks import Network
 from sns_toolbox.neurons import NonSpikingNeuron
+from sns_toolbox.renderer import render
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -74,7 +75,7 @@ connection_hpf = NonSpikingPatternConnection(g_max_kernel,del_e_kernel) # patter
 net.add_connection(connection_hpf,'Retina','Lamina',name='HPF') # connect the retina to the lamina
 net.add_output('Lamina',name='Lamina Output')  # add a vector output from the lamina
 
-net.render_graph(view=True) # view the network diagram
+render(net) # view the network diagram
 img_flat = img_flat*R/255.0 # scale all the intensities from 0-255 to 0-R
 
 """

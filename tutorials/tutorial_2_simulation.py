@@ -10,6 +10,7 @@ December 1st, 2021
 from sns_toolbox.neurons import NonSpikingNeuron
 from sns_toolbox.connections import NonSpikingSynapse
 from sns_toolbox.networks import Network
+from sns_toolbox.renderer import render
 
 # Import packages and modules for simulating the network
 import numpy as np
@@ -58,8 +59,7 @@ net.add_output('Dest2In', name='OutDest2In', color='grey')
 net.add_output('Dest3', name='OutDest3', color='grey')
 
 # View the graph of our network, to make sure everything is as we designed it
-# net.render_graph(view=True)
-
+render(net,view=True)
 """Prep the Simulation"""
 # Set simulation parameters
 dt = 0.01
