@@ -51,12 +51,12 @@ neuron_type = NonSpikingNeuron()    # generic neuron type
 net = Network(name='Visual Network')    # create an empty network
 
 # Retina
-net.add_population(neuron_type,shape,name='Retina') # add a 2d population the same size as the scaled image
+net.add_population(neuron_type,shape,name='Retina',R=R) # add a 2d population the same size as the scaled image
 net.add_input('Retina', size=flat_size,name='Image')    # add a vector input for the flattened scaled image
 net.add_output('Retina',name='Retina Output')  # add a vector output from the retina, scaled correctly
 
 # Lamina
-net.add_population(neuron_type,shape,name='Lamina')
+net.add_population(neuron_type,shape,name='Lamina',R=R)
 
 del_e_ex = 160.0    # excitatory reversal potential
 del_e_in = -80.0    # inhibitory reversal potential
@@ -71,7 +71,9 @@ g_max_kernel = np.array([[g_max_in, g_max_in, g_max_in],    # kernel matrix of s
 del_e_kernel = np.array([[del_e_in, del_e_in, del_e_in],    # kernel matrix of synaptic reversal potentials
                          [del_e_in, del_e_ex, del_e_in],
                          [del_e_in, del_e_in, del_e_in]])
-connection_hpf = NonSpikingPatternConnection(g_max_kernel,del_e_kernel) # pattern connection (acts as high pass filter)
+e_lo_kernel = np.zeros([3,3])
+e_hi_kernel = np.zeros([3,3]) + R
+connection_hpf = NonSpikingPatternConnection(g_max_kernel,del_e_kernel,e_lo_kernel,e_hi_kernel) # pattern connection (acts as high pass filter)
 net.add_connection(connection_hpf,'Retina','Lamina',name='HPF') # connect the retina to the lamina
 net.add_output('Lamina',name='Lamina Output')  # add a vector output from the lamina
 

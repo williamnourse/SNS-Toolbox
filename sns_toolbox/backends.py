@@ -276,7 +276,7 @@ class SNS_Sparse(Backend):
         i_app = torch.matmul(self.input_connectivity, x)  # Apply external current sources to their destinations
         i_app = i_app.to_sparse()
 
-        g_syn = torch.clamp(torch.minimum(self.g_max_non.to_dense() * ((self.V_last - self.e_lo.to_dense()) / (self.e_hi.to_dense() - self.e_lo.to_dense())), self.g_max_non.to_dense()),
+        g_syn = torch.clamp(torch.minimum(self.g_max_non.to_dense() * ((self.V_last - self.e_lo.to_dense()) / (self.e_hi - self.e_lo.to_dense())), self.g_max_non.to_dense()),
                             min=0)
         g_syn = g_syn.to_sparse()
 
@@ -447,7 +447,7 @@ class SNS_Iterative(Backend):
             self.c_gate = params['cGate']
             self.c_gate_last = params['cGateLast']
             self.c_gate_0 = params['cGate0']
-# TODO: Fix the iterative backend to use e_lo and e_hi
+
     def forward(self, x):
         self.V_last = np.copy(self.V)
         if self.spiking:
@@ -472,7 +472,7 @@ class SNS_Iterative(Backend):
                     else:
                         i_syn += neuron_src[3] * (self.V_last[neuron_src[0]] - self.V_last[nrn])
                 else:  # if chemical
-                    neuron_src[5] = np.maximum(0, np.minimum(neuron_src[3] * self.V_last[neuron_src[0]] / self.R,
+                    neuron_src[5] = np.maximum(0, np.minimum(neuron_src[3] * ((self.V_last[neuron_src[0]] - neuron_src[6]) / (neuron_src[7] - neuron_src[6])),
                                                              neuron_src[3]))
                     i_syn += neuron_src[5] * (neuron_src[4] - self.V_last[nrn])
             i_gated = 0

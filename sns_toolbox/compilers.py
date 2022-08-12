@@ -252,8 +252,6 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
         e_hi_val = None
         if network.connections[syn]['params']['electrical'] is False:  # electrical connection
             del_e_val = network.connections[syn]['params']['reversal_potential']
-            e_lo_val = network.connections[syn]['params']['e_lo']
-            e_hi_val = network.connections[syn]['params']['e_hi']
 
         if network.connections[syn]['params']['pattern']:  # pattern connection
             pop_size = len(pops_and_nrns[source_pop])
@@ -275,6 +273,8 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
                             spike_rows.append(dest)
                             spike_cols.append(source)
             else:
+                e_lo_val = network.connections[syn]['params']['e_lo']
+                e_hi_val = network.connections[syn]['params']['e_hi']
                 g_max_non[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = g_max
                 del_e[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = del_e_val
                 e_lo[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = e_lo_val
@@ -304,6 +304,8 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
                             spike_rows.append(dest)
                             spike_cols.append(source)
             else:  # nonspiking chemical synapse
+                e_lo_val = network.connections[syn]['params']['e_lo']
+                e_hi_val = network.connections[syn]['params']['e_hi']
                 for source in pops_and_nrns[source_pop]:
                     for dest in pops_and_nrns[dest_pop]:
                         g_max_non[dest][source] = g_max / len(pops_and_nrns[source_pop])
@@ -824,8 +826,6 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
         g_max_val = network.connections[syn]['params']['max_conductance']
         if network.connections[syn]['params']['electrical'] is False:  # Chemical connection
             del_e_val = network.connections[syn]['params']['reversal_potential']
-            e_lo_val = network.connections[syn]['params']['e_lo']
-            e_hi_val = network.connections[syn]['params']['e_hi']
 
         if network.connections[syn]['params']['pattern']:  # pattern connection
             pop_size = len(pops_and_nrns[source_pop])
@@ -852,6 +852,8 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
                             spike_rows.append(dest)
                             spike_cols.append(source)
             else:
+                e_lo_val = network.connections[syn]['params']['e_lo']
+                e_hi_val = network.connections[syn]['params']['e_hi']
                 g_max_non[dest_index:dest_index + pop_size,
                 source_index:source_index + pop_size] = torch.from_numpy(g_max_val)
                 del_e[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = torch.from_numpy(
@@ -885,6 +887,8 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
                             spike_rows.append(dest)
                             spike_cols.append(source)
             else:  # nonspiking chemical synapse
+                e_lo_val = network.connections[syn]['params']['e_lo']
+                e_hi_val = network.connections[syn]['params']['e_hi']
                 for source in pops_and_nrns[source_pop]:
                     for dest in pops_and_nrns[dest_pop]:
                         g_max_non[dest][source] = g_max_val / len(pops_and_nrns[source_pop])
@@ -1465,8 +1469,6 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
         g_max_val = network.connections[syn]['params']['max_conductance']
         if network.connections[syn]['params']['electrical'] is False:  # chemical connection
             del_e_val = network.connections[syn]['params']['reversal_potential']
-            e_lo_val = network.connections[syn]['params']['e_lo']
-            e_hi_val = network.connections[syn]['params']['e_hi']
 
         if network.connections[syn]['params']['pattern']:  # pattern connection
             pop_size = len(pops_and_nrns[source_pop])
@@ -1503,6 +1505,9 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
                             spike_rows.append(dest)
                             spike_cols.append(source)
             else:
+                e_lo_val = network.connections[syn]['params']['e_lo']
+                e_hi_val = network.connections[syn]['params']['e_hi']
+
                 g_max_non = g_max_non.to_dense()
                 g_max_non[dest_index:dest_index + pop_size,
                 source_index:source_index + pop_size] = torch.from_numpy(g_max_val)
@@ -1559,6 +1564,8 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
                             spike_rows.append(dest)
                             spike_cols.append(source)
             else:  # non-spiking chemical synapse
+                e_lo_val = network.connections[syn]['params']['e_lo']
+                e_hi_val = network.connections[syn]['params']['e_hi']
                 for source in pops_and_nrns[source_pop]:
                     for dest in pops_and_nrns[dest_pop]:
                         g_max_non = g_max_non.to_dense()
@@ -1864,7 +1871,7 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
     num_connections = network.get_num_connections()
     num_inputs = network.get_num_inputs()
     num_outputs = network.get_num_outputs()
-    R = network.params['R']
+    # R = network.params['R']
     if debug:
         print('Spiking:')
         print(spiking)
@@ -1884,8 +1891,8 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
         print(num_inputs)
         print('Number of Outputs:')
         print(num_outputs)
-        print('Network Voltage Range (mV):')
-        print(R)
+        # print('Network Voltage Range (mV):')
+        # print(R)
 
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -2086,13 +2093,18 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
                             incoming_synapses[dest + dest_index].append(
                                 [source + source_index, True, False, g_syn, rev, 0, time_factor_syn])
             else:
+                e_lo_val = network.connections[syn]['params']['e_lo']
+                e_hi_val = network.connections[syn]['params']['e_hi']
                 for dest in range(pop_size):
                     for source in range(pop_size):
                         g_syn = g_max_val[dest, source]
                         rev = del_e_val[dest, source]
 
+                        e_hi = e_hi_val[dest, source]
+                        e_lo = e_lo_val[dest, source]
+
                         incoming_synapses[dest + dest_index].append(
-                            [source + source_index, False, False, g_syn, rev, 0])
+                            [source + source_index, False, False, g_syn, rev, 0, e_lo, e_hi])
         elif network.connections[syn]['params']['electrical']:  # electrical connection
             for dest in pops_and_nrns[dest_pop]:
                 for source in pops_and_nrns[source_pop]:
@@ -2118,10 +2130,13 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
                         else:
                             incoming_synapses[dest].append([source, True, False, g_syn, del_e_val, 0, dt / tau_s])
             else:
+                e_lo_val = network.connections[syn]['params']['e_lo']
+                e_hi_val = network.connections[syn]['params']['e_hi']
                 for dest in pops_and_nrns[dest_pop]:
                     for source in pops_and_nrns[source_pop]:
                         g_syn = g_max_val / len(pops_and_nrns[source_pop])
-                        incoming_synapses[dest].append([source, False, False, g_syn, del_e_val, 0])
+
+                        incoming_synapses[dest].append([source, False, False, g_syn, del_e_val, 0, e_lo_val, e_hi_val])
 
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -2203,7 +2218,7 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
             'numConn': num_connections,
             'numInputs': num_inputs,
             'numOutputs': num_outputs,
-            'r': R,
+            # 'r': R,
             'outConnVolt': output_voltage_connectivity,
             'incomingSynapses': incoming_synapses}
     if spiking:

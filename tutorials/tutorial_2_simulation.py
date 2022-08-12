@@ -26,7 +26,7 @@ synapse_inhibitory = NonSpikingSynapse(max_conductance=1.0, reversal_potential=-
 synapse_modulatory = NonSpikingSynapse(max_conductance=1.0, reversal_potential=0.0)
 
 # Create a network
-net = Network(name='Tutorial 2 Network',R=20.0)
+net = Network(name='Tutorial 2 Network')
 
 # Make a neuron to receive external input
 net.add_neuron(neuron_type, name='SourceNrn', color='black')

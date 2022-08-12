@@ -32,22 +32,20 @@ class Network:
 
     :param name: Name for this network, defaults to 'Network".
     :type name: str, optional
-    :param R: Range of activity for the network, defaults to 20.0. Units are millivolts (mV).
-    :type R: Number, optional
     """
-    def __init__(self, name: str = 'Network', R: float = 20.0) -> None:
+    def __init__(self, name: str = 'Network') -> None:
         self.params: Dict[str, Any] = {}
         if isinstance(name,str):
             self.params['name'] = name
         else:
             raise TypeError('Name must be a string')
-        if isinstance(R,Number):
-            if R > 0:
-                self.params['R'] = R
-            else:
-                raise ValueError('R must be > 0')
-        else:
-            raise TypeError('R must be a number')
+        # if isinstance(R,Number):
+        #     if R > 0:
+        #         self.params['R'] = R
+        #     else:
+        #         raise ValueError('R must be > 0')
+        # else:
+        #     raise TypeError('R must be a number')
         self.inputs = []
         # self.inputConns = []
         self.populations = []
@@ -201,7 +199,7 @@ class Network:
     --------------------------------------------------------------------------------------------------------------------
     """
 
-    def add_population(self, neuron_type: Neuron, shape, name: str = None, color=None, initial_value=None) -> None:
+    def add_population(self, neuron_type: Neuron, shape, name: str = None, color=None, initial_value=None, R=20.0) -> None:
         """
         Add a neural population to the network.
 
@@ -241,7 +239,7 @@ class Network:
                 if neuron_type is SpikingNeuron:
                     initial_value = np.linspace(rest,neuron_type.params['threshold_initial_value'],num=total_num_neurons)
                 else:
-                    initial_value = np.linspace(rest,self.params['R'],num=total_num_neurons)
+                    initial_value = np.linspace(rest,R,num=total_num_neurons)
             else:
                 initial_value = rest
         self.populations.append({'type': copy.deepcopy(neuron_type),
@@ -486,12 +484,6 @@ class Network:
                 del_e = __kernel_connections_2d__(self.populations[source]['shape'],
                                                   connection_type.params['reversal_potential'])
                 self.connections[-1]['params']['reversal_potential'] = del_e
-                e_hi = __kernel_connections_2d__(self.populations[source]['shape'],
-                                                 connection_type.params['e_hi'])
-                self.connections[-1]['params']['e_hi'] = e_hi
-                e_lo = __kernel_connections_2d__(self.populations[source]['shape'],
-                                                 connection_type.params['e_lo'])
-                self.connections[-1]['params']['e_lo'] = e_lo
                 if connection_type.params['spiking']:
                     time_constant = __kernel_connections_2d__(self.populations[source]['shape'],
                                                               connection_type.params['synapticTimeConstant'])
@@ -499,6 +491,13 @@ class Network:
                     transmit_delay = __kernel_connections_2d__(self.populations[source]['shape'],
                                                                connection_type.params['transmissionDelay'])
                     self.connections[-1]['params']['transmissionDelay'] = transmit_delay
+                else:
+                    e_hi = __kernel_connections_2d__(self.populations[source]['shape'],
+                                                     connection_type.params['e_hi'], fill_value=self.populations[source]['type'].params['resting_potential']+1)
+                    self.connections[-1]['params']['e_hi'] = e_hi
+                    e_lo = __kernel_connections_2d__(self.populations[source]['shape'],
+                                                     connection_type.params['e_lo'], fill_value=self.populations[source]['type'].params['resting_potential'])
+                    self.connections[-1]['params']['e_lo'] = e_lo
             # 1d populations
             else:
                 g_max = __kernel_connections_1d__(self.populations[source]['number'],
@@ -507,12 +506,7 @@ class Network:
                 del_e = __kernel_connections_1d__(self.populations[source]['number'],
                                                   connection_type.params['reversal_potential'])
                 self.connections[-1]['params']['reversal_potential'] = del_e
-                e_hi = __kernel_connections_1d__(self.populations[source]['shape'],
-                                                 connection_type.params['e_hi'])
-                self.connections[-1]['params']['e_hi'] = e_hi
-                e_lo = __kernel_connections_1d__(self.populations[source]['shape'],
-                                                 connection_type.params['e_lo'])
-                self.connections[-1]['params']['e_lo'] = e_lo
+
                 if connection_type.params['spiking']:
                     time_constant = __kernel_connections_1d__(self.populations[source]['number'],
                                                               connection_type.params['synapticTimeConstant'])
@@ -520,6 +514,13 @@ class Network:
                     transmit_delay = __kernel_connections_1d__(self.populations[source]['number'],
                                                                connection_type.params['transmissionDelay'])
                     self.connections[-1]['params']['transmissionDelay'] = transmit_delay
+                else:
+                    e_hi = __kernel_connections_1d__(self.populations[source]['shape'],
+                                                     connection_type.params['e_hi'], fill_value=self.populations[source]['type'].params['resting_potential']+1)
+                    self.connections[-1]['params']['e_hi'] = e_hi
+                    e_lo = __kernel_connections_1d__(self.populations[source]['shape'],
+                                                     connection_type.params['e_lo'], fill_value=self.populations[source]['type'].params['resting_potential'])
+                    self.connections[-1]['params']['e_lo'] = e_lo
         elif connection_type.params['electrical']:
             # style = 'odiamond'
             if connection_type.params['rectified'] is False:
@@ -528,21 +529,7 @@ class Network:
             else:
                 # direction = 'forward'
                 self.params['electricalRectified'] = True
-        # else:   # Chemical synapse
-        #     direction = 'forward'
-        #     if connection_type.params['reversal_potential'] > 0:
-        #         style = 'invempty'
-        #     elif connection_type.params['reversal_potential'] < 0:
-        #         style = 'dot'
-        #     else:
-        #         style = 'odot'
 
-        # if view_label:
-        #     self.graph.edge(str(source),
-        #                     str(destination), dir=direction, arrowhead=style, label=label, arrowtail=style)
-        # else:
-        #     self.graph.edge(str(source),
-        #                     str(destination), dir=direction, arrowhead=style, arrowtail=style)
 
         if connection_type.params['spiking']:
             self.params['spiking'] = True
@@ -657,7 +644,7 @@ class Network:
 HELPER FUNCTIONS
 """
 
-def __kernel_connections_1d__(pop_size,kernel):
+def __kernel_connections_1d__(pop_size,kernel,fill_value=0.0):
     """
     Generate a connection matrix from a kernel vector and population size.
 
@@ -670,14 +657,14 @@ def __kernel_connections_1d__(pop_size,kernel):
     """
     kernel_length = len(kernel)
     pad_amt = int((kernel_length-1)/2)
-    connection_matrix = np.zeros([pop_size,pop_size])
+    connection_matrix = np.zeros([pop_size,pop_size])+fill_value
     for row in range(pop_size):
         padded = np.zeros(pop_size + 2 * pad_amt)
         padded[row:row+kernel_length] = kernel
         connection_matrix[row,:] = padded[pad_amt:-pad_amt]
     return connection_matrix
 
-def __kernel_connections_2d__(pop_shape,kernel):
+def __kernel_connections_2d__(pop_shape,kernel,fill_value=0.0):
     """
     Generate a connection matrix from a kernel matrix and population shape.
 
@@ -696,8 +683,8 @@ def __kernel_connections_2d__(pop_shape,kernel):
     for dim in range(num_kernel_dims):
         pad_amt = int((kernel.shape[dim] - 1) / 2)
         pad_dims.append([pad_amt,pad_amt])
-    source_matrix = np.zeros(pop_shape)
-    connection_matrix = np.zeros([pop_size,pop_size])
+    source_matrix = np.zeros(pop_shape)+fill_value
+    connection_matrix = np.zeros([pop_size,pop_size])+fill_value
     index = 0
     for row in range(pop_shape[0]):
         for col in range(pop_shape[1]):
@@ -735,7 +722,7 @@ class AdditionNetwork(Network):
     :param name:        Name of this network, default is 'Add'.
     :type name:         str, optional
     """
-    def __init__(self,gains,add_del_e=100,sub_del_e=-40,neuron_type=NonSpikingNeuron(),name='Add',**kwargs):
+    def __init__(self,gains,add_del_e=100,sub_del_e=-40,neuron_type=NonSpikingNeuron(),name='Add', R=20.0, **kwargs):
         super().__init__(name=name,**kwargs)
         num_inputs = len(gains)
         self.add_neuron(neuron_type=neuron_type, name=name + 'Sum')
@@ -743,9 +730,9 @@ class AdditionNetwork(Network):
             self.add_neuron(neuron_type, name=name + 'Src' + str(i))
             gain = gains[i]
             if gain > 0:
-                conn = NonSpikingTransmissionSynapse(gain=gain, relative_reversal_potential=add_del_e, R=self.params['R'])
+                conn = NonSpikingTransmissionSynapse(gain=gain, reversal_potential=add_del_e, e_lo=neuron_type.params['resting_potential'], e_hi=neuron_type.params['resting_potential']+R)
             else:
-                conn = NonSpikingTransmissionSynapse(gain=gain, relative_reversal_potential=sub_del_e, R=self.params['R'])
+                conn = NonSpikingTransmissionSynapse(gain=gain, reversal_potential=sub_del_e, e_lo=neuron_type.params['resting_potential'], e_hi=neuron_type.params['resting_potential']+R)
             self.add_connection(conn, i + 1, name + 'Sum')
 
 class MultiplicationNetwork(Network):
@@ -758,15 +745,15 @@ class MultiplicationNetwork(Network):
     :param name:        Name of this network, default is 'Multiply'.
     :type name:         str, optional
     """
-    def __init__(self,neuron_type=NonSpikingNeuron(),name='Multiply',**kwargs):
+    def __init__(self,neuron_type=NonSpikingNeuron(),name='Multiply', R=20.0,**kwargs):
         super().__init__(name=name,**kwargs)
         self.add_neuron(neuron_type, name=name + '0')
         self.add_neuron(neuron_type, name=name + '1')
         self.add_neuron(neuron_type, name=name + 'Inter')
         self.add_neuron(neuron_type, name=name + 'Result')
 
-        transmit = NonSpikingTransmissionSynapse(gain=1.0,R=self.params['R'])
-        conductance = -self.params['R']/-1.0
+        transmit = NonSpikingTransmissionSynapse(gain=1.0,R=R)
+        conductance = -R/-1.0
         modulate_special = NonSpikingSynapse(max_conductance=conductance, reversal_potential=-1.0)
 
         self.add_connection(transmit, name + '0', name + 'Result')
@@ -785,13 +772,13 @@ class DivisionNetwork(Network):
     :param name:        Name of this network, default is 'Divide'.
     :type name:         str, optional
     """
-    def __init__(self,gain,ratio,name='Divide',neuron_type=NonSpikingNeuron(),**kwargs):
+    def __init__(self,gain,ratio,name='Divide',neuron_type=NonSpikingNeuron(),R=20.0,**kwargs):
         super().__init__(name=name,**kwargs)
         self.add_neuron(neuron_type, name=name + 'Transmit')
         self.add_neuron(neuron_type, name=name + 'Modulate')
         self.add_neuron(neuron_type, name=name + 'Results')
 
-        transmission = NonSpikingTransmissionSynapse(gain,R=self.params['R'])
+        transmission = NonSpikingTransmissionSynapse(gain,R=R)
         self.add_connection(transmission, 0, 2)
 
         modulation = NonSpikingModulationSynapse(ratio)
@@ -810,13 +797,13 @@ class DifferentiatorNetwork(Network):
     :param tau_fast:    Time constant of the faster neurons, default is 1.0. Units are milliseconds (ms).
     :type tau_fast:     Number, optional
     """
-    def __init__(self,slew_rate=1.0,name='Differentiate',tau_fast=1.0,**kwargs):
+    def __init__(self,slew_rate=1.0,name='Differentiate',tau_fast=1.0, R=20.0,**kwargs):
         super().__init__(name=name,**kwargs)
         fast_neuron_type = NonSpikingNeuron(membrane_capacitance=tau_fast,membrane_conductance=1.0)
-        tau_slow = tau_fast + self.params['R']/slew_rate
+        tau_slow = tau_fast + R/slew_rate
         slow_neuron_type = NonSpikingNeuron(membrane_capacitance=tau_slow,membrane_conductance=1.0)
-        add_synapse = NonSpikingTransmissionSynapse(gain=1.0,R=self.params['R'],relative_reversal_potential=40.0)
-        sub_synapse = NonSpikingTransmissionSynapse(gain=-1.0,R=self.params['R'],relative_reversal_potential=-40.0)
+        add_synapse = NonSpikingTransmissionSynapse(gain=1.0,R=R,reversal_potential=40.0)
+        sub_synapse = NonSpikingTransmissionSynapse(gain=-1.0,R=R,reversal_potential=-40.0)
 
         self.add_neuron(neuron_type=fast_neuron_type,name='Uin')
         self.add_neuron(neuron_type=fast_neuron_type,name='Ufast')
@@ -841,16 +828,16 @@ class IntegratorNetwork(Network):
     :param name:                        Name of this network, default is 'Integrator'.
     :type name:                         str, optional
     """
-    def __init__(self, integration_gain=0.1, relative_reversal_potential=-40.0, name='Integrator', **kwargs):
+    def __init__(self, integration_gain=0.1, relative_reversal_potential=-40.0, R=20.0, name='Integrator', **kwargs):
         super().__init__(name=name,**kwargs)
         membrane_capacitance = 1/(2 * integration_gain)
         if relative_reversal_potential < 0.0:
-            synaptic_conductance = -self.params['R']/relative_reversal_potential
+            synaptic_conductance = -R/relative_reversal_potential
         else:
             raise ValueError('Relative reversal potential (Delta E) must be less than zero for an integrator')
 
         neuron_type = NonSpikingNeuron(membrane_capacitance=membrane_capacitance,membrane_conductance=1.0,
-                                       bias=self.params['R'])
+                                       bias=R)
         synapse_type = NonSpikingSynapse(max_conductance=synaptic_conductance,
                                          reversal_potential=relative_reversal_potential)
 
