@@ -23,7 +23,7 @@ class Backend:
     def __init__(self, params: Dict) -> None:
         self.set_params(params)
 
-    def forward(self, x):
+    def forward(self, x=None):
         raise NotImplementedError
 
     def set_params(self, params: Dict) -> None:
@@ -104,7 +104,7 @@ class Backend:
             self.c_gate_last = params['cGateLast']
             self.c_gate_0 = params['cGate0']
 
-    def __call__(self, x):
+    def __call__(self, x=None):
         return self.forward(x)
 
     def reset(self):
@@ -114,9 +114,12 @@ class SNS_Numpy(Backend):
     def __init__(self, params: Dict) -> None:
         super().__init__(params)
 
-    def forward(self, x):
+    def forward(self, x=None):
         self.V_last = np.copy(self.V)
-        i_app = np.matmul(self.input_connectivity, x)  # Apply external current sources to their destinations
+        if x is None:
+            i_app = 0
+        else:
+            i_app = np.matmul(self.input_connectivity, x)  # Apply external current sources to their destinations
         g_syn = np.maximum(0, np.minimum(self.g_max_non * ((self.V_last - self.e_lo) / (self.e_hi - self.e_lo)), self.g_max_non))
         if self.spiking:
             self.theta_last = np.copy(self.theta)
@@ -196,9 +199,12 @@ class SNS_Torch(Backend):
     def __init__(self, params: Dict) -> None:
         super().__init__(params)
 
-    def forward(self, x):
+    def forward(self, x=None):
         self.V_last = torch.clone(self.V)
-        i_app = torch.matmul(self.input_connectivity, x)  # Apply external current sources to their destinations
+        if x is None:
+            i_app = 0
+        else:
+            i_app = torch.matmul(self.input_connectivity, x)  # Apply external current sources to their destinations
         g_syn = torch.clamp(torch.minimum(self.g_max_non * ((self.V_last - self.e_lo) / (self.e_hi - self.e_lo)), self.g_max_non),min=0)
         if self.spiking:
             self.theta_last = torch.clone(self.theta)
@@ -270,11 +276,14 @@ class SNS_Sparse(Backend):
     def __init__(self, params: Dict) -> None:
         super().__init__(params)
 
-    def forward(self, x):
+    def forward(self, x=None):
         self.V_last = torch.clone(self.V)
 
-        i_app = torch.matmul(self.input_connectivity, x)  # Apply external current sources to their destinations
-        i_app = i_app.to_sparse()
+        if x is None:
+            i_app = 0
+        else:
+            i_app = torch.matmul(self.input_connectivity, x)  # Apply external current sources to their destinations
+            i_app = i_app.to_sparse()
 
         g_syn = torch.clamp(torch.minimum(self.g_max_non.to_dense() * ((self.V_last - self.e_lo.to_dense()) / (self.e_hi - self.e_lo.to_dense())), self.g_max_non.to_dense()),
                             min=0)
@@ -448,7 +457,7 @@ class SNS_Iterative(Backend):
             self.c_gate_last = params['cGateLast']
             self.c_gate_0 = params['cGate0']
 
-    def forward(self, x):
+    def forward(self, x=None):
         self.V_last = np.copy(self.V)
         if self.spiking:
             self.theta_last = np.copy(self.theta)
@@ -456,7 +465,10 @@ class SNS_Iterative(Backend):
             self.b_gate_last = np.copy(self.b_gate)
             self.c_gate_last = np.copy(self.c_gate)
 
-        i_app = np.matmul(self.input_connectivity, x)  # Apply external current sources to their destinations
+        if x is None:
+            i_app = np.zeros(self.num_neurons)
+        else:
+            i_app = np.matmul(self.input_connectivity, x)  # Apply external current sources to their destinations
 
         for nrn in range(self.num_neurons):
             i_syn = 0
