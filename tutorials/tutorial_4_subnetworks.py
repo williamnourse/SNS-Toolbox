@@ -13,19 +13,33 @@ from sns_toolbox.renderer import render
 
 # Let's define a custom functional subnetwork 'preset', in this case a network which takes a weighted sum of inputs
 
-class AdditionNetwork(Network): # inherit from the general 'Network' class
-    def __init__(self,gains,add_del_e=100,sub_del_e=-40,neuron_type=NonSpikingNeuron(),name='Add',**kwargs):
-        super().__init__(**kwargs)  # This part is important, it initializes the base class first with its keywords
+class AdditionNetwork(Network):
+    """
+    Network which performs addition or subtraction of multiple inputs. Currently only supports non-spiking neurons.
+
+    :param gains:       List of addition or subtraction weights.
+    :type gains:        list, np.ndarray, or torch.tensor
+    :param add_del_e:   Reversal potential of addition synapses, default is 100. Unit is millivolts (mV).
+    :type add_del_e:    Number, optional
+    :param sub_del_e:   Reversal potential of subtraction synapses, default is -40. Unit is millivolts (mV).
+    :type sub_del_e:    Number, optional
+    :param neuron_type: Neuron preset to use, default is sns_toolbox.design.neurons.NonSpikingNeuron.
+    :type neuron_type:  sns_toolbox.design.neurons.NonSpikingNeuron, optional
+    :param name:        Name of this network, default is 'Add'.
+    :type name:         str, optional
+    """
+    def __init__(self,gains,add_del_e=100,sub_del_e=-40,neuron_type=NonSpikingNeuron(),name='Add', R=20.0, **kwargs):
+        super().__init__(name=name,**kwargs)
         num_inputs = len(gains)
-        self.add_neuron(neuron_type=neuron_type, name=name + 'Sum')  # Add a neuron which represents the sum
+        self.add_neuron(neuron_type=neuron_type, name=name + 'Sum')
         for i in range(num_inputs):
-            self.add_neuron(neuron_type, name=name + 'Src' + str(i))  # Add each of the input neurons
+            self.add_neuron(neuron_type, name=name + 'Src' + str(i))
             gain = gains[i]
-            if gain > 0:    # create connections differently depending on whether the integration_gain is positive or negative
-                conn = NonSpikingTransmissionSynapse(gain=gain, relative_reversal_potential=add_del_e, R=self.params['R'])
+            if gain > 0:
+                conn = NonSpikingTransmissionSynapse(gain=gain, reversal_potential=add_del_e, e_lo=neuron_type.params['resting_potential'], e_hi=neuron_type.params['resting_potential']+R)
             else:
-                conn = NonSpikingTransmissionSynapse(gain=gain, relative_reversal_potential=sub_del_e, R=self.params['R'])
-            self.add_connection(conn, i + 1, name + 'Sum')    # add the synapse to the network
+                conn = NonSpikingTransmissionSynapse(gain=gain, reversal_potential=sub_del_e, e_lo=neuron_type.params['resting_potential'], e_hi=neuron_type.params['resting_potential']+R)
+            self.add_connection(conn, i + 1, name + 'Sum')
 
 
 # Now let's import our network into another one, as we would normally use this functionality

@@ -19,14 +19,14 @@ import matplotlib.pyplot as plt
 """Design the network"""
 # Define a non-spiking neuron and excitatory/inhibitory connections as in tutorial_1
 neuron_type = NonSpikingNeuron()
-synapse_excitatory = NonSpikingSynapse(max_conductance=1.0, relative_reversal_potential=50.0)
-synapse_inhibitory = NonSpikingSynapse(max_conductance=1.0, relative_reversal_potential=-40.0)
+synapse_excitatory = NonSpikingSynapse(max_conductance=1.0, reversal_potential=50.0)
+synapse_inhibitory = NonSpikingSynapse(max_conductance=1.0, reversal_potential=-40.0)
 
 # Define a modulatory synapse (relative reversal potential is 0)
-synapse_modulatory = NonSpikingSynapse(max_conductance=1.0, relative_reversal_potential=0.0)
+synapse_modulatory = NonSpikingSynapse(max_conductance=1.0, reversal_potential=0.0)
 
 # Create a network
-net = Network(name='Tutorial 2 Network',R=20.0)
+net = Network(name='Tutorial 2 Network')
 
 # Make a neuron to receive external input
 net.add_neuron(neuron_type, name='SourceNrn', color='black')

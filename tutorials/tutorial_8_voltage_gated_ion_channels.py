@@ -184,7 +184,7 @@ def cpg(delta=-0.01):
     gSyn = (-delta - delta * Gna * minf(delta) * hinf(delta) + Gna * minf(delta) * hinf(delta) * delEna) / (
                 delta - delEsyn)
 
-    synapse_cpg = NonSpikingSynapse(max_conductance=gSyn, relative_reversal_potential=delEsyn)
+    synapse_cpg = NonSpikingSynapse(max_conductance=gSyn, reversal_potential=delEsyn)
 
     net = Network()
     net.add_neuron(neuron_cpg, name='HC0', color='blue')

@@ -44,6 +44,8 @@ class Backend:
         self.i_b = params['iB']
         self.g_max_non = params['gMaxNon']
         self.del_e = params['delE']
+        self.e_lo = params['eLo']
+        self.e_hi = params['eHi']
         self.time_factor_membrane = params['timeFactorMembrane']
         self.input_connectivity = params['inputConn']
         self.output_voltage_connectivity = params['outConnVolt']
@@ -52,7 +54,7 @@ class Backend:
         self.num_connections = params['numConn']
         self.num_inputs = params['numInputs']
         self.num_outputs = params['numOutputs']
-        self.R = params['r']
+        # self.R = params['r']
         if self.spiking:
             self.spikes = params['spikes']
             self.theta_0 = params['theta0']
@@ -115,7 +117,7 @@ class SNS_Numpy(Backend):
     def forward(self, x):
         self.V_last = np.copy(self.V)
         i_app = np.matmul(self.input_connectivity, x)  # Apply external current sources to their destinations
-        g_syn = np.maximum(0, np.minimum(self.g_max_non * self.V_last / self.R, self.g_max_non))
+        g_syn = np.maximum(0, np.minimum(self.g_max_non * ((self.V_last - self.e_lo) / (self.e_hi - self.e_lo)), self.g_max_non))
         if self.spiking:
             self.theta_last = np.copy(self.theta)
             self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
@@ -197,7 +199,7 @@ class SNS_Torch(Backend):
     def forward(self, x):
         self.V_last = torch.clone(self.V)
         i_app = torch.matmul(self.input_connectivity, x)  # Apply external current sources to their destinations
-        g_syn = torch.clamp(torch.minimum(self.g_max_non * self.V_last / self.R, self.g_max_non),min=0)
+        g_syn = torch.clamp(torch.minimum(self.g_max_non * ((self.V_last - self.e_lo) / (self.e_hi - self.e_lo)), self.g_max_non),min=0)
         if self.spiking:
             self.theta_last = torch.clone(self.theta)
             self.g_spike = self.g_spike * (1 - self.time_factor_synapse)
@@ -274,7 +276,7 @@ class SNS_Sparse(Backend):
         i_app = torch.matmul(self.input_connectivity, x)  # Apply external current sources to their destinations
         i_app = i_app.to_sparse()
 
-        g_syn = torch.clamp(torch.minimum(self.g_max_non.to_dense() * self.V_last / self.R, self.g_max_non.to_dense()),
+        g_syn = torch.clamp(torch.minimum(self.g_max_non.to_dense() * ((self.V_last - self.e_lo.to_dense()) / (self.e_hi - self.e_lo.to_dense())), self.g_max_non.to_dense()),
                             min=0)
         g_syn = g_syn.to_sparse()
 
@@ -405,7 +407,7 @@ class SNS_Iterative(Backend):
         self.num_connections = params['numConn']
         self.num_inputs = params['numInputs']
         self.num_outputs = params['numOutputs']
-        self.R = params['r']
+        # self.R = params['r']
         self.incoming_synapses = params['incomingSynapses']
         if self.spiking:
             self.spikes = params['spikes']
@@ -470,7 +472,7 @@ class SNS_Iterative(Backend):
                     else:
                         i_syn += neuron_src[3] * (self.V_last[neuron_src[0]] - self.V_last[nrn])
                 else:  # if chemical
-                    neuron_src[5] = np.maximum(0, np.minimum(neuron_src[3] * self.V_last[neuron_src[0]] / self.R,
+                    neuron_src[5] = np.maximum(0, np.minimum(neuron_src[3] * ((self.V_last[neuron_src[0]] - neuron_src[6]) / (neuron_src[7] - neuron_src[6])),
                                                              neuron_src[3]))
                     i_syn += neuron_src[5] * (neuron_src[4] - self.V_last[nrn])
             i_gated = 0
