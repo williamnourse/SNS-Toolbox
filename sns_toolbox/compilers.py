@@ -33,7 +33,7 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
     num_connections = network.get_num_connections()
     num_inputs = network.get_num_inputs()
     num_outputs = network.get_num_outputs()
-    R = network.params['R']
+    # R = network.params['R']
     if debug:
         print('Spiking:')
         print(spiking)
@@ -53,8 +53,8 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
         print(num_inputs)
         print('Number of Outputs:')
         print(num_outputs)
-        print('Network Voltage Range (mV):')
-        print(R)
+        # print('Network Voltage Range (mV):')
+        # print(R)
 
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -82,6 +82,8 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
 
     g_max_non = np.zeros([num_neurons, num_neurons])
     del_e = np.zeros([num_neurons, num_neurons])
+    e_lo = np.zeros([num_neurons, num_neurons])
+    e_hi = np.ones([num_neurons, num_neurons])
     if spiking:
         g_max_spike = np.zeros([num_neurons, num_neurons])
         g_spike = np.zeros([num_neurons, num_neurons])
@@ -246,8 +248,12 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
         dest_pop = network.connections[syn]['destination']
         g_max = network.connections[syn]['params']['max_conductance']
         del_e_val = None
+        e_lo_val = None
+        e_hi_val = None
         if network.connections[syn]['params']['electrical'] is False:  # electrical connection
             del_e_val = network.connections[syn]['params']['reversal_potential']
+            e_lo_val = network.connections[syn]['params']['e_lo']
+            e_hi_val = network.connections[syn]['params']['e_hi']
 
         if network.connections[syn]['params']['pattern']:  # pattern connection
             pop_size = len(pops_and_nrns[source_pop])
@@ -271,6 +277,8 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
             else:
                 g_max_non[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = g_max
                 del_e[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = del_e_val
+                e_lo[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = e_lo_val
+                e_hi[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = e_hi_val
         elif network.connections[syn]['params']['electrical']:  # electrical connection
             for source in pops_and_nrns[source_pop]:
                 for dest in pops_and_nrns[dest_pop]:
@@ -300,6 +308,8 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
                     for dest in pops_and_nrns[dest_pop]:
                         g_max_non[dest][source] = g_max / len(pops_and_nrns[source_pop])
                         del_e[dest][source] = del_e_val
+                        e_lo[dest][source] = e_lo_val
+                        e_hi[dest][source] = e_hi_val
 
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -389,6 +399,8 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
               'iB': i_b,
               'gMaxNon': g_max_non,
               'delE': del_e,
+              'eLo': e_lo,
+              'eHi': e_hi,
               'timeFactorMembrane': time_factor_membrane,
               'inputConn': input_connectivity,
               'numPop': num_populations,
@@ -396,7 +408,7 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
               'numConn': num_connections,
               'numInputs': num_inputs,
               'numOutputs': num_outputs,
-              'r': R,
+              # 'r': R,
               'outConnVolt': output_voltage_connectivity}
     if spiking:
         params['spikes'] = spikes
@@ -476,6 +488,10 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
             print(g_max_spike)
         print('del_e:')
         print(del_e)
+        print('e_lo:')
+        print(e_lo)
+        print('e_hi:')
+        print(e_hi)
         if electrical:
             print('Gelectrical:')
             print(g_electrical)
@@ -592,7 +608,7 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
     num_connections = network.get_num_connections()
     num_inputs = network.get_num_inputs()
     num_outputs = network.get_num_outputs()
-    R = network.params['R']
+    # R = network.params['R']
     if debug:
         print('Spiking:')
         print(spiking)
@@ -641,6 +657,8 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
 
     g_max_non = torch.zeros([num_neurons, num_neurons], device=device)
     del_e = torch.zeros([num_neurons, num_neurons], device=device)
+    e_lo = torch.zeros([num_neurons, num_neurons], device=device)
+    e_hi = torch.ones([num_neurons, num_neurons], device=device)
     if spiking:
         g_max_spike = torch.zeros([num_neurons, num_neurons], device=device)
         g_spike = torch.zeros([num_neurons, num_neurons], device=device)
@@ -806,6 +824,8 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
         g_max_val = network.connections[syn]['params']['max_conductance']
         if network.connections[syn]['params']['electrical'] is False:  # Chemical connection
             del_e_val = network.connections[syn]['params']['reversal_potential']
+            e_lo_val = network.connections[syn]['params']['e_lo']
+            e_hi_val = network.connections[syn]['params']['e_hi']
 
         if network.connections[syn]['params']['pattern']:  # pattern connection
             pop_size = len(pops_and_nrns[source_pop])
@@ -836,6 +856,10 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
                 source_index:source_index + pop_size] = torch.from_numpy(g_max_val)
                 del_e[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = torch.from_numpy(
                     del_e_val)
+                e_lo[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = torch.from_numpy(
+                    e_lo_val)
+                e_hi[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = torch.from_numpy(
+                    e_hi_val)
         elif network.connections[syn]['params']['electrical']:  # electrical connection
             for source in pops_and_nrns[source_pop]:
                 for dest in pops_and_nrns[dest_pop]:
@@ -865,6 +889,8 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
                     for dest in pops_and_nrns[dest_pop]:
                         g_max_non[dest][source] = g_max_val / len(pops_and_nrns[source_pop])
                         del_e[dest][source] = del_e_val
+                        e_lo[dest][source] = e_lo_val
+                        e_hi[dest][source] = e_hi_val
 
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -955,6 +981,8 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
               'iB': i_b,
               'gMaxNon': g_max_non,
               'delE': del_e,
+              'eLo': e_lo,
+              'eHi': e_hi,
               'timeFactorMembrane': time_factor_membrane,
               'inputConn': input_connectivity,
               'numPop': num_populations,
@@ -962,7 +990,7 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
               'numConn': num_connections,
               'numInputs': num_inputs,
               'numOutputs': num_outputs,
-              'r': R,
+              # 'r': R,
               'outConnVolt': output_voltage_connectivity}
     if spiking:
         params['spikes'] = spikes
@@ -1042,6 +1070,10 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
             print(g_max_spike)
         print('del_e:')
         print(del_e)
+        print('e_lo:')
+        print(e_lo)
+        print('e_hi:')
+        print(e_hi)
         if electrical:
             print('Gelectrical:')
             print(g_electrical)
