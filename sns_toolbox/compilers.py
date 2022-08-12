@@ -628,8 +628,8 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
         print(num_inputs)
         print('Number of Outputs:')
         print(num_outputs)
-        print('Network Voltage Range (mV):')
-        print(R)
+        # print('Network Voltage Range (mV):')
+        # print(R)
 
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -1190,7 +1190,7 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
     num_connections = network.get_num_connections()
     num_inputs = network.get_num_inputs()
     num_outputs = network.get_num_outputs()
-    R = network.params['R']
+    # R = network.params['R']
     if debug:
         print('Spiking:')
         print(spiking)
@@ -1210,8 +1210,8 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
         print(num_inputs)
         print('Number of Outputs:')
         print(num_outputs)
-        print('Network Voltage Range (mV):')
-        print(R)
+        # print('Network Voltage Range (mV):')
+        # print(R)
 
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -1239,6 +1239,8 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
 
     g_max_non = torch.sparse_coo_tensor(size=(num_neurons, num_neurons), device=device)
     del_e = torch.sparse_coo_tensor(size=(num_neurons, num_neurons), device=device)
+    e_lo = torch.sparse_coo_tensor(size=(num_neurons, num_neurons), device=device)
+    e_hi = torch.ones([num_neurons, num_neurons], device=device)
     if spiking:
         g_max_spike = torch.sparse_coo_tensor(size=(num_neurons, num_neurons), device=device)
         g_spike = torch.sparse_coo_tensor(size=(num_neurons, num_neurons), device=device)
@@ -1463,6 +1465,8 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
         g_max_val = network.connections[syn]['params']['max_conductance']
         if network.connections[syn]['params']['electrical'] is False:  # chemical connection
             del_e_val = network.connections[syn]['params']['reversal_potential']
+            e_lo_val = network.connections[syn]['params']['e_lo']
+            e_hi_val = network.connections[syn]['params']['e_hi']
 
         if network.connections[syn]['params']['pattern']:  # pattern connection
             pop_size = len(pops_and_nrns[source_pop])
@@ -1508,6 +1512,14 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
                 del_e[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = torch.from_numpy(
                     del_e_val)
                 del_e = del_e.to_sparse()
+
+                e_lo = e_lo.to_dense()
+                e_lo[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = torch.from_numpy(
+                    e_lo_val)
+                e_lo = e_lo.to_sparse()
+
+                e_hi[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = torch.from_numpy(
+                    e_hi_val)
         elif network.connections[syn]['params']['electrical']:  # electrical connection
             for source in pops_and_nrns[source_pop]:
                 for dest in pops_and_nrns[dest_pop]:
@@ -1556,6 +1568,12 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
                         del_e = del_e.to_dense()
                         del_e[dest][source] = del_e_val
                         del_e = del_e.to_sparse()
+
+                        e_lo = e_lo.to_dense()
+                        e_lo[dest][source] = e_lo_val
+                        e_lo = e_lo.to_sparse()
+
+                        e_hi[dest][source] = e_hi_val
 
     """
     --------------------------------------------------------------------------------------------------------------------
@@ -1653,6 +1671,8 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
               'iB': i_b,
               'gMaxNon': g_max_non,
               'delE': del_e,
+              'eLo': e_lo,
+              'eHi': e_hi,
               'timeFactorMembrane': time_factor_membrane,
               'inputConn': input_connectivity,
               'numPop': num_populations,
@@ -1660,7 +1680,7 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
               'numConn': num_connections,
               'numInputs': num_inputs,
               'numOutputs': num_outputs,
-              'r': R,
+              # 'r': R,
               'outConnVolt': output_voltage_connectivity}
     if spiking:
         params['spikes'] = spikes
@@ -1740,6 +1760,10 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
             print(g_max_spike)
         print('del_e:')
         print(del_e)
+        print('e_lo:')
+        print(e_lo)
+        print('e_hi:')
+        print(e_hi)
         if electrical:
             print('Gelectrical:')
             print(g_electrical)
