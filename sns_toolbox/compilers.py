@@ -1,4 +1,4 @@
-from sns_toolbox.backends import SNS_Numpy, SNS_Torch, SNS_Sparse, SNS_Iterative
+from sns_toolbox.backends import SNS_Numpy, SNS_Torch_Legacy, SNS_Torch_Model, SNS_Sparse, SNS_Iterative
 from sns_toolbox.neurons import SpikingNeuron, NonSpikingNeuronWithGatedChannels
 
 import numpy as np
@@ -567,7 +567,7 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
 
     return model
 
-def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
+def __compile_torch__(network, dt=0.01, debug=False, device='cpu',legacy=False):
     if debug:
         print('-------------------------------------------------------------------------------------------------------')
         print('COMPILING NETWORK USING TORCH:')
@@ -1054,7 +1054,11 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
         print('-------------------------------------------------')
         print('Passing states and parameters to SNS_Numpy object')
         print('-------------------------------------------------')
-    model = SNS_Torch(params)
+    
+    if legacy:
+        model = SNS_Torch_Legacy(params)
+    else:
+        model = SNS_Torch_Model(params)
 
     """
     --------------------------------------------------------------------------------------------------------------------

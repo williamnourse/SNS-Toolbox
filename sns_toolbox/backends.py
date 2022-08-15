@@ -199,11 +199,15 @@ class SNS_Numpy(Backend):
 
 
 class SNS_Torch_Model(nn.Module):
-    def __init__(self,params: Dict, grads=None) -> None:
+    def __init__(self,params: Dict, grads=[]) -> None:
         super().__init__()
+        self.net_params = {}
         self.params = nn.ParameterDict()
         for key,value in params.items():
-            self.params[key] = Parameter(value,requires_grad=(key in grads))
+            if isinstance(value,torch.Tensor):
+                self.params[key] = Parameter(value,requires_grad=(key in grads))
+            else:
+                self.net_params[key] = value
 
         # convert params to 
 
@@ -219,20 +223,20 @@ class SNS_Torch_Model(nn.Module):
 
         # Apply external current sources to their destinations
         g_syn = torch.clamp(torch.minimum(self.params['gMaxNon'] * ((self.params['vLast'] - self.params['eLo']) / (self.params['eHi'] - self.params['eLo'])), self.params['gMaxNon']),min=0)
-        if self.params['spiking']:
+        if self.net_params['spiking']:
             self.params['thetaLast'] = torch.clone(self.params['theta']) #check thetaLast
             self.params['gSpike'] = self.params['gSpike'] * (1 - self.params['timeFactorSynapse'])
             g_syn += self.params['gSpike']
         i_syn = torch.sum(g_syn * self.params['delE'], 1) - self.params['vLast'] * torch.sum(g_syn, 1)
-        if self.params["elec"]:
+        if self.net_params["elec"]:
             i_syn += (torch.sum(self.params['gElectrical'] * self.params['vLast'], 1) - self.params['vLast'] * torch.sum(self.params['gElectrical'], 1))
-        if self.params["rect"]:
+        if self.net_params["rect"]:
             # create mask
             mask = (self.params['vLast'].reshape(-1,1)-self.params['vLast']).transpose(0,1) > 0
             masked_g = mask * self.params['gRectified']
             diag_masked = masked_g + masked_g.transpose(0,1) - torch.diag(masked_g.diagonal())
             i_syn += torch.sum(diag_masked * self.params['vLast'], 1) - self.params['vLast'] * torch.sum(diag_masked, 1)
-        if self.params["gated"]:
+        if self.net_params["gated"]:
             a_inf = 1 / (1 + self.params["kA"] * torch.exp(self.params["slopeA"]*(self.params["eA"]-self.params['vLast'])))
             b_inf = 1 / (1 + self.params["kB"] * torch.exp(self.params["slopeB"]*(self.params["eB"]-self.params['vLast'])))
             c_inf = 1 / (1 + self.params["kC"] * torch.exp(self.params["slopeC"]*(self.params["eC"]-self.params['vLast'])))
@@ -252,12 +256,12 @@ class SNS_Torch_Model(nn.Module):
             self.params["v"] = self.params['vLast'] + self.params["timeFactorMembrane"] * (-self.params["gM"] * (self.params['vLast'] - self.params["vRest"]) + self.params["iB"] + i_syn + i_app + i_gated)  # Update membrane potential
         else:
             self.params["v"] = self.params['vLast'] + self.params["timeFactorMembrane"] * (-self.params["gM"] * (self.params['vLast'] - self.params["vRest"]) + self.params["iB"] + i_syn + i_app)  # Update membrane potential
-        if self.params['spiking']:
+        if self.net_params['spiking']:
             self.params['theta'] = self.params['thetaLast'] + self.params["timeFactorThreshold"] * (-self.params['thetaLast'] + self.params['theta0'] + self.params["m"] * self.params['vLast'])  # Update the firing thresholds
             self.params['spikes'] = torch.sign(torch.clamp(self.params['theta'] - self.params["v"],max=0))  # Compute which neurons have spiked
 
             # New stuff with delay
-            if self.params['delay']:
+            if self.net_params['delay']:
                 self.params["spikeBuffer"] = torch.roll(self.params["spikeBuffer"], 1, 0)   # Shift buffer entries down
                 self.params["spikeBuffer"][0, :] = self.params['spikes']    # Replace row 0 with the current spike data
                 # Update a matrix with all of the appropriately delayed spike values
@@ -268,7 +272,7 @@ class SNS_Torch_Model(nn.Module):
                 self.params['gSpike'] = torch.maximum(self.params['gSpike'], (-self.params['spikes']) * self.params["gMaxSpike"])  # Update the conductance of connections which spiked
             self.params["v"] = ((self.params["v"] - self.params["vRest"]) * (self.params['spikes'] + 1)) + self.params["vRest"]  # Reset the membrane voltages of neurons which spiked
         self.outputs = torch.matmul(self.params["outConnVolt"], self.params["v"])
-        if self.params['spiking']:
+        if self.net_params['spiking']:
             self.outputs += torch.matmul(self.params["outConnSpike"], -self.params['spikes'])
 
         return self.outputs
@@ -276,10 +280,10 @@ class SNS_Torch_Model(nn.Module):
     def reset(self):
         self.params["v"] = torch.clone(self.params["v0"])
         self.params["vLast"] = torch.clone(self.params["v0"])
-        if self.params['spiking']:
-            self.params['theta'] = torch.clone(self.params['theta0']
+        if self.net_params['spiking']:
+            self.params['theta'] = torch.clone(self.params['theta0'])
             self.params['thetaLast'] = torch.clone(self.params['theta0'])
-        if self.params['gated']:
+        if self.net_params['gated']:
             self.params['bGate'] = torch.clone(self.params['bGate0'])
             self.params['bGateLast'] = torch.clone(self.params['bGate0'])
             self.params['cGate'] = torch.clone(self.params['cGate0'])
