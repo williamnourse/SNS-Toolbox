@@ -213,18 +213,15 @@ class SNS_Torch_Model(nn.Module):
 
     
     def forward(self, x=None):
+        print(self.params)
         self.params['Vlast'] = torch.clone(self.params['v'])
-        
         if x is None:
             i_app = 0
         else:
             i_app = torch.matmul(self.params['inputConn'], x)  # Apply external current sources to their destinations
-
-
-        # Apply external current sources to their destinations
         g_syn = torch.clamp(torch.minimum(self.params['gMaxNon'] * ((self.params['vLast'] - self.params['eLo']) / (self.params['eHi'] - self.params['eLo'])), self.params['gMaxNon']),min=0)
         if self.net_params['spiking']:
-            self.params['thetaLast'] = torch.clone(self.params['theta']) #check thetaLast
+            self.params['thetaLast'] = torch.clone(self.params['theta'])
             self.params['gSpike'] = self.params['gSpike'] * (1 - self.params['timeFactorSynapse'])
             g_syn += self.params['gSpike']
         i_syn = torch.sum(g_syn * self.params['delE'], 1) - self.params['vLast'] * torch.sum(g_syn, 1)
@@ -288,9 +285,6 @@ class SNS_Torch_Model(nn.Module):
             self.params['bGateLast'] = torch.clone(self.params['bGate0'])
             self.params['cGate'] = torch.clone(self.params['cGate0'])
             self.params['cGateLast'] = torch.clone(self.params['cGate0'])
-
-
-
 
 class SNS_Torch_Legacy(Backend):
     def __init__(self, params: Dict) -> None:
