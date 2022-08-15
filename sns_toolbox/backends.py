@@ -12,6 +12,8 @@ IMPORTS
 from typing import Dict
 import numpy as np
 import torch
+import torch.nn as nn
+from torch.nn.parameter import Parameter
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -195,7 +197,98 @@ class SNS_Numpy(Backend):
             self.c_gate = np.copy(self.c_gate_0)
             self.c_gate_last = np.copy(self.c_gate_0)
 
-class SNS_Torch(Backend):
+
+class SNS_Torch_Model(nn.Module):
+    def __init__(self,params: Dict, grads=None) -> None:
+        super().__init__()
+        self.params = nn.ParameterDict()
+        for key,value in params.items():
+            self.params[key] = Parameter(value,requires_grad=(key in grads))
+
+        # convert params to 
+
+    
+    def forward(self, x=None):
+        self.params['Vlast'] = torch.clone(self.params['v'])
+        
+        if x is None:
+            i_app = 0
+        else:
+            i_app = torch.matmul(self.params['inputConn'], x)  # Apply external current sources to their destinations
+
+
+        # Apply external current sources to their destinations
+        g_syn = torch.clamp(torch.minimum(self.params['gMaxNon'] * ((self.params['vLast'] - self.params['eLo']) / (self.params['eHi'] - self.params['eLo'])), self.params['gMaxNon']),min=0)
+        if self.params['spiking']:
+            self.params['thetaLast'] = torch.clone(self.params['theta']) #check thetaLast
+            self.params['gSpike'] = self.params['gSpike'] * (1 - self.params['timeFactorSynapse'])
+            g_syn += self.params['gSpike']
+        i_syn = torch.sum(g_syn * self.params['delE'], 1) - self.params['vLast'] * torch.sum(g_syn, 1)
+        if self.params["elec"]:
+            i_syn += (torch.sum(self.params['gElectrical'] * self.params['vLast'], 1) - self.params['vLast'] * torch.sum(self.params['gElectrical'], 1))
+        if self.params["rect"]:
+            # create mask
+            mask = (self.params['vLast'].reshape(-1,1)-self.params['vLast']).transpose(0,1) > 0
+            masked_g = mask * self.params['gRectified']
+            diag_masked = masked_g + masked_g.transpose(0,1) - torch.diag(masked_g.diagonal())
+            i_syn += torch.sum(diag_masked * self.params['vLast'], 1) - self.params['vLast'] * torch.sum(diag_masked, 1)
+        if self.params["gated"]:
+            a_inf = 1 / (1 + self.params["kA"] * torch.exp(self.params["slopeA"]*(self.params["eA"]-self.params['vLast'])))
+            b_inf = 1 / (1 + self.params["kB"] * torch.exp(self.params["slopeB"]*(self.params["eB"]-self.params['vLast'])))
+            c_inf = 1 / (1 + self.params["kC"] * torch.exp(self.params["slopeC"]*(self.params["eC"]-self.params['vLast'])))
+
+            tau_b = self.params["tauMaxB"] * b_inf * torch.sqrt(self.params["kB"]*torch.exp(self.params["slopeB"]*(self.params["eB"]-self.params['vLast'])))
+            tau_c = self.params["tauMaxC"] * c_inf * torch.sqrt(self.params["kC"]*torch.exp(self.params["slopeC"]*(self.params["eC"]-self.params['vLast'])))
+
+            self.params["bGateLast"] = torch.clone(self.params["bGate"])
+            self.params["cGateLast"] = torch.clone(self.params["cGate"])
+
+            self.params["bGate"] = self.params["bGateLast"] + self.params["dt"] * ((b_inf - self.params["bGateLast"]) / tau_b)
+            self.params["cGate"] = self.params["cGateLast"] + self.params["dt"] * ((c_inf - self.params["cGateLast"]) / tau_c)
+
+            i_ion = self.params["gIon"]*(a_inf**self.params["powA"])*(self.params["bGate"]**self.params["powB"])*(self.params["cGate"]**self.params["powC"])*(self.params["eIon"]-self.params['vLast'])
+            i_gated = torch.sum(i_ion, 0)
+
+            self.params["v"] = self.params['vLast'] + self.params["timeFactorMembrane"] * (-self.params["gM"] * (self.params['vLast'] - self.params["vRest"]) + self.params["iB"] + i_syn + i_app + i_gated)  # Update membrane potential
+        else:
+            self.params["v"] = self.params['vLast'] + self.params["timeFactorMembrane"] * (-self.params["gM"] * (self.params['vLast'] - self.params["vRest"]) + self.params["iB"] + i_syn + i_app)  # Update membrane potential
+        if self.params['spiking']:
+            self.params['theta'] = self.params['thetaLast'] + self.params["timeFactorThreshold"] * (-self.params['thetaLast'] + self.params['theta0'] + self.params["m"] * self.params['vLast'])  # Update the firing thresholds
+            self.params['spikes'] = torch.sign(torch.clamp(self.params['theta'] - self.params["v"],max=0))  # Compute which neurons have spiked
+
+            # New stuff with delay
+            if self.params['delay']:
+                self.params["spikeBuffer"] = torch.roll(self.params["spikeBuffer"], 1, 0)   # Shift buffer entries down
+                self.params["spikeBuffer"][0, :] = self.params['spikes']    # Replace row 0 with the current spike data
+                # Update a matrix with all of the appropriately delayed spike values
+                self.params["delayedSpikes"][self.params["spikeRows"], self.params["spikeCols"]] = self.params["spikeBuffer"][self.params["bufferSteps"], self.params["bufferNrns"]]
+
+                self.params['gSpike'] = torch.maximum(self.params['gSpike'], (-self.params["delayedSpikes"]) * self.params["gMaxSpike"])  # Update the conductance of connections which spiked
+            else:
+                self.params['gSpike'] = torch.maximum(self.params['gSpike'], (-self.params['spikes']) * self.params["gMaxSpike"])  # Update the conductance of connections which spiked
+            self.params["v"] = ((self.params["v"] - self.params["vRest"]) * (self.params['spikes'] + 1)) + self.params["vRest"]  # Reset the membrane voltages of neurons which spiked
+        self.outputs = torch.matmul(self.params["outConnVolt"], self.params["v"])
+        if self.params['spiking']:
+            self.outputs += torch.matmul(self.params["outConnSpike"], -self.params['spikes'])
+
+        return self.outputs
+
+    def reset(self):
+        self.params["v"] = torch.clone(self.params["v0"])
+        self.params["vLast"] = torch.clone(self.params["v0"])
+        if self.params['spiking']:
+            self.params['theta'] = torch.clone(self.params['theta0']
+            self.params['thetaLast'] = torch.clone(self.params['theta0'])
+        if self.params['gated']:
+            self.params['bGate'] = torch.clone(self.params['bGate0'])
+            self.params['bGateLast'] = torch.clone(self.params['bGate0'])
+            self.params['cGate'] = torch.clone(self.params['cGate0'])
+            self.params['cGateLast'] = torch.clone(self.params['cGate0'])
+
+
+
+
+class SNS_Torch_Legacy(Backend):
     def __init__(self, params: Dict) -> None:
         super().__init__(params)
 
