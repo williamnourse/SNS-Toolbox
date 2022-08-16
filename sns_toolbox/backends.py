@@ -213,8 +213,7 @@ class SNS_Torch_Model(nn.Module):
 
     
     def forward(self, x=None):
-        print(self.params)
-        self.params['Vlast'] = torch.clone(self.params['v'])
+        self.params['vLast'] = torch.clone(self.params['v'])
         if x is None:
             i_app = 0
         else:

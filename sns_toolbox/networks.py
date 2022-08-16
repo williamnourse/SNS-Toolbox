@@ -618,7 +618,7 @@ class Network:
     #     self.graph.format = imgFormat
     #     self.graph.render(view=view,cleanup=True)
 
-    def compile(self, dt=0.01, backend='numpy', device='cpu', debug=False) -> Backend:
+    def compile(self, dt=0.01, backend='numpy', device='cpu', debug=False, legacy=True) -> Backend:
         if not isinstance(backend, str):
             raise TypeError(
                 'Backend selection must be a string. Options are \'numpy\', \'torch\', \'sparse\', or \'iterative\'')
@@ -627,7 +627,7 @@ class Network:
                 warnings.warn('Warning: Only CPU device is supported with SNS_Numpy. Switching to CPU')
             model = __compile_numpy__(self, dt=dt, debug=debug)
         elif backend == 'torch':
-            model = __compile_torch__(self, dt=dt, debug=debug, device=device)
+            model = __compile_torch__(self, dt=dt, debug=debug, device=device, legacy=legacy)
         elif backend == 'sparse':
             model = __compile_sparse__(self, dt=dt, debug=debug, device=device)
         elif backend == 'iterative':
