@@ -26,7 +26,7 @@
      showgrid="false"
      inkscape:zoom="5.12"
      inkscape:cx="286.13281"
-     inkscape:cy="135.05859"
+     inkscape:cy="135.25391"
      inkscape:window-width="3840"
      inkscape:window-height="2012"
      inkscape:window-x="0"
@@ -2262,7 +2262,7 @@
          id="tspan126331"
          style="stroke-width:0.0688998"
          x="29.074535"
-         y="31.022913">SNS_Manual</tspan></text>
+         y="31.022913">SNS_Iterative</tspan></text>
     <path
        style="fill:none;stroke:#1f77b4;stroke-width:0.459622;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 22.658709,8.438334 h 5.324333"

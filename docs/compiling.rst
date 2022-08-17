@@ -1,9 +1,10 @@
-Simulation Backends
+Compiling and Simulating Networks
 """""""""""""""""""
 
 SNS-Toolbox is designed with two goals: designing networks with a simple scripting system, and simulating these networks
-in an efficient manner. In (INSERT HERE) we covered the different options available when designing a network, here we
-will walk through the backend interface and how to simulate SNS networks using SNS-Toolbox.
+in an efficient manner. In `Building Networks <https://sns-toolbox.readthedocs.io/en/latest/networks.html>`_
+we covered the different options available when designing a network, here we will walk through the backend interface and
+how to simulate SNS networks using SNS-Toolbox.
 
 General Interface and Process:
 ==============================
@@ -16,9 +17,29 @@ This network object is not capable of being simulated in its current state, it i
 description of the various components within a network. In order to simulate this network, we need to compile it to a
 simulation backend:
 ::
-    model = Backend(net)
-where :code:`Backend` is a placeholder for any one of the backends included within SNS-Toolbox. For a detailed example of how
-to use this backend in a simulation, please see `Tutorial 2 <https://sns-toolbox.readthedocs.io/en/latest/tutorials/tutorial_2.html#Tutorial-2:-Simulating-Networks>`_.
+    model = net.compile(dt=0.01, backend='numpy', device='cpu', debug=False)
+
+where :code:`dt` is the simulation timestep in ms, :code:`backend` takes a string representing any of the backends
+included within SNS-Toolbox, :code:`device` is the hardware the network will run on (:code:`'cpu'` for the processor,
+:code:`'cuda'` for the GPU), and :code:`debug` causes various debugging information to be printed to the console if set
+to true.
+
+Simulating a Network:
+=====================
+
+Now that a model is built, the model can be called timestep by timestep to simulate the network dynamics as follows:
+::
+    for i in range(num_steps):
+        data = model(x)
+
+where :code:`x` is a vector of external inputs which is applied at each step. If there are no external inputs present in
+the network, it can be run as:
+::
+    for i in range(num_steps):
+        data = model()
+
+Backend Statistics:
+===================
 
 All of the simulation backends within SNS-Toolbox implement the same neural dynamics, just using different software
 strategies. Detailed descriptions of each backend option are presented in the following sections, for performance on a
@@ -49,7 +70,11 @@ SNS_Numpy:
 ==========
 
 :code:`SNS_Numpy` simulates networks using the `numpy <https://numpy.org/>`_ python package. All parameters are
-stored in :code:`np.ndarray` objects.
+stored in :code:`np.ndarray` objects. Build this backend with the following command:
+::
+    model = net.compile(backend='numpy')
+
+Note that :code:`SNS_Numpy` only supports execution on the CPU.
 
 SNS_Torch:
 ==========
@@ -58,10 +83,10 @@ SNS_Torch:
 objects. :code:`SNS_Torch` networks can be simulated on either the CPU or a CUDA-enabled GPU. To simulate on the CPU,
 build the network as
 ::
-    model = SNS_Torch(net, device='cpu')
+    model = net.compile(backend='torch', device='cpu')
 For GPU simulation, use
 ::
-    model = SNS_Torch(net, device='cuda')
+    model = net.compile(backend='torch', device='cuda')
 or for machines with multiple GPUs
 ::
     model = SNS_Torch(net, device='cuda:i')
@@ -75,26 +100,30 @@ All parameters are specified as :code:`torch.Tensor` objects, then stored in :co
 :code:`SNS_Sparse` networks can be simulated on either the CPU or a CUDA-enabled GPU. To simulate on the CPU,
 build the network as
 ::
-    model = SNS_Sparse(net, device='cpu')
+    model = net.compile(backend='sparse', device='cpu')
 For GPU simulation, use
 ::
-    model = SNS_Sparse(net, device='cuda')
+    model = net.compile(backend='sparse', device='cuda')
 or for machines with multiple GPUs
 ::
-    model = SNS_Sparse(net, device='cuda:i')
+    model = net.compile(backend='sparse', device='cuda:i')
 where :code:`i` is the index of the desired GPU.
 
 Due to the process of building sparse tensors and matrices, :code:`SNS_Sparse` networks take longer to compile than the
 other backends. For improved performance, loading of a pre-built network may improve performance. See
-`Saving Networks <https://sns-toolbox.readthedocs.io/en/latest/tutorials/tutorial_9.html#Tutorial-8:-Neurons-with-Voltage-gated-Ion-Channels>`_
+`Saving and Loading Networks <https://sns-toolbox.readthedocs.io/en/latest/saving_loading.html>`_
 for more information.
 
-SNS_Manual:
+SNS_Iterative:
 ===========
 
-The :code:`SNS_Manual` backend implements the same neural dynamics as the other backends, but does so using iterative
+The :code:`SNS_Iterative` backend implements the same neural dynamics as the other backends, but does so using iterative
 operations instead of vectors and matrices. Its primary purpose is as a benchmarking comparison for the vector-based
 algorithms, however can be useful for extremely large and sparse networks which exceed the memory constraints of other
 backends.
 
-All parameters are stored in :code:`np.ndarray` objects.
+All parameters are stored in :code:`np.ndarray` objects. This backend can be built with the following command:
+::
+    model = net.compile(backend='iterative')
+
+Note that :code:`SNS_Iterative` only supports execution on the CPU.
