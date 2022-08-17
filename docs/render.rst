@@ -13,6 +13,7 @@ Basic Usage:
 ============
 
 For a basic overview of how to use the rendering engine, let's build a simple network.
+
 .. code::
     neuron_type = NonSpikingNeuron()
     synapse_excitatory = NonSpikingSynapse(reversal_potential=40.0)
@@ -35,6 +36,7 @@ For a basic overview of how to use the rendering engine, let's build a simple ne
     net.add_output('2',name='O2')
 
 Once a network is built, we can pass it into the SNS-Toolbox renderer:
+
 .. code::
     from sns_toolbox.renderer import render
 
