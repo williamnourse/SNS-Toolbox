@@ -13,23 +13,26 @@ The most basic form of synaptic connection. The amount of synaptic current :math
 :math:`j` to post-synaptic neuron :math:`i` is
 
 .. math::
-    I_{syn}^{ji} = G_{syn}^{ji}(U_j) \cdot \left ( \Delta E_{syn}^{ji} - U_i \right ),
+    I_{syn}^{ji} = G_{syn}^{ji}(V_j) \cdot \left ( E_{syn}^{ji} - V_i \right ),
 
-where :math:`\Delta E_{syn}^{ji}` is the relative reversal potential of the synapse, and :math:`G_{syn}^{ji}(U_j)` is
+where :math:`E_{syn}^{ji}` is the reversal potential of the synapse, and :math:`G_{syn}^{ji}(V_j)` is
 the synaptic conductance as a function of the pre-synaptic neural voltage:
 
 .. math::
-    G_{syn}^{ji}(U_j) = max \left ( 0, min \left ( G_{max,non}^{ji} \cdot \frac{U_j}{R}, G_{max,non}^{ji} \right ) \right )
+    G_{syn}^{ji}(V_j) = max \left ( 0, min \left ( G_{max,non}^{ji} \cdot \frac{V_j - E_{lo}}{E_{hi} - E_{lo}}, G_{max,non}^{ji} \right ) \right )
 
 .. image:: images/linear_conductance.png
     :width: 400
 
-:math:`G_{max,non}^{ji}` is the maximum synaptic conductance, and :math:`R` is the range of neural activity (in mV).
+:math:`G_{max,non}^{ji}` is the maximum synaptic conductance, :math:`E_{lo}` is the synaptic activation voltage, and
+:math:`E_{hi}` is the synaptic saturation voltage.
 
 Default values are as follows:
 
 - :math:`G_{max,non}^{ji} = 1 \mu S`
-- :math:`\Delta E_{syn}^{ji} = 40mV`
+- :math:`E_{syn}^{ji} = 40mV`
+- :math:`E_{lo} = 0mV`
+- :math:`E_{hi} = 20mV`
 
 This form of synapse can be implemented using
 `sns_toolbox.design.connections.NonSpikingSynapse <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.design.connections.NonSpikingSynapse>`_.
@@ -41,7 +44,7 @@ Spiking Chemical Synapse:
 Spiking synapses produce a synaptic current similar in formulation to non-spiking chemical synapses,
 
 .. math::
-    I_{syn}^{ji} = G_{syn}^{ji} \cdot \left ( \Delta E_{syn}^{ji} - U_i \right ),
+    I_{syn}^{ji} = G_{syn}^{ji} \cdot \left ( E_{syn}^{ji} - V_i \right ),
 
 however they differ in that :math:`G_{syn}^{ji}` is a dynamical variable. This conductance is reset to a maximum value
 of :math:`G_{max,spike}^{ji}` whenever the pre-synaptic neuron spikes, and otherwise decays to 0 with a time constant of
@@ -50,7 +53,7 @@ of :math:`G_{max,spike}^{ji}` whenever the pre-synaptic neuron spikes, and other
 .. math::
     \tau_{syn}^{ji}\frac{dG_{syn}^{ji}}{dt} = -G_{syn}^{ji}
 
-    \text{if \delta = 1, G_{max,spike}^{ji}\leftarrow G_{syn}^{ji}}
+    \text{if $\delta = 1, G_{max,spike}^{ji}\leftarrow G_{syn}^{ji}$}
 
 If desired, synaptic propagation delay can also be incorporated. If the synapse from neuron :math:`j` to :math:`i` has a
 delay of :math:`d` timesteps, the delayed spike can be defined as:
@@ -61,7 +64,7 @@ delay of :math:`d` timesteps, the delayed spike can be defined as:
 Default values are as follows:
 
 - :math:`G_{max,spike} = 1 \mu S`
-- :math:`\Delta E_{syn}^{ji} = 194 mV`
+- :math:`E_{syn}^{ji} = 194 mV`
 - :math:`\tau_{syn}^{ji} = 1 ms`
 - :math:`d = 0`
 
@@ -76,7 +79,7 @@ Electrical synapses (also known as gap junctions) are a form of synaptic connect
 current transmission instead of synaptic neurotransmitters. Their generated synaptic current is:
 
 .. math::
-    I_{syn}^{ji} = G_{syn,electrical} \cdot \left ( U_j - U_i \right ),
+    I_{syn}^{ji} = G_{syn,electrical} \cdot \left ( V_j - V_i \right ),
 
 where :math:`G_{syn,electrical}` is the synaptic conductance. By default electrical synapses are bidirectional, meaning
 current can flow in either direction between :math:`U_j` and :math:`U_i`. However electrical synapses can also be
