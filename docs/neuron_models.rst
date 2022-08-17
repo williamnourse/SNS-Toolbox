@@ -26,7 +26,7 @@ Default values are as follows:
 - :math:`I_{bias} = 0 mV`
 
 This neuron can be implemented using
-`sns_toolbox.design.neurons.NonSpikingNeuron
+`sns_toolbox.neurons.NonSpikingNeuron
 <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/neurons/index.html#sns_toolbox.neurons.NonSpikingNeuron>`_.
 
 ===============
@@ -61,7 +61,7 @@ Default values are as follows:
 - :math:`m = 0`
 
 This neuron can be implemented using
-`sns_toolbox.design.neurons.SpikingNeuron <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/neurons/index.html#sns_toolbox.neurons.SpikingNeuron>`_.
+`sns_toolbox.neurons.SpikingNeuron <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/neurons/index.html#sns_toolbox.neurons.SpikingNeuron>`_.
 
 ===========================================
 Non-Spiking Neuron with Gated Ion Channels:
@@ -99,7 +99,7 @@ and :math:`\tau_{z,j}(V)` is a voltage-dependent time constant
 :math:`S_{z,j}` are parameters for shaping the :math:`z_{\infty,j}(V)` and :math:`\tau_{z,j}(V)` curves.
 :math:`\tau_{max,z,j}` is the maximum value of :math:`\tau_{z,j}(V)`.
 
-This neuron can be implemented using `sns_toolbox.design.neurons.NonSpikingNeuronWithGatedChannels <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/neurons/index.html#sns_toolbox.neurons.NonSpikingNeuronWithGatedChannels>`_.
+This neuron can be implemented using `sns_toolbox.neurons.NonSpikingNeuronWithGatedChannels <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/neurons/index.html#sns_toolbox.neurons.NonSpikingNeuronWithGatedChannels>`_.
 
 ===================================================
 Non-Spiking Neuron with Persistent Sodium Channel:
