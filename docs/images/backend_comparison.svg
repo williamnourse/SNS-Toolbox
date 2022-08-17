@@ -9,6 +9,9 @@
    id="svg5"
    inkscape:version="1.2.1 (ef4d3fba62, 2022-07-19, custom)"
    sodipodi:docname="backend_comparison.svg"
+   inkscape:export-filename="../40d9743f/backend_comparison.png"
+   inkscape:export-xdpi="299.96"
+   inkscape:export-ydpi="299.96"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -24,15 +27,15 @@
      inkscape:pagecheckerboard="0"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="5.12"
-     inkscape:cx="286.13281"
-     inkscape:cy="135.25391"
+     inkscape:zoom="2.56"
+     inkscape:cx="522.26562"
+     inkscape:cy="160.35156"
      inkscape:window-width="3840"
      inkscape:window-height="2012"
      inkscape:window-x="0"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer5"
      units="mm"
      fit-margin-top="0"
      fit-margin-left="0"
@@ -251,6 +254,18 @@
          id="rect2835" />
     </clipPath>
   </defs>
+  <g
+     inkscape:groupmode="layer"
+     id="layer5"
+     inkscape:label="Layer 2">
+    <rect
+       style="fill:#ffffff;stroke-width:0.665001;stroke-linejoin:round"
+       id="rect8268"
+       width="211.39407"
+       height="115.28532"
+       x="-0.82355529"
+       y="-0.35864404" />
+  </g>
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
