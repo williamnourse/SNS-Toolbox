@@ -53,7 +53,7 @@ of :math:`G_{max,spike}^{ji}` whenever the pre-synaptic neuron spikes, and other
 .. math::
     \tau_{syn}^{ji}\frac{dG_{syn}^{ji}}{dt} = -G_{syn}^{ji}
 
-    \text{if \delta = 1, G_{max,spike}^{ji}\leftarrow G_{syn}^{ji}}
+    \text{if $\delta = 1, G_{max,spike}^{ji}\leftarrow G_{syn}^{ji}$}
 
 If desired, synaptic propagation delay can also be incorporated. If the synapse from neuron :math:`j` to :math:`i` has a
 delay of :math:`d` timesteps, the delayed spike can be defined as:
