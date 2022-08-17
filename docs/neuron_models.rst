@@ -52,7 +52,7 @@ behavior using the spiking variable :math:`\delta`, which represents a spike and
         0, & \text{otherwise}.
     \end{cases}
 
-    \text{if \delta=1, V_{rest}\leftarrow V.}
+    \text{if $\delta=1, V_{rest}\leftarrow V$.}
 
 Default values are as follows:
 
