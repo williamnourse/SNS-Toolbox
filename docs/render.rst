@@ -57,11 +57,11 @@ Symbol Glossary:
 ================
 
 .. image:: images/symbol_glossary.png
-    :width: 400
+    :width: 800
 
 =================
 Available Colors:
 =================
 
 .. image:: images/color_options.png
-    :width: 400
+    :width: 800

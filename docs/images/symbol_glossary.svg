@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="159.68214mm"
-   height="197.3871mm"
-   viewBox="0 0 159.68214 197.3871"
+   width="167.23642mm"
+   height="204.2155mm"
+   viewBox="0 0 167.23642 204.2155"
    version="1.1"
    id="svg5"
    inkscape:version="1.2.1 (ef4d3fba62, 2022-07-19, custom)"
@@ -28,14 +28,14 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="1.8761364"
-     inkscape:cx="311.27802"
-     inkscape:cy="428.80679"
+     inkscape:cx="340.06057"
+     inkscape:cy="454.39128"
      inkscape:window-width="3840"
      inkscape:window-height="2012"
      inkscape:window-x="0"
      inkscape:window-y="27"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer3" />
+     inkscape:current-layer="layer4" />
   <defs
      id="defs2">
     <rect
@@ -206,20 +206,20 @@
      inkscape:groupmode="layer"
      id="layer4"
      inkscape:label="Layer 4"
-     transform="translate(-3.3979857,-8.2204828)">
+     transform="translate(4.1562858,-1.3920796)">
     <rect
-       style="fill:#ffffff;stroke:none;stroke-width:10.0223;stroke-linejoin:round;stroke-opacity:1"
+       style="fill:#ffffff;stroke:none;stroke-width:10.4325;stroke-linejoin:round;stroke-opacity:1"
        id="rect5858"
-       width="159.68214"
-       height="197.3871"
-       x="3.3979857"
-       y="8.2204828" />
+       width="167.23642"
+       height="204.2155"
+       x="-4.1562858"
+       y="1.3920796" />
   </g>
   <g
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="Layer 2"
-     transform="translate(-3.3979857,-8.2204828)">
+     transform="translate(4.1562858,-1.3920796)">
     <text
        xml:space="preserve"
        style="font-size:4.9389px;line-height:1.25;font-family:serif;-inkscape-font-specification:serif;stroke-width:0.264583"
@@ -236,7 +236,7 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(-3.3979857,-8.2204828)">
+     transform="translate(4.1562858,-1.3920796)">
     <text
        xml:space="preserve"
        style="font-size:4.9389px;line-height:1.25;font-family:serif;-inkscape-font-specification:serif;stroke-width:0.264583"
@@ -253,7 +253,7 @@
      inkscape:groupmode="layer"
      id="layer3"
      inkscape:label="Layer 3"
-     transform="translate(-3.3979857,-8.2204828)">
+     transform="translate(4.1562858,-1.3920796)">
     <g
        id="g304">
       <ellipse
@@ -417,10 +417,10 @@
          style="font-size:18.6667px;line-height:1.25;font-family:serif;-inkscape-font-specification:serif;white-space:pre;shape-inside:url(#rect597);display:inline"><tspan
            x="448.13867"
            y="264.3887"
-           id="tspan6584">Voltage </tspan><tspan
+           id="tspan7014">Voltage </tspan><tspan
            x="448.13867"
            y="287.72208"
-           id="tspan6586">Output</tspan></text>
+           id="tspan7016">Output</tspan></text>
     </g>
     <g
        id="g5632">
@@ -451,13 +451,13 @@
          style="font-size:18.6667px;line-height:1.25;font-family:serif;-inkscape-font-specification:serif;white-space:pre;shape-inside:url(#rect710);display:inline"><tspan
            x="450.0957"
            y="419.08792"
-           id="tspan6588">Vector </tspan><tspan
+           id="tspan7018">Vector </tspan><tspan
            x="450.0957"
            y="442.42129"
-           id="tspan6590">Spiking </tspan><tspan
+           id="tspan7020">Spiking </tspan><tspan
            x="450.0957"
            y="465.75467"
-           id="tspan6592">Output</tspan></text>
+           id="tspan7022">Output</tspan></text>
     </g>
     <g
        id="g5623"
@@ -473,10 +473,10 @@
          style="font-size:18.6667px;line-height:1.25;font-family:serif;-inkscape-font-specification:serif;white-space:pre;shape-inside:url(#rect704);display:inline"><tspan
            x="226.11719"
            y="414.93167"
-           id="tspan6594">Spiking </tspan><tspan
+           id="tspan7024">Spiking </tspan><tspan
            x="226.11719"
            y="438.26504"
-           id="tspan6596">Output</tspan></text>
+           id="tspan7026">Output</tspan></text>
     </g>
     <g
        id="g5618">
@@ -515,13 +515,13 @@
          style="font-size:18.6667px;line-height:1.25;font-family:serif;-inkscape-font-specification:serif;white-space:pre;shape-inside:url(#rect603);display:inline"><tspan
            x="41.853516"
            y="420.55472"
-           id="tspan6598">Vector </tspan><tspan
+           id="tspan7028">Vector </tspan><tspan
            x="41.853516"
            y="443.88809"
-           id="tspan6600">Voltage </tspan><tspan
+           id="tspan7030">Voltage </tspan><tspan
            x="41.853516"
            y="467.22147"
-           id="tspan6602">Output</tspan></text>
+           id="tspan7032">Output</tspan></text>
     </g>
     <g
        id="g5638">
@@ -540,14 +540,14 @@
            y="0"><tspan
              x="31.460938"
              y="541.69531"
-             id="tspan6606"><tspan
+             id="tspan7036"><tspan
                style="text-align:center;text-anchor:middle"
-               id="tspan6604">Chemical Excitatory </tspan></tspan><tspan
+               id="tspan7034">Chemical Excitatory </tspan></tspan><tspan
              x="67.739258"
              y="556.69531"
-             id="tspan6610"><tspan
+             id="tspan7040"><tspan
                style="text-align:center;text-anchor:middle"
-               id="tspan6608">Synapse</tspan></tspan></text>
+               id="tspan7038">Synapse</tspan></tspan></text>
       </g>
     </g>
     <g
@@ -566,14 +566,14 @@
          y="0"><tspan
            x="230.62988"
            y="556.93945"
-           id="tspan6614"><tspan
+           id="tspan7044"><tspan
              style="text-align:center;text-anchor:middle"
-             id="tspan6612">Chemical Inhibitory </tspan></tspan><tspan
+             id="tspan7042">Chemical Inhibitory </tspan></tspan><tspan
            x="265.6543"
            y="571.93945"
-           id="tspan6618"><tspan
+           id="tspan7048"><tspan
              style="text-align:center;text-anchor:middle"
-             id="tspan6616">Synapse</tspan></tspan></text>
+             id="tspan7046">Synapse</tspan></tspan></text>
     </g>
     <g
        id="g4036"
@@ -591,10 +591,10 @@
          y="0"><tspan
            x="443.60938"
            y="558.18555"
-           id="tspan6620">Chemical Modulatory </tspan><tspan
+           id="tspan7050">Chemical Modulatory </tspan><tspan
            x="483.81348"
            y="573.18555"
-           id="tspan6622">Synapse</tspan></text>
+           id="tspan7052">Synapse</tspan></text>
     </g>
     <g
        id="g5726"
@@ -612,9 +612,9 @@
          y="0"><tspan
            x="372.24414"
            y="633.90234"
-           id="tspan6626"><tspan
+           id="tspan7056"><tspan
              style="text-align:center;text-anchor:middle"
-             id="tspan6624">Pattern Connection</tspan></tspan></text>
+             id="tspan7054">Pattern Connection</tspan></tspan></text>
     </g>
     <g
        id="g5683"
@@ -632,14 +632,14 @@
          y="0"><tspan
            x="59.569336"
            y="629.58398"
-           id="tspan6630"><tspan
+           id="tspan7060"><tspan
              style="text-align:center;text-anchor:middle"
-             id="tspan6628">Input/Output </tspan></tspan><tspan
+             id="tspan7058">Input/Output </tspan></tspan><tspan
            x="64.602539"
            y="644.58398"
-           id="tspan6634"><tspan
+           id="tspan7064"><tspan
              style="text-align:center;text-anchor:middle"
-             id="tspan6632">Connection</tspan></tspan></text>
+             id="tspan7062">Connection</tspan></tspan></text>
     </g>
     <g
        id="g5771"
@@ -657,14 +657,14 @@
          y="0"><tspan
            x="93.99707"
            y="707.32812"
-           id="tspan6638"><tspan
+           id="tspan7068"><tspan
              style="text-align:center;text-anchor:middle"
-             id="tspan6636">Bidirectional </tspan></tspan><tspan
+             id="tspan7066">Bidirectional </tspan></tspan><tspan
            x="76.583008"
            y="722.32812"
-           id="tspan6642"><tspan
+           id="tspan7072"><tspan
              style="text-align:center;text-anchor:middle"
-             id="tspan6640">Electrical Synapse</tspan></tspan></text>
+             id="tspan7070">Electrical Synapse</tspan></tspan></text>
     </g>
     <g
        id="g5786"
@@ -682,14 +682,14 @@
          y="0"><tspan
            x="396.1416"
            y="707.28125"
-           id="tspan6646"><tspan
+           id="tspan7076"><tspan
              style="text-align:center;text-anchor:middle"
-             id="tspan6644">Rectified Electrical </tspan></tspan><tspan
+             id="tspan7074">Rectified Electrical </tspan></tspan><tspan
            x="429.05371"
            y="722.28125"
-           id="tspan6650"><tspan
+           id="tspan7080"><tspan
              style="text-align:center;text-anchor:middle"
-             id="tspan6648">Synapse</tspan></tspan></text>
+             id="tspan7078">Synapse</tspan></tspan></text>
     </g>
     <ellipse
        style="fill:#ffffff;stroke:none;stroke-width:0.665001;stroke-linejoin:round;stroke-opacity:1"
