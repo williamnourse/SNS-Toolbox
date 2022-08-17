@@ -18,6 +18,7 @@ Nervous Systems (SNS).
    neuron_models
    connection_models
    backends
+   render
    tutorials/tutorial_1
    tutorials/tutorial_2
    tutorials/tutorial_3
