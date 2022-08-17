@@ -160,7 +160,7 @@ class SNS_Numpy(Backend):
                         -self.g_m * (self.V_last - self.V_rest) + self.i_b + i_syn + i_app)  # Update membrane potential
         if self.spiking:
             self.theta = self.theta_last + self.time_factor_threshold * (
-                        -self.theta_last + self.theta_0 + self.m * self.V_last)  # Update the firing thresholds
+                        -self.theta_last + self.theta_0 + self.m * (self.V_last - self.V_rest))  # Update the firing thresholds
             self.spikes = np.sign(np.minimum(0, self.theta - self.V))  # Compute which neurons have spiked
 
             # New stuff with delay
@@ -240,7 +240,7 @@ class SNS_Torch(Backend):
         else:
             self.V = self.V_last + self.time_factor_membrane * (-self.g_m * (self.V_last - self.V_rest) + self.i_b + i_syn + i_app)  # Update membrane potential
         if self.spiking:
-            self.theta = self.theta_last + self.time_factor_threshold * (-self.theta_last + self.theta_0 + self.m * self.V_last)  # Update the firing thresholds
+            self.theta = self.theta_last + self.time_factor_threshold * (-self.theta_last + self.theta_0 + self.m * (self.V_last - self.V_rest))  # Update the firing thresholds
             self.spikes = torch.sign(torch.clamp(self.theta - self.V,max=0))  # Compute which neurons have spiked
 
             # New stuff with delay
@@ -345,7 +345,7 @@ class SNS_Sparse(Backend):
         if self.spiking:
             self.theta = self.theta_last + self.time_factor_threshold * (
                         -self.theta_last + self.theta_0 + (self.m.to_dense())[0,
-                                                          :] * self.V_last)  # Update the firing thresholds
+                                                          :] * (self.V_last - self.V_rest))  # Update the firing thresholds
 
             self.spikes = torch.sign(torch.clamp(self.theta - self.V, max=0))  # Compute which neurons have spiked
             self.spikes = self.spikes.to_sparse()
@@ -515,8 +515,7 @@ class SNS_Iterative(Backend):
             if self.spiking:
                 # if self.theta_0[nrn] != sys.float_info.max:
                 self.theta[nrn] = self.theta_last[nrn] + self.time_factor_threshold[nrn] * (
-                            -self.theta_last[nrn] + self.theta_0[nrn] + self.m[nrn] * self.V_last[
-                        nrn])  # Update the firing thresholds
+                            -self.theta_last[nrn] + self.theta_0[nrn] + self.m[nrn] * (self.V_last[nrn] - self.V_rest[nrn]))  # Update the firing thresholds
                 self.spikes[nrn] = np.sign(
                     np.minimum(0, self.theta[nrn] - self.V[nrn]))  # Compute which neurons have spiked
         if self.spiking:
