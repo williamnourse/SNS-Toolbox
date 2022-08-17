@@ -48,6 +48,8 @@ certain network topology please see the following performance chart:
 .. image:: images/backend_comparison.png
     :width: 600
 
+.. did this work
+
 Based on experimentation, here are some general recommendations for networks with a roughly 1:1 comparison between the
 number of neurons and synapses:
 
