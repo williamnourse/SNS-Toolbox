@@ -51,12 +51,12 @@ neuron_type = NonSpikingNeuron()    # generic neuron type
 net = Network(name='Visual Network')    # create an empty network
 
 # Retina
-net.add_population(neuron_type,shape,name='Retina',R=R) # add a 2d population the same size as the scaled image
+net.add_population(neuron_type,shape,name='Retina') # add a 2d population the same size as the scaled image
 net.add_input('Retina', size=flat_size,name='Image')    # add a vector input for the flattened scaled image
 net.add_output('Retina',name='Retina Output')  # add a vector output from the retina, scaled correctly
 
 # Lamina
-net.add_population(neuron_type,shape,name='Lamina',R=R)
+net.add_population(neuron_type,shape,name='Lamina')
 
 del_e_ex = 160.0    # excitatory reversal potential
 del_e_in = -80.0    # inhibitory reversal potential
