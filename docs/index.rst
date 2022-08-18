@@ -15,11 +15,12 @@ Nervous Systems (SNS).
    :caption: Contents:
 
    install
-   neuron_models
-   connection_models
-   backends
+   networks
+   compiling
    render
    saving_loading
+   neuron_models
+   connection_models
    tutorials/tutorial_1
    tutorials/tutorial_2
    tutorials/tutorial_3

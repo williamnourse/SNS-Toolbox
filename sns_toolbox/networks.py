@@ -199,7 +199,7 @@ class Network:
     --------------------------------------------------------------------------------------------------------------------
     """
 
-    def add_population(self, neuron_type: Neuron, shape, name: str = None, color=None, initial_value=None, R=20.0) -> None:
+    def add_population(self, neuron_type: Neuron, shape, name: str = None, color=None, initial_value=None) -> None:
         """
         Add a neural population to the network.
 
@@ -239,7 +239,7 @@ class Network:
                 if neuron_type is SpikingNeuron:
                     initial_value = np.linspace(rest,neuron_type.params['threshold_initial_value'],num=total_num_neurons)
                 else:
-                    initial_value = np.linspace(rest,R,num=total_num_neurons)
+                    initial_value = np.zeros(total_num_neurons)+rest
             else:
                 initial_value = rest
         self.populations.append({'type': copy.deepcopy(neuron_type),
