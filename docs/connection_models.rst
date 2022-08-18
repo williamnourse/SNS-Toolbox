@@ -35,7 +35,7 @@ Default values are as follows:
 - :math:`E_{hi} = 20mV`
 
 This form of synapse can be implemented using
-`sns_toolbox.design.connections.NonSpikingSynapse <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.design.connections.NonSpikingSynapse>`_.
+`sns_toolbox.connections.NonSpikingSynapse <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/connections/index.html#sns_toolbox.connections.NonSpikingSynapse>`_.
 
 =========================
 Spiking Chemical Synapse:
@@ -69,7 +69,7 @@ Default values are as follows:
 - :math:`d = 0`
 
 This form of synapse can be implemented using
-`sns_toolbox.design.connections.SpikingSynapse <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.design.connections.SpikingSynapse>`_.
+`sns_toolbox.connections.SpikingSynapse <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.connections.SpikingSynapse>`_.
 
 ====================
 Electrical Synapse:
@@ -86,7 +86,7 @@ current can flow in either direction between :math:`U_j` and :math:`U_i`. Howeve
 rectified if desired, meaning that current only flows from :math:`U_j` to :math:`U_i`, and only if :math:`U_j>U_i`.
 
 This form of synapse can be implemented using
-`sns_toolbox.design.connections.ElectricalSynapse <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.design.connections.ElectricalSynapse>`_.
+`sns_toolbox.connections.ElectricalSynapse <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.connections.ElectricalSynapse>`_.
 
 ====================
 Pattern Connection:
@@ -102,9 +102,9 @@ connection, the only difference is that these parameters are now vectors/matrice
 to describe the synaptic pattern. *Note that there is currently no pattern implementation for electrical synapses*.
 
 These forms of synapse can be implemented using
-`sns_toolbox.design.connections.NonSpikingPatternConnection <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.design.connections.NonSpikingPatternConnection>`_
+`sns_toolbox.connections.NonSpikingPatternConnection <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.connections.NonSpikingPatternConnection>`_
 and
-`sns_toolbox.design.connections.SpikingPatternConnection <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.design.connections.SpikingPatternConnection>`_.
+`sns_toolbox.connections.SpikingPatternConnection <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.connections.SpikingPatternConnection>`_.
 
 For more information, see
 `Tutorial 6: Connectivity Patterns <https://sns-toolbox.readthedocs.io/en/latest/tutorials/tutorial_6.html#Tutorial-6:-Using-Connectivity-Patterns>`_.
