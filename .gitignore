@@ -4,3 +4,4 @@
 example_figures/.ipynb_checkpoints/*
 tutorials/.ipynb_checkpoints/*
 sns_toolbox.egg-info/*
+sns_toolbox/__pycache__/*
