@@ -19,6 +19,7 @@ Nervous Systems (SNS).
    compiling
    render
    saving_loading
+   gpu
    neuron_models
    connection_models
    tutorials/tutorial_1
