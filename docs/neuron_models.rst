@@ -1,11 +1,9 @@
-""""""""""""""
 Neural Models
 """"""""""""""
 
 A variety of neuron models are available to use within SNS-Toolbox, each with different dynamics.
 
-===================
-Non-Spiking Neuron:
+Non-Spiking Neuron
 ===================
 
 Non-spiking neurons are simulated as leaky integrators, where the membrane depolarization (:math:`V`) behaves
@@ -29,8 +27,7 @@ This neuron can be implemented using
 `sns_toolbox.neurons.NonSpikingNeuron
 <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/neurons/index.html#sns_toolbox.neurons.NonSpikingNeuron>`_.
 
-===============
-Spiking Neuron:
+Spiking Neuron
 ===============
 
 Spiking neurons have similar dynamics to the classic non-spiking neuron, with an additional dynamic variable
@@ -63,8 +60,7 @@ Default values are as follows:
 This neuron can be implemented using
 `sns_toolbox.neurons.SpikingNeuron <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/neurons/index.html#sns_toolbox.neurons.SpikingNeuron>`_.
 
-===========================================
-Non-Spiking Neuron with Gated Ion Channels:
+Non-Spiking Neuron with Gated Ion Channels
 ===========================================
 
 These neurons share the same dynamics as the classic non-spiking neuron, with additional ionic currents :math:`I_{ion}`.
@@ -101,8 +97,7 @@ and :math:`\tau_{z,j}(V)` is a voltage-dependent time constant
 
 This neuron can be implemented using `sns_toolbox.neurons.NonSpikingNeuronWithGatedChannels <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/neurons/index.html#sns_toolbox.neurons.NonSpikingNeuronWithGatedChannels>`_.
 
-===================================================
-Non-Spiking Neuron with Persistent Sodium Channel:
+Non-Spiking Neuron with Persistent Sodium Channel
 ===================================================
 
 These neurons are a special case of the non-spiking neuron with gated ion channels:

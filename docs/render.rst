@@ -1,4 +1,3 @@
-""""""""""""""""""
 Rendering Networks
 """"""""""""""""""
 
@@ -8,8 +7,7 @@ interface for rendering images of SNS network structures, which is built using :
 their structure. For installing :code:`graphviz` in your development environment, please consult their
 `documentation <https://graphviz.readthedocs.io/en/stable/manual.html>`_.
 
-============
-Basic Usage:
+Basic Usage
 ============
 
 For a basic overview of how to use the rendering engine, let's build a simple network.
@@ -45,22 +43,19 @@ and the above network is rendered into a connectivity graph.
 .. image:: images/DocsExample.png
     :width: 400
 
-==================
-Supported Formats:
+Supported Formats
 ==================
 
 :code:`graphviz` supports a wide variety of image formats, please see their
 `documentation <https://graphviz.org/docs/outputs/>`_.
 
-================
-Symbol Glossary:
+Symbol Glossary
 ================
 
 .. image:: images/symbol_glossary.png
     :width: 800
 
-=================
-Available Colors:
+Available Colors
 =================
 
 .. image:: images/color_options.png

@@ -3,7 +3,7 @@ Building Networks
 
 The primary activity when using SNS-Toolbox is building networks. We do this using :code:`Network` objects.
 
-Creating a Network:
+Creating a Network
 ===================
 
 To create a network, we initialize a :code:`Network`
@@ -13,12 +13,12 @@ object
 
     net = Network(name='Network')
 
-Adding to a Network:
+Adding to a Network
 ====================
 
 Once a :code:`Network` has been created, we can fill it with the various neurons and connections that we desire.
 
-Adding a Neuron:
+Adding a Neuron
 ----------------
 
 To add a neuron to the network, we first define the properties of the neuron and then it is added to the network. We'll
@@ -30,7 +30,7 @@ add a basic :code:`NonSpikingNeuron` here, for a full list of all available neur
     neuron_type = NonSpikingNeuron()
     net.add_neuron(neuron_type, name='Source Nrn')
 
-Adding a Population of Neurons:
+Adding a Population of Neurons
 -------------------------------
 
 Instead of adding a single neuron, we can add an entire population of neurons. The process is much the same as adding a
@@ -42,7 +42,7 @@ The first parameter is the type of neuron to add, and the second parameter is li
 the population. Currently neural populations of 1-2 dimensions are supported. If no initial value is provided for the
 population, the neural resting potential is assumed.
 
-Adding Inputs:
+Adding Inputs
 --------------
 
 In order to add external influence to a network, we need to add an input. This is done by specifying the neuron which
@@ -58,7 +58,7 @@ size must be specified. The following line adds a 4 element vector input to the 
 
 Currently inputs can only be a single element, or a one-dimensional vector.
 
-Adding Outputs:
+Adding Outputs
 ---------------
 
 Adding output nodes to the network allows for desired neural states to be accessed outside the network. To add an
@@ -71,7 +71,7 @@ membrane voltage or spiking state.
 When an output node is added to a neural population, one individual output node is generated for each neuron in the
 population. So as an example, an output node added to population with 6 neurons will generate 6 output nodes.
 
-Adding Connections:
+Adding Connections
 -------------------
 
 Connections can be added between neurons/populations within a network. A connection type is required, along with the
@@ -86,7 +86,7 @@ connections explicitly specify a pattern of synaptic connectivity, however they 
 the same size and shape. For a full listing of available connection types, please consult
 `Connection Models <https://sns-toolbox.readthedocs.io/en/latest/connection_models.html>`_.
 
-Adding Networks:
+Adding Networks
 ----------------
 
 Existing :code:`Network` objects can also be incorporated into any other network. For the process please see
@@ -94,23 +94,23 @@ Existing :code:`Network` objects can also be incorporated into any other network
 provided by SNS-Toolbox please see
 `sns_toolbox.networks <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/networks/index.html>`_.
 
-Other Functionality:
+Other Functionality
 ====================
 
-Copying a Network:
+Copying a Network
 ------------------
 
 Networks can be copied using their native method.
 ::
     net_copy = net.copy()
 
-Compiling a Network:
+Compiling a Network
 --------------------
 
 Networks can be compiled to a software backend for efficient simulation. For an overview of this process, please consult
 `Compiling and Simulating Networks <https://sns-toolbox.readthedocs.io/en/latest/compiling.html>`_.
 
-Getting Network Properties:
+Getting Network Properties
 ---------------------------
 
 :code:`Network` objects have a variety of internal methods which return network properties. These are the following:

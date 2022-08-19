@@ -1,4 +1,3 @@
-"""""""""""""""""""""""""""
 Saving and Loading Networks
 """""""""""""""""""""""""""
 
@@ -7,8 +6,7 @@ use. This is particularly important when compiling networks using the :code:`'sp
 networks take long periods of time to compile. File structure is currently based around python's
 `pickle format <https://docs.python.org/3/library/pickle.html>`_.
 
-=================
-Saving a Network:
+Saving a Network
 =================
 
 When saving networks, we call the :code:`save` method of :code:`sns_toolbox` and pass in the model and a desired file
@@ -24,8 +22,7 @@ name. The convention within SNS-Toolbox is to save compiled networks as :code:`.
     # Save the network
     sns_toolbox.save(model, 'save_example.sns')
 
-==================
-Loading a Network:
+Loading a Network
 ==================
 
 When loading a network, we can call the :code:`load` method of :code:`sns_toolbox`.

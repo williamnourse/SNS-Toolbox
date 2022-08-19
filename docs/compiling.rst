@@ -6,7 +6,7 @@ in an efficient manner. In `Building Networks <https://sns-toolbox.readthedocs.i
 we covered the different options available when designing a network, here we will walk through the backend interface and
 how to simulate SNS networks using SNS-Toolbox.
 
-General Interface and Process:
+General Interface and Process
 ==============================
 
 When simulating a network, we start with a
@@ -24,7 +24,7 @@ included within SNS-Toolbox, :code:`device` is the hardware the network will run
 :code:`'cuda'` for the GPU), and :code:`debug` causes various debugging information to be printed to the console if set
 to true.
 
-Simulating a Network:
+Simulating a Network
 =====================
 
 Now that a model is built, the model can be called timestep by timestep to simulate the network dynamics as follows:
@@ -38,7 +38,7 @@ the network, it can be run as:
     for i in range(num_steps):
         data = model()
 
-Backend Statistics:
+Backend Statistics
 ===================
 
 All of the simulation backends within SNS-Toolbox implement the same neural dynamics, just using different software
@@ -67,7 +67,7 @@ network size before the host system runs out of memory. These examples are given
 If you run a simulation and find conflicting empirical performance data, please email the `project maintainer <nourse@case.edu>`_ and our
 documentation may be updated.
 
-SNS_Numpy:
+SNS_Numpy
 ==========
 
 :code:`SNS_Numpy` simulates networks using the `numpy <https://numpy.org/>`_ python package. All parameters are
@@ -77,7 +77,7 @@ stored in :code:`np.ndarray` objects. Build this backend with the following comm
 
 Note that :code:`SNS_Numpy` only supports execution on the CPU.
 
-SNS_Torch:
+SNS_Torch
 ==========
 
 :code:`SNS_Torch` simulates using `PyTorch <https://pytorch.org/>`_. All parameters are stored in :code:`torch.Tensor`
@@ -93,7 +93,7 @@ or for machines with multiple GPUs
     model = SNS_Torch(net, device='cuda:i')
 where :code:`i` is the index of the desired GPU.
 
-SNS_Sparse:
+SNS_Sparse
 ===========
 
 :code:`SNS_Sparse` simulates using `PyTorch Sparse <https://pytorch.org/docs/stable/sparse.html>`_.
@@ -115,7 +115,7 @@ other backends. For improved performance, loading of a pre-built network may imp
 `Saving and Loading Networks <https://sns-toolbox.readthedocs.io/en/latest/saving_loading.html>`_
 for more information.
 
-SNS_Iterative:
+SNS_Iterative
 ===========
 
 The :code:`SNS_Iterative` backend implements the same neural dynamics as the other backends, but does so using iterative
