@@ -1,5 +1,8 @@
-Installation
-============
+Getting Started
+===============
+
+Installation Instructions
+=========================
 
 SNS-Toolbox can be installed using pip:
 ::
@@ -13,3 +16,10 @@ So far this has been tested using Python 3.8, which is also the newest version t
 
 Pytorch may need to be installed separately from the other packages in pip, since which configuration of torch you install is dependent on your personal system configuration. For instructions on installing torch, please see their `documentation <https://pytorch.org/get-started/locally/>`_.
 
+Citation
+========
+
+If you use this software for an academic publication, we ask that you please cite the following paper:
+
+*Nourse W., Szczecinski N., Quinn R., SNS-Toolbox: A tool for efficient simulation of synthetic nervous systems. (In
+preparation)*
