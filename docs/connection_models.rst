@@ -1,12 +1,10 @@
-"""""""""""""""""
 Connection Models
 """""""""""""""""
 
 Neurons, and populations of neurons, are connected in SNS-Toolbox using *connections*. The different versions available
 are as follows:
 
-=============================
-Non-Spiking Chemical Synapse:
+Non-Spiking Chemical Synapse
 =============================
 
 The most basic form of synaptic connection. The amount of synaptic current :math:`I_{syn}^{ji}` from pre-synaptic neuron
@@ -37,8 +35,7 @@ Default values are as follows:
 This form of synapse can be implemented using
 `sns_toolbox.connections.NonSpikingSynapse <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/connections/index.html#sns_toolbox.connections.NonSpikingSynapse>`_.
 
-=========================
-Spiking Chemical Synapse:
+Spiking Chemical Synapse
 =========================
 
 Spiking synapses produce a synaptic current similar in formulation to non-spiking chemical synapses,
@@ -71,8 +68,7 @@ Default values are as follows:
 This form of synapse can be implemented using
 `sns_toolbox.connections.SpikingSynapse <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.connections.SpikingSynapse>`_.
 
-====================
-Electrical Synapse:
+Electrical Synapse
 ====================
 
 Electrical synapses (also known as gap junctions) are a form of synaptic connection which communicates using direct
@@ -88,8 +84,7 @@ rectified if desired, meaning that current only flows from :math:`U_j` to :math:
 This form of synapse can be implemented using
 `sns_toolbox.connections.ElectricalSynapse <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.connections.ElectricalSynapse>`_.
 
-====================
-Pattern Connection:
+Pattern Connection
 ====================
 
 Chemical synapses can also be defined which connect populations of neurons, instead of single neurons.
@@ -108,3 +103,10 @@ and
 
 For more information, see
 `Tutorial 6: Connectivity Patterns <https://sns-toolbox.readthedocs.io/en/latest/tutorials/tutorial_6.html#Tutorial-6:-Using-Connectivity-Patterns>`_.
+
+Other Connections
+=================
+
+There are other connection presets available, which inherit from the above connection models. For a full reference to
+them, please consult
+`sns_toolbox.connections <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/connections/index.html#module-sns_toolbox.connections>`_.
