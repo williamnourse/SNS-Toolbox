@@ -14,7 +14,7 @@ Nervous Systems (SNS).
    :maxdepth: 1
    :caption: Contents:
 
-   install
+   start
    networks
    compiling
    render
