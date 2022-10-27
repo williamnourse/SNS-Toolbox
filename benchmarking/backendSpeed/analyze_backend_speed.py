@@ -11,7 +11,7 @@ import pickle
 
 # this can be found inside 'backendSpeedData.zip'
 # data = pickle.load(open('backendSpeedData/dataBackendTimesNew.p', 'rb'))
-data = pickle.load(open('dataBackendTimesSparseCPU.p', 'rb'))
+data = pickle.load(open('dataBackendTimes.p', 'rb'))
 numNeurons = data['shape']
 
 npRawTimes = data['numpy']
