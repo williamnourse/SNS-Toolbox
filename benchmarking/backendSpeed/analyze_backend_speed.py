@@ -10,8 +10,8 @@ import numpy as np
 import pickle
 
 # this can be found inside 'backendSpeedData.zip'
-data = pickle.load(open('backendSpeedData/dataBackendTimesNew.p', 'rb'))
-sparseData = pickle.load(open('backendSpeedData/dataBackendTimesSparseCPU.p', 'rb'))
+# data = pickle.load(open('backendSpeedData/dataBackendTimesNew.p', 'rb'))
+data = pickle.load(open('dataBackendTimesSparseCPU.p', 'rb'))
 numNeurons = data['shape']
 
 npRawTimes = data['numpy']
@@ -26,11 +26,11 @@ torchGPURawTimes = data['torchGPU']
 torchGPUAvgTimes = np.mean(torchGPURawTimes,axis=1)*1000
 torchGPUVar = np.std(torchGPURawTimes,axis=1)*1000
 
-sparseCPURawTimes = sparseData['sparseCPU']
+sparseCPURawTimes = data['sparseCPU']
 sparseCPUAvgTimes = np.mean(sparseCPURawTimes,axis=1)*1000
 sparseCPUVar = np.std(sparseCPURawTimes,axis=1)*1000
 
-sparseGPURawTimes = data['sparseCPU']
+sparseGPURawTimes = data['sparseGPU']
 sparseGPUAvgTimes = np.mean(sparseGPURawTimes,axis=1)*1000
 sparseGPUVar = np.std(sparseGPURawTimes,axis=1)*1000
 

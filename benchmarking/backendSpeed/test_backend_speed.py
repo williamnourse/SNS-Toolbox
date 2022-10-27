@@ -60,7 +60,7 @@ for num in range(numSamples):
     net.add_output('outs')
 
     # Numpy
-    npModel = SNS_Numpy(net, dt=dt)
+    npModel = net.compile(dt=dt,backend='numpy', device='cpu')
     npInput = np.array([current])
     for i in range(len(t)):
         print('%i Neurons Numpy Step %i/%i'%(numNeurons[num],i+1,len(t)))
@@ -71,7 +71,7 @@ for num in range(numSamples):
     print('Finished Numpy. Running for %f sec' % (time.time() - globalStart))
 
     # Torch CPU
-    torchCPUModel = SNS_Torch(net, dt=dt, device='cpu')
+    torchCPUModel = net.compile(dt=dt,backend='torch', device='cpu')
     torchCPUInput = torch.tensor([current],device='cpu')
     for i in range(len(t)):
         print('%i Neurons Torch CPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
@@ -85,7 +85,7 @@ for num in range(numSamples):
         # Torch GPU
         # print('Before network created')
         # print('GPU Memory Allocated: %d , Reserved: %d'%(torch.cuda.memory_allocated(),torch.cuda.memory_reserved()))
-        torchGPUModel = SNS_Torch(net, dt=dt, device='cuda')
+        torchGPUModel = net.compile(dt=dt,backend='torch', device='cuda')
         torchGPUInput = torch.tensor([current],device='cuda')
         # print('CUDA Model Made')
         # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
@@ -113,7 +113,7 @@ for num in range(numSamples):
         # Torch Sparse CPU
         # print('Before network created')
         # print('GPU Memory Allocated: %d , Reserved: %d'%(torch.cuda.memory_allocated(),torch.cuda.memory_reserved()))
-        torchGPUSparseModel = SNS_Sparse(net, dt=dt, device='cpu')
+        torchGPUSparseModel = net.compile(dt=dt,backend='sparse', device='cpu')
         torchGPUSparseInput = torch.tensor([current],device='cpu')
         # print('CUDA Model Made')
         # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
@@ -141,7 +141,7 @@ for num in range(numSamples):
         # Torch Sparse GPU
         # print('Before network created')
         # print('GPU Memory Allocated: %d , Reserved: %d'%(torch.cuda.memory_allocated(),torch.cuda.memory_reserved()))
-        torchGPUSparseModel = SNS_Sparse(net, dt=dt, device='cuda')
+        torchGPUSparseModel = net.compile(dt=dt,backend='sparse', device='cuda')
         torchGPUSparseInput = torch.tensor([current],device='cuda')
         # print('CUDA Model Made')
         # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
@@ -150,7 +150,7 @@ for num in range(numSamples):
             stepStart = time.time()
             _ = torchGPUSparseModel.forward(torchGPUSparseInput)
             stepStop = time.time()
-            sparseCPUTimes[num, i] = stepStop - stepStart
+            sparseGPUTimes[num, i] = stepStop - stepStart
         del torchGPUSparseModel
         del torchGPUSparseInput
         del _
@@ -166,7 +166,7 @@ for num in range(numSamples):
             sparseGPUTimes[num, i] = 0
 
     # Numpy
-    manModel = SNS_Iterative(net, dt=dt)
+    manModel = net.compile(dt=dt,backend='iterative', device='cpu')
     manInput = np.array([current])
     for i in range(len(t)):
         print('%i Neurons Manual Step %i/%i' % (numNeurons[num], i + 1, len(t)))
