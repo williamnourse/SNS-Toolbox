@@ -5,30 +5,44 @@ import matplotlib.pyplot as plt
 # print(20*volt)
 
 start_scope()
-defaultclock.dt = 0.1*ms
+num_neurons = 2
+dt = 0.1
+defaultclock.dt = dt*ms
 tau = 10*ms
-eqs = '''
-dv/dt = (5-v)/tau : 1
+eqs_neuron = '''
+dv/dt = (-v+I+Isyn)/tau : 1
+I : 1
+Isyn : 1
 '''
 
-G = NeuronGroup(5,eqs, method='euler')
+pop = NeuronGroup(2,eqs_neuron, method='euler')
+pop.I = [1,0]
 
-tmax = 100 # ms
-t = np.arange(0,tmax,0.1)
-data = np.zeros([len(t),5])
-G.v = 'rand()'
-data[0,:] = G.v
+eqs_synapse = '''
+Isyn_post = Gmax*clip(v_pre/R, 0, 1)*(DelE - v_post) : 1 (summed)
+Gmax : 1
+R : 1
+DelE : 1
+'''
+syn = Synapses(pop, pop, eqs_synapse)
+syn.connect(i=0,j=1)
+syn.Gmax = 0.5
+syn.R = 1
+syn.DelE = -3
+
+tmax = 50 # ms
+t = np.arange(0,tmax,dt)
+data = np.zeros([len(t),num_neurons])
+# G.v = 'rand()'
+data[0,:] = pop.v
 for i in range(1, len(data)):
     # print(G.v[0])
     print(i)
     run(0.1*ms)
-    data[i,:] = G.v
+    data[i,:] = pop.v
     # print(G.v[0])
 data = data.transpose()
 plt.figure()
-plt.plot(t,data[0,:])
-plt.plot(t,data[1,:])
-plt.plot(t,data[2,:])
-plt.plot(t,data[3,:])
-plt.plot(t,data[4,:])
+for i in range(num_neurons):
+    plt.plot(t,data[i,:])
 plt.show()
