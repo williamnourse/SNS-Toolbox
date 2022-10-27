@@ -184,5 +184,5 @@ for num in range(numSamples):
             'sparseGPU': sparseGPUTimes,
             'manual': manualTimes}
 
-    pickle.dump(data, open('dataBackendTimesSparseCPU.p', 'wb'))
+    pickle.dump(data, open('dataBackendTimes.p', 'wb'))
 print('Finished test loop. Running for %f sec'%(time.time()-globalStart))
