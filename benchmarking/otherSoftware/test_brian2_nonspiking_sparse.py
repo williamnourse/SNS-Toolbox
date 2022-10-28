@@ -47,6 +47,7 @@ print('Finished test setup. Running for %f sec' % (time.time()-globalStart))
 TESTING LOOP
 """
 for num in range(numSamples):
+    print()
     print('%i Neurons. Running for %f sec' % (numNeurons[num],time.time() - globalStart))
 
     numIns = int(0.08 * numNeurons[num]) + 1                    # in puppy, num_inputs = 8% of network
