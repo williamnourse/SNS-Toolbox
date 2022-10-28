@@ -47,26 +47,27 @@ print('Finished test setup. Running for %f sec' % (time.time()-globalStart))
 TESTING LOOP
 """
 for num in range(numSamples):
-    print('%i Neurons. Running for %f sec' % (numNeurons[num],time.time() - globalStart))
+    num_neurons = int(numNeurons[num])
+    print('%i Neurons. Running for %f sec' % (num_neurons,time.time() - globalStart))
 
     start_scope()
 
     # net = Network()
 
-    nrns = NeuronGroup(numNeurons[num], eqs_neuron, method='euler')
-    nrns.I = np.zeros(numNeurons[num])+current
+    nrns = NeuronGroup(num_neurons, eqs_neuron, method='euler')
+    nrns.I = np.zeros(num_neurons)+current
 
     connect = Synapses(nrns, nrns, eqs_synapse)
-    connect_matrix = np.ones([numNeurons[num], numNeurons[num]])
+    connect_matrix = np.ones([num_neurons, num_neurons])
     sources, targets = connect_matrix.nonzero()
     connect.connect(i=sources, j=targets)
 
     # net.add((ins, outs, syn, rest, connect))
 
-    print('Finished network construction with %i neurons. Running for %f sec' % (numNeurons[num], time.time() - globalStart))
+    print('Finished network construction with %i neurons. Running for %f sec' % (num_neurons, time.time() - globalStart))
 
     for i in range(numSteps):
-        print('%i Neurons Brian Step %i/%i'%(numNeurons[num],i+1,numSteps))
+        print('%i Neurons Brian Step %i/%i'%(num_neurons,i+1,numSteps))
         stepStart = time.time()
         run(dt*ms)
         _ = nrns.v
