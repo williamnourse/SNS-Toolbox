@@ -26,7 +26,6 @@ NEURON AND SYNAPSE DEFINITIONS
 current = 10.0
 globalStart = time.time()
 spike = SpikingNeuron(name='m<0', threshold_proportionality_constant=-1, color='aquamarine')
-spikeBias = SpikingNeuron(name='bias', threshold_proportionality_constant=-1, color='aquamarine', bias=current)
 spikeExcite = SpikingSynapse(name='Excitatory Spiking')
 print('Finished type definition. Running for %f sec'%(time.time()-globalStart))
 
@@ -51,17 +50,11 @@ print('Finished test setup. Running for %f sec'%(time.time()-globalStart))
 for num in range(numSamples):
     print('%i Neurons. Running for %f sec' % (numNeurons[num],time.time() - globalStart))
     net = Network()
-    numIns = int(0.08 * numNeurons[num]) + 1
-    numOuts = int(0.12 * numNeurons[num])
-    numSyn = int(np.sqrt(numNeurons[num]))
-    numRest = int(numNeurons[num]) - numIns - numSyn - numOuts
-    net.add_population(spike, [numIns], name='ins')  # in puppy, num_inputs = 8% of network
-    net.add_population(spikeBias, [numOuts], name='outs')  # in puppy, num_outputs = 12% of network
-    net.add_population(spikeBias, [numSyn], name='connected')  # in puppy, numSyn = shape
-    net.add_population(spikeBias, [numRest], name='rest')  # rest of the network
+    num_neurons = int(numNeurons[num])
+    net.add_population(spike, [num_neurons], name='connected')  # in puppy, num_inputs = 8% of network
     net.add_connection(spikeExcite, 'connected', 'connected')
-    net.add_input('ins')
-    net.add_output('outs')
+    net.add_input('connected')
+    net.add_output('connected')
 
     # Numpy
     npModel = net.compile(dt=dt,backend='numpy', device='cpu')
@@ -188,5 +181,5 @@ for num in range(numSamples):
             'sparseGPU': sparseGPUTimes,
             'manual': manualTimes}
 
-    pickle.dump(data, open('dataBackendTimesSpikingSparse.p', 'wb'))
+    pickle.dump(data, open('dataBackendTimesSpikingDense.p', 'wb'))
 print('Finished test loop. Running for %f sec'%(time.time()-globalStart))

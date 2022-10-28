@@ -1,21 +1,14 @@
-"""
-Compare the simulation speed of the different backends
-William Nourse
-September 9 2021
-The correct term is Babes, sir
-"""
-
+import sys
 import numpy as np
 import torch
 import time
 import pickle
 
-from sns_toolbox.neurons import SpikingNeuron
-from sns_toolbox.connections import SpikingSynapse
+from sns_toolbox.neurons import NonSpikingNeuron
+from sns_toolbox.connections import NonSpikingSynapse
 from sns_toolbox.networks import Network
 
 # Personal stuff to send an email once data collection is finished
-import sys
 sys.path.extend(['/home/will'])
 from email_utils import send_email
 
@@ -25,9 +18,9 @@ NEURON AND SYNAPSE DEFINITIONS
 """
 current = 10.0
 globalStart = time.time()
-spike = SpikingNeuron(name='m<0', threshold_proportionality_constant=-1, color='aquamarine')
-spikeBias = SpikingNeuron(name='bias', threshold_proportionality_constant=-1, color='aquamarine', bias=current)
-spikeExcite = SpikingSynapse(name='Excitatory Spiking')
+neuron = NonSpikingNeuron(membrane_capacitance=10, name='neuron', color='aquamarine')
+# neuronBias = NonSpikingNeuron(membrane_capacitance=10, name='bias', color='aquamarine', bias=current)
+synapse = NonSpikingSynapse(max_conductance=0.5, reversal_potential=-60)
 print('Finished type definition. Running for %f sec'%(time.time()-globalStart))
 
 """
@@ -51,17 +44,11 @@ print('Finished test setup. Running for %f sec'%(time.time()-globalStart))
 for num in range(numSamples):
     print('%i Neurons. Running for %f sec' % (numNeurons[num],time.time() - globalStart))
     net = Network()
-    numIns = int(0.08 * numNeurons[num]) + 1
-    numOuts = int(0.12 * numNeurons[num])
-    numSyn = int(np.sqrt(numNeurons[num]))
-    numRest = int(numNeurons[num]) - numIns - numSyn - numOuts
-    net.add_population(spike, [numIns], name='ins')  # in puppy, num_inputs = 8% of network
-    net.add_population(spikeBias, [numOuts], name='outs')  # in puppy, num_outputs = 12% of network
-    net.add_population(spikeBias, [numSyn], name='connected')  # in puppy, numSyn = shape
-    net.add_population(spikeBias, [numRest], name='rest')  # rest of the network
-    net.add_connection(spikeExcite, 'connected', 'connected')
-    net.add_input('ins')
-    net.add_output('outs')
+    num_neurons = int(numNeurons[num])
+    net.add_population(neuron, [num_neurons], name='connected')  # in puppy, num_inputs = 8% of network
+    net.add_connection(synapse, 'connected', 'connected')
+    net.add_input('connected')
+    net.add_output('connected')
 
     # Numpy
     npModel = net.compile(dt=dt,backend='numpy', device='cpu')
@@ -188,5 +175,7 @@ for num in range(numSamples):
             'sparseGPU': sparseGPUTimes,
             'manual': manualTimes}
 
-    pickle.dump(data, open('dataBackendTimesSpikingSparse.p', 'wb'))
+    pickle.dump(data, open('dataBackendTimesNonspikingDense.p', 'wb'))
+
+send_email('wrn13@case.edu')
 print('Finished test loop. Running for %f sec'%(time.time()-globalStart))
