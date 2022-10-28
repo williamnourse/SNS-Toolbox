@@ -39,6 +39,11 @@ manualAvgTimes = np.mean(manualRawTimes,axis=1)*1000
 manualVar = np.std(manualRawTimes,axis=1)*1000
 
 
+data_brian = pickle.load(open('dataBrianTimesNonspikingSparse.p', 'rb'))
+brianRawTimes = data_brian['brian']
+brianAvgTimes = np.mean(brianRawTimes,axis=1)*1000
+brianVar = np.std(brianRawTimes,axis=1)*1000
+
 """
 ########################################################################################################################
 PLOTTING
@@ -56,8 +61,10 @@ plt.plot(numNeurons,sparseCPUAvgTimes,color='C3',label='Sparse CPU')
 plt.fill_between(numNeurons,sparseCPUAvgTimes-sparseCPUVar,sparseCPUAvgTimes+sparseCPUVar,color='C3',alpha=0.2)
 plt.plot(numNeurons,sparseGPUAvgTimes,color='C4',label='Sparse GPU')
 plt.fill_between(numNeurons,sparseGPUAvgTimes-sparseGPUVar,sparseGPUAvgTimes+sparseGPUVar,color='C4',alpha=0.2)
-plt.plot(numNeurons,manualAvgTimes,color='C5',label='Manual')
+plt.plot(numNeurons,manualAvgTimes,color='C5',label='Iterative')
 plt.fill_between(numNeurons,manualAvgTimes-manualVar,manualAvgTimes+manualVar,color='C5',alpha=0.2)
+plt.plot(numNeurons,brianAvgTimes,color='C5',label='Iterative')
+plt.fill_between(numNeurons,brianAvgTimes-brianVar,brianAvgTimes+brianVar,color='C6',alpha=0.2)
 plt.xlabel('Number of Neurons')
 plt.ylabel('Step Time (ms)')
 plt.yscale('log')

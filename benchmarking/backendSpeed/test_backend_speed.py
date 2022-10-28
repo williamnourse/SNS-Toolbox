@@ -13,7 +13,6 @@ import pickle
 from sns_toolbox.neurons import SpikingNeuron
 from sns_toolbox.connections import SpikingSynapse
 from sns_toolbox.networks import Network
-from sns_toolbox.backends import SNS_Numpy, SNS_Torch, SNS_Sparse, SNS_Iterative
 
 """
 ########################################################################################################################
