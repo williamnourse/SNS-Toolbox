@@ -2,8 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pickle
 
-# this can be found inside 'backendSpeedData.zip'
-# data = pickle.load(open('backendSpeedData/dataBackendTimesNew.p', 'rb'))
 data = pickle.load(open('dataBackendTimesNonspikingSparse.p', 'rb'))
 numNeurons = data['shape']
 
