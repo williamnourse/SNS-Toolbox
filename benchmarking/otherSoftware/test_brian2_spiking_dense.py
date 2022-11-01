@@ -71,6 +71,7 @@ for num in range(numSamples):
     print('Finished network construction with %i neurons. Running for %f sec' % (num_neurons, time.time() - globalStart))
 
     for i in range(numSteps):
+        print('Sample %i/%i' % (num + 1, numSamples))
         print('%i Neurons Brian Step %i/%i'%(num_neurons,i+1,numSteps))
         stepStart = time.time()
         run(dt*ms)
