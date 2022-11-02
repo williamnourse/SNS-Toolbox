@@ -16,25 +16,21 @@ torchCPUVar = np.std(torchCPURawTimes,axis=1)*1000
 torchGPURawTimes = data['torchGPU']
 torchGPUAvgTimes = np.mean(torchGPURawTimes,axis=1)*1000
 torchGPUVar = np.std(torchGPURawTimes,axis=1)*1000
-#
-# sparseCPURawTimes = data['sparseCPU']
-# sparseCPUAvgTimes = np.mean(sparseCPURawTimes,axis=1)*1000
-# sparseCPUVar = np.std(sparseCPURawTimes,axis=1)*1000
-#
-# sparseGPURawTimes = data['sparseGPU']
-# sparseGPUAvgTimes = np.mean(sparseGPURawTimes,axis=1)*1000
-# sparseGPUVar = np.std(sparseGPURawTimes,axis=1)*1000
-#
+
 manualRawTimes = data['manual']
 manualAvgTimes = np.mean(manualRawTimes,axis=1)*1000
 manualVar = np.std(manualRawTimes,axis=1)*1000
-
 
 data_brian = pickle.load(open('dataBrianTimesNonspikingDense.p', 'rb'))
 # numNeurons = data_brian['shape']
 brianRawTimes = data_brian['brian']
 brianAvgTimes = np.mean(brianRawTimes,axis=1)*1000
 brianVar = np.std(brianRawTimes,axis=1)*1000
+
+data_nengo = pickle.load(open('dataNengoTimesNonspikingDense.p','rb'))
+nengoRawTimes = data_nengo['nengo']
+nengoAvgTimes = np.mean(nengoRawTimes,axis=1)*1000
+nengoVar = np.std(nengoRawTimes,axis=1)*1000
 
 """
 ########################################################################################################################
@@ -57,6 +53,8 @@ plt.plot(numNeurons,manualAvgTimes,color='C5',label='Iterative')
 plt.fill_between(numNeurons,manualAvgTimes-manualVar,manualAvgTimes+manualVar,color='C5',alpha=0.2)
 plt.plot(numNeurons,brianAvgTimes,color='C6',label='Brian2')
 plt.fill_between(numNeurons,brianAvgTimes-brianVar,brianAvgTimes+brianVar,color='C6',alpha=0.2)
+plt.plot(numNeurons,nengoAvgTimes,color='C7',label='Nengo')
+plt.fill_between(numNeurons,nengoAvgTimes-nengoVar,nengoAvgTimes+nengoVar,color='C7',alpha=0.2)
 plt.xlabel('Number of Neurons')
 plt.ylabel('Step Time (ms)')
 plt.yscale('log')

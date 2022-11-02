@@ -78,5 +78,5 @@ for num in range(numSamples):
     data = {'shape': numNeurons,
             'brian': brianTimes}
 
-    pickle.dump(data, open('../backendSpeed/dataBrianTimesNonspikingDense.p', 'wb'))
+    pickle.dump(data, open('../../backendSpeed/dataBrianTimesNonspikingDense.p', 'wb'))
 print('Finished test loop. Running for %f sec' % (time.time() - globalStart))
