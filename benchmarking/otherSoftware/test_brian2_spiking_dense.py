@@ -4,6 +4,10 @@ from brian2 import *
 import time
 import pickle
 
+# Personal stuff to send an email once data collection is finished
+import sys
+sys.path.extend(['/home/will'])
+from email_utils import send_email
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 NEURON AND SYNAPSE DEFINITIONS
@@ -84,4 +88,5 @@ for num in range(numSamples):
             'brian': brianTimes}
 
     pickle.dump(data, open('../backendSpeed/dataBrianTimesSpikingDense.p', 'wb'))
+send_email('wrn13@case.edu')
 print('Finished test loop. Running for %f sec' % (time.time() - globalStart))
