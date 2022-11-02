@@ -52,8 +52,7 @@ class NonSpikingNeuronsWithSynapticInput(nengo.Process):
         DelE = self.DelE
 
         def step(t, x):
-            g_syn = np.maximum(0, np.minimum(self.Gmax * (u / R),
-                                             self.Gmax))
+            g_syn = np.maximum(0, np.minimum(Gmax * (u / R),Gmax))
 
             i_syn = np.sum(g_syn * DelE, axis=1) - u * np.sum(g_syn, axis=1)
             u[:] += dt*1000/Cm*(-u + i_syn + bias)
