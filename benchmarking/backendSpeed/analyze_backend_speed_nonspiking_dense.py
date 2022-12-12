@@ -63,6 +63,6 @@ plt.yscale('log')
 plt.xscale('log')
 # plt.xlim([10,3000])
 plt.title('Nonspiking Dense Networks')
-plt.legend()
+# plt.legend()
 
 plt.show()

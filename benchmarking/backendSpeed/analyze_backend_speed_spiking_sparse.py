@@ -79,6 +79,6 @@ plt.yscale('log')
 plt.xscale('log')
 # plt.xlim([10,3000])
 plt.title('Spiking Sparse Networks')
-plt.legend()
+# plt.legend()
 
 plt.show()
