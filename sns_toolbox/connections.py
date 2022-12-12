@@ -112,8 +112,8 @@ class NonSpikingSynapse(NonSpikingConnection):
                  e_hi: float = 20.0,
                  **kwargs: Any) -> None:
         if isinstance(max_conductance, numbers.Number):
-            if max_conductance <= 0:
-                raise ValueError('max_conductance (gMax) must be greater than 0')
+            if max_conductance < 0:
+                raise ValueError('max_conductance (gMax) must non-negative')
         else:
             raise TypeError('max_conductance (gMax) must be a number (int, float, double, etc.')
         if not isinstance(reversal_potential, numbers.Number):
@@ -184,8 +184,8 @@ class NonSpikingPatternConnection(NonSpikingConnection):
     def __init__(self, max_conductance_kernel, reversal_potential_kernel, e_lo_kernel, e_hi_kernel, **kwargs: Any) -> None:
         if max_conductance_kernel.shape != reversal_potential_kernel.shape:
             raise ValueError('Max Conductance and Relative Reversal Potential must be matrices of the same shape')
-        if np.any(max_conductance_kernel <= 0):
-            raise ValueError('Max Conductance values must be greater than zero')
+        if np.any(max_conductance_kernel < 0):
+            raise ValueError('Max Conductance values must be non-negative')
         super().__init__(max_conductance_kernel, reversal_potential_kernel, e_lo_kernel, e_hi_kernel, **kwargs)  # Call to constructor of parent class
         self.params['pattern'] = True
 
@@ -209,8 +209,8 @@ class SpikingPatternConnection(SpikingConnection):
                 max_conductance_kernel.shape != time_constant_kernel.shape) or (
                 max_conductance_kernel.shape != transmission_delay_kernel.shape):
             raise ValueError('Max Conductance, Relative Reversal Potential, Time Constant, and Transmission Delay must be matrices of the same shape')
-        if np.any(max_conductance_kernel <= 0):
-            raise ValueError('Max Conductance values must be greater than zero')
+        if np.any(max_conductance_kernel < 0):
+            raise ValueError('Max Conductance values must be non-negative')
         if np.any(time_constant_kernel <= 0):
             raise ValueError('Time constant values must be greater than 0 ms')
         if np.any(transmission_delay_kernel < 0):
