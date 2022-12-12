@@ -30,5 +30,4 @@ Citation
 
 If you use this software for an academic publication, we ask that you please cite the following paper:
 
-*Nourse W., Szczecinski N., Quinn R., SNS-Toolbox: A tool for efficient simulation of synthetic nervous systems. (In
-preparation)*
+Nourse, W.R.P., Szczecinski, N.S., Quinn, R.D. (2022). SNS-Toolbox: A Tool for Efficient Simulation of Synthetic Nervous Systems. In: , et al. Biomimetic and Biohybrid Systems. Living Machines 2022. Lecture Notes in Computer Science(), vol 13548. Springer, Cham. https://doi.org/10.1007/978-3-031-20470-8_4
