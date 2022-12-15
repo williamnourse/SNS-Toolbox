@@ -252,7 +252,7 @@ class NonSpikingTransmissionSynapse(NonSpikingSynapse):
                 except ZeroDivisionError:
                     raise ValueError('Gain of '+str(gain)+' causes division by 0, decrease integration_gain or increase reversal_potential')
                 if self.params['max_conductance'] < 0:
-                    raise ValueError('Gain of '+str(gain)+' causes max_conductance to be negative, decrease integration_gain or increase reversal_potential_kernel')
+                    raise ValueError('Gain of '+str(gain)+' causes max_conductance to be negative, decrease integration_gain or increase reversal_potential')
         else:
             raise TypeError('Gain must be a number (int, float, double, etc.)')
         if isinstance(R, numbers.Number):   # R error handling
@@ -366,16 +366,16 @@ Classes and functions for an easier pattern connection, just based on gains. Not
 #                                                                                                                    self.params['R'])
 #                     cond_values.append(calc_max_conductance)
 #                     del_e_values.append(calc_relative_reversal_potential)
-#                 self.params['max_conductance_kernel'].append(cond_values)
-#                 self.params['reversal_potential_kernel'].append(del_e_values)
+#                 self.params['max_conductance'].append(cond_values)
+#                 self.params['reversal_potential'].append(del_e_values)
 #         else:   # 1D kernel
 #             for i in range(len(gain_matrix)):
 #                 calc_max_conductance, calc_relative_reversal_potential = __calc_synaptic_parameters_from_gain__(gain_matrix[i],
 #                                                                                                                 positive_reversal_potential,
 #                                                                                                                 negative_reversal_potential,
 #                                                                                                                 self.params['R'])
-#                 self.params['max_conductance_kernel'].append(calc_max_conductance)
-#                 self.params['reversal_potential_kernel'].append(calc_relative_reversal_potential)
+#                 self.params['max_conductance'].append(calc_max_conductance)
+#                 self.params['reversal_potential'].append(calc_relative_reversal_potential)
 
 # def __calc_synaptic_parameters_from_gain__(gain, positive_reversal_potential, negative_reversal_potential, R):
 #     if gain == 0.0:

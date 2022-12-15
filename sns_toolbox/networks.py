@@ -521,6 +521,12 @@ class Network:
                     e_lo = __kernel_connections_1d__(self.populations[source]['shape'],
                                                      connection_type.params['e_lo'], fill_value=self.populations[source]['type'].params['resting_potential'])
                     self.connections[-1]['params']['e_lo'] = e_lo
+        elif connection_type.params['matrix']:
+            num_dest, num_source = connection_type.params['max_conductance'].shape
+            if self.populations[source]['number'] != num_source:
+                raise ValueError('Source population size must match the number of columns in the synaptic matrices')
+            elif self.populations[destination]['number'] != num_dest:
+                raise ValueError('Destination population size must match the number of rows in the synaptic matrices')
         elif connection_type.params['electrical']:
             # style = 'odiamond'
             if connection_type.params['rectified'] is False:

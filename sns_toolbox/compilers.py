@@ -253,18 +253,19 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
         if network.connections[syn]['params']['electrical'] is False:  # electrical connection
             del_e_val = network.connections[syn]['params']['reversal_potential']
 
-        if network.connections[syn]['params']['pattern']:  # pattern connection
-            pop_size = len(pops_and_nrns[source_pop])
+        if network.connections[syn]['params']['matrix']:  # pattern and matrix connections
+            pop_size_source = len(pops_and_nrns[source_pop])
+            pop_size_dest = len(pops_and_nrns[dest_pop])
             source_index = pops_and_nrns[source_pop][0]
             dest_index = pops_and_nrns[dest_pop][0]
             if network.connections[syn]['params']['spiking']:
                 tau_s = network.connections[syn]['params']['synapticTimeConstant']
-                g_max_spike[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = g_max
-                del_e[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = del_e_val
-                tau_syn[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = tau_s
+                g_max_spike[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = g_max
+                del_e[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = del_e_val
+                tau_syn[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = tau_s
                 if delay:
                     delay_val = network.connections[syn]['params']['synapticTransmissionDelay']
-                    spike_delays[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = delay_val
+                    spike_delays[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = delay_val
 
                     for source in pops_and_nrns[source_pop]:
                         for dest in pops_and_nrns[dest_pop]:
@@ -275,10 +276,10 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
             else:
                 e_lo_val = network.connections[syn]['params']['e_lo']
                 e_hi_val = network.connections[syn]['params']['e_hi']
-                g_max_non[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = g_max
-                del_e[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = del_e_val
-                e_lo[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = e_lo_val
-                e_hi[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = e_hi_val
+                g_max_non[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = g_max
+                del_e[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = del_e_val
+                e_lo[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = e_lo_val
+                e_hi[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = e_hi_val
         elif network.connections[syn]['params']['electrical']:  # electrical connection
             for source in pops_and_nrns[source_pop]:
                 for dest in pops_and_nrns[dest_pop]:
@@ -827,23 +828,24 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
         if network.connections[syn]['params']['electrical'] is False:  # Chemical connection
             del_e_val = network.connections[syn]['params']['reversal_potential']
 
-        if network.connections[syn]['params']['pattern']:  # pattern connection
-            pop_size = len(pops_and_nrns[source_pop])
+        if network.connections[syn]['params']['matrix']:  # pattern and connections
+            pop_size_source = len(pops_and_nrns[source_pop])
+            pop_size_dest = len(pops_and_nrns[dest_pop])
             source_index = pops_and_nrns[source_pop][0]
             dest_index = pops_and_nrns[dest_pop][0]
 
             if network.connections[syn]['params']['spiking']:
                 tau_s = network.connections[syn]['params']['synapticTimeConstant']
-                g_max_spike[dest_index:dest_index + pop_size,
-                source_index:source_index + pop_size] = torch.from_numpy(g_max_val)
-                del_e[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = torch.from_numpy(
+                g_max_spike[dest_index:dest_index + pop_size_dest,
+                source_index:source_index + pop_size_source] = torch.from_numpy(g_max_val)
+                del_e[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = torch.from_numpy(
                     del_e_val)
-                tau_syn[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = torch.from_numpy(
+                tau_syn[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = torch.from_numpy(
                     tau_s)
                 if delay:
                     delay_val = network.connections[syn]['params']['synapticTransmissionDelay']
-                    spike_delays[dest_index:dest_index + pop_size,
-                    source_index:source_index + pop_size] = torch.from_numpy(delay_val)
+                    spike_delays[dest_index:dest_index + pop_size_dest,
+                    source_index:source_index + pop_size_source] = torch.from_numpy(delay_val)
 
                     for source in pops_and_nrns[source_pop]:
                         for dest in pops_and_nrns[dest_pop]:
@@ -854,13 +856,13 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
             else:
                 e_lo_val = network.connections[syn]['params']['e_lo']
                 e_hi_val = network.connections[syn]['params']['e_hi']
-                g_max_non[dest_index:dest_index + pop_size,
-                source_index:source_index + pop_size] = torch.from_numpy(g_max_val)
-                del_e[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = torch.from_numpy(
+                g_max_non[dest_index:dest_index + pop_size_dest,
+                source_index:source_index + pop_size_source] = torch.from_numpy(g_max_val)
+                del_e[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = torch.from_numpy(
                     del_e_val)
-                e_lo[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = torch.from_numpy(
+                e_lo[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = torch.from_numpy(
                     e_lo_val)
-                e_hi[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = torch.from_numpy(
+                e_hi[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = torch.from_numpy(
                     e_hi_val)
         elif network.connections[syn]['params']['electrical']:  # electrical connection
             for source in pops_and_nrns[source_pop]:
@@ -1470,8 +1472,9 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
         if network.connections[syn]['params']['electrical'] is False:  # chemical connection
             del_e_val = network.connections[syn]['params']['reversal_potential']
 
-        if network.connections[syn]['params']['pattern']:  # pattern connection
-            pop_size = len(pops_and_nrns[source_pop])
+        if network.connections[syn]['params']['matrix']:  # pattern and matrix connections
+            pop_size_source = len(pops_and_nrns[source_pop])
+            pop_size_dest = len(pops_and_nrns[dest_pop])
             source_index = pops_and_nrns[source_pop][0]
             dest_index = pops_and_nrns[dest_pop][0]
 
@@ -1479,23 +1482,23 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
                 tau_s = network.connections[syn]['params']['synapticTimeConstant']
 
                 g_max_spike = g_max_spike.to_dense()
-                g_max_spike[dest_index:dest_index + pop_size,
-                source_index:source_index + pop_size] = torch.from_numpy(g_max_val)
+                g_max_spike[dest_index:dest_index + pop_size_dest,
+                source_index:source_index + pop_size_source] = torch.from_numpy(g_max_val)
                 g_max_spike = g_max_spike.to_sparse()
 
                 del_e = del_e.to_dense()
-                del_e[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = torch.from_numpy(
+                del_e[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = torch.from_numpy(
                     del_e_val)
                 del_e = del_e.to_sparse()
 
-                tau_syn[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = torch.from_numpy(
+                tau_syn[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = torch.from_numpy(
                     tau_s)
 
                 if delay:
                     delay_val = network.connections[syn]['params']['synapticTransmissionDelay']
                     spike_delays = spike_delays.to_dense()
-                    spike_delays[dest_index:dest_index + pop_size,
-                    source_index:source_index + pop_size] = torch.from_numpy(delay_val)
+                    spike_delays[dest_index:dest_index + pop_size_dest,
+                    source_index:source_index + pop_size_source] = torch.from_numpy(delay_val)
                     spike_delays = spike_delays.to_sparse()
 
                     for source in pops_and_nrns[source_pop]:
@@ -1509,21 +1512,21 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
                 e_hi_val = network.connections[syn]['params']['e_hi']
 
                 g_max_non = g_max_non.to_dense()
-                g_max_non[dest_index:dest_index + pop_size,
-                source_index:source_index + pop_size] = torch.from_numpy(g_max_val)
+                g_max_non[dest_index:dest_index + pop_size_dest,
+                source_index:source_index + pop_size_source] = torch.from_numpy(g_max_val)
                 g_max_non = g_max_non.to_sparse()
 
                 del_e = del_e.to_dense()
-                del_e[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = torch.from_numpy(
+                del_e[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = torch.from_numpy(
                     del_e_val)
                 del_e = del_e.to_sparse()
 
                 e_lo = e_lo.to_dense()
-                e_lo[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = torch.from_numpy(
+                e_lo[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = torch.from_numpy(
                     e_lo_val)
                 e_lo = e_lo.to_sparse()
 
-                e_hi[dest_index:dest_index + pop_size, source_index:source_index + pop_size] = torch.from_numpy(
+                e_hi[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = torch.from_numpy(
                     e_hi_val)
         elif network.connections[syn]['params']['electrical']:  # electrical connection
             for source in pops_and_nrns[source_pop]:
@@ -2071,8 +2074,9 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
         if network.connections[syn]['params']['electrical'] is False:  # electrical connection
             del_e_val = network.connections[syn]['params']['reversal_potential']
 
-        if network.connections[syn]['params']['pattern']:  # pattern connection
-            pop_size = len(pops_and_nrns[source_pop])
+        if network.connections[syn]['params']['matrix']:  # pattern and matrix connections
+            pop_size_source = len(pops_and_nrns[source_pop])
+            pop_size_dest = len(pops_and_nrns[dest_pop])
             source_index = pops_and_nrns[source_pop][0]
             dest_index = pops_and_nrns[dest_pop][0]
             if network.connections[syn]['params']['spiking']:
@@ -2080,8 +2084,8 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
                 if delay:
                     delay_val = network.connections[syn]['params']['synapticTransmissionDelay']
 
-                for dest in range(pop_size):
-                    for source in range(pop_size):
+                for dest in range(pop_size_dest):
+                    for source in range(pop_size_source):
                         g_syn = g_max_val[dest, source]
                         rev = del_e_val[dest, source]
                         time_factor_syn = dt / tau_s[dest, source]
@@ -2095,8 +2099,8 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
             else:
                 e_lo_val = network.connections[syn]['params']['e_lo']
                 e_hi_val = network.connections[syn]['params']['e_hi']
-                for dest in range(pop_size):
-                    for source in range(pop_size):
+                for dest in range(pop_size_dest):
+                    for source in range(pop_size_source):
                         g_syn = g_max_val[dest, source]
                         rev = del_e_val[dest, source]
 
