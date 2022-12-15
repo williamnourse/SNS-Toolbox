@@ -32,6 +32,7 @@ class Connection:
         self.params: Dict[str, Any] = {}
         self.params['spiking'] = False
         self.params['pattern'] = False
+        self.params['matrix'] = False
         self.params['electrical'] = False
         self.params['max_conductance'] = max_conductance
         if isinstance(name, str):
@@ -167,6 +168,57 @@ class SpikingSynapse(SpikingConnection):
         else:
             raise TypeError('Synaptic transmission delay must be an integer')
 
+class NonSpikingMatrixConnection(NonSpikingConnection):
+    """
+    A connection matrix of non-spiking synapses, with matrices representing the maximum conductance and reversal
+    potential of each synapse in the pattern.
+
+    :param max_conductance: Matrix of conductance values. Units are micro-siemens (uS).
+    :type max_conductance: np.ndarray or torch.Tensor
+    :param reversal_potential: Kernel matrix of reversal potential values. Units are millivolts (mV).
+    :type reversal_potential: np.ndarray or torch.Tensor
+    :param e_lo: Synaptic activation threshold kernel matrix. Units are millivolts (mV)
+    :type e_lo: np.ndarray, or torch.Tensor
+    :param e_hi: Synaptic maximum activation limit kernel matrix. Units are millivolts (mV)
+    :type e_hi: np.ndarray, or torch.Tensor
+    """
+    def __init__(self, max_conductance, reversal_potential, e_lo, e_hi, **kwargs: Any) -> None:
+        if max_conductance.shape != reversal_potential.shape:
+            raise ValueError('Max Conductance and Relative Reversal Potential must be matrices of the same shape')
+        if np.any(max_conductance < 0):
+            raise ValueError('Max Conductance values must be non-negative')
+        super().__init__(max_conductance, reversal_potential, e_lo, e_hi, **kwargs)  # Call to constructor of parent class
+        self.params['matrix'] = True
+
+class SpikingMatrixConnection(SpikingConnection):
+    """
+    A connection matrix of spiking synapses, with matrices representing the maximum conductance, reversal potential, time
+    constant, and transmission delay of each synapse in the pattern.
+
+    :param max_conductance: Matrix of conductance values. Units are micro-siemens (uS).
+    :type max_conductance: np.ndarray or torch.Tensor
+    :param reversal_potential: Kernel matrix of reversal potential values. Units are millivolts (mV).
+    :type reversal_potential: np.ndarray or torch.Tensor
+    :param time_constant: Matrix of time constant values. Units are milliseconds (ms).
+    :type time_constant: np.ndarray or torch.tensor
+    :param transmission_delay: Matrix of transmission delays. Units are timesteps (dt).
+    :type transmission_delay: np.ndarray or torch.tensor
+    """
+    def __init__(self, max_conductance, reversal_potential, time_constant, transmission_delay, **kwargs: Any) -> None:
+        if (max_conductance.shape != reversal_potential.shape) or (
+                max_conductance.shape != time_constant.shape) or (
+                max_conductance.shape != transmission_delay.shape):
+            raise ValueError('Max Conductance, Relative Reversal Potential, Time Constant, and Transmission Delay must be matrices of the same shape')
+        if np.any(max_conductance < 0):
+            raise ValueError('Max Conductance values must be non-negative')
+        if np.any(time_constant <= 0):
+            raise ValueError('Time constant values must be greater than 0 ms')
+        if np.any(transmission_delay < 0):
+            raise ValueError('Transmission delays must be non-negative')
+        super().__init__(max_conductance, reversal_potential, time_constant,
+                         transmission_delay, **kwargs)  # Call to constructor of parent class
+        self.params['matrix'] = True
+
 class NonSpikingPatternConnection(NonSpikingConnection):
     """
     A pattern of non-spiking synapses, with kernel matrices representing the maximum conductance and reversal potential
@@ -188,6 +240,7 @@ class NonSpikingPatternConnection(NonSpikingConnection):
             raise ValueError('Max Conductance values must be non-negative')
         super().__init__(max_conductance_kernel, reversal_potential_kernel, e_lo_kernel, e_hi_kernel, **kwargs)  # Call to constructor of parent class
         self.params['pattern'] = True
+        self.params['matrix'] = True
 
 class SpikingPatternConnection(SpikingConnection):
     """
@@ -218,6 +271,7 @@ class SpikingPatternConnection(SpikingConnection):
         super().__init__(max_conductance_kernel, reversal_potential_kernel, time_constant_kernel,
                          transmission_delay_kernel, **kwargs)  # Call to constructor of parent class
         self.params['pattern'] = True
+        self.params['matrix'] = True
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
