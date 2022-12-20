@@ -465,7 +465,7 @@ class Network:
         self.connections.append({'name': label,
                                  'source': source,
                                  'destination': destination,
-                                 'params': connection_type.params,
+                                 'params': copy.deepcopy(connection_type.params),
                                  'type': copy.deepcopy(connection_type),
                                  'view': view_label})
 
@@ -662,12 +662,15 @@ def __kernel_connections_1d__(pop_size,kernel,fill_value=0.0):
     :rtype: np.ndarray
     """
     kernel_length = len(kernel)
-    pad_amt = int((kernel_length-1)/2)
-    connection_matrix = np.zeros([pop_size,pop_size])+fill_value
-    for row in range(pop_size):
-        padded = np.zeros(pop_size + 2 * pad_amt)
-        padded[row:row+kernel_length] = kernel
-        connection_matrix[row,:] = padded[pad_amt:-pad_amt]
+    if kernel_length == 1:
+        connection_matrix = np.zeros([pop_size, pop_size]) + kernel
+    else:
+        pad_amt = int((kernel_length-1)/2)
+        connection_matrix = np.zeros([pop_size,pop_size])+fill_value
+        for row in range(pop_size):
+            padded = np.zeros(pop_size + 2 * pad_amt)
+            padded[row:row+kernel_length] = kernel
+            connection_matrix[row,:] = padded[pad_amt:-pad_amt]
     return connection_matrix
 
 def __kernel_connections_2d__(pop_shape,kernel,fill_value=0.0):
@@ -685,27 +688,31 @@ def __kernel_connections_2d__(pop_shape,kernel,fill_value=0.0):
     kernel_cols = kernel.shape[1]
     num_kernel_dims = len(kernel.shape)
     pop_size = pop_shape[0]*pop_shape[1]
-    pad_dims = []
-    for dim in range(num_kernel_dims):
-        pad_amt = int((kernel.shape[dim] - 1) / 2)
-        pad_dims.append([pad_amt,pad_amt])
-    source_matrix = np.zeros(pop_shape)+fill_value
-    connection_matrix = np.zeros([pop_size,pop_size])+fill_value
-    index = 0
-    for row in range(pop_shape[0]):
-        for col in range(pop_shape[1]):
-            padded_matrix = np.pad(source_matrix, pad_dims)
-            padded_matrix[row:row+kernel_rows,col:col+kernel_cols] = kernel
-            pad_rows = pad_dims[0][0]
-            pad_cols = pad_dims[1][0]
-            if pad_cols == 0:
-                subsection = padded_matrix[pad_rows:-pad_rows,:]
-            elif pad_rows == 0:
-                subsection = padded_matrix[:,pad_cols:-pad_cols]
-            else:
-                subsection = padded_matrix[pad_rows:-pad_rows,pad_cols:-pad_cols]
-            connection_matrix[index,:] = subsection.flatten()
-            index += 1
+
+    if (kernel_cols) == 1 and (kernel_rows == 1):
+        connection_matrix = np.zeros([pop_size, pop_size]) + kernel
+    else:
+        pad_dims = []
+        for dim in range(num_kernel_dims):
+            pad_amt = int((kernel.shape[dim] - 1) / 2)
+            pad_dims.append([pad_amt,pad_amt])
+        source_matrix = np.zeros(pop_shape)+fill_value
+        connection_matrix = np.zeros([pop_size,pop_size])+fill_value
+        index = 0
+        for row in range(pop_shape[0]):
+            for col in range(pop_shape[1]):
+                padded_matrix = np.pad(source_matrix, pad_dims)
+                padded_matrix[row:row+kernel_rows,col:col+kernel_cols] = kernel
+                pad_rows = pad_dims[0][0]
+                pad_cols = pad_dims[1][0]
+                if pad_cols == 0:
+                    subsection = padded_matrix[pad_rows:-pad_rows,:]
+                elif pad_rows == 0:
+                    subsection = padded_matrix[:,pad_cols:-pad_cols]
+                else:
+                    subsection = padded_matrix[pad_rows:-pad_rows,pad_cols:-pad_cols]
+                connection_matrix[index,:] = subsection.flatten()
+                index += 1
     return connection_matrix
 
 """
