@@ -89,7 +89,7 @@ def render(net: Network, view=True, save=False, filename=None, img_format='png')
             destination = conn['destination']
             params = conn['params']
             view_label = conn['view']
-            if params['pattern']:   # pattern connection
+            if params['matrix']:   # pattern/matrix connection
                 style = 'vee'
                 direction = 'forward'
             elif params['electrical']:  # electrical synapese
