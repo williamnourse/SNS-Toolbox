@@ -189,4 +189,5 @@ for num in range(numSamples):
             'manual': manualTimes}
 
     pickle.dump(data, open('dataBackendTimesSpikingSparse.p', 'wb'))
+send_email('wrn13@case.edu')
 print('Finished test loop. Running for %f sec'%(time.time()-globalStart))
