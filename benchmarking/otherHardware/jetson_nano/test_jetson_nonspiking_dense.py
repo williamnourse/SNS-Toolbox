@@ -55,7 +55,7 @@ for num in range(numSamples):
     npModel = net.compile(dt=dt,backend='numpy', device='cpu')
     npInput = np.array([current])
     for i in range(len(t)):
-        print('%i Neurons Numpy Step %i/%i'%(numNeurons[num],i+1,len(t)))
+        print('Nonspiking Dense. %i Neurons Numpy Step %i/%i'%(numNeurons[num],i+1,len(t)))
         stepStart = time.time()
         _ = npModel.forward(npInput)
         stepStop = time.time()
@@ -67,7 +67,7 @@ for num in range(numSamples):
     torchCPUInput = torch.tensor([current],device='cpu')
     print('Sample %i/%i' % (num + 1, numSamples))
     for i in range(len(t)):
-        print('%i Neurons Torch CPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
+        print('Nonspiking Dense. %i Neurons Torch CPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
         stepStart = time.time()
         _ = torchCPUModel.forward(torchCPUInput)
         stepStop = time.time()
@@ -84,7 +84,7 @@ for num in range(numSamples):
         # print('CUDA Model Made')
         # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
         for i in range(len(t)):
-            print('%i Neurons Torch GPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
+            print('Nonspiking Dense. %i Neurons Torch GPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
             stepStart = time.time()
             _ = torchGPUModel.forward(torchGPUInput)
             stepStop = time.time()
@@ -112,7 +112,7 @@ for num in range(numSamples):
         # print('CUDA Model Made')
         # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
         for i in range(len(t)):
-            print('%i Neurons Torch Sparse Step %i/%i'%(numNeurons[num],i+1,len(t)))
+            print('Nonspiking Dense. %i Neurons Torch Sparse CPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
             stepStart = time.time()
             _ = torchGPUSparseModel.forward(torchGPUSparseInput)
             stepStop = time.time()
@@ -140,7 +140,7 @@ for num in range(numSamples):
         # print('CUDA Model Made')
         # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
         for i in range(len(t)):
-            print('%i Neurons Torch Sparse Step %i/%i'%(numNeurons[num],i+1,len(t)))
+            print('Nonspiking Dense. %i Neurons Torch Sparse GPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
             stepStart = time.time()
             _ = torchGPUSparseModel.forward(torchGPUSparseInput)
             stepStop = time.time()
@@ -164,7 +164,7 @@ for num in range(numSamples):
     manInput = np.array([current])
     print('Sample %i/%i' % (num + 1, numSamples))
     for i in range(len(t)):
-        print('%i Neurons Manual Step %i/%i' % (numNeurons[num], i + 1, len(t)))
+        print('Nonspiking Dense. %i Neurons Manual Step %i/%i' % (numNeurons[num], i + 1, len(t)))
         stepStart = time.time()
         _ = manModel.forward(npInput)
         stepStop = time.time()
@@ -179,7 +179,7 @@ for num in range(numSamples):
             'sparseGPU': sparseGPUTimes,
             'manual': manualTimes}
 
-    pickle.dump(data, open('dataBackendTimesNonspikingDense.p', 'wb'))
+    pickle.dump(data, open('dataJetsonNonspikingDense.p', 'wb'))
 
 #send_email('wrn13@case.edu')
 print('Finished test loop. Running for %f sec'%(time.time()-globalStart))

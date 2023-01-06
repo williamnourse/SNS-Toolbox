@@ -9,8 +9,8 @@ from sns_toolbox.connections import NonSpikingSynapse
 from sns_toolbox.networks import Network
 
 # Personal stuff to send an email once data collection is finished
-sys.path.extend(['/home/will'])
-from email_utils import send_email
+# sys.path.extend(['/home/will'])
+# from email_utils import send_email
 
 """
 ########################################################################################################################
@@ -60,7 +60,7 @@ for num in range(numSamples):
     npModel = net.compile(dt=dt,backend='numpy', device='cpu')
     npInput = np.array([current])
     for i in range(len(t)):
-        print('%i Neurons Numpy Step %i/%i'%(numNeurons[num],i+1,len(t)))
+        print('Nonspiking Sparse. %i Neurons Numpy Step %i/%i'%(numNeurons[num],i+1,len(t)))
         stepStart = time.time()
         _ = npModel.forward(npInput)
         stepStop = time.time()
@@ -71,7 +71,7 @@ for num in range(numSamples):
     torchCPUModel = net.compile(dt=dt,backend='torch', device='cpu')
     torchCPUInput = torch.tensor([current],device='cpu')
     for i in range(len(t)):
-        print('%i Neurons Torch CPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
+        print('Nonspiking Sparse. %i Neurons Torch CPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
         stepStart = time.time()
         _ = torchCPUModel.forward(torchCPUInput)
         stepStop = time.time()
@@ -87,7 +87,7 @@ for num in range(numSamples):
         # print('CUDA Model Made')
         # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
         for i in range(len(t)):
-            print('%i Neurons Torch GPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
+            print('Nonspiking Sparse. %i Neurons Torch GPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
             stepStart = time.time()
             _ = torchGPUModel.forward(torchGPUInput)
             stepStop = time.time()
@@ -115,7 +115,7 @@ for num in range(numSamples):
         # print('CUDA Model Made')
         # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
         for i in range(len(t)):
-            print('%i Neurons Torch Sparse Step %i/%i'%(numNeurons[num],i+1,len(t)))
+            print('Nonspiking Sparse. %i Neurons Torch Sparse CPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
             stepStart = time.time()
             _ = torchGPUSparseModel.forward(torchGPUSparseInput)
             stepStop = time.time()
@@ -143,7 +143,7 @@ for num in range(numSamples):
         # print('CUDA Model Made')
         # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
         for i in range(len(t)):
-            print('%i Neurons Torch Sparse Step %i/%i'%(numNeurons[num],i+1,len(t)))
+            print('Nonspiking Sparse. %i Neurons Torch Sparse GPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
             stepStart = time.time()
             _ = torchGPUSparseModel.forward(torchGPUSparseInput)
             stepStop = time.time()
@@ -166,7 +166,7 @@ for num in range(numSamples):
     manModel = net.compile(dt=dt,backend='iterative', device='cpu')
     manInput = np.array([current])
     for i in range(len(t)):
-        print('%i Neurons Manual Step %i/%i' % (numNeurons[num], i + 1, len(t)))
+        print('Nonspiking Sparse. %i Neurons Manual Step %i/%i' % (numNeurons[num], i + 1, len(t)))
         stepStart = time.time()
         _ = manModel.forward(npInput)
         stepStop = time.time()
@@ -181,7 +181,7 @@ for num in range(numSamples):
             'sparseGPU': sparseGPUTimes,
             'manual': manualTimes}
 
-    pickle.dump(data, open('dataBackendTimesNonspikingSparse.p', 'wb'))
+    pickle.dump(data, open('dataJetsonNanoNonspikingSparse.p', 'wb'))
 
-send_email('wrn13@case.edu')
+# send_email('wrn13@case.edu')
 print('Finished test loop. Running for %f sec'%(time.time()-globalStart))
