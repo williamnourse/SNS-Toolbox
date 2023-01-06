@@ -9,8 +9,8 @@ from sns_toolbox.connections import NonSpikingSynapse
 from sns_toolbox.networks import Network
 
 # Personal stuff to send an email once data collection is finished
-sys.path.extend(['/home/will'])
-from email_utils import send_email
+#sys.path.extend(['/home/sns'])
+#from email_utils import send_email
 
 """
 ########################################################################################################################
@@ -181,5 +181,5 @@ for num in range(numSamples):
 
     pickle.dump(data, open('dataBackendTimesNonspikingDense.p', 'wb'))
 
-send_email('wrn13@case.edu')
+#send_email('wrn13@case.edu')
 print('Finished test loop. Running for %f sec'%(time.time()-globalStart))
