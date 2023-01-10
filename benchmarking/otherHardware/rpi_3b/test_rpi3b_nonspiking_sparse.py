@@ -27,8 +27,8 @@ print('Finished type definition. Running for %f sec'%(time.time()-globalStart))
 ########################################################################################################################
 TEST SETUP
 """
-numSamples = 100
-numNeurons = np.geomspace(10,5000,num=numSamples)
+numSamples = 50
+numNeurons = np.linspace(10,1000,num=numSamples)
 dt = 0.1
 tMax = 10
 t = np.arange(0,tMax,dt)
@@ -79,34 +79,6 @@ for num in range(numSamples):
     print('Finished Torch CPU. Running for %f sec' % (time.time() - globalStart))
 
     try:
-        # Torch GPU
-        # print('Before network created')
-        # print('GPU Memory Allocated: %d , Reserved: %d'%(torch.cuda.memory_allocated(),torch.cuda.memory_reserved()))
-        torchGPUModel = net.compile(dt=dt,backend='torch', device='cuda')
-        torchGPUInput = torch.tensor([current],device='cuda')
-        # print('CUDA Model Made')
-        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
-        for i in range(len(t)):
-            print('Nonspiking Sparse. %i Neurons Torch GPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
-            stepStart = time.time()
-            _ = torchGPUModel.forward(torchGPUInput)
-            stepStop = time.time()
-            torchGPUTimes[num, i] = stepStop - stepStart
-        del torchGPUModel
-        del torchGPUInput
-        del _
-        # print('CUDA Models deleted')
-        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
-        torch.cuda.empty_cache()
-        # print('CUDA cache cleared')
-        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
-        print('Finished Torch GPU. Running for %f sec' % (time.time() - globalStart))
-    except:
-        print('Torch GPU Cuda compilation failed. Running for %f sec' % (time.time() - globalStart))
-        for i in range(len(t)):
-            torchGPUTimes[num, i] = 0
-
-    try:
         # Torch Sparse CPU
         # print('Before network created')
         # print('GPU Memory Allocated: %d , Reserved: %d'%(torch.cuda.memory_allocated(),torch.cuda.memory_reserved()))
@@ -134,35 +106,7 @@ for num in range(numSamples):
         for i in range(len(t)):
             sparseCPUTimes[num, i] = 0
 
-    try:
-        # Torch Sparse GPU
-        # print('Before network created')
-        # print('GPU Memory Allocated: %d , Reserved: %d'%(torch.cuda.memory_allocated(),torch.cuda.memory_reserved()))
-        torchGPUSparseModel = net.compile(dt=dt,backend='sparse', device='cuda')
-        torchGPUSparseInput = torch.tensor([current],device='cuda')
-        # print('CUDA Model Made')
-        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
-        for i in range(len(t)):
-            print('Nonspiking Sparse. %i Neurons Torch Sparse GPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
-            stepStart = time.time()
-            _ = torchGPUSparseModel.forward(torchGPUSparseInput)
-            stepStop = time.time()
-            sparseGPUTimes[num, i] = stepStop - stepStart
-        del torchGPUSparseModel
-        del torchGPUSparseInput
-        del _
-        # print('CUDA Models deleted')
-        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
-        torch.cuda.empty_cache()
-        # print('CUDA cache cleared')
-        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
-        print('Finished Torch Sparse GPU. Running for %f sec' % (time.time() - globalStart))
-    except:
-        print('Sparse Cuda compilation failed. Running for %f sec' % (time.time() - globalStart))
-        for i in range(len(t)):
-            sparseGPUTimes[num, i] = 0
-
-    # Numpy
+    # Iterative
     manModel = net.compile(dt=dt,backend='iterative', device='cpu')
     manInput = np.array([current])
     for i in range(len(t)):
