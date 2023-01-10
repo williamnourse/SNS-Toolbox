@@ -34,7 +34,7 @@ print('Finished type definition. Running for %f sec'%(time.time()-globalStart))
 TEST SETUP
 """
 numSamples = 50
-numNeurons = np.linspace(10,1000,num=numSamples)
+numNeurons = np.geomspace(10,1000,num=numSamples)
 dt = 0.1
 tMax = 10
 t = np.arange(0,tMax,dt)
