@@ -74,47 +74,25 @@ data_sparse_spiking_jetson = pickle.load(open('jetson_nano/dataJetsonNanoSpiking
 data_dense_nonspiking_jetson = pickle.load(open('jetson_nano/dataJetsonNonspikingDense.p', 'rb'))
 data_dense_spiking_jetson = pickle.load(open('jetson_nano/dataJetsonNanoSpikingDense.p', 'rb'))
 
-# plt.figure()
-# counts, bins = np.histogram(data_dense_nonspiking_jetson['numpy'][-1,:])
-# plt.stairs(counts, bins)
+data_sparse_nonspiking_rpi = pickle.load(open('rpi_3b/dataRpi3bNonspikingSparse.p', 'rb'))
+data_sparse_spiking_rpi = pickle.load(open('rpi_3b/dataRpi3bSpikingSparse.p', 'rb'))
+data_dense_nonspiking_rpi = pickle.load(open('rpi_3b/dataRpi3bNonspikingDense.p', 'rb'))
+data_dense_spiking_rpi = pickle.load(open('rpi_3b/dataRpi3bSpikingDense.p', 'rb'))
 
 plt.figure()
 plot_graph(data_dense_spiking_jetson,0.1,'Dense Spiking', 'solid')
+plot_graph(data_dense_spiking_rpi,0.1,'Dense Spiking', '--')
 
 plt.figure()
 plot_graph(data_sparse_spiking_jetson,0.1,'Sparse Spiking', 'solid')
+plot_graph(data_sparse_spiking_rpi,0.1,'Sparse Spiking', '--')
 
 plt.figure()
-plot_graph(data_dense_nonspiking_jetson,1,'Dense Nonspiking', 'solid')
+plot_graph(data_dense_nonspiking_jetson,5,'Dense Nonspiking', 'solid')
+plot_graph(data_dense_nonspiking_rpi,5,'Dense Nonspiking', '--')
 
 plt.figure()
-plot_graph(data_sparse_spiking_jetson,1,'Sparse Nonspiking', 'solid')
-# data = pickle.load(open('dataBackendTimesNonspikingDense.p', 'rb'))
-# data_brian = pickle.load(open('dataBrianTimesNonspikingDense.p', 'rb'))
-# data_nengo = pickle.load(open('dataNengoTimesNonspikingDense.p','rb'))
-# title = 'Nonspiking Dense Networks'
-#
-# plot_graph(data, data_brian, data_nengo, 1, title, 1)
-#
-# data = pickle.load(open('dataBackendTimesNonspikingSparse.p', 'rb'))
-# data_brian = pickle.load(open('dataBrianTimesNonspikingSparse.p', 'rb'))
-# data_nengo = pickle.load(open('dataNengoTimesNonspikingSparse.p','rb'))
-# title = 'Nonspiking Sparse Networks'
-#
-# plot_graph(data, data_brian, data_nengo, 2, title, 1)
-#
-# data = pickle.load(open('dataBackendTimesSpikingDense.p', 'rb'))
-# data_brian = pickle.load(open('dataBrianTimesSpikingDense.p', 'rb'))
-# data_nengo = pickle.load(open('dataNengoTimesSpikingDense.p','rb'))
-# title = 'Spiking Dense Networks'
-#
-# plot_graph(data, data_brian, data_nengo, 3, title, 0.1)
-#
-# data = pickle.load(open('dataBackendTimes.p', 'rb'))
-# data_brian = pickle.load(open('dataBrianTimesSpikingSparse.p', 'rb'))
-# data_nengo = pickle.load(open('dataNengoTimesSpikingSparse.p','rb'))
-# title = 'Spiking Sparse Networks'
-#
-# plot_graph(data, data_brian, data_nengo, 4, title, 0.1)
-#
+plot_graph(data_sparse_spiking_jetson,5,'Sparse Nonspiking', 'solid')
+plot_graph(data_sparse_spiking_rpi,5,'Sparse Nonspiking', '--')
+
 plt.show()
