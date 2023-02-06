@@ -79,7 +79,7 @@ for num in range(numSamples):
 
     for i in range(numSteps):
         print('Sample %i/%i' % (num + 1, numSamples))
-        print('%i Neurons Brian Step %i/%i'%(num_neurons,i+1,numSteps))
+        print('%i Neurons Brian Spiking Dense Step %i/%i'%(num_neurons,i+1,numSteps))
         stepStart = time.time()
         run(dt*ms)
         _ = nrns.v
@@ -90,6 +90,6 @@ for num in range(numSamples):
     data = {'shape': numNeurons,
             'brian': brianTimes}
 
-    pickle.dump(data, open('../../backendSpeed/dataBrianTimesSpikingDense.p', 'wb'))
+    pickle.dump(data, open('../../backendSpeed/dataBrianCudaTimesSpikingDense.p', 'wb'))
 send_email('wrn13@case.edu')
 print('Finished test loop. Running for %f sec' % (time.time() - globalStart))

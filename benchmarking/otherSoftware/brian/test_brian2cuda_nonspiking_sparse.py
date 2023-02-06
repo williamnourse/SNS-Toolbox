@@ -84,7 +84,7 @@ for num in range(numSamples):
     print('Finished network construction with %i neurons. Running for %f sec' % (numNeurons[num], time.time() - globalStart))
 
     for i in range(numSteps):
-        print('%i Neurons Brian Step %i/%i'%(numNeurons[num],i+1,numSteps))
+        print('%i Neurons Brian Nonspiking Sparse Step %i/%i'%(numNeurons[num],i+1,numSteps))
         stepStart = time.time()
         run(dt*ms)
         _ = outs.v
@@ -95,7 +95,7 @@ for num in range(numSamples):
     data = {'shape': numNeurons,
             'brian': brianTimes}
 
-    pickle.dump(data, open('../../backendSpeed/dataBrianTimesNonspikingSparse.p', 'wb'))
+    pickle.dump(data, open('../../backendSpeed/dataBrianCudaTimesNonspikingSparse.p', 'wb'))
 print('Finished test loop. Running for %f sec' % (time.time() - globalStart))
 
 # tmax = 50 # ms
