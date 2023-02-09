@@ -1,0 +1,7 @@
+#ifndef _INCLUDED_synapses_summed_variable_Isyn_post_codeobject
+#define _INCLUDED_synapses_summed_variable_Isyn_post_codeobject
+
+void _run_synapses_summed_variable_Isyn_post_codeobject();
+
+
+#endif
