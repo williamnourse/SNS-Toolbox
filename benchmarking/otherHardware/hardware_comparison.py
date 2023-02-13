@@ -79,20 +79,29 @@ data_sparse_spiking_rpi = pickle.load(open('rpi_3b/dataRpi3bSpikingSparse.p', 'r
 data_dense_nonspiking_rpi = pickle.load(open('rpi_3b/dataRpi3bNonspikingDense.p', 'rb'))
 data_dense_spiking_rpi = pickle.load(open('rpi_3b/dataRpi3bSpikingDense.p', 'rb'))
 
+data_sparse_nonspiking_nuc = pickle.load(open('intel_nuc/dataNUCNonspikingSparse.p', 'rb'))
+data_sparse_spiking_nuc = pickle.load(open('intel_nuc/dataNUCSpikingSparse.p', 'rb'))
+data_dense_nonspiking_nuc = pickle.load(open('intel_nuc/dataNUCNonspikingDense.p', 'rb'))
+data_dense_spiking_nuc = pickle.load(open('intel_nuc/dataNUCSpikingDense.p', 'rb'))
+
 plt.figure()
 plot_graph(data_dense_spiking_jetson,0.1,'Dense Spiking', 'solid')
 plot_graph(data_dense_spiking_rpi,0.1,'Dense Spiking', '--')
+plot_graph(data_dense_spiking_nuc,0.1,'Dense Spiking', ':')
 
 plt.figure()
 plot_graph(data_sparse_spiking_jetson,0.1,'Sparse Spiking', 'solid')
 plot_graph(data_sparse_spiking_rpi,0.1,'Sparse Spiking', '--')
+plot_graph(data_sparse_spiking_nuc,0.1,'Sparse Spiking', ':')
 
 plt.figure()
 plot_graph(data_dense_nonspiking_jetson,5,'Dense Nonspiking', 'solid')
 plot_graph(data_dense_nonspiking_rpi,5,'Dense Nonspiking', '--')
+plot_graph(data_dense_nonspiking_nuc,5,'Dense Nonspiking', ':')
 
 plt.figure()
 plot_graph(data_sparse_spiking_jetson,5,'Sparse Nonspiking', 'solid')
 plot_graph(data_sparse_spiking_rpi,5,'Sparse Nonspiking', '--')
+plot_graph(data_sparse_spiking_nuc,5,'Sparse Nonspiking', ':')
 
 plt.show()
