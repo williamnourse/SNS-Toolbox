@@ -8,7 +8,7 @@ def readme_file_contents():
 
 setup(
     name='sns_toolbox',
-    version='1.4.2',
+    version='1.4.3',
     packages=find_packages(),
     url='https://github.com/wnourse05/SNS-Toolbox',
     license='Apache v2.0',
