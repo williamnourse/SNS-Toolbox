@@ -779,6 +779,7 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
                         slope_c[:, index] * (V_last[index] - e_c[:, index])))
             index += 1
     V = V_last.clone()
+    V_0 = V_last.clone()
     if spiking:
         theta = theta_0.clone()
         theta_last = theta_0.clone()
@@ -1420,6 +1421,7 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
 
             index += 1
     u = u_last.clone()
+    u_0 = u_last.clone()
     if spiking:
         theta = theta_0.clone()
         theta_last = theta_0.clone()
@@ -2025,6 +2027,7 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
                         slope_c[:, index] * (V_last[index] - e_c[:, index])))
             index += 1
     V = np.copy(V_last)
+    V_0 = np.copy(V_last)
     if spiking:
         theta = np.copy(theta_0)
         theta_last = np.copy(theta_0)
