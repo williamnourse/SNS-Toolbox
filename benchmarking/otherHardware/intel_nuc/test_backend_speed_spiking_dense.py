@@ -61,7 +61,7 @@ for num in range(numSamples):
     npInput = np.array([current])
     for i in range(len(t)):
         print('Sample %i/%i' % (num + 1, numSamples))
-        print('%i Neurons Numpy Step %i/%i'%(numNeurons[num],i+1,len(t)))
+        print('Spiking Dense: %i Neurons Numpy Step %i/%i'%(numNeurons[num],i+1,len(t)))
         stepStart = time.time()
         _ = npModel.forward(npInput)
         stepStop = time.time()
@@ -73,7 +73,7 @@ for num in range(numSamples):
     torchCPUInput = torch.tensor([current],device='cpu')
     for i in range(len(t)):
         print('Sample %i/%i' % (num + 1, numSamples))
-        print('%i Neurons Torch CPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
+        print('Spiking Dense: %i Neurons Torch CPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
         stepStart = time.time()
         _ = torchCPUModel.forward(torchCPUInput)
         stepStop = time.time()
@@ -90,7 +90,7 @@ for num in range(numSamples):
         # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
         for i in range(len(t)):
             print('Sample %i/%i' % (num + 1, numSamples))
-            print('%i Neurons Torch GPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
+            print('Spiking Dense: %i Neurons Torch GPU Step %i/%i'%(numNeurons[num],i+1,len(t)))
             stepStart = time.time()
             _ = torchGPUModel.forward(torchGPUInput)
             stepStop = time.time()
@@ -109,68 +109,68 @@ for num in range(numSamples):
         for i in range(len(t)):
             torchGPUTimes[num, i] = 0
 
-    try:
-        # Torch Sparse CPU
-        # print('Before network created')
-        # print('GPU Memory Allocated: %d , Reserved: %d'%(torch.cuda.memory_allocated(),torch.cuda.memory_reserved()))
-        torchGPUSparseModel = net.compile(dt=dt,backend='sparse', device='cpu')
-        torchGPUSparseInput = torch.tensor([current],device='cpu')
-        # print('CUDA Model Made')
-        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
-        for i in range(len(t)):
-            print('%i Neurons Torch Sparse Step %i/%i'%(numNeurons[num],i+1,len(t)))
-            stepStart = time.time()
-            _ = torchGPUSparseModel.forward(torchGPUSparseInput)
-            stepStop = time.time()
-            sparseCPUTimes[num, i] = stepStop - stepStart
-        del torchGPUSparseModel
-        del torchGPUSparseInput
-        del _
-        # print('CUDA Models deleted')
-        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
-        torch.cuda.empty_cache()
-        # print('CUDA cache cleared')
-        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
-        print('Finished Torch Sparse CPU. Running for %f sec' % (time.time() - globalStart))
-    except:
-        print('Sparse CPU compilation failed. Running for %f sec' % (time.time() - globalStart))
-        for i in range(len(t)):
-            sparseCPUTimes[num, i] = 0
-
-    try:
-        # Torch Sparse GPU
-        # print('Before network created')
-        # print('GPU Memory Allocated: %d , Reserved: %d'%(torch.cuda.memory_allocated(),torch.cuda.memory_reserved()))
-        torchGPUSparseModel = net.compile(dt=dt,backend='sparse', device='cuda')
-        torchGPUSparseInput = torch.tensor([current],device='cuda')
-        # print('CUDA Model Made')
-        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
-        for i in range(len(t)):
-            print('%i Neurons Torch Sparse Step %i/%i'%(numNeurons[num],i+1,len(t)))
-            stepStart = time.time()
-            _ = torchGPUSparseModel.forward(torchGPUSparseInput)
-            stepStop = time.time()
-            sparseGPUTimes[num, i] = stepStop - stepStart
-        del torchGPUSparseModel
-        del torchGPUSparseInput
-        del _
-        # print('CUDA Models deleted')
-        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
-        torch.cuda.empty_cache()
-        # print('CUDA cache cleared')
-        # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
-        print('Finished Torch Sparse GPU. Running for %f sec' % (time.time() - globalStart))
-    except:
-        print('Sparse Cuda compilation failed. Running for %f sec' % (time.time() - globalStart))
-        for i in range(len(t)):
-            sparseGPUTimes[num, i] = 0
+    # try:
+    #     # Torch Sparse CPU
+    #     # print('Before network created')
+    #     # print('GPU Memory Allocated: %d , Reserved: %d'%(torch.cuda.memory_allocated(),torch.cuda.memory_reserved()))
+    #     torchGPUSparseModel = net.compile(dt=dt,backend='sparse', device='cpu')
+    #     torchGPUSparseInput = torch.tensor([current],device='cpu')
+    #     # print('CUDA Model Made')
+    #     # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
+    #     for i in range(len(t)):
+    #         print('Spiking Dense: %i Neurons Torch Sparse Step %i/%i'%(numNeurons[num],i+1,len(t)))
+    #         stepStart = time.time()
+    #         _ = torchGPUSparseModel.forward(torchGPUSparseInput)
+    #         stepStop = time.time()
+    #         sparseCPUTimes[num, i] = stepStop - stepStart
+    #     del torchGPUSparseModel
+    #     del torchGPUSparseInput
+    #     del _
+    #     # print('CUDA Models deleted')
+    #     # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
+    #     torch.cuda.empty_cache()
+    #     # print('CUDA cache cleared')
+    #     # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
+    #     print('Finished Torch Sparse CPU. Running for %f sec' % (time.time() - globalStart))
+    # except:
+    #     print('Sparse CPU compilation failed. Running for %f sec' % (time.time() - globalStart))
+    #     for i in range(len(t)):
+    #         sparseCPUTimes[num, i] = 0
+    #
+    # try:
+    #     # Torch Sparse GPU
+    #     # print('Before network created')
+    #     # print('GPU Memory Allocated: %d , Reserved: %d'%(torch.cuda.memory_allocated(),torch.cuda.memory_reserved()))
+    #     torchGPUSparseModel = net.compile(dt=dt,backend='sparse', device='cuda')
+    #     torchGPUSparseInput = torch.tensor([current],device='cuda')
+    #     # print('CUDA Model Made')
+    #     # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
+    #     for i in range(len(t)):
+    #         print('Spiking Dense: %i Neurons Torch Sparse Step %i/%i'%(numNeurons[num],i+1,len(t)))
+    #         stepStart = time.time()
+    #         _ = torchGPUSparseModel.forward(torchGPUSparseInput)
+    #         stepStop = time.time()
+    #         sparseGPUTimes[num, i] = stepStop - stepStart
+    #     del torchGPUSparseModel
+    #     del torchGPUSparseInput
+    #     del _
+    #     # print('CUDA Models deleted')
+    #     # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
+    #     torch.cuda.empty_cache()
+    #     # print('CUDA cache cleared')
+    #     # print('GPU Memory Allocated: %d , Reserved: %d' % (torch.cuda.memory_allocated(), torch.cuda.memory_reserved()))
+    #     print('Finished Torch Sparse GPU. Running for %f sec' % (time.time() - globalStart))
+    # except:
+    #     print('Sparse Cuda compilation failed. Running for %f sec' % (time.time() - globalStart))
+    #     for i in range(len(t)):
+    #         sparseGPUTimes[num, i] = 0
 
     # Numpy
     manModel = net.compile(dt=dt,backend='iterative', device='cpu')
     manInput = np.array([current])
     for i in range(len(t)):
         print('Sample %i/%i' % (num + 1, numSamples))
-        print('%i Neurons Manual Step %i/%i' % (numNeurons[num], i + 1, len(t)))
+        print('Spiking Dense: %i Neurons Manual Step %i/%i' % (numNeurons[num], i + 1, len(t)))
         stepStart = time.time()
         _ = manModel.forward(npInput)
         stepStop = time.time()
@@ -181,8 +181,6 @@ for num in range(numSamples):
             'numpy': npTimes,
             'torchCPU': torchCPUTimes,
             'torchGPU': torchGPUTimes,
-            'sparseCPU': sparseCPUTimes,
-            'sparseGPU': sparseGPUTimes,
             'manual': manualTimes}
 
     pickle.dump(data, open('dataNUCTimesSpikingDenseLarger.p', 'wb'))
