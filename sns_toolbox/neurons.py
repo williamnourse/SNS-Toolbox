@@ -146,7 +146,7 @@ class NonSpikingNeuronWithPersistentSodiumChannel(NonSpikingNeuronWithGatedChann
         inputs = [g_ion, e_ion,                         # Channel params
                   k_m, slope_m, e_m,                    # A gate params
                   k_h, slope_h, e_h, tau_max_h]         # B gate params
-        if all(len(x) == len(g_ion) for x in inputs) is False:
+        if all(len(x) == len(g_ion) for x in inputs) is False:  # TODO: Fix this
             raise ValueError('All channel parameters must be the same dimension (len(g_ion) = len(e_ion) = ...)')
         num_channels = len(g_ion)
         if isinstance(g_ion, torch.Tensor):
