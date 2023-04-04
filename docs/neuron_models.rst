@@ -66,7 +66,7 @@ Non-Spiking Neuron with Gated Ion Channels
 These neurons share the same dynamics as the classic non-spiking neuron, with additional ionic currents :math:`I_{ion}`.
 
 .. math::
-    C_{mem} \cdot \frac{dV}{dt} = -G_{mem}\cdot \left (V - V_{rest} \right ) + \sum I_{syn} + I_{bias} + I_{app} + I_{ion}
+    C_{m} \cdot \frac{dV}{dt} = -G_{m}\cdot \left (V - V_{rest} \right ) + \sum I_{syn} + I_{bias} + I_{app} + I_{ion}
 
 :math:`I_{ion}` represents currents flowing through voltage-gated ion channels, which can be responsible for additional
 nonlinear behavior:
@@ -103,7 +103,7 @@ Non-Spiking Neuron with Persistent Sodium Channel
 These neurons are a special case of the non-spiking neuron with gated ion channels:
 
 .. math::
-    C_{mem} \cdot \frac{dV}{dt} = -G_{mem}\cdot \left (V - V_{rest} \right ) + \sum I_{syn} + I_{bias} + I_{app} + \sum_j G_{Na,j} \cdot m_{\infty,j}(V) \cdot h_j \cdot \left ( E_{Na,j}-V \right )
+    C_{m} \cdot \frac{dV}{dt} = -G_{m}\cdot \left (V - V_{rest} \right ) + \sum I_{syn} + I_{bias} + I_{app} + \sum_j G_{Na,j} \cdot m_{\infty,j}(V) \cdot h_j \cdot \left ( E_{Na,j}-V \right )
 
 Default values of the channel are as follows:
 
