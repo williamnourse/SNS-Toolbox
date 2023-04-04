@@ -34,7 +34,7 @@ Spiking neurons have similar dynamics to the classic non-spiking neuron, with an
 (:math:`\theta`) that acts as a firing threshold:
 
 .. math::
-    C_{mem} \cdot \frac{dV}{dt} = -G_{mem}\cdot \left (V - V_{rest} \right ) + \sum I_{syn} + I_{bias} + I_{app}
+    C_{m} \cdot \frac{dV}{dt} = -G_{m}\cdot \left (V - V_{rest} \right ) + \sum I_{syn} + I_{bias} + I_{app}
 
     \tau_{\theta}\frac{d\theta}{dt} = -\theta + \theta_0 + m\cdot \left (V - V_{rest} \right )
 
