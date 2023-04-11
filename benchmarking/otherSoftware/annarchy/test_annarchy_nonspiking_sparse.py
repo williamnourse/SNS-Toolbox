@@ -64,7 +64,7 @@ TESTING LOOP
 """
 for num in range(numSamples):
     print()
-    print('%i Neurons. Running for %f sec' % (numNeurons[num],time.time() - globalStart))
+    print('Sample %i/%i : %i Neurons. Running for %f sec' % (num+1,numSamples,numNeurons[num],time.time() - globalStart))
 
     numIns = int(0.08 * numNeurons[num]) + 1                    # in puppy, num_inputs = 8% of network
     numOuts = int(0.12 * numNeurons[num])                       # in puppy, num_outputs = 12% of network

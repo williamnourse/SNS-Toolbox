@@ -67,7 +67,7 @@ TESTING LOOP
 """
 for num in range(numSamples):
     num_neurons = int(numNeurons[num])
-    print('%i Neurons. Running for %f sec' % (num_neurons,time.time() - globalStart))
+    print('Sample %i/%i : %i Neurons. Running for %f sec' % (num+1,numSamples,numNeurons[num],time.time() - globalStart))
 
     clear()
     net = Network()

@@ -1,33 +1,47 @@
 import numpy as np
-from brian2 import *
+from ANNarchy import *
 # import matplotlib.pyplot as plt
 import time
 import pickle
 
-import brian2cuda
-set_device("cuda_standalone", build_on_run=False)
+# Personal stuff to send an email once data collection is finished
+import sys
+sys.path.extend(['/home/will'])
+from email_utils import send_email
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 NEURON AND SYNAPSE DEFINITIONS
 """
 globalStart = time.time()
-eqs_neuron = '''
-dv/dt = (-v+I+Isyn+Ibias)/tau : 1
-I : 1
-Isyn : 1
-Ibias : 1
-'''
-tau = 10*ms
+setup(dt=0.1, paradigm='CUDA')
+NonSpikingNeuron = Neuron(
+    parameters="""
+        Cm = 5.0
+        Gm = 1.0
+        bias = 0.0
+        Esyn = -60.0
+    """,
+    equations="""
+        Cm * dv/dt = -Gm * v + bias + sum(inh)*(Esyn-v)
+        r = v
+    """
+)
+NonSpikingSynapse = Synapse(
+    parameters="""
+        Gmax = 0.5
+        El = 0.0
+        Eh = 20.0
+    """,
+    equations="""
+        w = clip(Gmax * (pre.r-El)/(Eh-El), 0.0, Gmax)
+    """,
+    psp="""
+        w
+    """
+)
 
 current = 10.0
-
-eqs_synapse = '''
-Isyn_post = Gmax*clip(v_pre/R, 0, 1)*(DelE - v_post) : 1 (summed)
-'''
-R = 20.0
-DelE = -3*R
-Gmax = 0.5
 
 print('Finished type definition. Running for %f sec'%(time.time()-globalStart))
 
@@ -39,9 +53,8 @@ numSamples = 100
 numNeurons = np.geomspace(10,5000,num=numSamples)
 
 dt = 0.1
-numSteps = 1001
-defaultclock.dt = dt*ms
-brianTimes = np.zeros([numSamples,numSteps-1])
+numSteps = 1000
+annTimes = np.zeros([numSamples,numSteps])
 
 print('Finished test setup. Running for %f sec' % (time.time()-globalStart))
 
@@ -51,66 +64,51 @@ TESTING LOOP
 """
 for num in range(numSamples):
     print()
-    print('%i Neurons. Running for %f sec' % (numNeurons[num],time.time() - globalStart))
+    print('Sample %i/%i : %i Neurons. Running for %f sec' % (num+1,numSamples,numNeurons[num],time.time() - globalStart))
 
     numIns = int(0.08 * numNeurons[num]) + 1                    # in puppy, num_inputs = 8% of network
     numOuts = int(0.12 * numNeurons[num])                       # in puppy, num_outputs = 12% of network
     numSyn = int(np.sqrt(numNeurons[num]))                      # in puppy, numSyn = shape
     numRest = int(numNeurons[num]) - numIns - numSyn - numOuts  # rest of the network
 
-    start_scope()
+    clear()
+    bias = np.zeros(numIns)+current
+    net = Network()
 
-    # net = Network()
+    ins = Population(geometry=numIns,neuron=NonSpikingNeuron)
 
-    ins = NeuronGroup(numIns, eqs_neuron, method='euler')
-    ins.I = np.zeros(numIns)+current
+    outs = Population(geometry=numOuts,neuron=NonSpikingNeuron)
 
-    outs = NeuronGroup(numOuts, eqs_neuron, method='euler')
-    outs.Ibias =np.zeros(numOuts)+current
+    syn = Population(geometry=numSyn,neuron=NonSpikingNeuron)
 
-    syn = NeuronGroup(numSyn, eqs_neuron, method='euler')
-    syn.Ibias = np.zeros(numSyn) + current
+    rest = Population(geometry=numRest,neuron=NonSpikingNeuron)
 
-    rest = NeuronGroup(numRest, eqs_neuron, method='euler')
-    rest.Ibias = np.zeros(numRest) + current
-
-    connect = Synapses(syn,syn, eqs_synapse)
     connect_matrix = np.ones([numSyn, numSyn])
-    sources, targets = connect_matrix.nonzero()
-    connect.connect(i=sources, j=targets)
+    proj = Projection(
+        pre=syn,
+        post=syn,
+        target='inh',
+        synapse=NonSpikingSynapse
+    ).connect_from_matrix(connect_matrix)
+    net.add([ins,outs,syn,rest,proj])
+    net.compile()
 
     # net.add((ins, outs, syn, rest, connect))
 
     print('Finished network construction with %i neurons. Running for %f sec' % (numNeurons[num], time.time() - globalStart))
 
     for i in range(numSteps):
-        print('%i Neurons Brian Nonspiking Sparse Step %i/%i'%(numNeurons[num],i+1,numSteps))
+        print('%i Neurons ANNarchy Step %i/%i'%(numNeurons[num],i+1,numSteps))
         stepStart = time.time()
-        run(dt*ms)
-        _ = outs.v
+        net.get(ins).bias = bias
+        net.step()
+        foo = net.get(outs).r
         stepStop = time.time()
-        if i > 0:
-            brianTimes[num,i-1] = stepStop-stepStart
+        annTimes[num,i-1] = stepStop-stepStart
 
     data = {'shape': numNeurons,
-            'brian': brianTimes}
+            'annarchy': annTimes}
 
-    pickle.dump(data, open('../../backendSpeed/dataBrianCudaTimesNonspikingSparse.p', 'wb'))
+    pickle.dump(data, open('dataANNarchyCUDATimesNonspikingSparse.p', 'wb'))
+send_email('wrn13@case.edu')
 print('Finished test loop. Running for %f sec' % (time.time() - globalStart))
-
-# tmax = 50 # ms
-# t = np.arange(0,tmax,dt)
-# data = np.zeros([len(t),num_neurons])
-# # G.v = 'rand()'
-# data[0,:] = pop.v
-# for i in range(1, len(data)):
-#     # print(G.v[0])
-#     print(i)
-#     run(0.1*ms)
-#     data[i,:] = pop.v
-#     # print(G.v[0])
-# data = data.transpose()
-# plt.figure()
-# for i in range(num_neurons):
-#     plt.plot(t,data[i,:])
-# plt.show()

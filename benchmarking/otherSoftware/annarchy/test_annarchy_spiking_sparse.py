@@ -1,35 +1,50 @@
-import matplotlib.pyplot as plt
 import numpy as np
-from brian2 import *
+from ANNarchy import *
 # import matplotlib.pyplot as plt
 import time
 import pickle
 
+# Personal stuff to send an email once data collection is finished
+import sys
+sys.path.extend(['/home/will'])
+from email_utils import send_email
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 NEURON AND SYNAPSE DEFINITIONS
 """
 globalStart = time.time()
-eqs_neuron = '''
-dv/dt = (-v+I+Isyn+Ibias)/tau : 1
-da/dt = (-a + 1 + m*v)/tau : 1
-I : 1
-Isyn : 1
-Ibias : 1
-'''
-tau = 5*ms
-m = 0
+setup(dt=0.1)
+SpikingNeuron = Neuron(
+    parameters="""
+        Cm = 5.0
+        Gm = 1.0
+        bias = 0.0
+        tau = 5.0
+        To = 1.0
+        m = 1.0
+        tau_inh = 1.0
+        Esyn = -3.0
+    """,
+    equations="""
+        Cm * dv/dt = -Gm * v + bias + g_inh * (Esyn-v) : init = 0.0
+        tau * dT/dt = -T + To + m * v : init = 1.0
+        tau_inh * dg_inh/dt = -g_inh
+    """,
+    spike = "v > T",
+    reset = "v = 0"
+)
+SpikingSynapse = Synapse(
+    parameters="""
+        Gmax = 0.99
+        Esyn = 5.0
+    """,
+    equations="""""",
+    pre_spike="""
+        g_target = Gmax : max = Gmax
+    """
+)
 
-current = 10.0
-
-eqs_synapse = '''
-Isyn_post = G*(DelE - v_post) : 1 (summed)
-dG/dt = -G/tauG : 1 (clock-driven)
-'''
-tauG = 1*ms
-R = 20.0
-DelE = 194
-Gmax = 1
+current = 0.5
 
 print('Finished type definition. Running for %f sec'%(time.time()-globalStart))
 
@@ -41,9 +56,8 @@ numSamples = 100
 numNeurons = np.geomspace(10,5000,num=numSamples)
 
 dt = 0.1
-numSteps = 1001
-defaultclock.dt = dt*ms
-brianTimes = np.zeros([numSamples,numSteps-1])
+numSteps = 1000
+annTimes = np.zeros([numSamples,numSteps])
 
 print('Finished test setup. Running for %f sec' % (time.time()-globalStart))
 
@@ -53,81 +67,52 @@ TESTING LOOP
 """
 for num in range(numSamples):
     print()
-    print('%i Neurons. Running for %f sec' % (numNeurons[num],time.time() - globalStart))
+    print('Sample %i/%i : %i Neurons. Running for %f sec' % (num+1,numSamples,numNeurons[num],time.time() - globalStart))
 
-    numIns = int(0.08 * numNeurons[num]) + 1                    # in puppy, num_inputs = 8% of network
-    numOuts = int(0.12 * numNeurons[num])                       # in puppy, num_outputs = 12% of network
-    numSyn = int(np.sqrt(numNeurons[num]))                      # in puppy, numSyn = shape
+    numIns = int(0.08 * numNeurons[num]) + 1  # in puppy, num_inputs = 8% of network
+    numOuts = int(0.12 * numNeurons[num])  # in puppy, num_outputs = 12% of network
+    numSyn = int(np.sqrt(numNeurons[num]))  # in puppy, numSyn = shape
     numRest = int(numNeurons[num]) - numIns - numSyn - numOuts  # rest of the network
 
-    start_scope()
+    clear()
+    bias = np.zeros(numIns) + current
+    net = Network()
 
-    # net = Network()
+    ins = Population(geometry=numIns, neuron=SpikingNeuron)
 
-    ins = NeuronGroup(numIns, eqs_neuron, threshold='v>a', reset='v=0', method='euler')
-    ins.I = np.zeros(numIns)+current
+    outs = Population(geometry=numOuts, neuron=SpikingNeuron)
 
-    outs = NeuronGroup(numOuts, eqs_neuron, threshold='v>a', reset='v=0', method='euler')
-    outs.Ibias =np.zeros(numOuts)+current
+    syn = Population(geometry=numSyn, neuron=SpikingNeuron)
 
-    syn = NeuronGroup(numSyn, eqs_neuron, threshold='v>a', reset='v=0', method='euler')
-    syn.Ibias = np.zeros(numSyn) + current
+    rest = Population(geometry=numRest, neuron=SpikingNeuron)
 
-    rest = NeuronGroup(numRest, eqs_neuron, threshold='v>a', reset='v=0', method='euler')
-    rest.Ibias = np.zeros(numRest) + current
-
-    connect = Synapses(syn,syn, eqs_synapse, on_pre='G = Gmax', method='euler')
     connect_matrix = np.ones([numSyn, numSyn])
-    sources, targets = connect_matrix.nonzero()
-    connect.connect(i=sources, j=targets)
+    proj = Projection(
+        pre=syn,
+        post=syn,
+        target='inh',
+        synapse=SpikingSynapse
+    ).connect_from_matrix(connect_matrix)
+    net.add([ins, outs, syn, rest, proj])
+    net.compile()
 
     # net.add((ins, outs, syn, rest, connect))
 
-    print('Finished network construction with %i neurons. Running for %f sec' % (numNeurons[num], time.time() - globalStart))
+    print('Finished network construction with %i neurons. Running for %f sec' % (
+    numNeurons[num], time.time() - globalStart))
 
     for i in range(numSteps):
-        print('Sample %i/%i' % (num + 1, numSamples))
-        print('%i Neurons Brian Step %i/%i'%(numNeurons[num],i+1,numSteps))
+        print('%i Neurons ANNarchy Step %i/%i' % (numNeurons[num], i + 1, numSteps))
         stepStart = time.time()
-        run(dt*ms)
-        _ = outs.v
+        net.get(ins).bias = bias
+        net.step()
+        foo = net.get(outs).r
         stepStop = time.time()
-        if i > 0:
-            brianTimes[num,i-1] = stepStop-stepStart
+        annTimes[num, i - 1] = stepStop - stepStart
 
     data = {'shape': numNeurons,
-            'brian': brianTimes}
+            'annarchy': annTimes}
 
-    pickle.dump(data, open('../../backendSpeed/dataBrianTimesSpikingSparse.p', 'wb'))
+    pickle.dump(data, open('dataANNarchyTimesSpikingSparse.p', 'wb'))
+send_email('wrn13@case.edu')
 print('Finished test loop. Running for %f sec' % (time.time() - globalStart))
-
-# start_scope()
-# tmax = 10 # ms
-# t = np.arange(0,tmax,dt)
-# data = np.zeros([len(t),2])
-# synData = np.zeros(len(t))
-# pop = NeuronGroup(2, eqs_neuron, threshold='v>a', reset='v=0', method='euler')
-# pop.I = [2,0]
-# pop.a = [1,1]
-# syn = Synapses(pop,pop,eqs_synapse, on_pre='G = Gmax',method='euler')#,dt=defaultclock.dt)
-# syn.connect(i=0,j=1)
-# # G.v = 'rand()'
-# data[0,:] = pop.v
-# synData[0] = syn.G[0,1]
-# for i in range(1, len(data)):
-#     # print(G.v[0])
-#     print(i)
-#     run(0.1*ms)
-#     data[i,:] = pop.v
-#     synData[i] = syn.G[0, 1]
-#     # print(G.v[0])
-# print(syn.dt)
-# data = data.transpose()
-# plt.figure()
-# plt.subplot(2,1,1)
-# for i in range(2):
-#     plt.plot(t,data[i,:])
-# plt.subplot(2,1,2)
-# plt.plot(t,synData)
-#
-# plt.show()
