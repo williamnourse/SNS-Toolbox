@@ -20,7 +20,7 @@ extern PopStruct2 pop2;
 // proj0: pop2 -> pop2 with target inh
 /////////////////////////////////////////////////////////////////////////////
 struct ProjStruct0 : CSRMatrixCUDA<int, int> {
-    ProjStruct0() : CSRMatrixCUDA<int, int> ( 3, 3) {
+    ProjStruct0() : CSRMatrixCUDA<int, int> ( 70, 70) {
     }
 
     // Launch configuration
