@@ -98,7 +98,7 @@ for num in range(numSamples):
     print('Finished network construction with %i neurons. Running for %f sec' % (numNeurons[num], time.time() - globalStart))
 
     for i in range(numSteps):
-        print('%i Neurons ANNarchy Step %i/%i'%(numNeurons[i],i+1,numSteps))
+        print('%i Neurons ANNarchy Step %i/%i'%(numNeurons[num],i+1,numSteps))
         stepStart = time.time()
         net.get(ins).bias = bias
         net.step()

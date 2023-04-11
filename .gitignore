@@ -6,3 +6,4 @@ tutorials/.ipynb_checkpoints/*
 sns_toolbox.egg-info/*
 sns_toolbox/__pycache__/*
 cuda-repo*
+benchmarking/otherSoftware/annarchy/annarchy/*
