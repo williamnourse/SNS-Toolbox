@@ -539,7 +539,7 @@ class Network:
 
         if connection_type.params['spiking']:
             self.params['spiking'] = True
-            if connection_type.params['transmissionDelay'] > 0:
+            if np.any(connection_type.params['transmissionDelay']) > 0:
                 self.params['delay'] = True
 
     def add_network(self, network: 'Network', color: str = None) -> None:

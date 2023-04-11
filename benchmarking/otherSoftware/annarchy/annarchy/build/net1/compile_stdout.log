@@ -1,0 +1,7 @@
+/home/will/sns-venv/bin/cython -3 --cplus -I /home/will/sns-venv/lib/python3.8/site-packages/ANNarchy/core/cython_ext/ -I /home/will/sns-venv/lib/python3.8/site-packages/ -D ANNarchyCore1.pyx
+g++ -O3 -march=native -D_DISABLE_PARALLEL_RNG  -std=c++14 -fPIC -shared -fopenmp \
+        *.cpp   -o ANNarchyCore1.so \
+        `python3.8-config --includes` -I/home/will/sns-venv/lib/python3.8/site-packages/numpy/core/include -I/home/will/sns-venv/lib/python3.8/site-packages/ANNarchy/include -I/home/will/sns-venv/lib/python3.8/site-packages/ANNarchy/thirdparty \
+        -I /home/will/sns-venv/lib/python3.8/site-packages/ANNarchy/core/cython_ext/ -I /home/will/sns-venv/lib/python3.8/site-packages/ \
+        -lpython3.8 \
+        -L/home/will/sns-venv/lib 
