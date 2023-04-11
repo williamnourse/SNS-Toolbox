@@ -4,23 +4,23 @@
 #pragma once
 
 #include "ANNarchy.h"
-#include "LILMatrix.hpp"
+#include "LILInvMatrix.hpp"
 
 
 
 
-extern PopStruct2 pop2;
-extern PopStruct2 pop2;
+extern PopStruct0 pop0;
+extern PopStruct0 pop0;
 extern double dt;
 extern long int t;
 
 extern std::vector<std::mt19937> rng;
 
 /////////////////////////////////////////////////////////////////////////////
-// proj0: pop2 -> pop2 with target inh
+// proj0: pop0 -> pop0 with target inh
 /////////////////////////////////////////////////////////////////////////////
-struct ProjStruct0 : LILMatrix<int, int> {
-    ProjStruct0() : LILMatrix<int, int>( 70, 70) {
+struct ProjStruct0 : LILInvMatrix<int, int> {
+    ProjStruct0() : LILInvMatrix<int, int>( 5000, 5000) {
     }
 
 
@@ -28,12 +28,12 @@ struct ProjStruct0 : LILMatrix<int, int> {
                         std::vector< std::vector<int> > &column_indices,
                         std::vector< std::vector<double> > &values,
                         std::vector< std::vector<int> > &delays) {
-        bool success = static_cast<LILMatrix<int, int>*>(this)->init_matrix_from_lil(row_indices, column_indices);
+        bool success = static_cast<LILInvMatrix<int, int>*>(this)->init_matrix_from_lil(row_indices, column_indices);
         if (!success)
             return false;
 
 
-        // Local variable w
+        // Local parameter w
         w = init_matrix_variable<double>(static_cast<double>(0.0));
         update_matrix_variable_all<double>(w, values);
 
@@ -44,7 +44,7 @@ struct ProjStruct0 : LILMatrix<int, int> {
         }
 
     #ifdef _DEBUG_CONN
-        static_cast<LILMatrix<int, int>*>(this)->print_data_representation();
+        static_cast<LILInvMatrix<int, int>*>(this)->print_data_representation();
     #endif
         return true;
     }
@@ -65,13 +65,10 @@ struct ProjStruct0 : LILMatrix<int, int> {
     // Local parameter Gmax
     std::vector< std::vector<double > > Gmax;
 
-    // Local parameter El
-    std::vector< std::vector<double > > El;
+    // Local parameter Esyn
+    std::vector< std::vector<double > > Esyn;
 
-    // Local parameter Eh
-    std::vector< std::vector<double > > Eh;
-
-    // Local variable w
+    // Local parameter w
     std::vector< std::vector<double > > w;
 
 
@@ -83,11 +80,8 @@ struct ProjStruct0 : LILMatrix<int, int> {
         // Local parameter Gmax
         Gmax = init_matrix_variable<double>(static_cast<double>(0.0));
 
-        // Local parameter El
-        El = init_matrix_variable<double>(static_cast<double>(0.0));
-
-        // Local parameter Eh
-        Eh = init_matrix_variable<double>(static_cast<double>(0.0));
+        // Local parameter Esyn
+        Esyn = init_matrix_variable<double>(static_cast<double>(0.0));
 
 
 
@@ -128,21 +122,44 @@ struct ProjStruct0 : LILMatrix<int, int> {
     #ifdef _TRACE_SIMULATION_STEPS
         std::cout << "    ProjStruct0::compute_psp()" << std::endl;
     #endif
-        double sum;
+int nb_post; double sum;
 
-        if (_transmission && pop2._active) {
+        // Event-based summation
+        if (_transmission && pop0._active){
 
 
+            // Iterate over all incoming spikes (possibly delayed constantly)
+            for(int _idx_j = 0; _idx_j < pop0.spiked.size(); _idx_j++){
+                // Rank of the presynaptic neuron
+                int rk_j = pop0.spiked[_idx_j];
+                // Find the presynaptic neuron in the inverse connectivity matrix
+                auto inv_post_ptr = inv_pre_rank.find(rk_j);
+                if (inv_post_ptr == inv_pre_rank.end())
+                    continue;
+                // List of postsynaptic neurons receiving spikes from that neuron
+                std::vector< std::pair<int, int> >& inv_post = inv_post_ptr->second;
+                // Number of post neurons
+                int nb_post = inv_post.size();
 
-            for (int i = 0; i < post_rank.size(); i++) {
+                // Iterate over connected post neurons
+                for(int _idx_i = 0; _idx_i < nb_post; _idx_i++){
+                    // Retrieve the correct indices
+                    int i = inv_post[_idx_i].first;
+                    int j = inv_post[_idx_i].second;
 
-                sum = 0.0;
-                for (int j = 0; j < pre_rank[i].size(); j++) {
-                    sum += w[i][j] ;
+                    // Event-driven integration
+
+                    // Update conductance
+
+                    pop0.g_inh[post_rank[i]] +=  Gmax[i][j];
+
+                    if (pop0.g_inh[post_rank[i]] > Gmax[i][j])
+                        pop0.g_inh[post_rank[i]] = Gmax[i][j];
+
+                    // Synaptic plasticity: pre-events
+
                 }
-                pop2._sum_inh[post_rank[i]] += sum;
             }
-
         } // active
 
     }
@@ -158,34 +175,6 @@ struct ProjStruct0 : LILMatrix<int, int> {
         std::cout << "    ProjStruct0::update_synapse()" << std::endl;
     #endif
 
-        int rk_post, rk_pre;
-        double _dt = dt * _update_period;
-
-        // Check periodicity
-        if(_transmission && _update && pop2._active && ( (t - _update_offset)%_update_period == 0L) ){
-            // Global variables
-
-
-            // Semiglobal/Local variables
-            for (int i = 0; i < post_rank.size(); i++) {
-                rk_post = post_rank[i]; // Get postsynaptic rank
-
-                // Semi-global variables
-
-
-                // Local variables
-                for (int j = 0; j < pre_rank[i].size(); j++) {
-                    rk_pre = pre_rank[i][j]; // Get presynaptic rank
-
-                    // w = clip(Gmax * (pre.r-El)/(Eh-El), 0.0, Gmax)
-                    if(_plasticity){
-                    w[i][j] = clip(Gmax[i][j]*(-El[i][j] + pop2.r[rk_pre])/(Eh[i][j] - El[i][j]), 0.0, Gmax[i][j]);
-
-                    }
-
-                }
-            }
-        }
 
     }
 
@@ -207,19 +196,13 @@ struct ProjStruct0 : LILMatrix<int, int> {
             return get_matrix_variable_all<double>(Gmax);
         }
 
-        // Local parameter El
-        if ( name.compare("El") == 0 ) {
+        // Local parameter Esyn
+        if ( name.compare("Esyn") == 0 ) {
 
-            return get_matrix_variable_all<double>(El);
+            return get_matrix_variable_all<double>(Esyn);
         }
 
-        // Local parameter Eh
-        if ( name.compare("Eh") == 0 ) {
-
-            return get_matrix_variable_all<double>(Eh);
-        }
-
-        // Local variable w
+        // Local parameter w
         if ( name.compare("w") == 0 ) {
 
             return get_matrix_variable_all<double>(w);
@@ -242,19 +225,13 @@ struct ProjStruct0 : LILMatrix<int, int> {
             return get_matrix_variable_row<double>(Gmax, rk_post);
         }
 
-        // Local parameter El
-        if ( name.compare("El") == 0 ) {
+        // Local parameter Esyn
+        if ( name.compare("Esyn") == 0 ) {
 
-            return get_matrix_variable_row<double>(El, rk_post);
+            return get_matrix_variable_row<double>(Esyn, rk_post);
         }
 
-        // Local parameter Eh
-        if ( name.compare("Eh") == 0 ) {
-
-            return get_matrix_variable_row<double>(Eh, rk_post);
-        }
-
-        // Local variable w
+        // Local parameter w
         if ( name.compare("w") == 0 ) {
 
             return get_matrix_variable_row<double>(w, rk_post);
@@ -277,19 +254,13 @@ struct ProjStruct0 : LILMatrix<int, int> {
             return get_matrix_variable<double>(Gmax, rk_post, rk_pre);
         }
 
-        // Local parameter El
-        if ( name.compare("El") == 0 ) {
+        // Local parameter Esyn
+        if ( name.compare("Esyn") == 0 ) {
 
-            return get_matrix_variable<double>(El, rk_post, rk_pre);
+            return get_matrix_variable<double>(Esyn, rk_post, rk_pre);
         }
 
-        // Local parameter Eh
-        if ( name.compare("Eh") == 0 ) {
-
-            return get_matrix_variable<double>(Eh, rk_post, rk_pre);
-        }
-
-        // Local variable w
+        // Local parameter w
         if ( name.compare("w") == 0 ) {
 
             return get_matrix_variable<double>(w, rk_post, rk_pre);
@@ -310,21 +281,14 @@ struct ProjStruct0 : LILMatrix<int, int> {
             return;
         }
 
-        // Local parameter El
-        if ( name.compare("El") == 0 ) {
-            update_matrix_variable_all<double>(El, value);
+        // Local parameter Esyn
+        if ( name.compare("Esyn") == 0 ) {
+            update_matrix_variable_all<double>(Esyn, value);
 
             return;
         }
 
-        // Local parameter Eh
-        if ( name.compare("Eh") == 0 ) {
-            update_matrix_variable_all<double>(Eh, value);
-
-            return;
-        }
-
-        // Local variable w
+        // Local parameter w
         if ( name.compare("w") == 0 ) {
             update_matrix_variable_all<double>(w, value);
 
@@ -342,21 +306,14 @@ struct ProjStruct0 : LILMatrix<int, int> {
             return;
         }
 
-        // Local parameter El
-        if ( name.compare("El") == 0 ) {
-            update_matrix_variable_row<double>(El, rk_post, value);
+        // Local parameter Esyn
+        if ( name.compare("Esyn") == 0 ) {
+            update_matrix_variable_row<double>(Esyn, rk_post, value);
 
             return;
         }
 
-        // Local parameter Eh
-        if ( name.compare("Eh") == 0 ) {
-            update_matrix_variable_row<double>(Eh, rk_post, value);
-
-            return;
-        }
-
-        // Local variable w
+        // Local parameter w
         if ( name.compare("w") == 0 ) {
             update_matrix_variable_row<double>(w, rk_post, value);
 
@@ -374,21 +331,14 @@ struct ProjStruct0 : LILMatrix<int, int> {
             return;
         }
 
-        // Local parameter El
-        if ( name.compare("El") == 0 ) {
-            update_matrix_variable<double>(El, rk_post, rk_pre, value);
+        // Local parameter Esyn
+        if ( name.compare("Esyn") == 0 ) {
+            update_matrix_variable<double>(Esyn, rk_post, rk_pre, value);
 
             return;
         }
 
-        // Local parameter Eh
-        if ( name.compare("Eh") == 0 ) {
-            update_matrix_variable<double>(Eh, rk_post, rk_pre, value);
-
-            return;
-        }
-
-        // Local variable w
+        // Local parameter w
         if ( name.compare("w") == 0 ) {
             update_matrix_variable<double>(w, rk_post, rk_pre, value);
 
@@ -406,13 +356,7 @@ struct ProjStruct0 : LILMatrix<int, int> {
         long int size_in_bytes = 0;
 
         // connectivity
-        size_in_bytes += static_cast<LILMatrix<int, int>*>(this)->size_in_bytes();
-
-        // Local variable w
-        size_in_bytes += sizeof(std::vector<std::vector<double>>);
-        size_in_bytes += sizeof(std::vector<double>) * w.capacity();
-        for(auto it = w.cbegin(); it != w.cend(); it++)
-            size_in_bytes += (it->capacity()) * sizeof(double);
+        size_in_bytes += static_cast<LILInvMatrix<int, int>*>(this)->size_in_bytes();
 
         // Local parameter Gmax
         size_in_bytes += sizeof(std::vector<std::vector<double>>);
@@ -420,16 +364,16 @@ struct ProjStruct0 : LILMatrix<int, int> {
         for(auto it = Gmax.cbegin(); it != Gmax.cend(); it++)
             size_in_bytes += (it->capacity()) * sizeof(double);
 
-        // Local parameter El
+        // Local parameter Esyn
         size_in_bytes += sizeof(std::vector<std::vector<double>>);
-        size_in_bytes += sizeof(std::vector<double>) * El.capacity();
-        for(auto it = El.cbegin(); it != El.cend(); it++)
+        size_in_bytes += sizeof(std::vector<double>) * Esyn.capacity();
+        for(auto it = Esyn.cbegin(); it != Esyn.cend(); it++)
             size_in_bytes += (it->capacity()) * sizeof(double);
 
-        // Local parameter Eh
+        // Local parameter w
         size_in_bytes += sizeof(std::vector<std::vector<double>>);
-        size_in_bytes += sizeof(std::vector<double>) * Eh.capacity();
-        for(auto it = Eh.cbegin(); it != Eh.cend(); it++)
+        size_in_bytes += sizeof(std::vector<double>) * w.capacity();
+        for(auto it = w.cbegin(); it != w.cend(); it++)
             size_in_bytes += (it->capacity()) * sizeof(double);
 
         return size_in_bytes;
@@ -445,15 +389,7 @@ struct ProjStruct0 : LILMatrix<int, int> {
     #endif
 
         // Connectivity
-        static_cast<LILMatrix<int, int>*>(this)->clear();
-
-        // w
-        for (auto it = w.begin(); it != w.end(); it++) {
-            it->clear();
-            it->shrink_to_fit();
-        };
-        w.clear();
-        w.shrink_to_fit();
+        static_cast<LILInvMatrix<int, int>*>(this)->clear();
 
         // Gmax
         for (auto it = Gmax.begin(); it != Gmax.end(); it++) {
@@ -463,21 +399,21 @@ struct ProjStruct0 : LILMatrix<int, int> {
         Gmax.clear();
         Gmax.shrink_to_fit();
 
-        // El
-        for (auto it = El.begin(); it != El.end(); it++) {
+        // Esyn
+        for (auto it = Esyn.begin(); it != Esyn.end(); it++) {
             it->clear();
             it->shrink_to_fit();
         };
-        El.clear();
-        El.shrink_to_fit();
+        Esyn.clear();
+        Esyn.shrink_to_fit();
 
-        // Eh
-        for (auto it = Eh.begin(); it != Eh.end(); it++) {
+        // w
+        for (auto it = w.begin(); it != w.end(); it++) {
             it->clear();
             it->shrink_to_fit();
         };
-        Eh.clear();
-        Eh.shrink_to_fit();
+        w.clear();
+        w.shrink_to_fit();
 
     }
 };
