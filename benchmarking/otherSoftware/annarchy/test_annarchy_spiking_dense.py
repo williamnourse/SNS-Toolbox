@@ -57,7 +57,7 @@ numNeurons = np.geomspace(10,5000,num=numSamples)
 
 dt = 0.1
 numSteps = 1000
-brianTimes = np.zeros([numSamples,numSteps])
+annTimes = np.zeros([numSamples,numSteps])
 
 print('Finished test setup. Running for %f sec' % (time.time()-globalStart))
 
@@ -102,6 +102,6 @@ for num in range(numSamples):
     data = {'shape': numNeurons,
             'annarchy': annTimes}
 
-    pickle.dump(data, open('../../backendSpeed/dataBrianTimesSpikingDense.p', 'wb'))
+    pickle.dump(data, open('dataANNarchyTimesSpikingDense.p', 'wb'))
 send_email('wrn13@case.edu')
 print('Finished test loop. Running for %f sec' % (time.time() - globalStart))
