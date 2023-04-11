@@ -5,6 +5,5 @@ nvcc   -Xcompiler -O3,-march=native,-std=c++14,-fPIC,-shared \
         `python3.8-config --includes` -I/home/will/sns-venv/lib/python3.8/site-packages/numpy/core/include -I/home/will/sns-venv/lib/python3.8/site-packages/ANNarchy/include \
         -I /home/will/sns-venv/lib/python3.8/site-packages/ANNarchy/core/cython_ext/ -I /home/will/sns-venv/lib/python3.8/site-packages/ \
         -lpython3.8 \
-        -L/usr/local/cuda-12.0/lib \
+        -L/usr/lib/cuda/lib \
         -L/home/will/sns-venv/lib 
-mv ANNarchyCore1.so ../..

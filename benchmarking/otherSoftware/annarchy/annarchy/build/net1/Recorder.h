@@ -168,6 +168,396 @@ public:
     bool record_r ; 
 };
 
+class PopRecorder1 : public Monitor
+{
+protected:
+    PopRecorder1(std::vector<int> ranks, int period, int period_offset, long int offset)
+        : Monitor(ranks, period, period_offset, offset)
+        {
+    #ifdef _DEBUG
+        std::cout << "PopRecorder1 (" << this << ") instantiated." << std::endl;
+    #endif
+
+        this->_sum_inh = std::vector< std::vector< double > >();
+        this->record__sum_inh = false; 
+        this->v = std::vector< std::vector< double > >();
+        this->record_v = false; 
+        this->r = std::vector< std::vector< double > >();
+        this->record_r = false; 
+    }
+
+public:
+
+    static int create_instance(std::vector<int> ranks, int period, int period_offset, long int offset) {
+        auto new_recorder = new PopRecorder1(ranks, period, period_offset, offset);
+        auto id = addRecorder(static_cast<Monitor*>(new_recorder));
+    #ifdef _DEBUG
+        std::cout << "PopRecorder1 (" << new_recorder << ") received list position (ID) = " << id << std::endl;
+    #endif
+        return id;
+    }
+
+    static PopRecorder1* get_instance(int id) {
+        return static_cast<PopRecorder1*>(getRecorder(id));
+    }
+
+    void record() {
+
+        if(this->record_v && ( (t - this->offset_) % this->period_ == this->period_offset_ )){
+            cudaMemcpy(pop1.v.data(), pop1.gpu_v, pop1.size * sizeof(double), cudaMemcpyDeviceToHost);
+        #ifdef _DEBUG
+            auto err = cudaGetLastError();
+            if ( err != cudaSuccess ) {
+                std::cout << "record v on pop1 failed: " << cudaGetErrorString(err) << std::endl;
+            } else {
+                std::cout << "record v - [min, max]: " << *std::min_element(pop1.v.begin(), pop1.v.end() ) << ", " << *std::max_element(pop1.v.begin(), pop1.v.end() ) << std::endl;
+            }
+        #endif
+            if(!this->partial)
+                this->v.push_back(pop1.v);
+            else{
+                std::vector<double> tmp = std::vector<double>();
+                for (unsigned int i=0; i<this->ranks.size(); i++){
+                    tmp.push_back(pop1.v[this->ranks[i]]);
+                }
+                this->v.push_back(tmp);
+            }
+        }
+        if(this->record_r && ( (t - this->offset_) % this->period_ == this->period_offset_ )){
+            cudaMemcpy(pop1.r.data(), pop1.gpu_r, pop1.size * sizeof(double), cudaMemcpyDeviceToHost);
+        #ifdef _DEBUG
+            auto err = cudaGetLastError();
+            if ( err != cudaSuccess ) {
+                std::cout << "record r on pop1 failed: " << cudaGetErrorString(err) << std::endl;
+            } else {
+                std::cout << "record r - [min, max]: " << *std::min_element(pop1.r.begin(), pop1.r.end() ) << ", " << *std::max_element(pop1.r.begin(), pop1.r.end() ) << std::endl;
+            }
+        #endif
+            if(!this->partial)
+                this->r.push_back(pop1.r);
+            else{
+                std::vector<double> tmp = std::vector<double>();
+                for (unsigned int i=0; i<this->ranks.size(); i++){
+                    tmp.push_back(pop1.r[this->ranks[i]]);
+                }
+                this->r.push_back(tmp);
+            }
+        }
+    }
+
+    void record_targets() {
+
+        if(this->record__sum_inh && ( (t - this->offset_) % this->period_ == this->period_offset_ )){
+            cudaMemcpy(pop1._sum_inh.data(), pop1.gpu__sum_inh, pop1.size * sizeof(double), cudaMemcpyDeviceToHost);
+        #ifdef _DEBUG
+            auto err = cudaGetLastError();
+            if ( err != cudaSuccess ) {
+                std::cout << "record _sum_inh on pop1 failed: " << cudaGetErrorString(err) << std::endl;
+            } else {
+                std::cout << "record _sum_inh - [min, max]: " << *std::min_element(pop1._sum_inh.begin(), pop1._sum_inh.end() ) << ", " << *std::max_element(pop1._sum_inh.begin(), pop1._sum_inh.end() ) << std::endl;
+            }
+        #endif
+            if(!this->partial)
+                this->_sum_inh.push_back(pop1._sum_inh);
+            else{
+                std::vector<double> tmp = std::vector<double>();
+                for (unsigned int i=0; i<this->ranks.size(); i++){
+                    tmp.push_back(pop1._sum_inh[this->ranks[i]]);
+                }
+                this->_sum_inh.push_back(tmp);
+            }
+        }
+    }
+
+    long int size_in_bytes() {
+        std::cout << "PopMonitor::size_in_bytes(): not implemented for cuda paradigm." << std::endl;
+        return 0;
+    }
+
+    void clear() {
+
+        for(auto it = this->v.begin(); it != this->v.end(); it++)
+            it->clear();
+        this->v.clear();
+
+        for(auto it = this->r.begin(); it != this->r.end(); it++)
+            it->clear();
+        this->r.clear();
+
+    }
+
+
+    // Local variable _sum_inh
+    std::vector< std::vector< double > > _sum_inh ;
+    bool record__sum_inh ; 
+    // Local variable v
+    std::vector< std::vector< double > > v ;
+    bool record_v ; 
+    // Local variable r
+    std::vector< std::vector< double > > r ;
+    bool record_r ; 
+};
+
+class PopRecorder2 : public Monitor
+{
+protected:
+    PopRecorder2(std::vector<int> ranks, int period, int period_offset, long int offset)
+        : Monitor(ranks, period, period_offset, offset)
+        {
+    #ifdef _DEBUG
+        std::cout << "PopRecorder2 (" << this << ") instantiated." << std::endl;
+    #endif
+
+        this->_sum_inh = std::vector< std::vector< double > >();
+        this->record__sum_inh = false; 
+        this->v = std::vector< std::vector< double > >();
+        this->record_v = false; 
+        this->r = std::vector< std::vector< double > >();
+        this->record_r = false; 
+    }
+
+public:
+
+    static int create_instance(std::vector<int> ranks, int period, int period_offset, long int offset) {
+        auto new_recorder = new PopRecorder2(ranks, period, period_offset, offset);
+        auto id = addRecorder(static_cast<Monitor*>(new_recorder));
+    #ifdef _DEBUG
+        std::cout << "PopRecorder2 (" << new_recorder << ") received list position (ID) = " << id << std::endl;
+    #endif
+        return id;
+    }
+
+    static PopRecorder2* get_instance(int id) {
+        return static_cast<PopRecorder2*>(getRecorder(id));
+    }
+
+    void record() {
+
+        if(this->record_v && ( (t - this->offset_) % this->period_ == this->period_offset_ )){
+            cudaMemcpy(pop2.v.data(), pop2.gpu_v, pop2.size * sizeof(double), cudaMemcpyDeviceToHost);
+        #ifdef _DEBUG
+            auto err = cudaGetLastError();
+            if ( err != cudaSuccess ) {
+                std::cout << "record v on pop2 failed: " << cudaGetErrorString(err) << std::endl;
+            } else {
+                std::cout << "record v - [min, max]: " << *std::min_element(pop2.v.begin(), pop2.v.end() ) << ", " << *std::max_element(pop2.v.begin(), pop2.v.end() ) << std::endl;
+            }
+        #endif
+            if(!this->partial)
+                this->v.push_back(pop2.v);
+            else{
+                std::vector<double> tmp = std::vector<double>();
+                for (unsigned int i=0; i<this->ranks.size(); i++){
+                    tmp.push_back(pop2.v[this->ranks[i]]);
+                }
+                this->v.push_back(tmp);
+            }
+        }
+        if(this->record_r && ( (t - this->offset_) % this->period_ == this->period_offset_ )){
+            cudaMemcpy(pop2.r.data(), pop2.gpu_r, pop2.size * sizeof(double), cudaMemcpyDeviceToHost);
+        #ifdef _DEBUG
+            auto err = cudaGetLastError();
+            if ( err != cudaSuccess ) {
+                std::cout << "record r on pop2 failed: " << cudaGetErrorString(err) << std::endl;
+            } else {
+                std::cout << "record r - [min, max]: " << *std::min_element(pop2.r.begin(), pop2.r.end() ) << ", " << *std::max_element(pop2.r.begin(), pop2.r.end() ) << std::endl;
+            }
+        #endif
+            if(!this->partial)
+                this->r.push_back(pop2.r);
+            else{
+                std::vector<double> tmp = std::vector<double>();
+                for (unsigned int i=0; i<this->ranks.size(); i++){
+                    tmp.push_back(pop2.r[this->ranks[i]]);
+                }
+                this->r.push_back(tmp);
+            }
+        }
+    }
+
+    void record_targets() {
+
+        if(this->record__sum_inh && ( (t - this->offset_) % this->period_ == this->period_offset_ )){
+            cudaMemcpy(pop2._sum_inh.data(), pop2.gpu__sum_inh, pop2.size * sizeof(double), cudaMemcpyDeviceToHost);
+        #ifdef _DEBUG
+            auto err = cudaGetLastError();
+            if ( err != cudaSuccess ) {
+                std::cout << "record _sum_inh on pop2 failed: " << cudaGetErrorString(err) << std::endl;
+            } else {
+                std::cout << "record _sum_inh - [min, max]: " << *std::min_element(pop2._sum_inh.begin(), pop2._sum_inh.end() ) << ", " << *std::max_element(pop2._sum_inh.begin(), pop2._sum_inh.end() ) << std::endl;
+            }
+        #endif
+            if(!this->partial)
+                this->_sum_inh.push_back(pop2._sum_inh);
+            else{
+                std::vector<double> tmp = std::vector<double>();
+                for (unsigned int i=0; i<this->ranks.size(); i++){
+                    tmp.push_back(pop2._sum_inh[this->ranks[i]]);
+                }
+                this->_sum_inh.push_back(tmp);
+            }
+        }
+    }
+
+    long int size_in_bytes() {
+        std::cout << "PopMonitor::size_in_bytes(): not implemented for cuda paradigm." << std::endl;
+        return 0;
+    }
+
+    void clear() {
+
+        for(auto it = this->v.begin(); it != this->v.end(); it++)
+            it->clear();
+        this->v.clear();
+
+        for(auto it = this->r.begin(); it != this->r.end(); it++)
+            it->clear();
+        this->r.clear();
+
+    }
+
+
+    // Local variable _sum_inh
+    std::vector< std::vector< double > > _sum_inh ;
+    bool record__sum_inh ; 
+    // Local variable v
+    std::vector< std::vector< double > > v ;
+    bool record_v ; 
+    // Local variable r
+    std::vector< std::vector< double > > r ;
+    bool record_r ; 
+};
+
+class PopRecorder3 : public Monitor
+{
+protected:
+    PopRecorder3(std::vector<int> ranks, int period, int period_offset, long int offset)
+        : Monitor(ranks, period, period_offset, offset)
+        {
+    #ifdef _DEBUG
+        std::cout << "PopRecorder3 (" << this << ") instantiated." << std::endl;
+    #endif
+
+        this->_sum_inh = std::vector< std::vector< double > >();
+        this->record__sum_inh = false; 
+        this->v = std::vector< std::vector< double > >();
+        this->record_v = false; 
+        this->r = std::vector< std::vector< double > >();
+        this->record_r = false; 
+    }
+
+public:
+
+    static int create_instance(std::vector<int> ranks, int period, int period_offset, long int offset) {
+        auto new_recorder = new PopRecorder3(ranks, period, period_offset, offset);
+        auto id = addRecorder(static_cast<Monitor*>(new_recorder));
+    #ifdef _DEBUG
+        std::cout << "PopRecorder3 (" << new_recorder << ") received list position (ID) = " << id << std::endl;
+    #endif
+        return id;
+    }
+
+    static PopRecorder3* get_instance(int id) {
+        return static_cast<PopRecorder3*>(getRecorder(id));
+    }
+
+    void record() {
+
+        if(this->record_v && ( (t - this->offset_) % this->period_ == this->period_offset_ )){
+            cudaMemcpy(pop3.v.data(), pop3.gpu_v, pop3.size * sizeof(double), cudaMemcpyDeviceToHost);
+        #ifdef _DEBUG
+            auto err = cudaGetLastError();
+            if ( err != cudaSuccess ) {
+                std::cout << "record v on pop3 failed: " << cudaGetErrorString(err) << std::endl;
+            } else {
+                std::cout << "record v - [min, max]: " << *std::min_element(pop3.v.begin(), pop3.v.end() ) << ", " << *std::max_element(pop3.v.begin(), pop3.v.end() ) << std::endl;
+            }
+        #endif
+            if(!this->partial)
+                this->v.push_back(pop3.v);
+            else{
+                std::vector<double> tmp = std::vector<double>();
+                for (unsigned int i=0; i<this->ranks.size(); i++){
+                    tmp.push_back(pop3.v[this->ranks[i]]);
+                }
+                this->v.push_back(tmp);
+            }
+        }
+        if(this->record_r && ( (t - this->offset_) % this->period_ == this->period_offset_ )){
+            cudaMemcpy(pop3.r.data(), pop3.gpu_r, pop3.size * sizeof(double), cudaMemcpyDeviceToHost);
+        #ifdef _DEBUG
+            auto err = cudaGetLastError();
+            if ( err != cudaSuccess ) {
+                std::cout << "record r on pop3 failed: " << cudaGetErrorString(err) << std::endl;
+            } else {
+                std::cout << "record r - [min, max]: " << *std::min_element(pop3.r.begin(), pop3.r.end() ) << ", " << *std::max_element(pop3.r.begin(), pop3.r.end() ) << std::endl;
+            }
+        #endif
+            if(!this->partial)
+                this->r.push_back(pop3.r);
+            else{
+                std::vector<double> tmp = std::vector<double>();
+                for (unsigned int i=0; i<this->ranks.size(); i++){
+                    tmp.push_back(pop3.r[this->ranks[i]]);
+                }
+                this->r.push_back(tmp);
+            }
+        }
+    }
+
+    void record_targets() {
+
+        if(this->record__sum_inh && ( (t - this->offset_) % this->period_ == this->period_offset_ )){
+            cudaMemcpy(pop3._sum_inh.data(), pop3.gpu__sum_inh, pop3.size * sizeof(double), cudaMemcpyDeviceToHost);
+        #ifdef _DEBUG
+            auto err = cudaGetLastError();
+            if ( err != cudaSuccess ) {
+                std::cout << "record _sum_inh on pop3 failed: " << cudaGetErrorString(err) << std::endl;
+            } else {
+                std::cout << "record _sum_inh - [min, max]: " << *std::min_element(pop3._sum_inh.begin(), pop3._sum_inh.end() ) << ", " << *std::max_element(pop3._sum_inh.begin(), pop3._sum_inh.end() ) << std::endl;
+            }
+        #endif
+            if(!this->partial)
+                this->_sum_inh.push_back(pop3._sum_inh);
+            else{
+                std::vector<double> tmp = std::vector<double>();
+                for (unsigned int i=0; i<this->ranks.size(); i++){
+                    tmp.push_back(pop3._sum_inh[this->ranks[i]]);
+                }
+                this->_sum_inh.push_back(tmp);
+            }
+        }
+    }
+
+    long int size_in_bytes() {
+        std::cout << "PopMonitor::size_in_bytes(): not implemented for cuda paradigm." << std::endl;
+        return 0;
+    }
+
+    void clear() {
+
+        for(auto it = this->v.begin(); it != this->v.end(); it++)
+            it->clear();
+        this->v.clear();
+
+        for(auto it = this->r.begin(); it != this->r.end(); it++)
+            it->clear();
+        this->r.clear();
+
+    }
+
+
+    // Local variable _sum_inh
+    std::vector< std::vector< double > > _sum_inh ;
+    bool record__sum_inh ; 
+    // Local variable v
+    std::vector< std::vector< double > > v ;
+    bool record_v ; 
+    // Local variable r
+    std::vector< std::vector< double > > r ;
+    bool record_r ; 
+};
+
 class ProjRecorder0 : public Monitor
 {
 protected:

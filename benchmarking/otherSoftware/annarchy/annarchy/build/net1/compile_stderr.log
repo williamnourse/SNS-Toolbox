@@ -1,9 +1,4 @@
-ANNarchyHost.cu(312): warning: variable "nb_blocks" was declared but never referenced
+ANNarchyHost.cu(432): warning: variable "nb_blocks" was declared but never referenced
 
-In file included from /home/will/sns-venv/lib/python3.8/site-packages/numpy/core/include/numpy/ndarraytypes.h:1969,
-                 from /home/will/sns-venv/lib/python3.8/site-packages/numpy/core/include/numpy/ndarrayobject.h:12,
-                 from /home/will/sns-venv/lib/python3.8/site-packages/numpy/core/include/numpy/arrayobject.h:4,
-                 from ANNarchyCore1.cpp:780:
-/home/will/sns-venv/lib/python3.8/site-packages/numpy/core/include/numpy/npy_1_7_deprecated_api.h:17:2: warning: #warning "Using deprecated NumPy API, disable it with " "#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION" [-Wcpp]
- #warning "Using deprecated NumPy API, disable it with " \
-  ^~~~~~~
+nvcc error   : 'fatbinary' died due to signal 2 
+make: *** [Makefile:5: all] Interrupt

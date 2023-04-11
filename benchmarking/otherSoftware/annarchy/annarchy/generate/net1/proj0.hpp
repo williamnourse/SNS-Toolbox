@@ -12,15 +12,15 @@
 extern std::vector<std::mt19937> rng;
 extern unsigned long long global_seed;
 
-extern PopStruct0 pop0;
-extern PopStruct0 pop0;
+extern PopStruct2 pop2;
+extern PopStruct2 pop2;
 
 
 /////////////////////////////////////////////////////////////////////////////
-// proj0: pop0 -> pop0 with target inh
+// proj0: pop2 -> pop2 with target inh
 /////////////////////////////////////////////////////////////////////////////
 struct ProjStruct0 : CSRMatrixCUDA<int, int> {
-    ProjStruct0() : CSRMatrixCUDA<int, int> ( 5000, 5000) {
+    ProjStruct0() : CSRMatrixCUDA<int, int> ( 3, 3) {
     }
 
     // Launch configuration

@@ -14,7 +14,7 @@ from email_utils import send_email
 NEURON AND SYNAPSE DEFINITIONS
 """
 globalStart = time.time()
-setup(dt=0.1, paradigm='CUDA')
+setup(dt=0.1, paradigm='cuda')
 NonSpikingNeuron = Neuron(
     parameters="""
         Cm = 5.0

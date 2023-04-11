@@ -59,6 +59,96 @@ cdef extern from "ANNarchy.h":
         long int size_in_bytes()
         void clear()
 
+    # Export Population 1 (pop1)
+    cdef struct PopStruct1 :
+        # Number of neurons
+        int get_size()
+        void set_size(int)
+        # Maximum delay in steps
+        int get_max_delay()
+        void set_max_delay(int)
+        void update_max_delay(int)
+        # Activate/deactivate the population
+        bool is_active()
+        void set_active(bool)
+        # Reset the population
+        void reset()
+
+
+        # Local attributes
+        vector[double] get_local_attribute_all_double(string)
+        double get_local_attribute_double(string, int)
+        void set_local_attribute_all_double(string, vector[double])
+        void set_local_attribute_double(string, int, double)
+
+
+
+
+
+        # memory management
+        long int size_in_bytes()
+        void clear()
+
+    # Export Population 2 (pop2)
+    cdef struct PopStruct2 :
+        # Number of neurons
+        int get_size()
+        void set_size(int)
+        # Maximum delay in steps
+        int get_max_delay()
+        void set_max_delay(int)
+        void update_max_delay(int)
+        # Activate/deactivate the population
+        bool is_active()
+        void set_active(bool)
+        # Reset the population
+        void reset()
+
+
+        # Local attributes
+        vector[double] get_local_attribute_all_double(string)
+        double get_local_attribute_double(string, int)
+        void set_local_attribute_all_double(string, vector[double])
+        void set_local_attribute_double(string, int, double)
+
+
+
+
+
+        # memory management
+        long int size_in_bytes()
+        void clear()
+
+    # Export Population 3 (pop3)
+    cdef struct PopStruct3 :
+        # Number of neurons
+        int get_size()
+        void set_size(int)
+        # Maximum delay in steps
+        int get_max_delay()
+        void set_max_delay(int)
+        void update_max_delay(int)
+        # Activate/deactivate the population
+        bool is_active()
+        void set_active(bool)
+        # Reset the population
+        void reset()
+
+
+        # Local attributes
+        vector[double] get_local_attribute_all_double(string)
+        double get_local_attribute_double(string, int)
+        void set_local_attribute_all_double(string, vector[double])
+        void set_local_attribute_double(string, int, double)
+
+
+
+
+
+        # memory management
+        long int size_in_bytes()
+        void clear()
+
 
     # Export Projection 0
     cdef struct ProjStruct0 :
@@ -131,6 +221,63 @@ cdef extern from "ANNarchy.h":
         vector[vector[double]] _sum_inh
         bool record__sum_inh
 
+    # Population 1 (pop1) : Monitor
+    cdef cppclass PopRecorder1 (Monitor):
+        @staticmethod
+        int create_instance(vector[int], int, int, long)
+        @staticmethod
+        PopRecorder1* get_instance(int)
+        long int size_in_bytes()
+        void clear()
+
+        vector[vector[double]] v
+        bool record_v
+
+        vector[vector[double]] r
+        bool record_r
+
+        # Targets
+        vector[vector[double]] _sum_inh
+        bool record__sum_inh
+
+    # Population 2 (pop2) : Monitor
+    cdef cppclass PopRecorder2 (Monitor):
+        @staticmethod
+        int create_instance(vector[int], int, int, long)
+        @staticmethod
+        PopRecorder2* get_instance(int)
+        long int size_in_bytes()
+        void clear()
+
+        vector[vector[double]] v
+        bool record_v
+
+        vector[vector[double]] r
+        bool record_r
+
+        # Targets
+        vector[vector[double]] _sum_inh
+        bool record__sum_inh
+
+    # Population 3 (pop3) : Monitor
+    cdef cppclass PopRecorder3 (Monitor):
+        @staticmethod
+        int create_instance(vector[int], int, int, long)
+        @staticmethod
+        PopRecorder3* get_instance(int)
+        long int size_in_bytes()
+        void clear()
+
+        vector[vector[double]] v
+        bool record_v
+
+        vector[vector[double]] r
+        bool record_r
+
+        # Targets
+        vector[vector[double]] _sum_inh
+        bool record__sum_inh
+
     # Projection 0 : Monitor
     cdef cppclass ProjRecorder0 (Monitor):
         @staticmethod
@@ -145,6 +292,9 @@ cdef extern from "ANNarchy.h":
     # Instances
 
     PopStruct0 pop0
+    PopStruct1 pop1
+    PopStruct2 pop2
+    PopStruct3 pop3
 
     ProjStruct0 proj0
 
@@ -239,6 +389,207 @@ cdef class pop0_wrapper :
 
     def clear(self):
         return pop0.clear()
+
+# Wrapper for population 1 (pop1)
+@cython.auto_pickle(True)
+cdef class pop1_wrapper :
+
+    def __init__(self, size, max_delay):
+
+        pop1.set_size(size)
+        pop1.set_max_delay(max_delay)
+    # Number of neurons
+    property size:
+        def __get__(self):
+            return pop1.get_size()
+    # Reset the population
+    def reset(self):
+        pop1.reset()
+    # Set the maximum delay of outgoing projections
+    def set_max_delay(self, val):
+        pop1.set_max_delay(val)
+    # Updates the maximum delay of outgoing projections and rebuilds the arrays
+    def update_max_delay(self, val):
+        pop1.update_max_delay(val)
+    # Allows the population to compute
+    def activate(self, bool val):
+        pop1.set_active(val)
+
+
+    # Local Attribute
+    def get_local_attribute_all(self, name, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            return np.array(pop1.get_local_attribute_all_double(cpp_string))
+
+
+    def get_local_attribute(self, name, rk, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            return pop1.get_local_attribute_double(cpp_string, rk)
+
+
+    def set_local_attribute_all(self, name, value, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            pop1.set_local_attribute_all_double(cpp_string, value)
+
+
+    def set_local_attribute(self, name, rk, value, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            pop1.set_local_attribute_double(cpp_string, rk, value)
+
+
+
+
+
+
+
+    # memory management
+    def size_in_bytes(self):
+        return pop1.size_in_bytes()
+
+    def clear(self):
+        return pop1.clear()
+
+# Wrapper for population 2 (pop2)
+@cython.auto_pickle(True)
+cdef class pop2_wrapper :
+
+    def __init__(self, size, max_delay):
+
+        pop2.set_size(size)
+        pop2.set_max_delay(max_delay)
+    # Number of neurons
+    property size:
+        def __get__(self):
+            return pop2.get_size()
+    # Reset the population
+    def reset(self):
+        pop2.reset()
+    # Set the maximum delay of outgoing projections
+    def set_max_delay(self, val):
+        pop2.set_max_delay(val)
+    # Updates the maximum delay of outgoing projections and rebuilds the arrays
+    def update_max_delay(self, val):
+        pop2.update_max_delay(val)
+    # Allows the population to compute
+    def activate(self, bool val):
+        pop2.set_active(val)
+
+
+    # Local Attribute
+    def get_local_attribute_all(self, name, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            return np.array(pop2.get_local_attribute_all_double(cpp_string))
+
+
+    def get_local_attribute(self, name, rk, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            return pop2.get_local_attribute_double(cpp_string, rk)
+
+
+    def set_local_attribute_all(self, name, value, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            pop2.set_local_attribute_all_double(cpp_string, value)
+
+
+    def set_local_attribute(self, name, rk, value, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            pop2.set_local_attribute_double(cpp_string, rk, value)
+
+
+
+
+
+
+
+    # memory management
+    def size_in_bytes(self):
+        return pop2.size_in_bytes()
+
+    def clear(self):
+        return pop2.clear()
+
+# Wrapper for population 3 (pop3)
+@cython.auto_pickle(True)
+cdef class pop3_wrapper :
+
+    def __init__(self, size, max_delay):
+
+        pop3.set_size(size)
+        pop3.set_max_delay(max_delay)
+    # Number of neurons
+    property size:
+        def __get__(self):
+            return pop3.get_size()
+    # Reset the population
+    def reset(self):
+        pop3.reset()
+    # Set the maximum delay of outgoing projections
+    def set_max_delay(self, val):
+        pop3.set_max_delay(val)
+    # Updates the maximum delay of outgoing projections and rebuilds the arrays
+    def update_max_delay(self, val):
+        pop3.update_max_delay(val)
+    # Allows the population to compute
+    def activate(self, bool val):
+        pop3.set_active(val)
+
+
+    # Local Attribute
+    def get_local_attribute_all(self, name, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            return np.array(pop3.get_local_attribute_all_double(cpp_string))
+
+
+    def get_local_attribute(self, name, rk, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            return pop3.get_local_attribute_double(cpp_string, rk)
+
+
+    def set_local_attribute_all(self, name, value, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            pop3.set_local_attribute_all_double(cpp_string, value)
+
+
+    def set_local_attribute(self, name, rk, value, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            pop3.set_local_attribute_double(cpp_string, rk, value)
+
+
+
+
+
+
+
+    # memory management
+    def size_in_bytes(self):
+        return pop3.size_in_bytes()
+
+    def clear(self):
+        return pop3.clear()
 
 
 # Projection wrappers
@@ -422,6 +773,153 @@ cdef class PopRecorder0_wrapper:
         def __set__(self, val): (PopRecorder0.get_instance(self.id)).record__sum_inh = val
     def clear__sum_inh(self):
         (PopRecorder0.get_instance(self.id))._sum_inh.clear()
+
+# Population Monitor wrapper
+@cython.auto_pickle(True)
+cdef class PopRecorder1_wrapper:
+    cdef int id
+    def __init__(self, list ranks, int period, period_offset, long offset):
+        self.id = PopRecorder1.create_instance(ranks, period, period_offset, offset)
+
+    def size_in_bytes(self):
+        return (PopRecorder1.get_instance(self.id)).size_in_bytes()
+
+    def clear(self):
+        return (PopRecorder1.get_instance(self.id)).clear()
+
+    property period:
+        def __get__(self): return (PopRecorder1.get_instance(self.id)).period_
+        def __set__(self, val): (PopRecorder1.get_instance(self.id)).period_ = val
+
+    property period_offset:
+        def __get__(self): return (PopRecorder1.get_instance(self.id)).period_offset_
+        def __set__(self, val): (PopRecorder1.get_instance(self.id)).period_offset_ = val
+
+    property v:
+        def __get__(self): return (PopRecorder1.get_instance(self.id)).v
+        def __set__(self, val): (PopRecorder1.get_instance(self.id)).v = val
+    property record_v:
+        def __get__(self): return (PopRecorder1.get_instance(self.id)).record_v
+        def __set__(self, val): (PopRecorder1.get_instance(self.id)).record_v = val
+    def clear_v(self):
+        (PopRecorder1.get_instance(self.id)).v.clear()
+
+    property r:
+        def __get__(self): return (PopRecorder1.get_instance(self.id)).r
+        def __set__(self, val): (PopRecorder1.get_instance(self.id)).r = val
+    property record_r:
+        def __get__(self): return (PopRecorder1.get_instance(self.id)).record_r
+        def __set__(self, val): (PopRecorder1.get_instance(self.id)).record_r = val
+    def clear_r(self):
+        (PopRecorder1.get_instance(self.id)).r.clear()
+
+    # Targets
+    property _sum_inh:
+        def __get__(self): return (PopRecorder1.get_instance(self.id))._sum_inh
+        def __set__(self, val): (PopRecorder1.get_instance(self.id))._sum_inh = val
+    property record__sum_inh:
+        def __get__(self): return (PopRecorder1.get_instance(self.id)).record__sum_inh
+        def __set__(self, val): (PopRecorder1.get_instance(self.id)).record__sum_inh = val
+    def clear__sum_inh(self):
+        (PopRecorder1.get_instance(self.id))._sum_inh.clear()
+
+# Population Monitor wrapper
+@cython.auto_pickle(True)
+cdef class PopRecorder2_wrapper:
+    cdef int id
+    def __init__(self, list ranks, int period, period_offset, long offset):
+        self.id = PopRecorder2.create_instance(ranks, period, period_offset, offset)
+
+    def size_in_bytes(self):
+        return (PopRecorder2.get_instance(self.id)).size_in_bytes()
+
+    def clear(self):
+        return (PopRecorder2.get_instance(self.id)).clear()
+
+    property period:
+        def __get__(self): return (PopRecorder2.get_instance(self.id)).period_
+        def __set__(self, val): (PopRecorder2.get_instance(self.id)).period_ = val
+
+    property period_offset:
+        def __get__(self): return (PopRecorder2.get_instance(self.id)).period_offset_
+        def __set__(self, val): (PopRecorder2.get_instance(self.id)).period_offset_ = val
+
+    property v:
+        def __get__(self): return (PopRecorder2.get_instance(self.id)).v
+        def __set__(self, val): (PopRecorder2.get_instance(self.id)).v = val
+    property record_v:
+        def __get__(self): return (PopRecorder2.get_instance(self.id)).record_v
+        def __set__(self, val): (PopRecorder2.get_instance(self.id)).record_v = val
+    def clear_v(self):
+        (PopRecorder2.get_instance(self.id)).v.clear()
+
+    property r:
+        def __get__(self): return (PopRecorder2.get_instance(self.id)).r
+        def __set__(self, val): (PopRecorder2.get_instance(self.id)).r = val
+    property record_r:
+        def __get__(self): return (PopRecorder2.get_instance(self.id)).record_r
+        def __set__(self, val): (PopRecorder2.get_instance(self.id)).record_r = val
+    def clear_r(self):
+        (PopRecorder2.get_instance(self.id)).r.clear()
+
+    # Targets
+    property _sum_inh:
+        def __get__(self): return (PopRecorder2.get_instance(self.id))._sum_inh
+        def __set__(self, val): (PopRecorder2.get_instance(self.id))._sum_inh = val
+    property record__sum_inh:
+        def __get__(self): return (PopRecorder2.get_instance(self.id)).record__sum_inh
+        def __set__(self, val): (PopRecorder2.get_instance(self.id)).record__sum_inh = val
+    def clear__sum_inh(self):
+        (PopRecorder2.get_instance(self.id))._sum_inh.clear()
+
+# Population Monitor wrapper
+@cython.auto_pickle(True)
+cdef class PopRecorder3_wrapper:
+    cdef int id
+    def __init__(self, list ranks, int period, period_offset, long offset):
+        self.id = PopRecorder3.create_instance(ranks, period, period_offset, offset)
+
+    def size_in_bytes(self):
+        return (PopRecorder3.get_instance(self.id)).size_in_bytes()
+
+    def clear(self):
+        return (PopRecorder3.get_instance(self.id)).clear()
+
+    property period:
+        def __get__(self): return (PopRecorder3.get_instance(self.id)).period_
+        def __set__(self, val): (PopRecorder3.get_instance(self.id)).period_ = val
+
+    property period_offset:
+        def __get__(self): return (PopRecorder3.get_instance(self.id)).period_offset_
+        def __set__(self, val): (PopRecorder3.get_instance(self.id)).period_offset_ = val
+
+    property v:
+        def __get__(self): return (PopRecorder3.get_instance(self.id)).v
+        def __set__(self, val): (PopRecorder3.get_instance(self.id)).v = val
+    property record_v:
+        def __get__(self): return (PopRecorder3.get_instance(self.id)).record_v
+        def __set__(self, val): (PopRecorder3.get_instance(self.id)).record_v = val
+    def clear_v(self):
+        (PopRecorder3.get_instance(self.id)).v.clear()
+
+    property r:
+        def __get__(self): return (PopRecorder3.get_instance(self.id)).r
+        def __set__(self, val): (PopRecorder3.get_instance(self.id)).r = val
+    property record_r:
+        def __get__(self): return (PopRecorder3.get_instance(self.id)).record_r
+        def __set__(self, val): (PopRecorder3.get_instance(self.id)).record_r = val
+    def clear_r(self):
+        (PopRecorder3.get_instance(self.id)).r.clear()
+
+    # Targets
+    property _sum_inh:
+        def __get__(self): return (PopRecorder3.get_instance(self.id))._sum_inh
+        def __set__(self, val): (PopRecorder3.get_instance(self.id))._sum_inh = val
+    property record__sum_inh:
+        def __get__(self): return (PopRecorder3.get_instance(self.id)).record__sum_inh
+        def __set__(self, val): (PopRecorder3.get_instance(self.id)).record__sum_inh = val
+    def clear__sum_inh(self):
+        (PopRecorder3.get_instance(self.id))._sum_inh.clear()
 
 # Projection Monitor wrapper
 @cython.auto_pickle(True)
