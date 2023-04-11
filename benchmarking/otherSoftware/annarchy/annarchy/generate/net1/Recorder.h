@@ -43,32 +43,17 @@ class PopRecorder0 : public Monitor
 protected:
     PopRecorder0(std::vector<int> ranks, int period, int period_offset, long int offset)
         : Monitor(ranks, period, period_offset, offset)
-    {
+        {
     #ifdef _DEBUG
         std::cout << "PopRecorder0 (" << this << ") instantiated." << std::endl;
     #endif
 
-        this->g_inh = std::vector< std::vector< double > >();
-        this->record_g_inh = false; 
+        this->_sum_inh = std::vector< std::vector< double > >();
+        this->record__sum_inh = false; 
         this->v = std::vector< std::vector< double > >();
         this->record_v = false; 
-        this->T = std::vector< std::vector< double > >();
-        this->record_T = false; 
         this->r = std::vector< std::vector< double > >();
         this->record_r = false; 
-        this->spike = std::map<int,  std::vector< long int > >();
-        if(!this->partial){
-            for(int i=0; i<pop0.size; i++) {
-                this->spike[i]=std::vector<long int>();
-            }
-        }
-        else{
-            for(int i=0; i<this->ranks.size(); i++) {
-                this->spike[this->ranks[i]]=std::vector<long int>();
-            }
-        }
-        this->record_spike = false; 
-
     }
 
 public:
@@ -87,11 +72,17 @@ public:
     }
 
     void record() {
-    #ifdef _TRACE_SIMULATION_STEPS
-        std::cout << "PopRecorder0::record()" << std::endl;
-    #endif
 
         if(this->record_v && ( (t - this->offset_) % this->period_ == this->period_offset_ )){
+            cudaMemcpy(pop0.v.data(), pop0.gpu_v, pop0.size * sizeof(double), cudaMemcpyDeviceToHost);
+        #ifdef _DEBUG
+            auto err = cudaGetLastError();
+            if ( err != cudaSuccess ) {
+                std::cout << "record v on pop0 failed: " << cudaGetErrorString(err) << std::endl;
+            } else {
+                std::cout << "record v - [min, max]: " << *std::min_element(pop0.v.begin(), pop0.v.end() ) << ", " << *std::max_element(pop0.v.begin(), pop0.v.end() ) << std::endl;
+            }
+        #endif
             if(!this->partial)
                 this->v.push_back(pop0.v);
             else{
@@ -102,18 +93,16 @@ public:
                 this->v.push_back(tmp);
             }
         }
-        if(this->record_T && ( (t - this->offset_) % this->period_ == this->period_offset_ )){
-            if(!this->partial)
-                this->T.push_back(pop0.T);
-            else{
-                std::vector<double> tmp = std::vector<double>();
-                for (unsigned int i=0; i<this->ranks.size(); i++){
-                    tmp.push_back(pop0.T[this->ranks[i]]);
-                }
-                this->T.push_back(tmp);
-            }
-        }
         if(this->record_r && ( (t - this->offset_) % this->period_ == this->period_offset_ )){
+            cudaMemcpy(pop0.r.data(), pop0.gpu_r, pop0.size * sizeof(double), cudaMemcpyDeviceToHost);
+        #ifdef _DEBUG
+            auto err = cudaGetLastError();
+            if ( err != cudaSuccess ) {
+                std::cout << "record r on pop0 failed: " << cudaGetErrorString(err) << std::endl;
+            } else {
+                std::cout << "record r - [min, max]: " << *std::min_element(pop0.r.begin(), pop0.r.end() ) << ", " << *std::max_element(pop0.r.begin(), pop0.r.end() ) << std::endl;
+            }
+        #endif
             if(!this->partial)
                 this->r.push_back(pop0.r);
             else{
@@ -124,123 +113,59 @@ public:
                 this->r.push_back(tmp);
             }
         }
-        if(this->record_spike){
-            for(int i=0; i<pop0.spiked.size(); i++){
-                if(!this->partial){
-                    this->spike[pop0.spiked[i]].push_back(t);
-                }
-                else{
-                    if( std::find(this->ranks.begin(), this->ranks.end(), pop0.spiked[i])!=this->ranks.end() ){
-                        this->spike[pop0.spiked[i]].push_back(t);
-                    }
-                }
-            }
-        } 
     }
 
     void record_targets() {
 
-        if(this->record_g_inh && ( (t - this->offset_) % this->period_ == this->period_offset_ )){
+        if(this->record__sum_inh && ( (t - this->offset_) % this->period_ == this->period_offset_ )){
+            cudaMemcpy(pop0._sum_inh.data(), pop0.gpu__sum_inh, pop0.size * sizeof(double), cudaMemcpyDeviceToHost);
+        #ifdef _DEBUG
+            auto err = cudaGetLastError();
+            if ( err != cudaSuccess ) {
+                std::cout << "record _sum_inh on pop0 failed: " << cudaGetErrorString(err) << std::endl;
+            } else {
+                std::cout << "record _sum_inh - [min, max]: " << *std::min_element(pop0._sum_inh.begin(), pop0._sum_inh.end() ) << ", " << *std::max_element(pop0._sum_inh.begin(), pop0._sum_inh.end() ) << std::endl;
+            }
+        #endif
             if(!this->partial)
-                this->g_inh.push_back(pop0.g_inh);
+                this->_sum_inh.push_back(pop0._sum_inh);
             else{
                 std::vector<double> tmp = std::vector<double>();
                 for (unsigned int i=0; i<this->ranks.size(); i++){
-                    tmp.push_back(pop0.g_inh[this->ranks[i]]);
+                    tmp.push_back(pop0._sum_inh[this->ranks[i]]);
                 }
-                this->g_inh.push_back(tmp);
+                this->_sum_inh.push_back(tmp);
             }
         }
     }
 
     long int size_in_bytes() {
-        long int size_in_bytes = 0;
-        
-        // local variable v
-        size_in_bytes += sizeof(std::vector<double>) * v.capacity();
-        for(auto it=v.begin(); it!= v.end(); it++) {
-            size_in_bytes += it->capacity() * sizeof(double);
-        }
-        
-        // local variable T
-        size_in_bytes += sizeof(std::vector<double>) * T.capacity();
-        for(auto it=T.begin(); it!= T.end(); it++) {
-            size_in_bytes += it->capacity() * sizeof(double);
-        }
-        
-        // local variable r
-        size_in_bytes += sizeof(std::vector<double>) * r.capacity();
-        for(auto it=r.begin(); it!= r.end(); it++) {
-            size_in_bytes += it->capacity() * sizeof(double);
-        }
-        
-        // record spike events
-        size_in_bytes += sizeof(spike);
-        for ( auto it = spike.begin(); it != spike.end(); it++ ) {
-            size_in_bytes += sizeof(int); // key
-            size_in_bytes += sizeof(long int) * (it->second).capacity(); // value
-        }
-                
-        return size_in_bytes;
+        std::cout << "PopMonitor::size_in_bytes(): not implemented for cuda paradigm." << std::endl;
+        return 0;
     }
 
     void clear() {
-    #ifdef _DEBUG
-        std::cout << "Delete instance of PopRecorder0 ( " << this << " ) " << std::endl;
-    #endif
 
-        for(auto it = this->v.begin(); it != this->v.end(); it++) {
+        for(auto it = this->v.begin(); it != this->v.end(); it++)
             it->clear();
-            it->shrink_to_fit();
-        }
         this->v.clear();
-    
-        for(auto it = this->T.begin(); it != this->T.end(); it++) {
-            it->clear();
-            it->shrink_to_fit();
-        }
-        this->T.clear();
-    
-        for(auto it = this->r.begin(); it != this->r.end(); it++) {
-            it->clear();
-            it->shrink_to_fit();
-        }
-        this->r.clear();
-    
-            for (auto it = this->spike.begin(); it != this->spike.end(); it++) {
-                it->second.clear();
-                it->second.shrink_to_fit();
-            }
-            this->spike.clear();
-        
 
-        removeRecorder(this);
+        for(auto it = this->r.begin(); it != this->r.end(); it++)
+            it->clear();
+        this->r.clear();
+
     }
 
 
-
-    // Local variable g_inh
-    std::vector< std::vector< double > > g_inh ;
-    bool record_g_inh ; 
+    // Local variable _sum_inh
+    std::vector< std::vector< double > > _sum_inh ;
+    bool record__sum_inh ; 
     // Local variable v
     std::vector< std::vector< double > > v ;
     bool record_v ; 
-    // Local variable T
-    std::vector< std::vector< double > > T ;
-    bool record_T ; 
     // Local variable r
     std::vector< std::vector< double > > r ;
     bool record_r ; 
-    // Local variable spike
-    std::map<int, std::vector< long int > > spike ;
-    bool record_spike ;
-    void clear_spike() {
-        for ( auto it = spike.begin(); it != spike.end(); it++ ) {
-            it->second.clear();
-            it->second.shrink_to_fit();
-        }
-    }
-
 };
 
 class ProjRecorder0 : public Monitor
@@ -252,21 +177,12 @@ protected:
     #ifdef _DEBUG
         std::cout << "ProjRecorder0 (" << this << ") instantiated." << std::endl;
     #endif
-        std::map< int, int > post_indices = std::map< int, int > ();
-        auto post_rank = proj0.get_post_rank();
 
-        for(int i=0; i<post_rank.size(); i++){
-            post_indices[post_rank[i]] = i;
-        }
-        for(int i=0; i<this->ranks.size(); i++){
-            this->indices.push_back(post_indices[this->ranks[i]]);
-        }
-        post_indices.clear();
-
+        // Local variable w
+        this->w = std::vector< std::vector< std::vector< double > > >(this->ranks.size(), std::vector< std::vector< double > >());
+        this->record_w = false;
 
     };
-
-    std::vector <int> indices;
 
 public:
 
@@ -285,18 +201,31 @@ public:
 
     void record() {
 
+        // Local variable w
+        if(this->record_w && ( (t - this->offset_) % this->period_ == this->period_offset_ )){
+            auto host_local = proj0.get_device_matrix_variable_as_lil<double>(proj0.gpu_w);
+
+            for (auto idx = 0; idx < this->ranks.size(); idx++) {
+                this->w[idx].push_back(host_local[idx]);
+            }
+        }
+
     };
 
     void record_targets() { /* nothing to do here */ }
     long int size_in_bytes() {
-        std::cout << "ProjMonitor::size_in_bytes(): not implemented for openMP paradigm." << std::endl;
+        std::cout << "ProjMonitor::size_in_bytes(): not implemented for cuda paradigm." << std::endl;
         return 0;
     }
 
     void clear() {
-        std::cout << "PopMonitor0::clear(): not implemented for openMP paradigm." << std::endl;
+        std::cout << "ProjRecorder0::clear(): not implemented for cuda paradigm." << std::endl;
     }
 
+
+    // Local variable w
+    std::vector< std::vector< std::vector< double > > > w ;
+    bool record_w ;
 
 };
 

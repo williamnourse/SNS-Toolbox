@@ -4,38 +4,46 @@
 #pragma once
 
 #include "ANNarchy.h"
-#include "LILInvMatrix.hpp"
+#include "CSRMatrixCUDA.hpp"
 
 
 
-
-extern PopStruct0 pop0;
-extern PopStruct0 pop0;
-extern double dt;
-extern long int t;
 
 extern std::vector<std::mt19937> rng;
+extern unsigned long long global_seed;
+
+extern PopStruct0 pop0;
+extern PopStruct0 pop0;
+
 
 /////////////////////////////////////////////////////////////////////////////
 // proj0: pop0 -> pop0 with target inh
 /////////////////////////////////////////////////////////////////////////////
-struct ProjStruct0 : LILInvMatrix<int, int> {
-    ProjStruct0() : LILInvMatrix<int, int>( 5000, 5000) {
+struct ProjStruct0 : CSRMatrixCUDA<int, int> {
+    ProjStruct0() : CSRMatrixCUDA<int, int> ( 5000, 5000) {
     }
+
+    // Launch configuration
+    unsigned int _nb_blocks;
+    unsigned int _threads_per_block;
 
 
     bool init_from_lil( std::vector<int> &row_indices,
                         std::vector< std::vector<int> > &column_indices,
                         std::vector< std::vector<double> > &values,
                         std::vector< std::vector<int> > &delays) {
-        bool success = static_cast<LILInvMatrix<int, int>*>(this)->init_matrix_from_lil(row_indices, column_indices);
+        bool success = static_cast<CSRMatrixCUDA<int, int>*>(this)->init_matrix_from_lil(row_indices, column_indices);
         if (!success)
             return false;
 
 
-        // Local parameter w
-        w = init_matrix_variable<double>(static_cast<double>(0.0));
-        update_matrix_variable_all<double>(w, values);
+        // Local variable w
+        w = init_matrix_variable<double>(0.0);
+        gpu_w = init_matrix_variable_gpu<double>(w);
+        w_host_to_device = true;
+        w_device_to_host = t;
+        update_matrix_variable_all<double>(w, values);        
+        w_host_to_device = true;
 
 
         // init other variables than 'w' or delay
@@ -44,7 +52,7 @@ struct ProjStruct0 : LILInvMatrix<int, int> {
         }
 
     #ifdef _DEBUG_CONN
-        static_cast<LILInvMatrix<int, int>*>(this)->print_data_representation();
+        static_cast<CSRMatrixCUDA<int, int>*>(this)->print_data_representation();
     #endif
         return true;
     }
@@ -63,13 +71,32 @@ struct ProjStruct0 : LILInvMatrix<int, int> {
 
 
     // Local parameter Gmax
-    std::vector< std::vector<double > > Gmax;
+    std::vector< double > Gmax;
+    double* gpu_Gmax;
+    long int Gmax_device_to_host;
+    bool Gmax_host_to_device;
 
-    // Local parameter Esyn
-    std::vector< std::vector<double > > Esyn;
+    // Local parameter El
+    std::vector< double > El;
+    double* gpu_El;
+    long int El_device_to_host;
+    bool El_host_to_device;
 
-    // Local parameter w
-    std::vector< std::vector<double > > w;
+    // Local parameter Eh
+    std::vector< double > Eh;
+    double* gpu_Eh;
+    long int Eh_device_to_host;
+    bool Eh_host_to_device;
+
+    // Local variable w
+    std::vector< double > w;
+    double* gpu_w;
+    long int w_device_to_host;
+    bool w_host_to_device;
+
+
+    // stream
+    cudaStream_t stream;
 
 
 
@@ -77,22 +104,63 @@ struct ProjStruct0 : LILInvMatrix<int, int> {
     // Method called to allocate/initialize the variables
     bool init_attributes() {
 
+
         // Local parameter Gmax
-        Gmax = init_matrix_variable<double>(static_cast<double>(0.0));
+        Gmax = init_matrix_variable<double>(0.0);
+        gpu_Gmax = init_matrix_variable_gpu<double>(Gmax);
+        Gmax_host_to_device = true;
+        Gmax_device_to_host = t;
 
-        // Local parameter Esyn
-        Esyn = init_matrix_variable<double>(static_cast<double>(0.0));
+        // Local parameter El
+        El = init_matrix_variable<double>(0.0);
+        gpu_El = init_matrix_variable_gpu<double>(El);
+        El_host_to_device = true;
+        El_device_to_host = t;
 
+        // Local parameter Eh
+        Eh = init_matrix_variable<double>(0.0);
+        gpu_Eh = init_matrix_variable_gpu<double>(Eh);
+        Eh_host_to_device = true;
+        Eh_device_to_host = t;
 
 
 
         return true;
     }
 
+    // Generate the default kernel launch configuration
+    void default_launch_config() {
+
+        _threads_per_block = 64;
+        _nb_blocks = std::min<unsigned int>(nb_dendrites(), 65535);
+
+    #ifdef _DEBUG
+        std::cout << "Kernel configuration: " << _nb_blocks << ", " << _threads_per_block << std::endl;
+    #endif
+
+    }
+
+    // Override the default kernel launch configuration
+    void update_launch_config(int nb_blocks, int threads_per_block) {
+
+        if (nb_blocks != -1) {
+            _nb_blocks = static_cast<unsigned int>(nb_blocks);
+            _threads_per_block = threads_per_block;
+        }else{
+            _threads_per_block = threads_per_block;
+            _nb_blocks = std::min<unsigned int>(nb_dendrites(), 65535);
+        }
+
+    #ifdef _DEBUG
+        std::cout << "Updated configuration: " << _nb_blocks << ", " << _threads_per_block << std::endl;
+    #endif
+
+    }
+
     // Method called to initialize the projection
     void init_projection() {
     #ifdef _DEBUG
-        std::cout << "ProjStruct0::init_projection() - this = " << this << std::endl;
+        std::cout << "ProjStruct0::init_projection()" << std::endl;
     #endif
 
         _transmission = true;
@@ -101,89 +169,15 @@ struct ProjStruct0 : LILInvMatrix<int, int> {
         _update_period = 1;
         _update_offset = 0L;
 
+        default_launch_config();
+
         init_attributes();
 
 
 
     }
 
-    // Spiking networks: reset the ring buffer when non-uniform
-    void reset_ring_buffer() {
-
-    }
-
-    // Spiking networks: update maximum delay when non-uniform
-    void update_max_delay(int d){
-
-    }
-
-    // Computes the weighted sum of inputs or updates the conductances
-    void compute_psp() {
-    #ifdef _TRACE_SIMULATION_STEPS
-        std::cout << "    ProjStruct0::compute_psp()" << std::endl;
-    #endif
-int nb_post; double sum;
-
-        // Event-based summation
-        if (_transmission && pop0._active){
-
-
-            // Iterate over all incoming spikes (possibly delayed constantly)
-            for(int _idx_j = 0; _idx_j < pop0.spiked.size(); _idx_j++){
-                // Rank of the presynaptic neuron
-                int rk_j = pop0.spiked[_idx_j];
-                // Find the presynaptic neuron in the inverse connectivity matrix
-                auto inv_post_ptr = inv_pre_rank.find(rk_j);
-                if (inv_post_ptr == inv_pre_rank.end())
-                    continue;
-                // List of postsynaptic neurons receiving spikes from that neuron
-                std::vector< std::pair<int, int> >& inv_post = inv_post_ptr->second;
-                // Number of post neurons
-                int nb_post = inv_post.size();
-
-                // Iterate over connected post neurons
-                for(int _idx_i = 0; _idx_i < nb_post; _idx_i++){
-                    // Retrieve the correct indices
-                    int i = inv_post[_idx_i].first;
-                    int j = inv_post[_idx_i].second;
-
-                    // Event-driven integration
-
-                    // Update conductance
-
-                    pop0.g_inh[post_rank[i]] +=  Gmax[i][j];
-
-                    if (pop0.g_inh[post_rank[i]] > Gmax[i][j])
-                        pop0.g_inh[post_rank[i]] = Gmax[i][j];
-
-                    // Synaptic plasticity: pre-events
-
-                }
-            }
-        } // active
-
-    }
-
-    // Draws random numbers
-    void update_rng() {
-
-    }
-
-    // Updates synaptic variables
-    void update_synapse() {
-    #ifdef _TRACE_SIMULATION_STEPS
-        std::cout << "    ProjStruct0::update_synapse()" << std::endl;
-    #endif
-
-
-    }
-
-    // Post-synaptic events
-    void post_event() {
-
-    }
-
-    // Variable/Parameter access methods
+    // Additional access methods
 
     std::vector<std::vector<double>> get_local_attribute_all_double(std::string name) {
     #ifdef _DEBUG
@@ -192,19 +186,25 @@ int nb_post; double sum;
 
         // Local parameter Gmax
         if ( name.compare("Gmax") == 0 ) {
-
+            if ( Gmax_device_to_host < t ) device_to_host();
             return get_matrix_variable_all<double>(Gmax);
         }
 
-        // Local parameter Esyn
-        if ( name.compare("Esyn") == 0 ) {
-
-            return get_matrix_variable_all<double>(Esyn);
+        // Local parameter El
+        if ( name.compare("El") == 0 ) {
+            if ( El_device_to_host < t ) device_to_host();
+            return get_matrix_variable_all<double>(El);
         }
 
-        // Local parameter w
-        if ( name.compare("w") == 0 ) {
+        // Local parameter Eh
+        if ( name.compare("Eh") == 0 ) {
+            if ( Eh_device_to_host < t ) device_to_host();
+            return get_matrix_variable_all<double>(Eh);
+        }
 
+        // Local variable w
+        if ( name.compare("w") == 0 ) {
+            if ( w_device_to_host < t ) device_to_host();
             return get_matrix_variable_all<double>(w);
         }
 
@@ -221,19 +221,25 @@ int nb_post; double sum;
 
         // Local parameter Gmax
         if ( name.compare("Gmax") == 0 ) {
-
+            if ( Gmax_device_to_host < t ) device_to_host();
             return get_matrix_variable_row<double>(Gmax, rk_post);
         }
 
-        // Local parameter Esyn
-        if ( name.compare("Esyn") == 0 ) {
-
-            return get_matrix_variable_row<double>(Esyn, rk_post);
+        // Local parameter El
+        if ( name.compare("El") == 0 ) {
+            if ( El_device_to_host < t ) device_to_host();
+            return get_matrix_variable_row<double>(El, rk_post);
         }
 
-        // Local parameter w
-        if ( name.compare("w") == 0 ) {
+        // Local parameter Eh
+        if ( name.compare("Eh") == 0 ) {
+            if ( Eh_device_to_host < t ) device_to_host();
+            return get_matrix_variable_row<double>(Eh, rk_post);
+        }
 
+        // Local variable w
+        if ( name.compare("w") == 0 ) {
+            if ( w_device_to_host < t ) device_to_host();
             return get_matrix_variable_row<double>(w, rk_post);
         }
 
@@ -250,19 +256,25 @@ int nb_post; double sum;
 
         // Local parameter Gmax
         if ( name.compare("Gmax") == 0 ) {
-
+            if ( Gmax_device_to_host < t ) device_to_host();
             return get_matrix_variable<double>(Gmax, rk_post, rk_pre);
         }
 
-        // Local parameter Esyn
-        if ( name.compare("Esyn") == 0 ) {
-
-            return get_matrix_variable<double>(Esyn, rk_post, rk_pre);
+        // Local parameter El
+        if ( name.compare("El") == 0 ) {
+            if ( El_device_to_host < t ) device_to_host();
+            return get_matrix_variable<double>(El, rk_post, rk_pre);
         }
 
-        // Local parameter w
-        if ( name.compare("w") == 0 ) {
+        // Local parameter Eh
+        if ( name.compare("Eh") == 0 ) {
+            if ( Eh_device_to_host < t ) device_to_host();
+            return get_matrix_variable<double>(Eh, rk_post, rk_pre);
+        }
 
+        // Local variable w
+        if ( name.compare("w") == 0 ) {
+            if ( w_device_to_host < t ) device_to_host();
             return get_matrix_variable<double>(w, rk_post, rk_pre);
         }
 
@@ -277,21 +289,28 @@ int nb_post; double sum;
         // Local parameter Gmax
         if ( name.compare("Gmax") == 0 ) {
             update_matrix_variable_all<double>(Gmax, value);
-
+            Gmax_host_to_device = true;
             return;
         }
 
-        // Local parameter Esyn
-        if ( name.compare("Esyn") == 0 ) {
-            update_matrix_variable_all<double>(Esyn, value);
-
+        // Local parameter El
+        if ( name.compare("El") == 0 ) {
+            update_matrix_variable_all<double>(El, value);
+            El_host_to_device = true;
             return;
         }
 
-        // Local parameter w
+        // Local parameter Eh
+        if ( name.compare("Eh") == 0 ) {
+            update_matrix_variable_all<double>(Eh, value);
+            Eh_host_to_device = true;
+            return;
+        }
+
+        // Local variable w
         if ( name.compare("w") == 0 ) {
             update_matrix_variable_all<double>(w, value);
-
+            w_host_to_device = true;
             return;
         }
 
@@ -302,21 +321,28 @@ int nb_post; double sum;
         // Local parameter Gmax
         if ( name.compare("Gmax") == 0 ) {
             update_matrix_variable_row<double>(Gmax, rk_post, value);
-
+            Gmax_host_to_device = true;
             return;
         }
 
-        // Local parameter Esyn
-        if ( name.compare("Esyn") == 0 ) {
-            update_matrix_variable_row<double>(Esyn, rk_post, value);
-
+        // Local parameter El
+        if ( name.compare("El") == 0 ) {
+            update_matrix_variable_row<double>(El, rk_post, value);
+            El_host_to_device = true;
             return;
         }
 
-        // Local parameter w
+        // Local parameter Eh
+        if ( name.compare("Eh") == 0 ) {
+            update_matrix_variable_row<double>(Eh, rk_post, value);
+            Eh_host_to_device = true;
+            return;
+        }
+
+        // Local variable w
         if ( name.compare("w") == 0 ) {
             update_matrix_variable_row<double>(w, rk_post, value);
-
+            w_host_to_device = true;
             return;
         }
 
@@ -327,28 +353,33 @@ int nb_post; double sum;
         // Local parameter Gmax
         if ( name.compare("Gmax") == 0 ) {
             update_matrix_variable<double>(Gmax, rk_post, rk_pre, value);
-
+            Gmax_host_to_device = true;
             return;
         }
 
-        // Local parameter Esyn
-        if ( name.compare("Esyn") == 0 ) {
-            update_matrix_variable<double>(Esyn, rk_post, rk_pre, value);
-
+        // Local parameter El
+        if ( name.compare("El") == 0 ) {
+            update_matrix_variable<double>(El, rk_post, rk_pre, value);
+            El_host_to_device = true;
             return;
         }
 
-        // Local parameter w
+        // Local parameter Eh
+        if ( name.compare("Eh") == 0 ) {
+            update_matrix_variable<double>(Eh, rk_post, rk_pre, value);
+            Eh_host_to_device = true;
+            return;
+        }
+
+        // Local variable w
         if ( name.compare("w") == 0 ) {
             update_matrix_variable<double>(w, rk_post, rk_pre, value);
-
+            w_host_to_device = true;
             return;
         }
 
     }
 
-
-    // Access additional
 
 
     // Memory management
@@ -356,65 +387,195 @@ int nb_post; double sum;
         long int size_in_bytes = 0;
 
         // connectivity
-        size_in_bytes += static_cast<LILInvMatrix<int, int>*>(this)->size_in_bytes();
+        size_in_bytes += static_cast<CSRMatrixCUDA<int, int>*>(this)->size_in_bytes();
+
+        // Local variable w
+        size_in_bytes += sizeof(bool);
+        size_in_bytes += sizeof(double*);
+        size_in_bytes += sizeof(std::vector<double>);
+        size_in_bytes += sizeof(double) * w.capacity();
 
         // Local parameter Gmax
-        size_in_bytes += sizeof(std::vector<std::vector<double>>);
-        size_in_bytes += sizeof(std::vector<double>) * Gmax.capacity();
-        for(auto it = Gmax.cbegin(); it != Gmax.cend(); it++)
-            size_in_bytes += (it->capacity()) * sizeof(double);
+        size_in_bytes += sizeof(bool);
+        size_in_bytes += sizeof(double*);
+        size_in_bytes += sizeof(std::vector<double>);
+        size_in_bytes += sizeof(double) * Gmax.capacity();
 
-        // Local parameter Esyn
-        size_in_bytes += sizeof(std::vector<std::vector<double>>);
-        size_in_bytes += sizeof(std::vector<double>) * Esyn.capacity();
-        for(auto it = Esyn.cbegin(); it != Esyn.cend(); it++)
-            size_in_bytes += (it->capacity()) * sizeof(double);
+        // Local parameter El
+        size_in_bytes += sizeof(bool);
+        size_in_bytes += sizeof(double*);
+        size_in_bytes += sizeof(std::vector<double>);
+        size_in_bytes += sizeof(double) * El.capacity();
 
-        // Local parameter w
-        size_in_bytes += sizeof(std::vector<std::vector<double>>);
-        size_in_bytes += sizeof(std::vector<double>) * w.capacity();
-        for(auto it = w.cbegin(); it != w.cend(); it++)
-            size_in_bytes += (it->capacity()) * sizeof(double);
+        // Local parameter Eh
+        size_in_bytes += sizeof(bool);
+        size_in_bytes += sizeof(double*);
+        size_in_bytes += sizeof(std::vector<double>);
+        size_in_bytes += sizeof(double) * Eh.capacity();
 
         return size_in_bytes;
     }
 
-    // Structural plasticity
-
-
-
     void clear() {
     #ifdef _DEBUG
-        std::cout << "ProjStruct0::clear() - this = " << this << std::endl;
+        std::cout << "PopStruct0::clear()" << std::endl;
     #endif
 
         // Connectivity
-        static_cast<LILInvMatrix<int, int>*>(this)->clear();
+        static_cast<CSRMatrixCUDA<int, int>*>(this)->clear();
 
-        // Gmax
-        for (auto it = Gmax.begin(); it != Gmax.end(); it++) {
-            it->clear();
-            it->shrink_to_fit();
-        };
-        Gmax.clear();
-        Gmax.shrink_to_fit();
-
-        // Esyn
-        for (auto it = Esyn.begin(); it != Esyn.end(); it++) {
-            it->clear();
-            it->shrink_to_fit();
-        };
-        Esyn.clear();
-        Esyn.shrink_to_fit();
-
-        // w
-        for (auto it = w.begin(); it != w.end(); it++) {
-            it->clear();
-            it->shrink_to_fit();
-        };
+        // w - host
         w.clear();
         w.shrink_to_fit();
 
+        // w - device
+        cudaFree(gpu_w);
+
+        // Gmax - host
+        Gmax.clear();
+        Gmax.shrink_to_fit();
+
+        // Gmax - device
+        cudaFree(gpu_Gmax);
+
+        // El - host
+        El.clear();
+        El.shrink_to_fit();
+
+        // El - device
+        cudaFree(gpu_El);
+
+        // Eh - host
+        Eh.clear();
+        Eh.shrink_to_fit();
+
+        // Eh - device
+        cudaFree(gpu_Eh);
+
+    }
+
+    // Memory transfers
+    void host_to_device() {
+
+        // Gmax: local
+        if ( Gmax_host_to_device )
+        {
+        #ifdef _DEBUG
+            std::cout << "HtoD: Gmax ( proj0 )" << std::endl;
+        #endif
+            cudaMemcpy( gpu_Gmax, Gmax.data(), num_non_zeros_ * sizeof( double ), cudaMemcpyHostToDevice);
+            Gmax_host_to_device = false;
+        #ifdef _DEBUG
+            cudaError_t err = cudaGetLastError();
+            if ( err!= cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err) << std::endl;
+        #endif
+        }
+
+        // El: local
+        if ( El_host_to_device )
+        {
+        #ifdef _DEBUG
+            std::cout << "HtoD: El ( proj0 )" << std::endl;
+        #endif
+            cudaMemcpy( gpu_El, El.data(), num_non_zeros_ * sizeof( double ), cudaMemcpyHostToDevice);
+            El_host_to_device = false;
+        #ifdef _DEBUG
+            cudaError_t err = cudaGetLastError();
+            if ( err!= cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err) << std::endl;
+        #endif
+        }
+
+        // Eh: local
+        if ( Eh_host_to_device )
+        {
+        #ifdef _DEBUG
+            std::cout << "HtoD: Eh ( proj0 )" << std::endl;
+        #endif
+            cudaMemcpy( gpu_Eh, Eh.data(), num_non_zeros_ * sizeof( double ), cudaMemcpyHostToDevice);
+            Eh_host_to_device = false;
+        #ifdef _DEBUG
+            cudaError_t err = cudaGetLastError();
+            if ( err!= cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err) << std::endl;
+        #endif
+        }
+
+        // w: local
+        if ( w_host_to_device )
+        {
+        #ifdef _DEBUG
+            std::cout << "HtoD: w ( proj0 )" << std::endl;
+        #endif
+            cudaMemcpy( gpu_w, w.data(), num_non_zeros_ * sizeof( double ), cudaMemcpyHostToDevice);
+            w_host_to_device = false;
+        #ifdef _DEBUG
+            cudaError_t err = cudaGetLastError();
+            if ( err!= cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err) << std::endl;
+        #endif
+        }
+
+    }
+
+    void device_to_host() {
+
+        // Gmax: local
+        if ( Gmax_device_to_host < t ) {
+        #ifdef _DEBUG
+            std::cout << "DtoH: Gmax ( proj0 )" << std::endl;
+        #endif
+            cudaMemcpy( Gmax.data(), gpu_Gmax, num_non_zeros_ * sizeof( double ), cudaMemcpyDeviceToHost);
+        #ifdef _DEBUG
+            cudaError_t err_Gmax = cudaGetLastError();
+            if ( err_Gmax != cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err_Gmax) << std::endl;
+        #endif
+            Gmax_device_to_host = t;
+        }
+
+        // El: local
+        if ( El_device_to_host < t ) {
+        #ifdef _DEBUG
+            std::cout << "DtoH: El ( proj0 )" << std::endl;
+        #endif
+            cudaMemcpy( El.data(), gpu_El, num_non_zeros_ * sizeof( double ), cudaMemcpyDeviceToHost);
+        #ifdef _DEBUG
+            cudaError_t err_El = cudaGetLastError();
+            if ( err_El != cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err_El) << std::endl;
+        #endif
+            El_device_to_host = t;
+        }
+
+        // Eh: local
+        if ( Eh_device_to_host < t ) {
+        #ifdef _DEBUG
+            std::cout << "DtoH: Eh ( proj0 )" << std::endl;
+        #endif
+            cudaMemcpy( Eh.data(), gpu_Eh, num_non_zeros_ * sizeof( double ), cudaMemcpyDeviceToHost);
+        #ifdef _DEBUG
+            cudaError_t err_Eh = cudaGetLastError();
+            if ( err_Eh != cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err_Eh) << std::endl;
+        #endif
+            Eh_device_to_host = t;
+        }
+
+        // w: local
+        if ( w_device_to_host < t ) {
+        #ifdef _DEBUG
+            std::cout << "DtoH: w ( proj0 )" << std::endl;
+        #endif
+            cudaMemcpy( w.data(), gpu_w, num_non_zeros_ * sizeof( double ), cudaMemcpyDeviceToHost);
+        #ifdef _DEBUG
+            cudaError_t err_w = cudaGetLastError();
+            if ( err_w != cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err_w) << std::endl;
+        #endif
+            w_device_to_host = t;
+        }
+
     }
 };
-

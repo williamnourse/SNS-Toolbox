@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __ANNARCHY_H__
+#define __ANNARCHY_H__
 
 #include <string>
 #include <vector>
@@ -6,28 +7,20 @@
 #include <map>
 #include <deque>
 #include <queue>
+#include <random>
 #include <iostream>
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
 #include <stdlib.h>
 #include <string.h>
-#include <cmath>
-#include <random>
 #include <cassert>
-// only included if compiled with -fopenmp
-#ifdef _OPENMP
-    #include <omp.h>
-#endif
 
-// Intrinsic operations (Intel/AMD)
-#ifdef __x86_64__
-    #include <immintrin.h>
-#endif
+#include <cuda_runtime_api.h>
+#include <curand_kernel.h>
 
 /*
- * Built-in functions
- *
+ * Built-in functions (host side)
  */
 
 #define positive(x) (x>0.0? x : 0.0)
@@ -35,15 +28,6 @@
 #define clip(x, a, b) (x<a? a : (x>b? b :x))
 #define modulo(a, b) long(a) % long(b)
 #define ite(a, b, c) (a?b:c)
-
-// power function for integer exponent
-inline double power(double x, unsigned int a){
-    double res=x;
-    for (unsigned int i=0; i< a-1; i++){
-        res *= x;
-    }
-    return res;
-};
 
 
 /*
@@ -54,7 +38,7 @@ inline double power(double x, unsigned int a){
 
 /*
  * Custom functions
- *
+ * (available on host-side and interfaced for cython)
  */
 
 
@@ -98,35 +82,38 @@ void removeRecorder(Monitor* recorder);
 
 /*
  * Simulation methods
- *
  */
-void run(const int nbSteps);
-int run_until(const int steps, std::vector<int> populations, bool or_and);
+void run(int nbSteps);
+
+int run_until(int steps, std::vector<int> populations, bool or_and);
+
 void step();
 
 /*
  *  Initialization
  */
-void initialize(const double dt_) ;
+void initialize(const double _dt) ;
+
+inline void setDevice(const int device_id) {
+#ifdef _DEBUG
+    std::cout << "Setting device " << device_id << " as compute device ..." << std::endl;
+#endif
+    cudaError_t err = cudaSetDevice(device_id);
+    if ( err != cudaSuccess )
+        std::cerr << "Set device " << device_id << ": " << cudaGetErrorString(err) << std::endl;
+}
 
 /*
  * Time export
- *
-*/
+ */
 long int getTime();
 void setTime(const long int t_);
 double getDt();
 void setDt(const double dt_);
 
 /*
- * Number of threads
- *
-*/
-void setNumberThreads(int threads, std::vector<int> core_list);
+ * Seed for the RNG (host-side!)
+ */
+void setSeed(const long int seed, const int num_sources, const bool use_seed_seq);
 
-/*
- * Seed for the RNG
- *
-*/
-void setSeed(long int seed, int num_sources, bool use_seed_seq);
-
+#endif

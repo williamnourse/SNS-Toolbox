@@ -53,8 +53,6 @@ cdef extern from "ANNarchy.h":
 
 
 
-        # Compute firing rate
-        void compute_firing_rate(double window)
 
 
         # memory management
@@ -81,8 +79,6 @@ cdef extern from "ANNarchy.h":
         int nb_dendrites()
         int dendrite_size(int)
 
-        map[int, int] nb_efferent_synapses()
-
 
 
 
@@ -100,7 +96,7 @@ cdef extern from "ANNarchy.h":
 
 
         # cuda configuration
-
+        void update_launch_config(int, int)
 
         # memory management
         long int size_in_bytes()
@@ -128,18 +124,12 @@ cdef extern from "ANNarchy.h":
         vector[vector[double]] v
         bool record_v
 
-        vector[vector[double]] T
-        bool record_T
-
-        vector[vector[double]] g_inh
-        bool record_g_inh
-
         vector[vector[double]] r
         bool record_r
 
-        map[int, vector[long]] spike
-        bool record_spike
-        void clear_spike()
+        # Targets
+        vector[vector[double]] _sum_inh
+        bool record__sum_inh
 
     # Projection 0 : Monitor
     cdef cppclass ProjRecorder0 (Monitor):
@@ -147,6 +137,9 @@ cdef extern from "ANNarchy.h":
         int create_instance(vector[int], int, int, long)
         @staticmethod
         ProjRecorder0* get_instance(int)
+
+        vector[vector[vector[double]]] w
+        bool record_w
 
 
     # Instances
@@ -171,8 +164,8 @@ cdef extern from "ANNarchy.h":
     void setDt(double dt_)
 
 
-    # Number of threads
-    void setNumberThreads(int, vector[int])
+    # GPU device
+    void setDevice(int)
 
 
 # Profiling (if needed)
@@ -238,9 +231,6 @@ cdef class pop0_wrapper :
 
 
 
-    # Compute firing rate
-    cpdef compute_firing_rate(self, double window):
-        pop0.compute_firing_rate(window)
 
 
     # memory management
@@ -318,9 +308,6 @@ cdef class proj0_wrapper :
     def dendrite_size(self, int n):
         return proj0.dendrite_size(n)
 
-    def nb_efferent_synapses(self):
-        return proj0.nb_efferent_synapses()
-
 
 
 
@@ -373,6 +360,9 @@ cdef class proj0_wrapper :
 
         # cuda configuration
 
+    def update_launch_config(self, nb_blocks=-1, threads_per_block=32):
+        proj0.update_launch_config(nb_blocks, threads_per_block)
+
 
     # memory management
     def size_in_bytes(self):
@@ -414,24 +404,6 @@ cdef class PopRecorder0_wrapper:
     def clear_v(self):
         (PopRecorder0.get_instance(self.id)).v.clear()
 
-    property T:
-        def __get__(self): return (PopRecorder0.get_instance(self.id)).T
-        def __set__(self, val): (PopRecorder0.get_instance(self.id)).T = val
-    property record_T:
-        def __get__(self): return (PopRecorder0.get_instance(self.id)).record_T
-        def __set__(self, val): (PopRecorder0.get_instance(self.id)).record_T = val
-    def clear_T(self):
-        (PopRecorder0.get_instance(self.id)).T.clear()
-
-    property g_inh:
-        def __get__(self): return (PopRecorder0.get_instance(self.id)).g_inh
-        def __set__(self, val): (PopRecorder0.get_instance(self.id)).g_inh = val
-    property record_g_inh:
-        def __get__(self): return (PopRecorder0.get_instance(self.id)).record_g_inh
-        def __set__(self, val): (PopRecorder0.get_instance(self.id)).record_g_inh = val
-    def clear_g_inh(self):
-        (PopRecorder0.get_instance(self.id)).g_inh.clear()
-
     property r:
         def __get__(self): return (PopRecorder0.get_instance(self.id)).r
         def __set__(self, val): (PopRecorder0.get_instance(self.id)).r = val
@@ -441,14 +413,15 @@ cdef class PopRecorder0_wrapper:
     def clear_r(self):
         (PopRecorder0.get_instance(self.id)).r.clear()
 
-    property spike:
-        def __get__(self): return (PopRecorder0.get_instance(self.id)).spike
-        def __set__(self, val): (PopRecorder0.get_instance(self.id)).spike = val
-    property record_spike:
-        def __get__(self): return (PopRecorder0.get_instance(self.id)).record_spike
-        def __set__(self, val): (PopRecorder0.get_instance(self.id)).record_spike = val
-    def clear_spike(self):
-        (PopRecorder0.get_instance(self.id)).clear_spike()
+    # Targets
+    property _sum_inh:
+        def __get__(self): return (PopRecorder0.get_instance(self.id))._sum_inh
+        def __set__(self, val): (PopRecorder0.get_instance(self.id))._sum_inh = val
+    property record__sum_inh:
+        def __get__(self): return (PopRecorder0.get_instance(self.id)).record__sum_inh
+        def __set__(self, val): (PopRecorder0.get_instance(self.id)).record__sum_inh = val
+    def clear__sum_inh(self):
+        (PopRecorder0.get_instance(self.id))._sum_inh.clear()
 
 # Projection Monitor wrapper
 @cython.auto_pickle(True)
@@ -456,6 +429,15 @@ cdef class ProjRecorder0_wrapper:
     cdef int id
     def __init__(self, list ranks, int period, int period_offset, long offset):
         self.id = ProjRecorder0.create_instance(ranks, period, period_offset, offset)
+
+    property w:
+        def __get__(self): return (ProjRecorder0.get_instance(self.id)).w
+        def __set__(self, val): (ProjRecorder0.get_instance(self.id)).w = val
+    property record_w:
+        def __get__(self): return (ProjRecorder0.get_instance(self.id)).record_w
+        def __set__(self, val): (ProjRecorder0.get_instance(self.id)).record_w = val
+    def clear_w(self):
+        (ProjRecorder0.get_instance(self.id)).w.clear()
 
 
 # User-defined functions
@@ -532,9 +514,9 @@ def get_dt():
     return getDt()
 
 
-# Set number of threads
-def set_number_threads(int n, core_list):
-    setNumberThreads(n, core_list)
+# Set GPU device
+def set_device(int device_id):
+    setDevice(device_id)
 
 
 # Set seed
