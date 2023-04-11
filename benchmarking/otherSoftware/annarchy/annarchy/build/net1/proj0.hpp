@@ -9,18 +9,18 @@
 
 
 
-extern PopStruct0 pop0;
-extern PopStruct0 pop0;
+extern PopStruct2 pop2;
+extern PopStruct2 pop2;
 extern double dt;
 extern long int t;
 
 extern std::vector<std::mt19937> rng;
 
 /////////////////////////////////////////////////////////////////////////////
-// proj0: pop0 -> pop0 with target inh
+// proj0: pop2 -> pop2 with target inh
 /////////////////////////////////////////////////////////////////////////////
 struct ProjStruct0 : LILMatrix<int, int> {
-    ProjStruct0() : LILMatrix<int, int>( 5000, 5000) {
+    ProjStruct0() : LILMatrix<int, int>( 3, 3) {
     }
 
 
@@ -130,7 +130,7 @@ struct ProjStruct0 : LILMatrix<int, int> {
     #endif
         double sum;
 
-        if (_transmission && pop0._active) {
+        if (_transmission && pop2._active) {
 
 
 
@@ -140,7 +140,7 @@ struct ProjStruct0 : LILMatrix<int, int> {
                 for (int j = 0; j < pre_rank[i].size(); j++) {
                     sum += w[i][j] ;
                 }
-                pop0._sum_inh[post_rank[i]] += sum;
+                pop2._sum_inh[post_rank[i]] += sum;
             }
 
         } // active
@@ -162,7 +162,7 @@ struct ProjStruct0 : LILMatrix<int, int> {
         double _dt = dt * _update_period;
 
         // Check periodicity
-        if(_transmission && _update && pop0._active && ( (t - _update_offset)%_update_period == 0L) ){
+        if(_transmission && _update && pop2._active && ( (t - _update_offset)%_update_period == 0L) ){
             // Global variables
 
 
@@ -179,7 +179,7 @@ struct ProjStruct0 : LILMatrix<int, int> {
 
                     // w = clip(Gmax * (pre.r-El)/(Eh-El), 0.0, Gmax)
                     if(_plasticity){
-                    w[i][j] = clip(Gmax[i][j]*(-El[i][j] + pop0.r[rk_pre])/(Eh[i][j] - El[i][j]), 0.0, Gmax[i][j]);
+                    w[i][j] = clip(Gmax[i][j]*(-El[i][j] + pop2.r[rk_pre])/(Eh[i][j] - El[i][j]), 0.0, Gmax[i][j]);
 
                     }
 

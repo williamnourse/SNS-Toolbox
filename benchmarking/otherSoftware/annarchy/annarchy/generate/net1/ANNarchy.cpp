@@ -16,6 +16,9 @@ std::vector<std::mt19937> rng;
 
 // Populations
 PopStruct0 pop0;
+PopStruct1 pop1;
+PopStruct2 pop2;
+PopStruct3 pop3;
 
 
 // Projections
@@ -76,9 +79,9 @@ void singleStep()
     ////////////////////////////////
 
 
-    // pop0: pop0
-    if (pop0._active)
-        std::fill(pop0._sum_inh.begin(), pop0._sum_inh.end(), static_cast<double>(0.0) );
+    // pop2: pop2
+    if (pop2._active)
+        std::fill(pop2._sum_inh.begin(), pop2._sum_inh.end(), static_cast<double>(0.0) );
 
 #ifdef _TRACE_SIMULATION_STEPS
     std::cout << "Update psp/conductances ..." << std::endl;
@@ -116,6 +119,9 @@ void singleStep()
 #endif
 
 	pop0.update();
+	pop1.update();
+	pop2.update();
+	pop3.update();
 
 
 
@@ -223,6 +229,9 @@ void initialize(const double _dt) {
     // Populations
     // Initialize populations
     pop0.init_population();
+    pop1.init_population();
+    pop2.init_population();
+    pop3.init_population();
 
 
     // Projections
