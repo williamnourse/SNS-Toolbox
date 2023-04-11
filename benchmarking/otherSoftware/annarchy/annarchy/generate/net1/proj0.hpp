@@ -20,7 +20,7 @@ extern std::vector<std::mt19937> rng;
 // proj0: pop0 -> pop0 with target inh
 /////////////////////////////////////////////////////////////////////////////
 struct ProjStruct0 : LILMatrix<int, int> {
-    ProjStruct0() : LILMatrix<int, int>( 16, 16) {
+    ProjStruct0() : LILMatrix<int, int>( 5000, 5000) {
     }
 
 

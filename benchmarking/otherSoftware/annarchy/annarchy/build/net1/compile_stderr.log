@@ -1,8 +1,7 @@
-In file included from /usr/include/python3.8/numpy/ndarraytypes.h:1830,
-                 from /usr/include/python3.8/numpy/ndarrayobject.h:12,
-                 from /usr/include/python3.8/numpy/arrayobject.h:4,
+In file included from /home/will/sns-venv/lib/python3.8/site-packages/numpy/core/include/numpy/ndarraytypes.h:1969,
+                 from /home/will/sns-venv/lib/python3.8/site-packages/numpy/core/include/numpy/ndarrayobject.h:12,
+                 from /home/will/sns-venv/lib/python3.8/site-packages/numpy/core/include/numpy/arrayobject.h:4,
                  from ANNarchyCore1.cpp:780:
-/usr/include/python3.8/numpy/npy_1_7_deprecated_api.h:17:2: warning: #warning "Using deprecated NumPy API, disable it with " "#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION" [-Wcpp]
+/home/will/sns-venv/lib/python3.8/site-packages/numpy/core/include/numpy/npy_1_7_deprecated_api.h:17:2: warning: #warning "Using deprecated NumPy API, disable it with " "#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION" [-Wcpp]
    17 | #warning "Using deprecated NumPy API, disable it with " \
       |  ^~~~~~~
-make: *** [Makefile:4: all] Interrupt
