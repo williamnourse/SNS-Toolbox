@@ -4,7 +4,7 @@
 #pragma once
 
 #include "ANNarchy.h"
-#include "CSRMatrixCUDA.hpp"
+#include "CSRCMatrixCUDA.hpp"
 
 
 
@@ -12,15 +12,15 @@
 extern std::vector<std::mt19937> rng;
 extern unsigned long long global_seed;
 
-extern PopStruct0 pop0;
-extern PopStruct1 pop1;
+extern PopStruct2 pop2;
+extern PopStruct2 pop2;
 
 
 /////////////////////////////////////////////////////////////////////////////
-// proj0: pop0 -> pop1 with target exc
+// proj0: pop2 -> pop2 with target inh
 /////////////////////////////////////////////////////////////////////////////
-struct ProjStruct0 : CSRMatrixCUDA<int, int> {
-    ProjStruct0() : CSRMatrixCUDA<int, int> ( 1, 1) {
+struct ProjStruct0 : CSRCMatrixCUDA<int, int> {
+    ProjStruct0() : CSRCMatrixCUDA<int, int> ( 70, 70) {
     }
 
     // Launch configuration
@@ -32,12 +32,12 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
                         std::vector< std::vector<int> > &column_indices,
                         std::vector< std::vector<double> > &values,
                         std::vector< std::vector<int> > &delays) {
-        bool success = static_cast<CSRMatrixCUDA<int, int>*>(this)->init_matrix_from_lil(row_indices, column_indices);
+        bool success = static_cast<CSRCMatrixCUDA<int, int>*>(this)->init_matrix_from_lil(row_indices, column_indices);
         if (!success)
             return false;
 
 
-        // Local variable w
+        // Local parameter w
         w = init_matrix_variable<double>(0.0);
         gpu_w = init_matrix_variable_gpu<double>(w);
         w_host_to_device = true;
@@ -52,7 +52,7 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
         }
 
     #ifdef _DEBUG_CONN
-        static_cast<CSRMatrixCUDA<int, int>*>(this)->print_data_representation();
+        static_cast<CSRCMatrixCUDA<int, int>*>(this)->print_data_representation();
     #endif
         return true;
     }
@@ -82,19 +82,7 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
     long int Esyn_device_to_host;
     bool Esyn_host_to_device;
 
-    // Local parameter El
-    std::vector< double > El;
-    double* gpu_El;
-    long int El_device_to_host;
-    bool El_host_to_device;
-
-    // Local parameter Eh
-    std::vector< double > Eh;
-    double* gpu_Eh;
-    long int Eh_device_to_host;
-    bool Eh_host_to_device;
-
-    // Local variable w
+    // Local parameter w
     std::vector< double > w;
     double* gpu_w;
     long int w_device_to_host;
@@ -122,18 +110,6 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
         gpu_Esyn = init_matrix_variable_gpu<double>(Esyn);
         Esyn_host_to_device = true;
         Esyn_device_to_host = t;
-
-        // Local parameter El
-        El = init_matrix_variable<double>(0.0);
-        gpu_El = init_matrix_variable_gpu<double>(El);
-        El_host_to_device = true;
-        El_device_to_host = t;
-
-        // Local parameter Eh
-        Eh = init_matrix_variable<double>(0.0);
-        gpu_Eh = init_matrix_variable_gpu<double>(Eh);
-        Eh_host_to_device = true;
-        Eh_device_to_host = t;
 
 
 
@@ -208,19 +184,7 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
             return get_matrix_variable_all<double>(Esyn);
         }
 
-        // Local parameter El
-        if ( name.compare("El") == 0 ) {
-            if ( El_device_to_host < t ) device_to_host();
-            return get_matrix_variable_all<double>(El);
-        }
-
-        // Local parameter Eh
-        if ( name.compare("Eh") == 0 ) {
-            if ( Eh_device_to_host < t ) device_to_host();
-            return get_matrix_variable_all<double>(Eh);
-        }
-
-        // Local variable w
+        // Local parameter w
         if ( name.compare("w") == 0 ) {
             if ( w_device_to_host < t ) device_to_host();
             return get_matrix_variable_all<double>(w);
@@ -249,19 +213,7 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
             return get_matrix_variable_row<double>(Esyn, rk_post);
         }
 
-        // Local parameter El
-        if ( name.compare("El") == 0 ) {
-            if ( El_device_to_host < t ) device_to_host();
-            return get_matrix_variable_row<double>(El, rk_post);
-        }
-
-        // Local parameter Eh
-        if ( name.compare("Eh") == 0 ) {
-            if ( Eh_device_to_host < t ) device_to_host();
-            return get_matrix_variable_row<double>(Eh, rk_post);
-        }
-
-        // Local variable w
+        // Local parameter w
         if ( name.compare("w") == 0 ) {
             if ( w_device_to_host < t ) device_to_host();
             return get_matrix_variable_row<double>(w, rk_post);
@@ -290,19 +242,7 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
             return get_matrix_variable<double>(Esyn, rk_post, rk_pre);
         }
 
-        // Local parameter El
-        if ( name.compare("El") == 0 ) {
-            if ( El_device_to_host < t ) device_to_host();
-            return get_matrix_variable<double>(El, rk_post, rk_pre);
-        }
-
-        // Local parameter Eh
-        if ( name.compare("Eh") == 0 ) {
-            if ( Eh_device_to_host < t ) device_to_host();
-            return get_matrix_variable<double>(Eh, rk_post, rk_pre);
-        }
-
-        // Local variable w
+        // Local parameter w
         if ( name.compare("w") == 0 ) {
             if ( w_device_to_host < t ) device_to_host();
             return get_matrix_variable<double>(w, rk_post, rk_pre);
@@ -330,21 +270,7 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
             return;
         }
 
-        // Local parameter El
-        if ( name.compare("El") == 0 ) {
-            update_matrix_variable_all<double>(El, value);
-            El_host_to_device = true;
-            return;
-        }
-
-        // Local parameter Eh
-        if ( name.compare("Eh") == 0 ) {
-            update_matrix_variable_all<double>(Eh, value);
-            Eh_host_to_device = true;
-            return;
-        }
-
-        // Local variable w
+        // Local parameter w
         if ( name.compare("w") == 0 ) {
             update_matrix_variable_all<double>(w, value);
             w_host_to_device = true;
@@ -369,21 +295,7 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
             return;
         }
 
-        // Local parameter El
-        if ( name.compare("El") == 0 ) {
-            update_matrix_variable_row<double>(El, rk_post, value);
-            El_host_to_device = true;
-            return;
-        }
-
-        // Local parameter Eh
-        if ( name.compare("Eh") == 0 ) {
-            update_matrix_variable_row<double>(Eh, rk_post, value);
-            Eh_host_to_device = true;
-            return;
-        }
-
-        // Local variable w
+        // Local parameter w
         if ( name.compare("w") == 0 ) {
             update_matrix_variable_row<double>(w, rk_post, value);
             w_host_to_device = true;
@@ -408,21 +320,7 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
             return;
         }
 
-        // Local parameter El
-        if ( name.compare("El") == 0 ) {
-            update_matrix_variable<double>(El, rk_post, rk_pre, value);
-            El_host_to_device = true;
-            return;
-        }
-
-        // Local parameter Eh
-        if ( name.compare("Eh") == 0 ) {
-            update_matrix_variable<double>(Eh, rk_post, rk_pre, value);
-            Eh_host_to_device = true;
-            return;
-        }
-
-        // Local variable w
+        // Local parameter w
         if ( name.compare("w") == 0 ) {
             update_matrix_variable<double>(w, rk_post, rk_pre, value);
             w_host_to_device = true;
@@ -438,13 +336,7 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
         long int size_in_bytes = 0;
 
         // connectivity
-        size_in_bytes += static_cast<CSRMatrixCUDA<int, int>*>(this)->size_in_bytes();
-
-        // Local variable w
-        size_in_bytes += sizeof(bool);
-        size_in_bytes += sizeof(double*);
-        size_in_bytes += sizeof(std::vector<double>);
-        size_in_bytes += sizeof(double) * w.capacity();
+        size_in_bytes += static_cast<CSRCMatrixCUDA<int, int>*>(this)->size_in_bytes();
 
         // Local parameter Gmax
         size_in_bytes += sizeof(bool);
@@ -458,17 +350,11 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
         size_in_bytes += sizeof(std::vector<double>);
         size_in_bytes += sizeof(double) * Esyn.capacity();
 
-        // Local parameter El
+        // Local parameter w
         size_in_bytes += sizeof(bool);
         size_in_bytes += sizeof(double*);
         size_in_bytes += sizeof(std::vector<double>);
-        size_in_bytes += sizeof(double) * El.capacity();
-
-        // Local parameter Eh
-        size_in_bytes += sizeof(bool);
-        size_in_bytes += sizeof(double*);
-        size_in_bytes += sizeof(std::vector<double>);
-        size_in_bytes += sizeof(double) * Eh.capacity();
+        size_in_bytes += sizeof(double) * w.capacity();
 
         return size_in_bytes;
     }
@@ -479,14 +365,7 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
     #endif
 
         // Connectivity
-        static_cast<CSRMatrixCUDA<int, int>*>(this)->clear();
-
-        // w - host
-        w.clear();
-        w.shrink_to_fit();
-
-        // w - device
-        cudaFree(gpu_w);
+        static_cast<CSRCMatrixCUDA<int, int>*>(this)->clear();
 
         // Gmax - host
         Gmax.clear();
@@ -502,19 +381,12 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
         // Esyn - device
         cudaFree(gpu_Esyn);
 
-        // El - host
-        El.clear();
-        El.shrink_to_fit();
+        // w - host
+        w.clear();
+        w.shrink_to_fit();
 
-        // El - device
-        cudaFree(gpu_El);
-
-        // Eh - host
-        Eh.clear();
-        Eh.shrink_to_fit();
-
-        // Eh - device
-        cudaFree(gpu_Eh);
+        // w - device
+        cudaFree(gpu_w);
 
     }
 
@@ -544,36 +416,6 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
         #endif
             cudaMemcpy( gpu_Esyn, Esyn.data(), num_non_zeros_ * sizeof( double ), cudaMemcpyHostToDevice);
             Esyn_host_to_device = false;
-        #ifdef _DEBUG
-            cudaError_t err = cudaGetLastError();
-            if ( err!= cudaSuccess )
-                std::cout << "  error: " << cudaGetErrorString(err) << std::endl;
-        #endif
-        }
-
-        // El: local
-        if ( El_host_to_device )
-        {
-        #ifdef _DEBUG
-            std::cout << "HtoD: El ( proj0 )" << std::endl;
-        #endif
-            cudaMemcpy( gpu_El, El.data(), num_non_zeros_ * sizeof( double ), cudaMemcpyHostToDevice);
-            El_host_to_device = false;
-        #ifdef _DEBUG
-            cudaError_t err = cudaGetLastError();
-            if ( err!= cudaSuccess )
-                std::cout << "  error: " << cudaGetErrorString(err) << std::endl;
-        #endif
-        }
-
-        // Eh: local
-        if ( Eh_host_to_device )
-        {
-        #ifdef _DEBUG
-            std::cout << "HtoD: Eh ( proj0 )" << std::endl;
-        #endif
-            cudaMemcpy( gpu_Eh, Eh.data(), num_non_zeros_ * sizeof( double ), cudaMemcpyHostToDevice);
-            Eh_host_to_device = false;
         #ifdef _DEBUG
             cudaError_t err = cudaGetLastError();
             if ( err!= cudaSuccess )
@@ -626,34 +468,6 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
                 std::cout << "  error: " << cudaGetErrorString(err_Esyn) << std::endl;
         #endif
             Esyn_device_to_host = t;
-        }
-
-        // El: local
-        if ( El_device_to_host < t ) {
-        #ifdef _DEBUG
-            std::cout << "DtoH: El ( proj0 )" << std::endl;
-        #endif
-            cudaMemcpy( El.data(), gpu_El, num_non_zeros_ * sizeof( double ), cudaMemcpyDeviceToHost);
-        #ifdef _DEBUG
-            cudaError_t err_El = cudaGetLastError();
-            if ( err_El != cudaSuccess )
-                std::cout << "  error: " << cudaGetErrorString(err_El) << std::endl;
-        #endif
-            El_device_to_host = t;
-        }
-
-        // Eh: local
-        if ( Eh_device_to_host < t ) {
-        #ifdef _DEBUG
-            std::cout << "DtoH: Eh ( proj0 )" << std::endl;
-        #endif
-            cudaMemcpy( Eh.data(), gpu_Eh, num_non_zeros_ * sizeof( double ), cudaMemcpyDeviceToHost);
-        #ifdef _DEBUG
-            cudaError_t err_Eh = cudaGetLastError();
-            if ( err_Eh != cudaSuccess )
-                std::cout << "  error: " << cudaGetErrorString(err_Eh) << std::endl;
-        #endif
-            Eh_device_to_host = t;
         }
 
         // w: local

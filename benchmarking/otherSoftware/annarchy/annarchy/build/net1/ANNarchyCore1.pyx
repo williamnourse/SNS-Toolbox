@@ -53,6 +53,8 @@ cdef extern from "ANNarchy.h":
 
 
 
+        # Compute firing rate
+        void compute_firing_rate(double window)
 
 
         # memory management
@@ -83,6 +85,72 @@ cdef extern from "ANNarchy.h":
 
 
 
+        # Compute firing rate
+        void compute_firing_rate(double window)
+
+
+        # memory management
+        long int size_in_bytes()
+        void clear()
+
+    # Export Population 2 (pop2)
+    cdef struct PopStruct2 :
+        # Number of neurons
+        int get_size()
+        void set_size(int)
+        # Maximum delay in steps
+        int get_max_delay()
+        void set_max_delay(int)
+        void update_max_delay(int)
+        # Activate/deactivate the population
+        bool is_active()
+        void set_active(bool)
+        # Reset the population
+        void reset()
+
+
+        # Local attributes
+        vector[double] get_local_attribute_all_double(string)
+        double get_local_attribute_double(string, int)
+        void set_local_attribute_all_double(string, vector[double])
+        void set_local_attribute_double(string, int, double)
+
+
+
+        # Compute firing rate
+        void compute_firing_rate(double window)
+
+
+        # memory management
+        long int size_in_bytes()
+        void clear()
+
+    # Export Population 3 (pop3)
+    cdef struct PopStruct3 :
+        # Number of neurons
+        int get_size()
+        void set_size(int)
+        # Maximum delay in steps
+        int get_max_delay()
+        void set_max_delay(int)
+        void update_max_delay(int)
+        # Activate/deactivate the population
+        bool is_active()
+        void set_active(bool)
+        # Reset the population
+        void reset()
+
+
+        # Local attributes
+        vector[double] get_local_attribute_all_double(string)
+        double get_local_attribute_double(string, int)
+        void set_local_attribute_all_double(string, vector[double])
+        void set_local_attribute_double(string, int, double)
+
+
+
+        # Compute firing rate
+        void compute_firing_rate(double window)
 
 
         # memory management
@@ -108,6 +176,8 @@ cdef extern from "ANNarchy.h":
         int nb_synapses()
         int nb_dendrites()
         int dendrite_size(int)
+
+        map[int, int] nb_efferent_synapses()
 
 
 
@@ -154,12 +224,18 @@ cdef extern from "ANNarchy.h":
         vector[vector[double]] v
         bool record_v
 
+        vector[vector[double]] T
+        bool record_T
+
+        vector[vector[double]] g_inh
+        bool record_g_inh
+
         vector[vector[double]] r
         bool record_r
 
-        # Targets
-        vector[vector[double]] _sum_exc
-        bool record__sum_exc
+        map[int, vector[long]] spike
+        bool record_spike
+        void clear_spike()
 
     # Population 1 (pop1) : Monitor
     cdef cppclass PopRecorder1 (Monitor):
@@ -173,12 +249,68 @@ cdef extern from "ANNarchy.h":
         vector[vector[double]] v
         bool record_v
 
+        vector[vector[double]] T
+        bool record_T
+
+        vector[vector[double]] g_inh
+        bool record_g_inh
+
         vector[vector[double]] r
         bool record_r
 
-        # Targets
-        vector[vector[double]] _sum_exc
-        bool record__sum_exc
+        map[int, vector[long]] spike
+        bool record_spike
+        void clear_spike()
+
+    # Population 2 (pop2) : Monitor
+    cdef cppclass PopRecorder2 (Monitor):
+        @staticmethod
+        int create_instance(vector[int], int, int, long)
+        @staticmethod
+        PopRecorder2* get_instance(int)
+        long int size_in_bytes()
+        void clear()
+
+        vector[vector[double]] v
+        bool record_v
+
+        vector[vector[double]] T
+        bool record_T
+
+        vector[vector[double]] g_inh
+        bool record_g_inh
+
+        vector[vector[double]] r
+        bool record_r
+
+        map[int, vector[long]] spike
+        bool record_spike
+        void clear_spike()
+
+    # Population 3 (pop3) : Monitor
+    cdef cppclass PopRecorder3 (Monitor):
+        @staticmethod
+        int create_instance(vector[int], int, int, long)
+        @staticmethod
+        PopRecorder3* get_instance(int)
+        long int size_in_bytes()
+        void clear()
+
+        vector[vector[double]] v
+        bool record_v
+
+        vector[vector[double]] T
+        bool record_T
+
+        vector[vector[double]] g_inh
+        bool record_g_inh
+
+        vector[vector[double]] r
+        bool record_r
+
+        map[int, vector[long]] spike
+        bool record_spike
+        void clear_spike()
 
     # Projection 0 : Monitor
     cdef cppclass ProjRecorder0 (Monitor):
@@ -187,14 +319,13 @@ cdef extern from "ANNarchy.h":
         @staticmethod
         ProjRecorder0* get_instance(int)
 
-        vector[vector[vector[double]]] w
-        bool record_w
-
 
     # Instances
 
     PopStruct0 pop0
     PopStruct1 pop1
+    PopStruct2 pop2
+    PopStruct3 pop3
 
     ProjStruct0 proj0
 
@@ -281,6 +412,9 @@ cdef class pop0_wrapper :
 
 
 
+    # Compute firing rate
+    cpdef compute_firing_rate(self, double window):
+        pop0.compute_firing_rate(window)
 
 
     # memory management
@@ -348,6 +482,9 @@ cdef class pop1_wrapper :
 
 
 
+    # Compute firing rate
+    cpdef compute_firing_rate(self, double window):
+        pop1.compute_firing_rate(window)
 
 
     # memory management
@@ -356,6 +493,146 @@ cdef class pop1_wrapper :
 
     def clear(self):
         return pop1.clear()
+
+# Wrapper for population 2 (pop2)
+@cython.auto_pickle(True)
+cdef class pop2_wrapper :
+
+    def __init__(self, size, max_delay):
+
+        pop2.set_size(size)
+        pop2.set_max_delay(max_delay)
+    # Number of neurons
+    property size:
+        def __get__(self):
+            return pop2.get_size()
+    # Reset the population
+    def reset(self):
+        pop2.reset()
+    # Set the maximum delay of outgoing projections
+    def set_max_delay(self, val):
+        pop2.set_max_delay(val)
+    # Updates the maximum delay of outgoing projections and rebuilds the arrays
+    def update_max_delay(self, val):
+        pop2.update_max_delay(val)
+    # Allows the population to compute
+    def activate(self, bool val):
+        pop2.set_active(val)
+
+
+    # Local Attribute
+    def get_local_attribute_all(self, name, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            return np.array(pop2.get_local_attribute_all_double(cpp_string))
+
+
+    def get_local_attribute(self, name, rk, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            return pop2.get_local_attribute_double(cpp_string, rk)
+
+
+    def set_local_attribute_all(self, name, value, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            pop2.set_local_attribute_all_double(cpp_string, value)
+
+
+    def set_local_attribute(self, name, rk, value, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            pop2.set_local_attribute_double(cpp_string, rk, value)
+
+
+
+
+
+    # Compute firing rate
+    cpdef compute_firing_rate(self, double window):
+        pop2.compute_firing_rate(window)
+
+
+    # memory management
+    def size_in_bytes(self):
+        return pop2.size_in_bytes()
+
+    def clear(self):
+        return pop2.clear()
+
+# Wrapper for population 3 (pop3)
+@cython.auto_pickle(True)
+cdef class pop3_wrapper :
+
+    def __init__(self, size, max_delay):
+
+        pop3.set_size(size)
+        pop3.set_max_delay(max_delay)
+    # Number of neurons
+    property size:
+        def __get__(self):
+            return pop3.get_size()
+    # Reset the population
+    def reset(self):
+        pop3.reset()
+    # Set the maximum delay of outgoing projections
+    def set_max_delay(self, val):
+        pop3.set_max_delay(val)
+    # Updates the maximum delay of outgoing projections and rebuilds the arrays
+    def update_max_delay(self, val):
+        pop3.update_max_delay(val)
+    # Allows the population to compute
+    def activate(self, bool val):
+        pop3.set_active(val)
+
+
+    # Local Attribute
+    def get_local_attribute_all(self, name, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            return np.array(pop3.get_local_attribute_all_double(cpp_string))
+
+
+    def get_local_attribute(self, name, rk, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            return pop3.get_local_attribute_double(cpp_string, rk)
+
+
+    def set_local_attribute_all(self, name, value, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            pop3.set_local_attribute_all_double(cpp_string, value)
+
+
+    def set_local_attribute(self, name, rk, value, ctype):
+        cpp_string = name.encode('utf-8')
+
+        if ctype == "double":
+            pop3.set_local_attribute_double(cpp_string, rk, value)
+
+
+
+
+
+    # Compute firing rate
+    cpdef compute_firing_rate(self, double window):
+        pop3.compute_firing_rate(window)
+
+
+    # memory management
+    def size_in_bytes(self):
+        return pop3.size_in_bytes()
+
+    def clear(self):
+        return pop3.clear()
 
 
 # Projection wrappers
@@ -424,6 +701,9 @@ cdef class proj0_wrapper :
         return proj0.nb_synapses()
     def dendrite_size(self, int n):
         return proj0.dendrite_size(n)
+
+    def nb_efferent_synapses(self):
+        return proj0.nb_efferent_synapses()
 
 
 
@@ -521,6 +801,24 @@ cdef class PopRecorder0_wrapper:
     def clear_v(self):
         (PopRecorder0.get_instance(self.id)).v.clear()
 
+    property T:
+        def __get__(self): return (PopRecorder0.get_instance(self.id)).T
+        def __set__(self, val): (PopRecorder0.get_instance(self.id)).T = val
+    property record_T:
+        def __get__(self): return (PopRecorder0.get_instance(self.id)).record_T
+        def __set__(self, val): (PopRecorder0.get_instance(self.id)).record_T = val
+    def clear_T(self):
+        (PopRecorder0.get_instance(self.id)).T.clear()
+
+    property g_inh:
+        def __get__(self): return (PopRecorder0.get_instance(self.id)).g_inh
+        def __set__(self, val): (PopRecorder0.get_instance(self.id)).g_inh = val
+    property record_g_inh:
+        def __get__(self): return (PopRecorder0.get_instance(self.id)).record_g_inh
+        def __set__(self, val): (PopRecorder0.get_instance(self.id)).record_g_inh = val
+    def clear_g_inh(self):
+        (PopRecorder0.get_instance(self.id)).g_inh.clear()
+
     property r:
         def __get__(self): return (PopRecorder0.get_instance(self.id)).r
         def __set__(self, val): (PopRecorder0.get_instance(self.id)).r = val
@@ -530,15 +828,14 @@ cdef class PopRecorder0_wrapper:
     def clear_r(self):
         (PopRecorder0.get_instance(self.id)).r.clear()
 
-    # Targets
-    property _sum_exc:
-        def __get__(self): return (PopRecorder0.get_instance(self.id))._sum_exc
-        def __set__(self, val): (PopRecorder0.get_instance(self.id))._sum_exc = val
-    property record__sum_exc:
-        def __get__(self): return (PopRecorder0.get_instance(self.id)).record__sum_exc
-        def __set__(self, val): (PopRecorder0.get_instance(self.id)).record__sum_exc = val
-    def clear__sum_exc(self):
-        (PopRecorder0.get_instance(self.id))._sum_exc.clear()
+    property spike:
+        def __get__(self): return (PopRecorder0.get_instance(self.id)).spike
+        def __set__(self, val): (PopRecorder0.get_instance(self.id)).spike = val
+    property record_spike:
+        def __get__(self): return (PopRecorder0.get_instance(self.id)).record_spike
+        def __set__(self, val): (PopRecorder0.get_instance(self.id)).record_spike = val
+    def clear_spike(self):
+        (PopRecorder0.get_instance(self.id)).clear_spike()
 
 # Population Monitor wrapper
 @cython.auto_pickle(True)
@@ -570,6 +867,24 @@ cdef class PopRecorder1_wrapper:
     def clear_v(self):
         (PopRecorder1.get_instance(self.id)).v.clear()
 
+    property T:
+        def __get__(self): return (PopRecorder1.get_instance(self.id)).T
+        def __set__(self, val): (PopRecorder1.get_instance(self.id)).T = val
+    property record_T:
+        def __get__(self): return (PopRecorder1.get_instance(self.id)).record_T
+        def __set__(self, val): (PopRecorder1.get_instance(self.id)).record_T = val
+    def clear_T(self):
+        (PopRecorder1.get_instance(self.id)).T.clear()
+
+    property g_inh:
+        def __get__(self): return (PopRecorder1.get_instance(self.id)).g_inh
+        def __set__(self, val): (PopRecorder1.get_instance(self.id)).g_inh = val
+    property record_g_inh:
+        def __get__(self): return (PopRecorder1.get_instance(self.id)).record_g_inh
+        def __set__(self, val): (PopRecorder1.get_instance(self.id)).record_g_inh = val
+    def clear_g_inh(self):
+        (PopRecorder1.get_instance(self.id)).g_inh.clear()
+
     property r:
         def __get__(self): return (PopRecorder1.get_instance(self.id)).r
         def __set__(self, val): (PopRecorder1.get_instance(self.id)).r = val
@@ -579,15 +894,146 @@ cdef class PopRecorder1_wrapper:
     def clear_r(self):
         (PopRecorder1.get_instance(self.id)).r.clear()
 
-    # Targets
-    property _sum_exc:
-        def __get__(self): return (PopRecorder1.get_instance(self.id))._sum_exc
-        def __set__(self, val): (PopRecorder1.get_instance(self.id))._sum_exc = val
-    property record__sum_exc:
-        def __get__(self): return (PopRecorder1.get_instance(self.id)).record__sum_exc
-        def __set__(self, val): (PopRecorder1.get_instance(self.id)).record__sum_exc = val
-    def clear__sum_exc(self):
-        (PopRecorder1.get_instance(self.id))._sum_exc.clear()
+    property spike:
+        def __get__(self): return (PopRecorder1.get_instance(self.id)).spike
+        def __set__(self, val): (PopRecorder1.get_instance(self.id)).spike = val
+    property record_spike:
+        def __get__(self): return (PopRecorder1.get_instance(self.id)).record_spike
+        def __set__(self, val): (PopRecorder1.get_instance(self.id)).record_spike = val
+    def clear_spike(self):
+        (PopRecorder1.get_instance(self.id)).clear_spike()
+
+# Population Monitor wrapper
+@cython.auto_pickle(True)
+cdef class PopRecorder2_wrapper:
+    cdef int id
+    def __init__(self, list ranks, int period, period_offset, long offset):
+        self.id = PopRecorder2.create_instance(ranks, period, period_offset, offset)
+
+    def size_in_bytes(self):
+        return (PopRecorder2.get_instance(self.id)).size_in_bytes()
+
+    def clear(self):
+        return (PopRecorder2.get_instance(self.id)).clear()
+
+    property period:
+        def __get__(self): return (PopRecorder2.get_instance(self.id)).period_
+        def __set__(self, val): (PopRecorder2.get_instance(self.id)).period_ = val
+
+    property period_offset:
+        def __get__(self): return (PopRecorder2.get_instance(self.id)).period_offset_
+        def __set__(self, val): (PopRecorder2.get_instance(self.id)).period_offset_ = val
+
+    property v:
+        def __get__(self): return (PopRecorder2.get_instance(self.id)).v
+        def __set__(self, val): (PopRecorder2.get_instance(self.id)).v = val
+    property record_v:
+        def __get__(self): return (PopRecorder2.get_instance(self.id)).record_v
+        def __set__(self, val): (PopRecorder2.get_instance(self.id)).record_v = val
+    def clear_v(self):
+        (PopRecorder2.get_instance(self.id)).v.clear()
+
+    property T:
+        def __get__(self): return (PopRecorder2.get_instance(self.id)).T
+        def __set__(self, val): (PopRecorder2.get_instance(self.id)).T = val
+    property record_T:
+        def __get__(self): return (PopRecorder2.get_instance(self.id)).record_T
+        def __set__(self, val): (PopRecorder2.get_instance(self.id)).record_T = val
+    def clear_T(self):
+        (PopRecorder2.get_instance(self.id)).T.clear()
+
+    property g_inh:
+        def __get__(self): return (PopRecorder2.get_instance(self.id)).g_inh
+        def __set__(self, val): (PopRecorder2.get_instance(self.id)).g_inh = val
+    property record_g_inh:
+        def __get__(self): return (PopRecorder2.get_instance(self.id)).record_g_inh
+        def __set__(self, val): (PopRecorder2.get_instance(self.id)).record_g_inh = val
+    def clear_g_inh(self):
+        (PopRecorder2.get_instance(self.id)).g_inh.clear()
+
+    property r:
+        def __get__(self): return (PopRecorder2.get_instance(self.id)).r
+        def __set__(self, val): (PopRecorder2.get_instance(self.id)).r = val
+    property record_r:
+        def __get__(self): return (PopRecorder2.get_instance(self.id)).record_r
+        def __set__(self, val): (PopRecorder2.get_instance(self.id)).record_r = val
+    def clear_r(self):
+        (PopRecorder2.get_instance(self.id)).r.clear()
+
+    property spike:
+        def __get__(self): return (PopRecorder2.get_instance(self.id)).spike
+        def __set__(self, val): (PopRecorder2.get_instance(self.id)).spike = val
+    property record_spike:
+        def __get__(self): return (PopRecorder2.get_instance(self.id)).record_spike
+        def __set__(self, val): (PopRecorder2.get_instance(self.id)).record_spike = val
+    def clear_spike(self):
+        (PopRecorder2.get_instance(self.id)).clear_spike()
+
+# Population Monitor wrapper
+@cython.auto_pickle(True)
+cdef class PopRecorder3_wrapper:
+    cdef int id
+    def __init__(self, list ranks, int period, period_offset, long offset):
+        self.id = PopRecorder3.create_instance(ranks, period, period_offset, offset)
+
+    def size_in_bytes(self):
+        return (PopRecorder3.get_instance(self.id)).size_in_bytes()
+
+    def clear(self):
+        return (PopRecorder3.get_instance(self.id)).clear()
+
+    property period:
+        def __get__(self): return (PopRecorder3.get_instance(self.id)).period_
+        def __set__(self, val): (PopRecorder3.get_instance(self.id)).period_ = val
+
+    property period_offset:
+        def __get__(self): return (PopRecorder3.get_instance(self.id)).period_offset_
+        def __set__(self, val): (PopRecorder3.get_instance(self.id)).period_offset_ = val
+
+    property v:
+        def __get__(self): return (PopRecorder3.get_instance(self.id)).v
+        def __set__(self, val): (PopRecorder3.get_instance(self.id)).v = val
+    property record_v:
+        def __get__(self): return (PopRecorder3.get_instance(self.id)).record_v
+        def __set__(self, val): (PopRecorder3.get_instance(self.id)).record_v = val
+    def clear_v(self):
+        (PopRecorder3.get_instance(self.id)).v.clear()
+
+    property T:
+        def __get__(self): return (PopRecorder3.get_instance(self.id)).T
+        def __set__(self, val): (PopRecorder3.get_instance(self.id)).T = val
+    property record_T:
+        def __get__(self): return (PopRecorder3.get_instance(self.id)).record_T
+        def __set__(self, val): (PopRecorder3.get_instance(self.id)).record_T = val
+    def clear_T(self):
+        (PopRecorder3.get_instance(self.id)).T.clear()
+
+    property g_inh:
+        def __get__(self): return (PopRecorder3.get_instance(self.id)).g_inh
+        def __set__(self, val): (PopRecorder3.get_instance(self.id)).g_inh = val
+    property record_g_inh:
+        def __get__(self): return (PopRecorder3.get_instance(self.id)).record_g_inh
+        def __set__(self, val): (PopRecorder3.get_instance(self.id)).record_g_inh = val
+    def clear_g_inh(self):
+        (PopRecorder3.get_instance(self.id)).g_inh.clear()
+
+    property r:
+        def __get__(self): return (PopRecorder3.get_instance(self.id)).r
+        def __set__(self, val): (PopRecorder3.get_instance(self.id)).r = val
+    property record_r:
+        def __get__(self): return (PopRecorder3.get_instance(self.id)).record_r
+        def __set__(self, val): (PopRecorder3.get_instance(self.id)).record_r = val
+    def clear_r(self):
+        (PopRecorder3.get_instance(self.id)).r.clear()
+
+    property spike:
+        def __get__(self): return (PopRecorder3.get_instance(self.id)).spike
+        def __set__(self, val): (PopRecorder3.get_instance(self.id)).spike = val
+    property record_spike:
+        def __get__(self): return (PopRecorder3.get_instance(self.id)).record_spike
+        def __set__(self, val): (PopRecorder3.get_instance(self.id)).record_spike = val
+    def clear_spike(self):
+        (PopRecorder3.get_instance(self.id)).clear_spike()
 
 # Projection Monitor wrapper
 @cython.auto_pickle(True)
@@ -595,15 +1041,6 @@ cdef class ProjRecorder0_wrapper:
     cdef int id
     def __init__(self, list ranks, int period, int period_offset, long offset):
         self.id = ProjRecorder0.create_instance(ranks, period, period_offset, offset)
-
-    property w:
-        def __get__(self): return (ProjRecorder0.get_instance(self.id)).w
-        def __set__(self, val): (ProjRecorder0.get_instance(self.id)).w = val
-    property record_w:
-        def __get__(self): return (ProjRecorder0.get_instance(self.id)).record_w
-        def __set__(self, val): (ProjRecorder0.get_instance(self.id)).record_w = val
-    def clear_w(self):
-        (ProjRecorder0.get_instance(self.id)).w.clear()
 
 
 # User-defined functions

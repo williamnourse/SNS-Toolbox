@@ -48,6 +48,8 @@
  */
 #include "pop0.hpp"
 #include "pop1.hpp"
+#include "pop2.hpp"
+#include "pop3.hpp"
 
 /*
  * Structures for the projections
@@ -62,6 +64,8 @@
  */
 extern PopStruct0 pop0;
 extern PopStruct1 pop1;
+extern PopStruct2 pop2;
+extern PopStruct3 pop3;
 
 
 /*

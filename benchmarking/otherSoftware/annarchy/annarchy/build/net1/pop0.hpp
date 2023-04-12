@@ -40,6 +40,14 @@ struct PopStruct0{
     void set_active(bool val) { _active = val; }
 
 
+    // Structures for managing spikes
+    std::vector<long int> last_spike;
+    long int* gpu_last_spike;
+    std::vector<int> spiked;
+    int* gpu_spiked;
+    unsigned int spike_count;
+    unsigned int* gpu_spike_count;
+
     // Neuron specific parameters and variables
 
     // Local attribute Cm
@@ -60,6 +68,30 @@ struct PopStruct0{
     long int bias_device_to_host;
     bool bias_host_to_device;
 
+    // Local attribute tau
+    std::vector< double > tau;
+    double *gpu_tau;
+    long int tau_device_to_host;
+    bool tau_host_to_device;
+
+    // Local attribute To
+    std::vector< double > To;
+    double *gpu_To;
+    long int To_device_to_host;
+    bool To_host_to_device;
+
+    // Local attribute m
+    std::vector< double > m;
+    double *gpu_m;
+    long int m_device_to_host;
+    bool m_host_to_device;
+
+    // Local attribute tau_inh
+    std::vector< double > tau_inh;
+    double *gpu_tau_inh;
+    long int tau_inh_device_to_host;
+    bool tau_inh_host_to_device;
+
     // Local attribute Esyn
     std::vector< double > Esyn;
     double *gpu_Esyn;
@@ -72,22 +104,40 @@ struct PopStruct0{
     long int v_device_to_host;
     bool v_host_to_device;
 
+    // Local attribute T
+    std::vector< double > T;
+    double *gpu_T;
+    long int T_device_to_host;
+    bool T_host_to_device;
+
+    // Local attribute g_inh
+    std::vector< double > g_inh;
+    double *gpu_g_inh;
+    long int g_inh_device_to_host;
+    bool g_inh_host_to_device;
+
     // Local attribute r
     std::vector< double > r;
     double *gpu_r;
     long int r_device_to_host;
     bool r_host_to_device;
 
-    // Local attribute _sum_exc
-    std::vector< double > _sum_exc;
-    double *gpu__sum_exc;
-    long int _sum_exc_device_to_host;
-    bool _sum_exc_host_to_device;
-
     // Random numbers
 
 
 
+    // Mean Firing rate
+    std::vector< std::queue<long int> > _spike_history;
+    long int _mean_fr_window;
+    double _mean_fr_rate;
+    void compute_firing_rate( double window){
+        if(window>0.0){
+            _mean_fr_window = int(window/dt);
+            _mean_fr_rate = double(1000./double(window));
+            if (_spike_history.empty())
+                _spike_history = std::vector< std::queue<long int> >(size, std::queue<long int>());
+        }
+    };
 
 
     // Profiling
@@ -115,6 +165,30 @@ struct PopStruct0{
             return bias;
         }
 
+        // Local parameter tau
+        if ( name.compare("tau") == 0 ) {
+            if ( tau_device_to_host < t ) device_to_host();
+            return tau;
+        }
+
+        // Local parameter To
+        if ( name.compare("To") == 0 ) {
+            if ( To_device_to_host < t ) device_to_host();
+            return To;
+        }
+
+        // Local parameter m
+        if ( name.compare("m") == 0 ) {
+            if ( m_device_to_host < t ) device_to_host();
+            return m;
+        }
+
+        // Local parameter tau_inh
+        if ( name.compare("tau_inh") == 0 ) {
+            if ( tau_inh_device_to_host < t ) device_to_host();
+            return tau_inh;
+        }
+
         // Local parameter Esyn
         if ( name.compare("Esyn") == 0 ) {
             if ( Esyn_device_to_host < t ) device_to_host();
@@ -127,16 +201,22 @@ struct PopStruct0{
             return v;
         }
 
+        // Local variable T
+        if ( name.compare("T") == 0 ) {
+            if ( T_device_to_host < t ) device_to_host();
+            return T;
+        }
+
+        // Local variable g_inh
+        if ( name.compare("g_inh") == 0 ) {
+            if ( g_inh_device_to_host < t ) device_to_host();
+            return g_inh;
+        }
+
         // Local variable r
         if ( name.compare("r") == 0 ) {
             if ( r_device_to_host < t ) device_to_host();
             return r;
-        }
-
-        // Local psp _sum_exc
-        if ( name.compare("_sum_exc") == 0 ) {
-            if ( _sum_exc_device_to_host < t ) device_to_host();
-            return _sum_exc;
         }
 
 
@@ -165,6 +245,30 @@ struct PopStruct0{
             return bias[rk];
         }
 
+        // Local parameter tau
+        if ( name.compare("tau") == 0 ) {
+            if ( tau_device_to_host < t ) device_to_host();
+            return tau[rk];
+        }
+
+        // Local parameter To
+        if ( name.compare("To") == 0 ) {
+            if ( To_device_to_host < t ) device_to_host();
+            return To[rk];
+        }
+
+        // Local parameter m
+        if ( name.compare("m") == 0 ) {
+            if ( m_device_to_host < t ) device_to_host();
+            return m[rk];
+        }
+
+        // Local parameter tau_inh
+        if ( name.compare("tau_inh") == 0 ) {
+            if ( tau_inh_device_to_host < t ) device_to_host();
+            return tau_inh[rk];
+        }
+
         // Local parameter Esyn
         if ( name.compare("Esyn") == 0 ) {
             if ( Esyn_device_to_host < t ) device_to_host();
@@ -177,16 +281,22 @@ struct PopStruct0{
             return v[rk];
         }
 
+        // Local variable T
+        if ( name.compare("T") == 0 ) {
+            if ( T_device_to_host < t ) device_to_host();
+            return T[rk];
+        }
+
+        // Local variable g_inh
+        if ( name.compare("g_inh") == 0 ) {
+            if ( g_inh_device_to_host < t ) device_to_host();
+            return g_inh[rk];
+        }
+
         // Local variable r
         if ( name.compare("r") == 0 ) {
             if ( r_device_to_host < t ) device_to_host();
             return r[rk];
-        }
-
-        // Local psp _sum_exc
-        if ( name.compare("_sum_exc") == 0 ) {
-            if ( _sum_exc_device_to_host < t ) device_to_host();
-            return _sum_exc[rk];
         }
 
 
@@ -218,6 +328,34 @@ struct PopStruct0{
             return;
         }
 
+        // Local parameter tau
+        if ( name.compare("tau") == 0 ) {
+            tau = value;
+            tau_host_to_device = true;
+            return;
+        }
+
+        // Local parameter To
+        if ( name.compare("To") == 0 ) {
+            To = value;
+            To_host_to_device = true;
+            return;
+        }
+
+        // Local parameter m
+        if ( name.compare("m") == 0 ) {
+            m = value;
+            m_host_to_device = true;
+            return;
+        }
+
+        // Local parameter tau_inh
+        if ( name.compare("tau_inh") == 0 ) {
+            tau_inh = value;
+            tau_inh_host_to_device = true;
+            return;
+        }
+
         // Local parameter Esyn
         if ( name.compare("Esyn") == 0 ) {
             Esyn = value;
@@ -232,17 +370,24 @@ struct PopStruct0{
             return;
         }
 
+        // Local variable T
+        if ( name.compare("T") == 0 ) {
+            T = value;
+            T_host_to_device = true;
+            return;
+        }
+
+        // Local variable g_inh
+        if ( name.compare("g_inh") == 0 ) {
+            g_inh = value;
+            g_inh_host_to_device = true;
+            return;
+        }
+
         // Local variable r
         if ( name.compare("r") == 0 ) {
             r = value;
             r_host_to_device = true;
-            return;
-        }
-
-        // Local psp _sum_exc
-        if ( name.compare("_sum_exc") == 0 ) {
-            _sum_exc = value;
-            _sum_exc_host_to_device = true;
             return;
         }
 
@@ -274,6 +419,34 @@ struct PopStruct0{
             return;
         }
 
+        // Local parameter tau
+        if ( name.compare("tau") == 0 ) {
+            tau[rk] = value;
+            tau_host_to_device = true;
+            return;
+        }
+
+        // Local parameter To
+        if ( name.compare("To") == 0 ) {
+            To[rk] = value;
+            To_host_to_device = true;
+            return;
+        }
+
+        // Local parameter m
+        if ( name.compare("m") == 0 ) {
+            m[rk] = value;
+            m_host_to_device = true;
+            return;
+        }
+
+        // Local parameter tau_inh
+        if ( name.compare("tau_inh") == 0 ) {
+            tau_inh[rk] = value;
+            tau_inh_host_to_device = true;
+            return;
+        }
+
         // Local parameter Esyn
         if ( name.compare("Esyn") == 0 ) {
             Esyn[rk] = value;
@@ -288,17 +461,24 @@ struct PopStruct0{
             return;
         }
 
+        // Local variable T
+        if ( name.compare("T") == 0 ) {
+            T[rk] = value;
+            T_host_to_device = true;
+            return;
+        }
+
+        // Local variable g_inh
+        if ( name.compare("g_inh") == 0 ) {
+            g_inh[rk] = value;
+            g_inh_host_to_device = true;
+            return;
+        }
+
         // Local variable r
         if ( name.compare("r") == 0 ) {
             r[rk] = value;
             r_host_to_device = true;
-            return;
-        }
-
-        // Local psp _sum_exc
-        if ( name.compare("_sum_exc") == 0 ) {
-            _sum_exc[rk] = value;
-            _sum_exc_host_to_device = true;
             return;
         }
 
@@ -364,6 +544,58 @@ struct PopStruct0{
         bias_host_to_device = false;
         bias_device_to_host = t;
 
+        // Local parameter tau
+        tau = std::vector<double>(size, 0.0);
+        cudaMalloc(&gpu_tau, size * sizeof(double));
+        cudaMemcpy(gpu_tau, tau.data(), size * sizeof(double), cudaMemcpyHostToDevice);
+    #ifdef _DEBUG
+        cudaError_t err_tau = cudaGetLastError();
+        if ( err_tau != cudaSuccess )
+            std::cout << "    allocation of tau failed: " << cudaGetErrorString(err_tau) << std::endl;
+    #endif
+        // memory transfer flags
+        tau_host_to_device = false;
+        tau_device_to_host = t;
+
+        // Local parameter To
+        To = std::vector<double>(size, 0.0);
+        cudaMalloc(&gpu_To, size * sizeof(double));
+        cudaMemcpy(gpu_To, To.data(), size * sizeof(double), cudaMemcpyHostToDevice);
+    #ifdef _DEBUG
+        cudaError_t err_To = cudaGetLastError();
+        if ( err_To != cudaSuccess )
+            std::cout << "    allocation of To failed: " << cudaGetErrorString(err_To) << std::endl;
+    #endif
+        // memory transfer flags
+        To_host_to_device = false;
+        To_device_to_host = t;
+
+        // Local parameter m
+        m = std::vector<double>(size, 0.0);
+        cudaMalloc(&gpu_m, size * sizeof(double));
+        cudaMemcpy(gpu_m, m.data(), size * sizeof(double), cudaMemcpyHostToDevice);
+    #ifdef _DEBUG
+        cudaError_t err_m = cudaGetLastError();
+        if ( err_m != cudaSuccess )
+            std::cout << "    allocation of m failed: " << cudaGetErrorString(err_m) << std::endl;
+    #endif
+        // memory transfer flags
+        m_host_to_device = false;
+        m_device_to_host = t;
+
+        // Local parameter tau_inh
+        tau_inh = std::vector<double>(size, 0.0);
+        cudaMalloc(&gpu_tau_inh, size * sizeof(double));
+        cudaMemcpy(gpu_tau_inh, tau_inh.data(), size * sizeof(double), cudaMemcpyHostToDevice);
+    #ifdef _DEBUG
+        cudaError_t err_tau_inh = cudaGetLastError();
+        if ( err_tau_inh != cudaSuccess )
+            std::cout << "    allocation of tau_inh failed: " << cudaGetErrorString(err_tau_inh) << std::endl;
+    #endif
+        // memory transfer flags
+        tau_inh_host_to_device = false;
+        tau_inh_device_to_host = t;
+
         // Local parameter Esyn
         Esyn = std::vector<double>(size, 0.0);
         cudaMalloc(&gpu_Esyn, size * sizeof(double));
@@ -390,6 +622,32 @@ struct PopStruct0{
         v_host_to_device = false;
         v_device_to_host = t;
 
+        // Local variable T
+        T = std::vector<double>(size, 0.0);
+        cudaMalloc(&gpu_T, size * sizeof(double));
+        cudaMemcpy(gpu_T, T.data(), size * sizeof(double), cudaMemcpyHostToDevice);
+    #ifdef _DEBUG
+        cudaError_t err_T = cudaGetLastError();
+        if ( err_T != cudaSuccess )
+            std::cout << "    allocation of T failed: " << cudaGetErrorString(err_T) << std::endl;
+    #endif
+        // memory transfer flags
+        T_host_to_device = false;
+        T_device_to_host = t;
+
+        // Local variable g_inh
+        g_inh = std::vector<double>(size, 0.0);
+        cudaMalloc(&gpu_g_inh, size * sizeof(double));
+        cudaMemcpy(gpu_g_inh, g_inh.data(), size * sizeof(double), cudaMemcpyHostToDevice);
+    #ifdef _DEBUG
+        cudaError_t err_g_inh = cudaGetLastError();
+        if ( err_g_inh != cudaSuccess )
+            std::cout << "    allocation of g_inh failed: " << cudaGetErrorString(err_g_inh) << std::endl;
+    #endif
+        // memory transfer flags
+        g_inh_host_to_device = false;
+        g_inh_device_to_host = t;
+
         // Local variable r
         r = std::vector<double>(size, 0.0);
         cudaMalloc(&gpu_r, size * sizeof(double));
@@ -403,22 +661,26 @@ struct PopStruct0{
         r_host_to_device = false;
         r_device_to_host = t;
 
-        // Local psp _sum_exc
-        _sum_exc = std::vector<double>(size, 0.0);
-        cudaMalloc(&gpu__sum_exc, size * sizeof(double));
-        cudaMemcpy(gpu__sum_exc, _sum_exc.data(), size * sizeof(double), cudaMemcpyHostToDevice);
-    #ifdef _DEBUG
-        cudaError_t err__sum_exc = cudaGetLastError();
-        if ( err__sum_exc != cudaSuccess )
-            std::cout << "    allocation of _sum_exc failed: " << cudaGetErrorString(err__sum_exc) << std::endl;
-    #endif
-        // memory transfer flags
-        _sum_exc_host_to_device = false;
-        _sum_exc_device_to_host = t;
+
+        // Spiking variables
+        spiked = std::vector<int>(size, 0);
+        cudaMalloc((void**)&gpu_spiked, size * sizeof(int));
+        cudaMemcpy(gpu_spiked, spiked.data(), size * sizeof(int), cudaMemcpyHostToDevice);
+
+        last_spike = std::vector<long int>(size, -10000L);
+        cudaMalloc((void**)&gpu_last_spike, size * sizeof(long int));
+        cudaMemcpy(gpu_last_spike, last_spike.data(), size * sizeof(long int), cudaMemcpyHostToDevice);
+
+        spike_count = 0;
+        cudaMalloc((void**)&gpu_spike_count, sizeof(unsigned int));
+        cudaMemcpy(gpu_spike_count, &spike_count, sizeof(unsigned int), cudaMemcpyHostToDevice);
 
 
 
-
+        // Mean Firing Rate
+        _spike_history = std::vector< std::queue<long int> >();
+        _mean_fr_window = 0;
+        _mean_fr_rate = 1.0;
 
 
     }
@@ -426,14 +688,28 @@ struct PopStruct0{
     // Method called to reset the population
     void reset() {
 
+        spiked = std::vector<int>(size, 0);
+        last_spike.clear();
+        last_spike = std::vector<long int>(size, -10000L);
+        spike_count = 0;
+
+        // Mean Firing Rate
+        for (auto it = _spike_history.begin(); it != _spike_history.end(); it++) {
+            if (!it->empty()) {
+                auto empty_queue = std::queue<long int>();
+                it->swap(empty_queue);
+            }
+        }
+
 
 
         // read-back flags: variables
         v_device_to_host = 0;
+        T_device_to_host = 0;
+        g_inh_device_to_host = 0;
         r_device_to_host = 0;
         
         // read-back flags: targets
-        _sum_exc_device_to_host = 0;
         
     }
 
@@ -460,6 +736,31 @@ struct PopStruct0{
     // Mean-firing rate computed on host
     void update_FR() {
 
+        if ( _mean_fr_window > 0) {
+            // Update the queues
+            r_host_to_device = false;
+
+            for ( int i = 0; i < spike_count; i++ ) {
+                _spike_history[spiked[i]].push(t);
+                r_host_to_device = true; // the queue changed the length
+            }
+
+            // Recalculate the mean firing rate
+            for (int i = 0; i < size; i++ ) {
+                while((_spike_history[i].size() != 0)&&(_spike_history[i].front() <= t - _mean_fr_window)){
+                    _spike_history[i].pop(); // Suppress spikes outside the window
+                    r_host_to_device = true; // the queue changed the length
+                }
+                r[i] = _mean_fr_rate * float(_spike_history[i].size());
+            }
+
+            // transfer to device
+            if ( r_host_to_device ) {
+                cudaMemcpy(gpu_r, r.data(), size * sizeof(double), cudaMemcpyHostToDevice);
+                r_host_to_device = false;
+            }
+        }
+
     }
 
     // Stop condition
@@ -482,6 +783,38 @@ struct PopStruct0{
             cudaError_t err_v = cudaGetLastError();
             if ( err_v != cudaSuccess )
                 std::cout << "  error: " << cudaGetErrorString(err_v) << std::endl;
+        #endif
+        }
+    
+        // T: local
+        if( T_host_to_device )
+        {
+        #ifdef _DEBUG
+            std::cout << "HtoD T ( pop0 )" << std::endl;
+        #endif
+            cudaMemcpy( gpu_T, T.data(), size * sizeof(double), cudaMemcpyHostToDevice);
+            T_host_to_device = false;
+
+        #ifdef _DEBUG
+            cudaError_t err_T = cudaGetLastError();
+            if ( err_T != cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err_T) << std::endl;
+        #endif
+        }
+    
+        // g_inh: local
+        if( g_inh_host_to_device )
+        {
+        #ifdef _DEBUG
+            std::cout << "HtoD g_inh ( pop0 )" << std::endl;
+        #endif
+            cudaMemcpy( gpu_g_inh, g_inh.data(), size * sizeof(double), cudaMemcpyHostToDevice);
+            g_inh_host_to_device = false;
+
+        #ifdef _DEBUG
+            cudaError_t err_g_inh = cudaGetLastError();
+            if ( err_g_inh != cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err_g_inh) << std::endl;
         #endif
         }
     
@@ -549,6 +882,70 @@ struct PopStruct0{
         #endif
         }
     
+        // tau: local
+        if( tau_host_to_device )
+        {
+        #ifdef _DEBUG
+            std::cout << "HtoD tau ( pop0 )" << std::endl;
+        #endif
+            cudaMemcpy( gpu_tau, tau.data(), size * sizeof(double), cudaMemcpyHostToDevice);
+            tau_host_to_device = false;
+
+        #ifdef _DEBUG
+            cudaError_t err_tau = cudaGetLastError();
+            if ( err_tau != cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err_tau) << std::endl;
+        #endif
+        }
+    
+        // To: local
+        if( To_host_to_device )
+        {
+        #ifdef _DEBUG
+            std::cout << "HtoD To ( pop0 )" << std::endl;
+        #endif
+            cudaMemcpy( gpu_To, To.data(), size * sizeof(double), cudaMemcpyHostToDevice);
+            To_host_to_device = false;
+
+        #ifdef _DEBUG
+            cudaError_t err_To = cudaGetLastError();
+            if ( err_To != cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err_To) << std::endl;
+        #endif
+        }
+    
+        // m: local
+        if( m_host_to_device )
+        {
+        #ifdef _DEBUG
+            std::cout << "HtoD m ( pop0 )" << std::endl;
+        #endif
+            cudaMemcpy( gpu_m, m.data(), size * sizeof(double), cudaMemcpyHostToDevice);
+            m_host_to_device = false;
+
+        #ifdef _DEBUG
+            cudaError_t err_m = cudaGetLastError();
+            if ( err_m != cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err_m) << std::endl;
+        #endif
+        }
+    
+        // tau_inh: local
+        if( tau_inh_host_to_device )
+        {
+        #ifdef _DEBUG
+            std::cout << "HtoD tau_inh ( pop0 )" << std::endl;
+        #endif
+            cudaMemcpy( gpu_tau_inh, tau_inh.data(), size * sizeof(double), cudaMemcpyHostToDevice);
+            tau_inh_host_to_device = false;
+
+        #ifdef _DEBUG
+            cudaError_t err_tau_inh = cudaGetLastError();
+            if ( err_tau_inh != cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err_tau_inh) << std::endl;
+        #endif
+        }
+    
         // Esyn: local
         if( Esyn_host_to_device )
         {
@@ -562,22 +959,6 @@ struct PopStruct0{
             cudaError_t err_Esyn = cudaGetLastError();
             if ( err_Esyn != cudaSuccess )
                 std::cout << "  error: " << cudaGetErrorString(err_Esyn) << std::endl;
-        #endif
-        }
-    
-        // _sum_exc: local
-        if( _sum_exc_host_to_device )
-        {
-        #ifdef _DEBUG
-            std::cout << "HtoD _sum_exc ( pop0 )" << std::endl;
-        #endif
-            cudaMemcpy( gpu__sum_exc, _sum_exc.data(), size * sizeof(double), cudaMemcpyHostToDevice);
-            _sum_exc_host_to_device = false;
-
-        #ifdef _DEBUG
-            cudaError_t err__sum_exc = cudaGetLastError();
-            if ( err__sum_exc != cudaSuccess )
-                std::cout << "  error: " << cudaGetErrorString(err__sum_exc) << std::endl;
         #endif
         }
     
@@ -601,6 +982,34 @@ struct PopStruct0{
             v_device_to_host = t;
         }
     
+        // T: local
+        if( T_device_to_host < t ) {
+        #ifdef _DEBUG
+            std::cout << "DtoH: T ( pop0 )" << std::endl;
+        #endif
+            cudaMemcpy( T.data(),  gpu_T, size * sizeof(double), cudaMemcpyDeviceToHost);
+        #ifdef _DEBUG
+            cudaError_t err_T = cudaGetLastError();
+            if ( err_T != cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err_T) << std::endl;
+        #endif
+            T_device_to_host = t;
+        }
+    
+        // g_inh: local
+        if( g_inh_device_to_host < t ) {
+        #ifdef _DEBUG
+            std::cout << "DtoH: g_inh ( pop0 )" << std::endl;
+        #endif
+            cudaMemcpy( g_inh.data(),  gpu_g_inh, size * sizeof(double), cudaMemcpyDeviceToHost);
+        #ifdef _DEBUG
+            cudaError_t err_g_inh = cudaGetLastError();
+            if ( err_g_inh != cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err_g_inh) << std::endl;
+        #endif
+            g_inh_device_to_host = t;
+        }
+    
         // r: local
         if( r_device_to_host < t ) {
         #ifdef _DEBUG
@@ -615,20 +1024,6 @@ struct PopStruct0{
             r_device_to_host = t;
         }
     
-        // _sum_exc: local
-        if( _sum_exc_device_to_host < t ) {
-        #ifdef _DEBUG
-            std::cout << "DtoH: _sum_exc ( pop0 )" << std::endl;
-        #endif
-            cudaMemcpy( _sum_exc.data(),  gpu__sum_exc, size * sizeof(double), cudaMemcpyDeviceToHost);
-        #ifdef _DEBUG
-            cudaError_t err__sum_exc = cudaGetLastError();
-            if ( err__sum_exc != cudaSuccess )
-                std::cout << "  error: " << cudaGetErrorString(err__sum_exc) << std::endl;
-        #endif
-            _sum_exc_device_to_host = t;
-        }
-    
     }
 
     // Memory Management: track memory consumption
@@ -638,9 +1033,15 @@ struct PopStruct0{
         size_in_bytes += sizeof(std::vector<double>) + sizeof(double) * Cm.capacity();	// Cm
         size_in_bytes += sizeof(std::vector<double>) + sizeof(double) * Gm.capacity();	// Gm
         size_in_bytes += sizeof(std::vector<double>) + sizeof(double) * bias.capacity();	// bias
+        size_in_bytes += sizeof(std::vector<double>) + sizeof(double) * tau.capacity();	// tau
+        size_in_bytes += sizeof(std::vector<double>) + sizeof(double) * To.capacity();	// To
+        size_in_bytes += sizeof(std::vector<double>) + sizeof(double) * m.capacity();	// m
+        size_in_bytes += sizeof(std::vector<double>) + sizeof(double) * tau_inh.capacity();	// tau_inh
         size_in_bytes += sizeof(std::vector<double>) + sizeof(double) * Esyn.capacity();	// Esyn
         // Variables
         size_in_bytes += sizeof(std::vector<double>) + sizeof(double) * v.capacity();	// v
+        size_in_bytes += sizeof(std::vector<double>) + sizeof(double) * T.capacity();	// T
+        size_in_bytes += sizeof(std::vector<double>) + sizeof(double) * g_inh.capacity();	// g_inh
         size_in_bytes += sizeof(std::vector<double>) + sizeof(double) * r.capacity();	// r
         // RNGs
         
@@ -652,18 +1053,36 @@ struct PopStruct0{
         // Variables
         v.clear();
         v.shrink_to_fit();
+        T.clear();
+        T.shrink_to_fit();
+        g_inh.clear();
+        g_inh.shrink_to_fit();
         r.clear();
         r.shrink_to_fit();
         
         /* Free device variables */
+        
+        // Mean Firing Rate
+        for (auto it = _spike_history.begin(); it != _spike_history.end(); it++) {
+            while(!it->empty())
+                it->pop();
+        }
+        _spike_history.clear();
+        _spike_history.shrink_to_fit();
         // parameters
         cudaFree(gpu_Cm); 
         cudaFree(gpu_Gm); 
         cudaFree(gpu_bias); 
+        cudaFree(gpu_tau); 
+        cudaFree(gpu_To); 
+        cudaFree(gpu_m); 
+        cudaFree(gpu_tau_inh); 
         cudaFree(gpu_Esyn); 
         
         // variables
         cudaFree(gpu_v); 
+        cudaFree(gpu_T); 
+        cudaFree(gpu_g_inh); 
         cudaFree(gpu_r); 
         
         // delayed attributes
@@ -671,7 +1090,6 @@ struct PopStruct0{
         // RNGs
         
         // targets
-        cudaFree(gpu__sum_exc); 
         
     #ifdef _DEBUG
         cudaError_t err_clear = cudaGetLastError();
