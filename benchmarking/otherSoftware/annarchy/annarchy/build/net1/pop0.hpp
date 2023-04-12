@@ -78,11 +78,11 @@ struct PopStruct0{
     long int r_device_to_host;
     bool r_host_to_device;
 
-    // Local attribute _sum_inh
-    std::vector< double > _sum_inh;
-    double *gpu__sum_inh;
-    long int _sum_inh_device_to_host;
-    bool _sum_inh_host_to_device;
+    // Local attribute _sum_exc
+    std::vector< double > _sum_exc;
+    double *gpu__sum_exc;
+    long int _sum_exc_device_to_host;
+    bool _sum_exc_host_to_device;
 
     // Random numbers
 
@@ -133,10 +133,10 @@ struct PopStruct0{
             return r;
         }
 
-        // Local psp _sum_inh
-        if ( name.compare("_sum_inh") == 0 ) {
-            if ( _sum_inh_device_to_host < t ) device_to_host();
-            return _sum_inh;
+        // Local psp _sum_exc
+        if ( name.compare("_sum_exc") == 0 ) {
+            if ( _sum_exc_device_to_host < t ) device_to_host();
+            return _sum_exc;
         }
 
 
@@ -183,10 +183,10 @@ struct PopStruct0{
             return r[rk];
         }
 
-        // Local psp _sum_inh
-        if ( name.compare("_sum_inh") == 0 ) {
-            if ( _sum_inh_device_to_host < t ) device_to_host();
-            return _sum_inh[rk];
+        // Local psp _sum_exc
+        if ( name.compare("_sum_exc") == 0 ) {
+            if ( _sum_exc_device_to_host < t ) device_to_host();
+            return _sum_exc[rk];
         }
 
 
@@ -239,10 +239,10 @@ struct PopStruct0{
             return;
         }
 
-        // Local psp _sum_inh
-        if ( name.compare("_sum_inh") == 0 ) {
-            _sum_inh = value;
-            _sum_inh_host_to_device = true;
+        // Local psp _sum_exc
+        if ( name.compare("_sum_exc") == 0 ) {
+            _sum_exc = value;
+            _sum_exc_host_to_device = true;
             return;
         }
 
@@ -295,10 +295,10 @@ struct PopStruct0{
             return;
         }
 
-        // Local psp _sum_inh
-        if ( name.compare("_sum_inh") == 0 ) {
-            _sum_inh[rk] = value;
-            _sum_inh_host_to_device = true;
+        // Local psp _sum_exc
+        if ( name.compare("_sum_exc") == 0 ) {
+            _sum_exc[rk] = value;
+            _sum_exc_host_to_device = true;
             return;
         }
 
@@ -403,18 +403,18 @@ struct PopStruct0{
         r_host_to_device = false;
         r_device_to_host = t;
 
-        // Local psp _sum_inh
-        _sum_inh = std::vector<double>(size, 0.0);
-        cudaMalloc(&gpu__sum_inh, size * sizeof(double));
-        cudaMemcpy(gpu__sum_inh, _sum_inh.data(), size * sizeof(double), cudaMemcpyHostToDevice);
+        // Local psp _sum_exc
+        _sum_exc = std::vector<double>(size, 0.0);
+        cudaMalloc(&gpu__sum_exc, size * sizeof(double));
+        cudaMemcpy(gpu__sum_exc, _sum_exc.data(), size * sizeof(double), cudaMemcpyHostToDevice);
     #ifdef _DEBUG
-        cudaError_t err__sum_inh = cudaGetLastError();
-        if ( err__sum_inh != cudaSuccess )
-            std::cout << "    allocation of _sum_inh failed: " << cudaGetErrorString(err__sum_inh) << std::endl;
+        cudaError_t err__sum_exc = cudaGetLastError();
+        if ( err__sum_exc != cudaSuccess )
+            std::cout << "    allocation of _sum_exc failed: " << cudaGetErrorString(err__sum_exc) << std::endl;
     #endif
         // memory transfer flags
-        _sum_inh_host_to_device = false;
-        _sum_inh_device_to_host = t;
+        _sum_exc_host_to_device = false;
+        _sum_exc_device_to_host = t;
 
 
 
@@ -433,7 +433,7 @@ struct PopStruct0{
         r_device_to_host = 0;
         
         // read-back flags: targets
-        _sum_inh_device_to_host = 0;
+        _sum_exc_device_to_host = 0;
         
     }
 
@@ -565,19 +565,19 @@ struct PopStruct0{
         #endif
         }
     
-        // _sum_inh: local
-        if( _sum_inh_host_to_device )
+        // _sum_exc: local
+        if( _sum_exc_host_to_device )
         {
         #ifdef _DEBUG
-            std::cout << "HtoD _sum_inh ( pop0 )" << std::endl;
+            std::cout << "HtoD _sum_exc ( pop0 )" << std::endl;
         #endif
-            cudaMemcpy( gpu__sum_inh, _sum_inh.data(), size * sizeof(double), cudaMemcpyHostToDevice);
-            _sum_inh_host_to_device = false;
+            cudaMemcpy( gpu__sum_exc, _sum_exc.data(), size * sizeof(double), cudaMemcpyHostToDevice);
+            _sum_exc_host_to_device = false;
 
         #ifdef _DEBUG
-            cudaError_t err__sum_inh = cudaGetLastError();
-            if ( err__sum_inh != cudaSuccess )
-                std::cout << "  error: " << cudaGetErrorString(err__sum_inh) << std::endl;
+            cudaError_t err__sum_exc = cudaGetLastError();
+            if ( err__sum_exc != cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err__sum_exc) << std::endl;
         #endif
         }
     
@@ -615,18 +615,18 @@ struct PopStruct0{
             r_device_to_host = t;
         }
     
-        // _sum_inh: local
-        if( _sum_inh_device_to_host < t ) {
+        // _sum_exc: local
+        if( _sum_exc_device_to_host < t ) {
         #ifdef _DEBUG
-            std::cout << "DtoH: _sum_inh ( pop0 )" << std::endl;
+            std::cout << "DtoH: _sum_exc ( pop0 )" << std::endl;
         #endif
-            cudaMemcpy( _sum_inh.data(),  gpu__sum_inh, size * sizeof(double), cudaMemcpyDeviceToHost);
+            cudaMemcpy( _sum_exc.data(),  gpu__sum_exc, size * sizeof(double), cudaMemcpyDeviceToHost);
         #ifdef _DEBUG
-            cudaError_t err__sum_inh = cudaGetLastError();
-            if ( err__sum_inh != cudaSuccess )
-                std::cout << "  error: " << cudaGetErrorString(err__sum_inh) << std::endl;
+            cudaError_t err__sum_exc = cudaGetLastError();
+            if ( err__sum_exc != cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err__sum_exc) << std::endl;
         #endif
-            _sum_inh_device_to_host = t;
+            _sum_exc_device_to_host = t;
         }
     
     }
@@ -671,7 +671,7 @@ struct PopStruct0{
         // RNGs
         
         // targets
-        cudaFree(gpu__sum_inh); 
+        cudaFree(gpu__sum_exc); 
         
     #ifdef _DEBUG
         cudaError_t err_clear = cudaGetLastError();

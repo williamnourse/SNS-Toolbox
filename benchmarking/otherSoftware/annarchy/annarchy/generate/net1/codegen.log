@@ -1,6 +1,4 @@
 Filename, Object Description
 pop0, Population( name = pop0 )
 pop1, Population( name = pop1 )
-pop2, Population( name = pop2 )
-pop3, Population( name = pop3 )
-proj0, Projection( pre = pop2, post = pop2, target = inh, name = proj0 ) using connector: Specific 
+proj0, Projection( pre = pop0, post = pop1, target = exc, name = proj0 ) using connector: Specific 

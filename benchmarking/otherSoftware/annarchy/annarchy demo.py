@@ -71,7 +71,7 @@ sim_time = t
 
 from ANNarchy import *
 
-setup(dt=0.01)#, paradigm="cuda")
+setup(dt=0.01, paradigm="cuda")
 NonSpikingNeuron = Neuron(
     parameters="""
         Cm = 5.0
@@ -206,11 +206,11 @@ plot_data(t,data_ns,times_ns)
 plot_data(t,ann_data_ns,ann_times_ns)
 
 plt.figure()
-# plot_data(t, data_s, times_s)
+plot_data(t, data_s, times_s)
 plot_data(t,ann_data_s,ann_times_s)
 
 plt.figure()
-# plt.plot(t,g_sns)
+plt.plot(t,g_sns)
 plt.plot(sim_time,g_ann)
 plt.title('Cuda')
 

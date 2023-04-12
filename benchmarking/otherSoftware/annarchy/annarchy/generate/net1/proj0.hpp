@@ -12,15 +12,15 @@
 extern std::vector<std::mt19937> rng;
 extern unsigned long long global_seed;
 
-extern PopStruct2 pop2;
-extern PopStruct2 pop2;
+extern PopStruct0 pop0;
+extern PopStruct1 pop1;
 
 
 /////////////////////////////////////////////////////////////////////////////
-// proj0: pop2 -> pop2 with target inh
+// proj0: pop0 -> pop1 with target exc
 /////////////////////////////////////////////////////////////////////////////
 struct ProjStruct0 : CSRMatrixCUDA<int, int> {
-    ProjStruct0() : CSRMatrixCUDA<int, int> ( 70, 70) {
+    ProjStruct0() : CSRMatrixCUDA<int, int> ( 1, 1) {
     }
 
     // Launch configuration
@@ -76,6 +76,12 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
     long int Gmax_device_to_host;
     bool Gmax_host_to_device;
 
+    // Local parameter Esyn
+    std::vector< double > Esyn;
+    double* gpu_Esyn;
+    long int Esyn_device_to_host;
+    bool Esyn_host_to_device;
+
     // Local parameter El
     std::vector< double > El;
     double* gpu_El;
@@ -110,6 +116,12 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
         gpu_Gmax = init_matrix_variable_gpu<double>(Gmax);
         Gmax_host_to_device = true;
         Gmax_device_to_host = t;
+
+        // Local parameter Esyn
+        Esyn = init_matrix_variable<double>(0.0);
+        gpu_Esyn = init_matrix_variable_gpu<double>(Esyn);
+        Esyn_host_to_device = true;
+        Esyn_device_to_host = t;
 
         // Local parameter El
         El = init_matrix_variable<double>(0.0);
@@ -190,6 +202,12 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
             return get_matrix_variable_all<double>(Gmax);
         }
 
+        // Local parameter Esyn
+        if ( name.compare("Esyn") == 0 ) {
+            if ( Esyn_device_to_host < t ) device_to_host();
+            return get_matrix_variable_all<double>(Esyn);
+        }
+
         // Local parameter El
         if ( name.compare("El") == 0 ) {
             if ( El_device_to_host < t ) device_to_host();
@@ -223,6 +241,12 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
         if ( name.compare("Gmax") == 0 ) {
             if ( Gmax_device_to_host < t ) device_to_host();
             return get_matrix_variable_row<double>(Gmax, rk_post);
+        }
+
+        // Local parameter Esyn
+        if ( name.compare("Esyn") == 0 ) {
+            if ( Esyn_device_to_host < t ) device_to_host();
+            return get_matrix_variable_row<double>(Esyn, rk_post);
         }
 
         // Local parameter El
@@ -260,6 +284,12 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
             return get_matrix_variable<double>(Gmax, rk_post, rk_pre);
         }
 
+        // Local parameter Esyn
+        if ( name.compare("Esyn") == 0 ) {
+            if ( Esyn_device_to_host < t ) device_to_host();
+            return get_matrix_variable<double>(Esyn, rk_post, rk_pre);
+        }
+
         // Local parameter El
         if ( name.compare("El") == 0 ) {
             if ( El_device_to_host < t ) device_to_host();
@@ -290,6 +320,13 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
         if ( name.compare("Gmax") == 0 ) {
             update_matrix_variable_all<double>(Gmax, value);
             Gmax_host_to_device = true;
+            return;
+        }
+
+        // Local parameter Esyn
+        if ( name.compare("Esyn") == 0 ) {
+            update_matrix_variable_all<double>(Esyn, value);
+            Esyn_host_to_device = true;
             return;
         }
 
@@ -325,6 +362,13 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
             return;
         }
 
+        // Local parameter Esyn
+        if ( name.compare("Esyn") == 0 ) {
+            update_matrix_variable_row<double>(Esyn, rk_post, value);
+            Esyn_host_to_device = true;
+            return;
+        }
+
         // Local parameter El
         if ( name.compare("El") == 0 ) {
             update_matrix_variable_row<double>(El, rk_post, value);
@@ -354,6 +398,13 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
         if ( name.compare("Gmax") == 0 ) {
             update_matrix_variable<double>(Gmax, rk_post, rk_pre, value);
             Gmax_host_to_device = true;
+            return;
+        }
+
+        // Local parameter Esyn
+        if ( name.compare("Esyn") == 0 ) {
+            update_matrix_variable<double>(Esyn, rk_post, rk_pre, value);
+            Esyn_host_to_device = true;
             return;
         }
 
@@ -401,6 +452,12 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
         size_in_bytes += sizeof(std::vector<double>);
         size_in_bytes += sizeof(double) * Gmax.capacity();
 
+        // Local parameter Esyn
+        size_in_bytes += sizeof(bool);
+        size_in_bytes += sizeof(double*);
+        size_in_bytes += sizeof(std::vector<double>);
+        size_in_bytes += sizeof(double) * Esyn.capacity();
+
         // Local parameter El
         size_in_bytes += sizeof(bool);
         size_in_bytes += sizeof(double*);
@@ -438,6 +495,13 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
         // Gmax - device
         cudaFree(gpu_Gmax);
 
+        // Esyn - host
+        Esyn.clear();
+        Esyn.shrink_to_fit();
+
+        // Esyn - device
+        cudaFree(gpu_Esyn);
+
         // El - host
         El.clear();
         El.shrink_to_fit();
@@ -465,6 +529,21 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
         #endif
             cudaMemcpy( gpu_Gmax, Gmax.data(), num_non_zeros_ * sizeof( double ), cudaMemcpyHostToDevice);
             Gmax_host_to_device = false;
+        #ifdef _DEBUG
+            cudaError_t err = cudaGetLastError();
+            if ( err!= cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err) << std::endl;
+        #endif
+        }
+
+        // Esyn: local
+        if ( Esyn_host_to_device )
+        {
+        #ifdef _DEBUG
+            std::cout << "HtoD: Esyn ( proj0 )" << std::endl;
+        #endif
+            cudaMemcpy( gpu_Esyn, Esyn.data(), num_non_zeros_ * sizeof( double ), cudaMemcpyHostToDevice);
+            Esyn_host_to_device = false;
         #ifdef _DEBUG
             cudaError_t err = cudaGetLastError();
             if ( err!= cudaSuccess )
@@ -533,6 +612,20 @@ struct ProjStruct0 : CSRMatrixCUDA<int, int> {
                 std::cout << "  error: " << cudaGetErrorString(err_Gmax) << std::endl;
         #endif
             Gmax_device_to_host = t;
+        }
+
+        // Esyn: local
+        if ( Esyn_device_to_host < t ) {
+        #ifdef _DEBUG
+            std::cout << "DtoH: Esyn ( proj0 )" << std::endl;
+        #endif
+            cudaMemcpy( Esyn.data(), gpu_Esyn, num_non_zeros_ * sizeof( double ), cudaMemcpyDeviceToHost);
+        #ifdef _DEBUG
+            cudaError_t err_Esyn = cudaGetLastError();
+            if ( err_Esyn != cudaSuccess )
+                std::cout << "  error: " << cudaGetErrorString(err_Esyn) << std::endl;
+        #endif
+            Esyn_device_to_host = t;
         }
 
         // El: local
