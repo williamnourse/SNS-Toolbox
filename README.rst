@@ -30,4 +30,4 @@ Citation
 
 If you use this software for an academic publication, we ask that you please cite the following paper:
 
-Nourse, W.R.P., Szczecinski, N.S., Quinn, R.D. (2022). SNS-Toolbox: A Tool for Efficient Simulation of Synthetic Nervous Systems. In: , et al. Biomimetic and Biohybrid Systems. Living Machines 2022. Lecture Notes in Computer Science(), vol 13548. Springer, Cham. https://doi.org/10.1007/978-3-031-20470-8_4
+Nourse, W.R.P.; Jackson, C.; Szczecinski, N.S.; Quinn, R.D. SNS-Toolbox: An Open Source Tool for Designing Synthetic Nervous Systems and Interfacing Them with Cyber–Physical Systems. Biomimetics 2023, 8, 247. https://doi.org/10.3390/biomimetics8020247 
