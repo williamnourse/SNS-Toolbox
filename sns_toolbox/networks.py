@@ -624,7 +624,7 @@ class Network:
     #     self.graph.format = imgFormat
     #     self.graph.render(view=view,cleanup=True)
 
-    def compile(self, dt=0.01, backend='numpy', device='cpu', debug=False) -> Backend:
+    def compile(self, dt=0.01, backend='numpy', device='cpu', debug=False, return_params=False) -> Backend:
         if not isinstance(backend, str):
             raise TypeError(
                 'Backend selection must be a string. Options are \'numpy\', \'torch\', \'sparse\', or \'iterative\'')
@@ -633,7 +633,10 @@ class Network:
                 warnings.warn('Warning: Only CPU device is supported with SNS_Numpy. Switching to CPU')
             model = __compile_numpy__(self, dt=dt, debug=debug)
         elif backend == 'torch':
-            model = __compile_torch__(self, dt=dt, debug=debug, device=device)
+            if return_params:
+                model, params = __compile_torch__(self, dt=dt, debug=debug, device=device, return_params=return_params)
+            else:
+                model = __compile_torch__(self, dt=dt, debug=debug, device=device, return_params=return_params)
         elif backend == 'sparse':
             model = __compile_sparse__(self, dt=dt, debug=debug, device=device)
         elif backend == 'iterative':
@@ -643,7 +646,10 @@ class Network:
         else:
             raise ValueError(
                 backend + 'is not a valid simulation backend. Options are \'numpy\', \'torch\', \'sparse\', or \'iterative\'')
-        return model
+        if return_params:
+            return model, params
+        else:
+            return model
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

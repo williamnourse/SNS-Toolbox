@@ -568,7 +568,7 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
 
     return model
 
-def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
+def __compile_torch__(network, dt=0.01, debug=False, device='cpu', return_params=False) -> SNS_Torch:
     if debug:
         print('-------------------------------------------------------------------------------------------------------')
         print('COMPILING NETWORK USING TORCH:')
@@ -1152,7 +1152,10 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu') -> SNS_Torch:
             print('B_last:')
             print(c_gate_last)
 
-    return model
+    if return_params:
+        return model, params
+    else:
+        return model
 
 def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Sparse:
     if debug:

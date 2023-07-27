@@ -523,8 +523,8 @@ def figure_angle_comparison(size, colors):
     plt.title('Hip Angle')
     plt.title('A', loc='left', weight='bold')
     plt.legend()
-    print(len(animatlab_data['Time'].to_numpy()))
-    print(len(data['Time'].to_numpy()))
+    print(min(animatlab_data['LH_HipZ'].to_numpy()[-20000:]), max(animatlab_data['LH_HipZ'].to_numpy()[-20000:]))
+    print(min(data['L_Hip_Joint_pos'].to_numpy()[-10000:]), max(data['L_Hip_Joint_pos'].to_numpy()[-10000:]))
 
     plt.subplot(1,3,2)
     plt.plot(data['Time'].to_numpy()[-10000:], data['L_Knee_Joint_pos'].to_numpy()[-10000:], label='SNS-Toolbox',
@@ -535,6 +535,8 @@ def figure_angle_comparison(size, colors):
     plt.title('Knee Angle')
     plt.title('B', loc='left', weight='bold')
     plt.legend()
+    print(min(animatlab_data['LH_Knee'].to_numpy()[-20000:]), max(animatlab_data['LH_Knee'].to_numpy()[-20000:]))
+    print(min(data['L_Knee_Joint_pos'].to_numpy()[-10000:]), max(data['L_Knee_Joint_pos'].to_numpy()[-10000:]))
 
     plt.subplot(1,3,3)
     plt.plot(data['Time'].to_numpy()[-10000:], data['L_Ankle_Joint_pos'].to_numpy()[-10000:], label='SNS-Toolbox',
@@ -545,6 +547,8 @@ def figure_angle_comparison(size, colors):
     plt.title('Ankle Angle')
     plt.title('C', loc='left', weight='bold')
     plt.legend()
+    print(min(animatlab_data['LH_AnkleZ'].to_numpy()[-20000:]), max(animatlab_data['LH_AnkleZ'].to_numpy()[-20000:]))
+    print(min(data['L_Ankle_Joint_pos'].to_numpy()[-10000:]), max(data['L_Ankle_Joint_pos'].to_numpy()[-10000:]))
 
     plt.savefig('figure_angle_comparison.pdf')
     plt.savefig('figure_angle_comparison.svg')
@@ -581,12 +585,12 @@ def main():
     sea.set_theme(palette='colorblind', style='ticks')
     colors = ['C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9', 'C10']
 
-    figure_backends((10, 6), colors)
-    figure_software((10, 6), colors)
-    figure_hardware((10, 6), colors)
+    # figure_backends((10, 6), colors)
+    # figure_software((10, 6), colors)
+    # figure_hardware((10, 6), colors)
     # figure_hindlimb((15,10), colors)
     # figure_hindlimb_right((10,8), colors)
-    # figure_angle_comparison((10,3), colors)
+    figure_angle_comparison((10,3), colors)
     # figure_ros_neurons((10,3),colors)
     # figure_ros_trajectory()
 
