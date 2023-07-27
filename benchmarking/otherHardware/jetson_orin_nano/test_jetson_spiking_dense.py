@@ -109,7 +109,7 @@ for num in range(numSamples):
         for i in range(len(t)):
             torchGPUTimes[num, i] = 0
 
-"""    try:
+    """try:
         # Torch Sparse CPU
         # print('Before network created')
         # print('GPU Memory Allocated: %d , Reserved: %d'%(torch.cuda.memory_allocated(),torch.cuda.memory_reserved()))
@@ -165,7 +165,7 @@ for num in range(numSamples):
         for i in range(len(t)):
             sparseGPUTimes[num, i] = 0
 
-"""    # Numpy
+    """    # Numpy
     manModel = net.compile(dt=dt,backend='iterative', device='cpu')
     manInput = np.array([current])
     for i in range(len(t)):
