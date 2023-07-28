@@ -47,8 +47,8 @@ def plot_graph(data, threshold, title, linestyle, lower=5, upper=95):
     """
     # plt.plot(numNeurons, npAvgTimes, color='C0', label='Numpy', linestyle=linestyle)
     # plt.fill_between(numNeurons, npLow, npHigh, color='C0', alpha=0.2, linestyle=linestyle)
-    # plt.plot(numNeurons, torchCPUAvgTimes, color='C1', label='Torch CPU', linestyle=linestyle)
-    # plt.fill_between(numNeurons, torchCPULow, torchCPUHigh + torchCPUVar, color='C1', alpha=0.2, linestyle=linestyle)
+    plt.plot(numNeurons, torchCPUAvgTimes, color='C1', label='Torch CPU', linestyle=linestyle)
+    plt.fill_between(numNeurons, torchCPULow, torchCPUHigh + torchCPUVar, color='C1', alpha=0.2, linestyle=linestyle)
     plt.plot(numNeurons, torchGPUAvgTimes, color='C2', label='Torch GPU', linestyle=linestyle)
     plt.fill_between(numNeurons, torchGPULow, torchGPUHigh, color='C2', alpha=0.2, linestyle=linestyle)
     # plt.plot(numNeurons, sparseCPUAvgTimes, color='C3', label='Sparse CPU', linestyle=linestyle)
@@ -90,13 +90,13 @@ data_dense_nonspiking_orin = pickle.load(open('jetson_orin_nano/dataJetsonNonspi
 data_dense_spiking_orin = pickle.load(open('jetson_orin_nano/dataJetsonNanoSpikingDense.p', 'rb'))
 
 plt.figure()
-plot_graph(data_dense_spiking_jetson,0.1,'Dense Spiking', 'solid')
+# plot_graph(data_dense_spiking_jetson,0.1,'Dense Spiking', 'solid')
 # plot_graph(data_dense_spiking_rpi,0.1,'Dense Spiking', '--')
 # plot_graph(data_dense_spiking_nuc,0.1,'Dense Spiking', ':')
 plot_graph(data_dense_spiking_orin,0.1,'Dense Spiking', '-.')
 
 plt.figure()
-plot_graph(data_sparse_spiking_jetson,0.1,'Sparse Spiking', 'solid')
+# plot_graph(data_sparse_spiking_jetson,0.1,'Sparse Spiking', 'solid')
 # plot_graph(data_sparse_spiking_rpi,0.1,'Sparse Spiking', '--')
 # plot_graph(data_sparse_spiking_nuc,0.1,'Sparse Spiking', ':')
 plot_graph(data_sparse_spiking_orin,0.1,'Sparse Spiking', '-.')
@@ -108,9 +108,9 @@ plt.figure()
 plot_graph(data_dense_nonspiking_orin,5,'Dense Nonspiking', '-.')
 
 plt.figure()
-plot_graph(data_sparse_nonspiking_jetson,5,'Sparse Nonspiking', 'solid')
+# plot_graph(data_sparse_nonspiking_jetson,5,'Sparse Nonspiking', 'solid')
 # plot_graph(data_sparse_nonspiking_rpi,5,'Sparse Nonspiking', '--')
 # plot_graph(data_sparse_nonspiking_nuc,5,'Sparse Nonspiking', ':')
-plot_graph(data_sparse_nonspiking_orin,5,'Dense Spiking', '-.')
+plot_graph(data_sparse_nonspiking_orin,5,'Sparse Nonspiking', '-.')
 
 plt.show()
