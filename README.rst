@@ -25,6 +25,11 @@ So far this has been tested using Python 3.8, which is also the newest version t
 
 Pytorch may need to be installed separately from the other packages in pip, since which configuration of torch you install is dependent on your personal system configuration. For instructions on installing torch, please see their `documentation <https://pytorch.org/get-started/locally/>`_.
 
+Mujoco Example
+==============
+
+To see the SNS-Toolbox and Mujoco example from Nourse et al. 2023, please consult this `repository <https://github.com/cxj271/Two_layer_CPG_SNS_Toolbox/>`_.
+
 Citation
 ========
 
