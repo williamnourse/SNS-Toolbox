@@ -188,15 +188,34 @@ class SpikingNeuron(Neuron):
     :param threshold_proportionality_constant:  Constant which determines spiking behavior.
         In response to constant stimulus, negative values cause the firing rate to decrease, positive values cause the
         rate to increase, and zero causes the rate to remain constant. Default is 0.0.
-    :param threshold_proportionality constant:  Number, optional
+    :type threshold_proportionality constant:  Number, optional
+    :param threshold_leak_rate:  Constant which determines rate of decay to starting threshold. Default is 1.0.
+    :type threshold_leak_rate constant:  Number, optional
+    :param threshold_increment: Constant amount the threshold is increased after each spike. Default is 0.0
+    :type threshold_increment: Number, optional
+    :param threshold_floor: Minimum threshold value. Default is -infinity
+    :type threshold_floor: Number, optional
+    :param reset_potential: Voltage that the membrane is reset to when a spike occurs. Default is resting_potential
+    :type reset_potetnial: Number, optional
     """
     def __init__(self, threshold_time_constant: float = 5.0,
                  threshold_initial_value: float = 1.0,
                  threshold_proportionality_constant: float = 0.0,
+                 threshold_leak_rate: float = 1.0,
+                 threshold_increment: float = 0.0,
+                 threshold_floor: float = -np.inf,
+                 reset_potential: float = None,
                  **kwargs) -> None:
 
         super().__init__(**kwargs)
         self.params['threshold_time_constant'] = threshold_time_constant
         self.params['threshold_initial_value'] = threshold_initial_value
         self.params['threshold_proportionality_constant'] = threshold_proportionality_constant
+        self.params['threshold_leak_rate'] = threshold_leak_rate
+        self.params['threshold_increment'] = threshold_increment
+        self.params['threshold_floor'] = threshold_floor
         self.params['spiking'] = True
+        if reset_potential is None:
+            self.params['reset_potential'] = self.params['resting_potential']
+        else:
+            self.params['reset_potential'] = reset_potential

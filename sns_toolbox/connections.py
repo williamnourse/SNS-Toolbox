@@ -137,11 +137,15 @@ class SpikingSynapse(SpikingConnection):
     :type time_constant: float, optional
     :param transmission_delay: Number of timesteps to delay synaptic activity, defaults to 0. Units are timesteps (dt).
     :type transmission_delay: int, optional
+    :param conductance_increment: Amount that the conductance is incremented at every presynaptic spiking, defaults to
+    0. Units are millivolts (mV).
+    :type conductance_increment: Number, optional
     """
     def __init__(self, max_conductance: float = 1.0,
                  reversal_potential: float = 194.0,
                  time_constant: float = 1.0,
                  transmission_delay: int = 0,
+                 conductance_increment: float = 0.0,
                  **kwargs: Any) -> None:
         if isinstance(max_conductance, numbers.Number):
             if max_conductance <= 0:
@@ -167,6 +171,8 @@ class SpikingSynapse(SpikingConnection):
                 raise ValueError('Synaptic transmission delay must be greater than or equal to zero')
         else:
             raise TypeError('Synaptic transmission delay must be an integer')
+
+        self.params['conductance_increment'] = conductance_increment
 
 class NonSpikingMatrixConnection(NonSpikingConnection):
     """
