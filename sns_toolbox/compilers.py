@@ -444,6 +444,11 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
         params['timeFactorThreshold'] = time_factor_threshold
         params['timeFactorSynapse'] = time_factor_synapse
         params['outConnSpike'] = output_spike_connectivity
+        params['thetaLeak'] = theta_leak
+        params['thetaIncrement'] = theta_increment
+        params['thetaFloor'] = theta_floor
+        params['vReset'] = V_reset
+        params['gIncrement'] = g_increment
     if delay:
         params['spikeDelays'] = spike_delays
         params['spikeRows'] = spike_rows
@@ -507,6 +512,8 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
         if spiking:
             print('GmaxSpike:')
             print(g_max_spike)
+            print('Theta Increment:')
+            print(g_increment)
         print('del_e:')
         print(del_e)
         print('e_lo:')
@@ -535,8 +542,16 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
             print(theta_0)
             print('ThetaLast:')
             print(theta_last)
-            print('Theta')
+            print('Theta:')
             print(theta)
+            print('ThetaLeak:')
+            print(theta_leak)
+            print('ThetaIncrement:')
+            print(theta_increment)
+            print('ThetaFloor:')
+            print(theta_floor)
+            print('v_reset:')
+            print(V_reset)
         if gated:
             print('Number of Channels:')
             print(num_channels)
