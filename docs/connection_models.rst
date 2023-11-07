@@ -64,7 +64,7 @@ Default values are as follows:
 - :math:`E_{syn}^{ji} = 194 mV`
 - :math:`\tau_{syn}^{ji} = 1 ms`
 - :math:`d = 0`
-- :math:`G_{inc}^{ji} = 1\mu S`
+- :math:`G_{inc}^{ji} = G_{max,spike}^{ji}`
 
 This form of synapse can be implemented using
 `sns_toolbox.connections.SpikingSynapse <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.connections.SpikingSynapse>`_.
