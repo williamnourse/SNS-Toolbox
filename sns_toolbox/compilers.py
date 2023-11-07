@@ -690,6 +690,10 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu', return_params
         theta_last = torch.zeros(num_neurons, device=device)
         m = torch.zeros(num_neurons, device=device)
         tau_theta = torch.zeros(num_neurons, device=device)
+        theta_leak = torch.zeros(num_neurons, device=device)
+        theta_increment = torch.zeros(num_neurons, device=device)
+        theta_floor = torch.zeros(num_neurons, device=device)
+        V_reset = torch.zeros(num_neurons, device=device)
 
     g_max_non = torch.zeros([num_neurons, num_neurons], device=device)
     del_e = torch.zeros([num_neurons, num_neurons], device=device)
@@ -699,6 +703,7 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu', return_params
         g_max_spike = torch.zeros([num_neurons, num_neurons], device=device)
         g_spike = torch.zeros([num_neurons, num_neurons], device=device)
         tau_syn = torch.ones([num_neurons, num_neurons], device=device)
+        g_increment = torch.zeros([num_neurons, num_neurons], device=device)
         if delay:
             spike_delays = torch.zeros([num_neurons, num_neurons], device=device)
             spike_rows = []
@@ -779,10 +784,18 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu', return_params
                     theta_0[index] = network.populations[pop]['type'].params['threshold_initial_value']
                     m[index] = network.populations[pop]['type'].params['threshold_proportionality_constant']
                     tau_theta[index] = network.populations[pop]['type'].params['threshold_time_constant']
+                    theta_leak[index] = network.populations[pop]['type'].params['threshold_leak_rate']
+                    theta_increment[index] = network.populations[pop]['type'].params['threshold_increment']
+                    theta_floor[index] = network.populations[pop]['type'].params['threshold_floor']
+                    V_reset[index] = network.populations[pop]['type'].params['reset_potential']
                 else:  # otherwise, set to the special values for NonSpiking
                     theta_0[index] = torch.finfo(theta_0[index].dtype).max
                     m[index] = 0
                     tau_theta[index] = 1
+                    theta_leak[index] = 0
+                    theta_increment[index] = 0
+                    theta_floor[index] = -sys.float_info.max
+                    V_reset[index] = V_rest[index]
             if gated:
                 if isinstance(network.populations[pop]['type'], NonSpikingNeuronWithGatedChannels):
                     # Channel params
@@ -876,6 +889,8 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu', return_params
                     del_e_val)
                 tau_syn[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = torch.from_numpy(
                     tau_s)
+                g_inc = network.connections[syn]['params']['conductance_increment']
+                g_increment[dest_index:dest_index + pop_size_dest, source_index:source_index + pop_size_source] = g_inc
                 if delay:
                     delay_val = network.connections[syn]['params']['synapticTransmissionDelay']
                     spike_delays[dest_index:dest_index + pop_size_dest,
@@ -909,6 +924,7 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu', return_params
         else:  # chemical connection
             if network.connections[syn]['params']['spiking']:  # spiking chemical synapse
                 tau_s = network.connections[syn]['params']['synapticTimeConstant']
+                g_inc = network.connections[syn]['params']['conductance_increment']
                 if delay:
                     delay_val = network.connections[syn]['params']['synapticTransmissionDelay']
                 for source in pops_and_nrns[source_pop]:
@@ -916,6 +932,7 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu', return_params
                         g_max_spike[dest][source] = g_max_val / len(pops_and_nrns[source_pop])
                         del_e[dest][source] = del_e_val
                         tau_syn[dest][source] = tau_s
+                        g_increment[dest][source] = g_inc
                         if delay:
                             spike_delays[dest][source] = delay_val
                             buffer_nrns.append(source)
@@ -1045,6 +1062,11 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu', return_params
         params['timeFactorThreshold'] = time_factor_threshold
         params['timeFactorSynapse'] = time_factor_synapse
         params['outConnSpike'] = output_spike_connectivity
+        params['thetaLeak'] = theta_leak
+        params['thetaIncrement'] = theta_increment
+        params['thetaFloor'] = theta_floor
+        params['vReset'] = V_reset
+        params['gIncrement'] = g_increment
     if delay:
         params['spikeDelays'] = spike_delays
         params['spikeRows'] = spike_rows

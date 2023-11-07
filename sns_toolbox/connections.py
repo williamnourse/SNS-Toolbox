@@ -140,7 +140,7 @@ class SpikingSynapse(SpikingConnection):
     :param transmission_delay: Number of timesteps to delay synaptic activity, defaults to 0. Units are timesteps (dt).
     :type transmission_delay: int, optional
     :param conductance_increment: Amount that the conductance is incremented at every presynaptic spiking, defaults to
-    0. Units are millivolts (mV).
+    max_conductance. Units are millivolts (mV).
     :type conductance_increment: Number, optional
     """
     def __init__(self, max_conductance: float = 1.0,

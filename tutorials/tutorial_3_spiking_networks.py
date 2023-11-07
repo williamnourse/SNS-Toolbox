@@ -13,6 +13,7 @@ from sns_toolbox.renderer import render
 
 import numpy as np
 import matplotlib.pyplot as plt
+import torch
 from sns_toolbox.plot_utilities import spike_raster_plot
 
 """Design the first Network"""
@@ -78,17 +79,17 @@ dt = 0.01
 t_max = 10
 
 t = np.arange(0, t_max, dt)
-inputs = np.zeros([len(t), net_comb.get_num_inputs()]) + 20      # getNumInputs() gets the number of input nodes in a network
-data = np.zeros([len(t), net_comb.get_num_outputs_actual()])    # getNumOutputsActual gets the number of accessible output
+inputs = torch.zeros([len(t), net_comb.get_num_inputs()]) + 20      # getNumInputs() gets the number of input nodes in a network
+data = torch.zeros([len(t), net_comb.get_num_outputs_actual()])    # getNumOutputsActual gets the number of accessible output
                                                             # nodes in a network (since this net has populations, each
                                                             # population has n output nodes)
 # Compile to numpy
-model = net_comb.compile(backend='numpy', dt=dt, debug=False)
+model = net_comb.compile(backend='torch', dt=dt, debug=False)
 
 # Run for all steps
 for i in range(len(t)):
     data[i,:] = model(inputs[i,:])
-data = data.transpose()
+data = data.transpose(0,1)
 
 """Plotting the results"""
 # First network

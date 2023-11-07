@@ -58,7 +58,7 @@ Default values are as follows:
 - :math:`m = 0`
 - :math:`b = 1`
 - :math:`\theta_{inc}=0`
-- :math:`\theta_{floor}=-\infty`
+- :math:`\theta_{floor}=V_{rest}`
 - :math:`V_{reset}=V_{rest}`
 
 This neuron can be implemented using
