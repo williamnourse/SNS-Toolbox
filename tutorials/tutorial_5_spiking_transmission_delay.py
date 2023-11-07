@@ -55,7 +55,7 @@ data = np.zeros([len(t), net.get_num_outputs_actual()])    # getNumOutputsActual
                                                             # nodes in a network (since this net has populations, each
                                                             # population has n output nodes)
 # Compile to numpy
-model = net.compile(backend='iterative', dt=dt, debug=False)
+model = net.compile(backend='numpy', dt=dt, debug=False)
 
 # Run for all steps
 for i in range(len(t)):

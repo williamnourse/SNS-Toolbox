@@ -83,7 +83,7 @@ data = np.zeros([len(t), net_comb.get_num_outputs_actual()])    # getNumOutputsA
                                                             # nodes in a network (since this net has populations, each
                                                             # population has n output nodes)
 # Compile to numpy
-model = net_comb.compile(backend='iterative', dt=dt, debug=False)
+model = net_comb.compile(backend='numpy', dt=dt, debug=False)
 
 # Run for all steps
 for i in range(len(t)):
