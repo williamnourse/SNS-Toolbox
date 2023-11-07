@@ -117,6 +117,8 @@ for more information.
 
 SNS_Iterative
 ===========
+NOTE: This backend will not be updated to incorporate any neural or synaptic models added after version 1.5.0. As such,
+it is not recommended for new models.
 
 The :code:`SNS_Iterative` backend implements the same neural dynamics as the other backends, but does so using iterative
 operations instead of vectors and matrices. Its primary purpose is as a benchmarking comparison for the vector-based

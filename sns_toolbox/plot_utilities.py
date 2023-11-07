@@ -1,10 +1,11 @@
+"""
+Utilities for plotting neural activity.
+"""
 from matplotlib import pyplot as plt
-
 
 def spike_raster_plot(t,data,colors=None,offset=0) -> None:
     """
     Plot spike rasters of spiking data.
-
     :param t:   vector of timesteps.
     :type t:    List, np.ndarray, or torch.tensor
     :param data:    2D vector of spiking data. Each row corresponds to a different neuron.
@@ -16,6 +17,7 @@ def spike_raster_plot(t,data,colors=None,offset=0) -> None:
     :return:        None
     :rtype:         N/A
     """
+
     if colors is None:
         colors = ['blue']
     if data.ndim > 1:

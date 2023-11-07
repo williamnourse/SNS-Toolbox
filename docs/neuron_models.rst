@@ -36,11 +36,11 @@ Spiking neurons have similar dynamics to the classic non-spiking neuron, with an
 .. math::
     C_{m} \cdot \frac{dV}{dt} = -G_{m}\cdot \left (V - V_{rest} \right ) + \sum I_{syn} + I_{bias} + I_{app}
 
-    \tau_{\theta}\frac{d\theta}{dt} = -\theta + \theta_0 + m\cdot \left (V - V_{rest} \right )
+    \tau_{\theta}\frac{d\theta}{dt} = b\cdot(-\theta + \theta_0) + m\cdot \left (V - V_{rest} \right )
 
-where :math:`\tau_{\theta}` is a threshold time constant, :math:`\theta_0` is an initial threshold voltage, and :math:`m`
+where :math:`\tau_{\theta}` is a threshold time constant, :math:`b` is the threshold leak rate, :math:`\theta_0` is an initial threshold voltage, and :math:`m`
 is a proportionality constant describing how changes in :math:`U` affect :math:`\theta`. These dynamics produce spiking
-behavior using the spiking variable :math:`\delta`, which represents a spike and resets the membrane state:
+behavior using the spiking variable :math:`\delta`, which represents a spike. When a spike occurs, the membrane is set to :math:`V_{reset}` and the threshold is incremented by :math:`\theta_{inc}`:
 
 .. math::
     \delta =
@@ -49,13 +49,17 @@ behavior using the spiking variable :math:`\delta`, which represents a spike and
         0, & \text{otherwise}.
     \end{cases}
 
-    \text{if $\delta=1, V_{rest}\leftarrow V$.}
+    \text{if $\delta=1, V_{reset}\leftarrow V & max(\theta+\theta_{inc}, \theta_{reset})\leftarrow \theta$.}
 
 Default values are as follows:
 
 - :math:`\tau_{\theta} = 5 ms`
 - :math:`\theta_0 = 1 mV`
 - :math:`m = 0`
+- :math:`b = 1`
+- :math:`\theta_{inc}=0`
+- :math:`\theta_{floor}=V_{rest}`
+- :math:`V_{reset}=V_{rest}`
 
 This neuron can be implemented using
 `sns_toolbox.neurons.SpikingNeuron <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/neurons/index.html#sns_toolbox.neurons.SpikingNeuron>`_.

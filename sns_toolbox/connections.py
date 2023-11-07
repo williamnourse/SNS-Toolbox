@@ -2,6 +2,8 @@
 Connections are the mechanisms for data transmission between neurons. They can either define an individual conductance-
 based synapse, or a pattern of synapses which is tiled between two populations.
 """
+import sys
+
 import numpy as np
 
 """
@@ -137,11 +139,15 @@ class SpikingSynapse(SpikingConnection):
     :type time_constant: float, optional
     :param transmission_delay: Number of timesteps to delay synaptic activity, defaults to 0. Units are timesteps (dt).
     :type transmission_delay: int, optional
+    :param conductance_increment: Amount that the conductance is incremented at every presynaptic spiking, defaults to
+    max_conductance. Units are millivolts (mV).
+    :type conductance_increment: Number, optional
     """
     def __init__(self, max_conductance: float = 1.0,
                  reversal_potential: float = 194.0,
                  time_constant: float = 1.0,
                  transmission_delay: int = 0,
+                 conductance_increment: float = None,
                  **kwargs: Any) -> None:
         if isinstance(max_conductance, numbers.Number):
             if max_conductance <= 0:
@@ -167,6 +173,10 @@ class SpikingSynapse(SpikingConnection):
                 raise ValueError('Synaptic transmission delay must be greater than or equal to zero')
         else:
             raise TypeError('Synaptic transmission delay must be an integer')
+        if conductance_increment is None:
+            self.params['conductance_increment'] = max_conductance
+        else:
+            self.params['conductance_increment'] = conductance_increment
 
 class NonSpikingMatrixConnection(NonSpikingConnection):
     """

@@ -43,14 +43,14 @@ Spiking synapses produce a synaptic current similar in formulation to non-spikin
 .. math::
     I_{syn}^{ji} = G_{syn}^{ji} \cdot \left ( E_{syn}^{ji} - V_i \right ),
 
-however they differ in that :math:`G_{syn}^{ji}` is a dynamical variable. This conductance is reset to a maximum value
-of :math:`G_{max,spike}^{ji}` whenever the pre-synaptic neuron spikes, and otherwise decays to 0 with a time constant of
+however they differ in that :math:`G_{syn}^{ji}` is a dynamical variable. This conductance is incremented by the constant :math:`G_{inc}^{ji}` (constrained to a maximum value
+of :math:`G_{max,spike}^{ji}`) whenever the pre-synaptic neuron spikes, and otherwise decays to 0 with a time constant of
 :math:`\tau_{syn}^{ji}`.
 
 .. math::
     \tau_{syn}^{ji}\frac{dG_{syn}^{ji}}{dt} = -G_{syn}^{ji}
 
-    \text{if $\delta = 1, G_{max,spike}^{ji}\leftarrow G_{syn}^{ji}$}
+    \text{if $\delta = 1, max\left ( G_{max,spike}^{ji}, G_{syn}^{ji}+G_{inc}^{ji} \right ) \leftarrow G_{syn}^{ji}$}
 
 If desired, synaptic propagation delay can also be incorporated. If the synapse from neuron :math:`j` to :math:`i` has a
 delay of :math:`d` timesteps, the delayed spike can be defined as:
@@ -60,10 +60,11 @@ delay of :math:`d` timesteps, the delayed spike can be defined as:
 
 Default values are as follows:
 
-- :math:`G_{max,spike} = 1 \mu S`
+- :math:`G_{max,spike}^{ji} = 1 \mu S`
 - :math:`E_{syn}^{ji} = 194 mV`
 - :math:`\tau_{syn}^{ji} = 1 ms`
 - :math:`d = 0`
+- :math:`G_{inc}^{ji} = G_{max,spike}^{ji}`
 
 This form of synapse can be implemented using
 `sns_toolbox.connections.SpikingSynapse <https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.connections.SpikingSynapse>`_.
