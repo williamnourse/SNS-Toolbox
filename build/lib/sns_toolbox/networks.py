@@ -491,6 +491,9 @@ class Network:
                     transmit_delay = __kernel_connections_2d__(self.populations[source]['shape'],
                                                                connection_type.params['transmissionDelay'])
                     self.connections[-1]['params']['transmissionDelay'] = transmit_delay
+                    g_increment = __kernel_connections_2d__(self.populations[source]['shape'],
+                                                               connection_type.params['conductance_increment'])
+                    self.connections[-1]['params']['conductanceIncrement'] = g_increment
                 else:
                     e_hi = __kernel_connections_2d__(self.populations[source]['shape'],
                                                      connection_type.params['e_hi'], fill_value=self.populations[source]['type'].params['resting_potential']+1)
@@ -514,6 +517,9 @@ class Network:
                     transmit_delay = __kernel_connections_1d__(self.populations[source]['number'],
                                                                connection_type.params['transmissionDelay'])
                     self.connections[-1]['params']['transmissionDelay'] = transmit_delay
+                    g_increment = __kernel_connections_1d__(self.populations[source]['number'],
+                                                               connection_type.params['conductanceIncrement'])
+                    self.connections[-1]['params']['transmissionDelay'] = g_increment
                 else:
                     e_hi = __kernel_connections_1d__(self.populations[source]['shape'],
                                                      connection_type.params['e_hi'], fill_value=self.populations[source]['type'].params['resting_potential']+1)
@@ -539,7 +545,7 @@ class Network:
 
         if connection_type.params['spiking']:
             self.params['spiking'] = True
-            if connection_type.params['transmissionDelay'] > 0:
+            if np.any(connection_type.params['transmissionDelay']) > 0:
                 self.params['delay'] = True
 
     def add_network(self, network: 'Network', color: str = None) -> None:
@@ -624,7 +630,7 @@ class Network:
     #     self.graph.format = imgFormat
     #     self.graph.render(view=view,cleanup=True)
 
-    def compile(self, dt=0.01, backend='numpy', device='cpu', debug=False) -> Backend:
+    def compile(self, dt=0.01, backend='numpy', device='cpu', debug=False, return_params=False) -> Backend:
         if not isinstance(backend, str):
             raise TypeError(
                 'Backend selection must be a string. Options are \'numpy\', \'torch\', \'sparse\', or \'iterative\'')
@@ -633,7 +639,10 @@ class Network:
                 warnings.warn('Warning: Only CPU device is supported with SNS_Numpy. Switching to CPU')
             model = __compile_numpy__(self, dt=dt, debug=debug)
         elif backend == 'torch':
-            model = __compile_torch__(self, dt=dt, debug=debug, device=device)
+            if return_params:
+                model, params = __compile_torch__(self, dt=dt, debug=debug, device=device, return_params=return_params)
+            else:
+                model = __compile_torch__(self, dt=dt, debug=debug, device=device, return_params=return_params)
         elif backend == 'sparse':
             model = __compile_sparse__(self, dt=dt, debug=debug, device=device)
         elif backend == 'iterative':
@@ -643,7 +652,10 @@ class Network:
         else:
             raise ValueError(
                 backend + 'is not a valid simulation backend. Options are \'numpy\', \'torch\', \'sparse\', or \'iterative\'')
-        return model
+        if return_params:
+            return model, params
+        else:
+            return model
 
 """
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
