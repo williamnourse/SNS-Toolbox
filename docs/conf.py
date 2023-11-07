@@ -30,7 +30,7 @@ release = '1.5.0'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['autoapi.extension', 'nbsphinx', 'nbsphinx_link', 'sphinx-rtd-theme'
+extensions = ['sphinx-rtd-theme', 'autoapi.extension', 'nbsphinx', 'nbsphinx_link'
 ]
 
 # AutoAPI Settings
