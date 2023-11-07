@@ -22,7 +22,7 @@ copyright = '2022, William Nourse'
 author = 'William Nourse'
 
 # The full version, including alpha/beta/rc tags
-release = '1.0.0'
+release = '1.5.0'
 
 
 # -- General configuration ---------------------------------------------------
