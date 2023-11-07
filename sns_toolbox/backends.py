@@ -370,8 +370,8 @@ class SNS_Sparse(Backend):
                     self.buffer_steps, self.buffer_nrns]
                 self.delayed_spikes = self.delayed_spikes.to_sparse()
 
-                self.g_spike = self.g_spike.to_dense() + torch.minimum(-self.delayed_spikes*self.g_increment, ((
-                                                                           -self.delayed_spikes) * (self.g_max_spike.to_dense()-self.g_spike.to_dense())).to_dense())  # Update the conductance of connections which spiked
+                self.g_spike = self.g_spike.to_dense() + torch.minimum(-self.delayed_spikes.to_dense()*self.g_increment, ((
+                                                                           -self.delayed_spikes.to_dense()) * (self.g_max_spike.to_dense()-self.g_spike.to_dense())).to_dense())  # Update the conductance of connections which spiked
             else:
                 self.g_spike = self.g_spike.to_dense() + torch.minimum(-self.spikes.to_dense()*self.g_increment, (
                     -self.spikes.to_dense()) * (self.g_max_spike.to_dense()-self.g_spike.to_dense()))  # Update the conductance of connections which spiked
