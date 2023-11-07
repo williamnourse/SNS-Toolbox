@@ -436,6 +436,10 @@ class SNS_Iterative(Backend):
             self.tau_theta = params['tauTheta']
             self.time_factor_threshold = params['timeFactorThreshold']
             self.output_spike_connectivity = params['outConnSpike']
+            self.theta_leak = params['thetaLeak']
+            self.theta_increment = params['thetaIncrement']
+            self.theta_floor = params['thetaFloor']
+            self.V_reset = params['vReset']
         if self.delay:
             foo = 5
         if self.electrical:
@@ -493,7 +497,7 @@ class SNS_Iterative(Backend):
                     else:
                         i_syn += neuron_src[3] * (self.V_last[neuron_src[0]] - self.V_last[nrn])
                 else:  # if chemical
-                    neuron_src[5] = np.maximum(0, np.minimum(neuron_src[3] * ((self.V_last[neuron_src[0]] - neuron_src[6]) / (neuron_src[7] - neuron_src[6])),
+                    neuron_src[5] = np.maximum(0, np.minimum(neuron_src[3] * ((self.V_last[neuron_src[0]] - neuron_src[6]) / (neuron_src[8] - neuron_src[6])),
                                                              neuron_src[3]))
                     i_syn += neuron_src[5] * (neuron_src[4] - self.V_last[nrn])
             i_gated = 0
@@ -524,7 +528,7 @@ class SNS_Iterative(Backend):
             if self.spiking:
                 # if self.theta_0[nrn] != sys.float_info.max:
                 self.theta[nrn] = self.theta_last[nrn] + self.time_factor_threshold[nrn] * (
-                            -self.theta_last[nrn] + self.theta_0[nrn] + self.m[nrn] * (self.V_last[nrn] - self.V_rest[nrn]))  # Update the firing thresholds
+                            self.theta_leak[nrn]*(self.theta_last[nrn] + self.theta_0[nrn]) + self.m[nrn] * (self.V_last[nrn] - self.V_rest[nrn]))  # Update the firing thresholds
                 self.spikes[nrn] = np.sign(
                     np.minimum(0, self.theta[nrn] - self.V[nrn]))  # Compute which neurons have spiked
         if self.spiking:
@@ -534,11 +538,13 @@ class SNS_Iterative(Backend):
                     for syn in range(len(self.incoming_synapses[nrn])):
                         neuron_src = self.incoming_synapses[nrn][syn]
                         if neuron_src[1]:  # if spiking
-                            neuron_src[7] = np.roll(neuron_src[7], 1)  # Shift buffer entries down
-                            neuron_src[7][0] = self.spikes[neuron_src[0]]  # Replace row 0 with the current spike data
-                            neuron_src[5] = np.maximum(neuron_src[5], (-neuron_src[7][-1]) * neuron_src[
+                            neuron_src[8] = np.roll(neuron_src[8], 1)  # Shift buffer entries down
+                            neuron_src[8][0] = self.spikes[neuron_src[0]]  # Replace row 0 with the current spike data
+                            neuron_src[5] = np.maximum(neuron_src[5], (-neuron_src[8][-1]) * neuron_src[
                                 3])  # Update the conductance of connections which spiked
-                self.V[nrn] = ((self.V[nrn] - self.V_rest[nrn]) * (self.spikes[nrn] + 1)) + self.V_rest[nrn]  # Reset the membrane voltages of neurons which spiked
+                self.V[nrn] = ((self.V[nrn] - self.V_reset[nrn]) * (self.spikes[nrn] + 1)) + self.V_reset[nrn]  # Reset the membrane voltages of neurons which spiked
+                self.theta[nrn] = np.maximum(self.theta_increment[nrn], self.theta_floor[nrn] - self.theta[nrn]) * (
+                    -self.spikes[nrn]) + self.theta[nrn]
         self.outputs = np.matmul(self.output_voltage_connectivity, self.V)
         if self.spiking:
             self.outputs += np.matmul(self.output_spike_connectivity, -self.spikes)

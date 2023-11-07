@@ -6,7 +6,6 @@ December 10th 2021
 
 import numpy as np
 import matplotlib.pyplot as plt
-import torch
 
 from sns_toolbox.networks import Network
 from sns_toolbox.neurons import SpikingNeuron
@@ -50,18 +49,18 @@ dt = 0.01
 t_max = 10
 
 t = np.arange(0, t_max, dt)
-inputs = torch.zeros([len(t), net.get_num_inputs()])          # getNumInputs() gets the number of input nodes in a network
+inputs = np.zeros([len(t), net.get_num_inputs()])          # getNumInputs() gets the number of input nodes in a network
 inputs[0:100] = 20.0
-data = torch.zeros([len(t), net.get_num_outputs_actual()])    # getNumOutputsActual gets the number of accessible output
+data = np.zeros([len(t), net.get_num_outputs_actual()])    # getNumOutputsActual gets the number of accessible output
                                                             # nodes in a network (since this net has populations, each
                                                             # population has n output nodes)
 # Compile to numpy
-model = net.compile(backend='sparse', dt=dt, debug=False)
+model = net.compile(backend='iterative', dt=dt, debug=False)
 
 # Run for all steps
 for i in range(len(t)):
     data[i,:] = model(inputs[i,:])
-data = data.transpose(0,1)
+data = data.transpose()
 
 """Plotting the results"""
 plt.figure()

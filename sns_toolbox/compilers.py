@@ -2002,6 +2002,10 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
         theta_last = np.zeros(num_neurons)
         m = np.zeros(num_neurons)
         tau_theta = np.zeros(num_neurons)
+        theta_leak = np.zeros(num_neurons)
+        theta_increment = np.zeros(num_neurons)
+        theta_floor = np.zeros(num_neurons)
+        V_reset = np.zeros(num_neurons)
     if gated:
         # Channel params
         g_ion = np.zeros([num_channels, num_neurons])
@@ -2074,10 +2078,17 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
                     theta_0[index] = network.populations[pop]['type'].params['threshold_initial_value']
                     m[index] = network.populations[pop]['type'].params['threshold_proportionality_constant']
                     tau_theta[index] = network.populations[pop]['type'].params['threshold_time_constant']
+                    theta_leak[index] = network.populations[pop]['type'].params['threshold_leak_rate']
+                    theta_increment[index] = network.populations[pop]['type'].params['threshold_increment']
+                    theta_floor[index] = network.populations[pop]['type'].params['threshold_floor']
+                    V_reset[index] = network.populations[pop]['type'].params['reset_potential']
                 else:  # otherwise, set to the special values for NonSpiking
                     theta_0[index] = sys.float_info.max
                     m[index] = 0
                     tau_theta[index] = 1
+                    theta_increment[index] = 0
+                    theta_floor[index] = -sys.float_info.max
+                    V_reset[index] = V_rest[index]
             if gated:
                 if isinstance(network.populations[pop]['type'], NonSpikingNeuronWithGatedChannels):
                     # Channel params
@@ -2164,6 +2175,7 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
             dest_index = pops_and_nrns[dest_pop][0]
             if network.connections[syn]['params']['spiking']:
                 tau_s = network.connections[syn]['params']['synapticTimeConstant']
+                g_inc = network.connections[syn]['params']['conductance_increment']
                 if delay:
                     delay_val = network.connections[syn]['params']['synapticTransmissionDelay']
 
@@ -2175,10 +2187,10 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
                         if delay:
                             buffer = np.zeros(delay_val[dest, source])
                             incoming_synapses[dest + dest_index].append(
-                                [source + source_index, True, False, g_syn, rev, 0, time_factor_syn, buffer])
+                                [source + source_index, True, False, g_syn, rev, 0, time_factor_syn, g_inc, buffer])
                         else:
                             incoming_synapses[dest + dest_index].append(
-                                [source + source_index, True, False, g_syn, rev, 0, time_factor_syn])
+                                [source + source_index, True, False, g_syn, rev, 0, time_factor_syn, g_inc])
             else:
                 e_lo_val = network.connections[syn]['params']['e_lo']
                 e_hi_val = network.connections[syn]['params']['e_hi']
@@ -2205,6 +2217,7 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
         else:  # chemical connection
             if network.connections[syn]['params']['spiking']:
                 tau_s = network.connections[syn]['params']['synapticTimeConstant']
+                g_inc = network.connections[syn]['params']['conductance_increment']
                 if delay:
                     delay_val = network.connections[syn]['params']['synapticTransmissionDelay']
                 for dest in pops_and_nrns[dest_pop]:
@@ -2213,9 +2226,9 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
                         if delay:
                             buffer = np.zeros(delay_val + 1)
                             incoming_synapses[dest].append(
-                                [source, True, False, g_syn, del_e_val, 0, dt / tau_s, buffer])
+                                [source, True, False, g_syn, del_e_val, 0, dt / tau_s, g_inc, buffer])
                         else:
-                            incoming_synapses[dest].append([source, True, False, g_syn, del_e_val, 0, dt / tau_s])
+                            incoming_synapses[dest].append([source, True, False, g_syn, del_e_val, 0, dt / tau_s, g_inc])
             else:
                 e_lo_val = network.connections[syn]['params']['e_lo']
                 e_hi_val = network.connections[syn]['params']['e_hi']
@@ -2317,6 +2330,10 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
         params['tauTheta'] = tau_theta
         params['timeFactorThreshold'] = time_factor_threshold
         params['outConnSpike'] = output_spike_connectivity
+        params['thetaLeak'] = theta_leak
+        params['thetaIncrement'] = theta_increment
+        params['thetaFloor'] = theta_floor
+        params['vReset'] = V_reset
     if gated:
         params['gIon'] = g_ion
         params['eIon'] = e_ion
