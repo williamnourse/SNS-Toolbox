@@ -8,7 +8,6 @@ features.
 from sns_toolbox.networks import Network
 from sns_toolbox.connections import SpikingSynapse
 from sns_toolbox.neurons import SpikingNeuron
-from sns_toolbox.renderer import render
 
 import numpy as np
 import matplotlib.pyplot as plt
