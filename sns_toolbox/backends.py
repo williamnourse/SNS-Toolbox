@@ -351,7 +351,7 @@ class SNS_Sparse(Backend):
                                                                                           :] + i_syn + i_app)  # Update membrane potential
         if self.spiking:
             self.theta = self.theta_last + self.time_factor_threshold * (
-                        -self.theta_last + self.theta_0 + (self.m.to_dense())[0,
+                        self.theta_leak*(-self.theta_last + self.theta_0) + (self.m.to_dense())[0,
                                                           :] * (self.V_last - self.V_rest))  # Update the firing thresholds
 
             self.spikes = torch.sign(torch.clamp(self.theta - self.V, max=0))  # Compute which neurons have spiked
@@ -370,13 +370,15 @@ class SNS_Sparse(Backend):
                     self.buffer_steps, self.buffer_nrns]
                 self.delayed_spikes = self.delayed_spikes.to_sparse()
 
-                self.g_spike = torch.maximum(self.g_spike.to_dense(), ((
-                                                                           -self.delayed_spikes) * self.g_max_spike).to_dense())  # Update the conductance of connections which spiked
+                self.g_spike = self.g_spike.to_dense() + torch.minimum(-self.delayed_spikes*self.g_increment, ((
+                                                                           -self.delayed_spikes) * (self.g_max_spike.to_dense()-self.g_spike.to_dense())).to_dense())  # Update the conductance of connections which spiked
             else:
-                self.g_spike = torch.maximum(self.g_spike.to_dense(), (
-                    -self.spikes.to_dense()) * self.g_max_spike.to_dense())  # Update the conductance of connections which spiked
+                self.g_spike = self.g_spike.to_dense() + torch.minimum(-self.spikes.to_dense()*self.g_increment, (
+                    -self.spikes.to_dense()) * (self.g_max_spike.to_dense()-self.g_spike.to_dense()))  # Update the conductance of connections which spiked
             self.g_spike = self.g_spike.to_sparse()
-            self.V = ((self.V - self.V_rest) * (self.spikes.to_dense() + 1)) + self.V_rest  # Reset the membrane voltages of neurons which spiked
+            self.V = ((self.V - self.V_reset) * (self.spikes.to_dense() + 1)) + self.V_reset  # Reset the membrane voltages of neurons which spiked
+            self.theta = torch.maximum(self.theta_increment, self.theta_floor - self.theta) * (
+                -self.spikes.to_dense()) + self.theta
         self.outputs = torch.matmul(self.output_voltage_connectivity, self.V)
         if self.spiking:
             self.outputs += torch.matmul(self.output_spike_connectivity, -self.spikes.to_dense())
