@@ -204,7 +204,7 @@ class SpikingNeuron(Neuron):
                  threshold_proportionality_constant: float = 0.0,
                  threshold_leak_rate: float = 1.0,
                  threshold_increment: float = 0.0,
-                 threshold_floor: float = sys.float_info.min,
+                 threshold_floor: float = -sys.float_info.max,
                  reset_potential: float = None,
                  **kwargs) -> None:
 

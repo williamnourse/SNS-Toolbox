@@ -183,7 +183,7 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
                     tau_theta[index] = 1
                     theta_leak[index] = 0
                     theta_increment[index] = 0
-                    theta_floor[index] = sys.float_info.min
+                    theta_floor[index] = -sys.float_info.max
                     V_reset[index] = V_rest[index]
             if gated:
                 if isinstance(network.populations[pop]['type'], NonSpikingNeuronWithGatedChannels):

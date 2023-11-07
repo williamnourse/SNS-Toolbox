@@ -491,6 +491,9 @@ class Network:
                     transmit_delay = __kernel_connections_2d__(self.populations[source]['shape'],
                                                                connection_type.params['transmissionDelay'])
                     self.connections[-1]['params']['transmissionDelay'] = transmit_delay
+                    g_increment = __kernel_connections_2d__(self.populations[source]['shape'],
+                                                               connection_type.params['conductance_increment'])
+                    self.connections[-1]['params']['conductanceIncrement'] = g_increment
                 else:
                     e_hi = __kernel_connections_2d__(self.populations[source]['shape'],
                                                      connection_type.params['e_hi'], fill_value=self.populations[source]['type'].params['resting_potential']+1)
@@ -514,6 +517,9 @@ class Network:
                     transmit_delay = __kernel_connections_1d__(self.populations[source]['number'],
                                                                connection_type.params['transmissionDelay'])
                     self.connections[-1]['params']['transmissionDelay'] = transmit_delay
+                    g_increment = __kernel_connections_1d__(self.populations[source]['number'],
+                                                               connection_type.params['conductanceIncrement'])
+                    self.connections[-1]['params']['transmissionDelay'] = g_increment
                 else:
                     e_hi = __kernel_connections_1d__(self.populations[source]['shape'],
                                                      connection_type.params['e_hi'], fill_value=self.populations[source]['type'].params['resting_potential']+1)

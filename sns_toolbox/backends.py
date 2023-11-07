@@ -68,6 +68,11 @@ class Backend:
             self.time_factor_threshold = params['timeFactorThreshold']
             self.time_factor_synapse = params['timeFactorSynapse']
             self.output_spike_connectivity = params['outConnSpike']
+            self.theta_leak = params['thetaLeak']
+            self.theta_increment = params['thetaIncrement']
+            self.theta_floor = params['thetaFloor']
+            self.V_reset = params['vReset']
+            self.g_increment = params['gIncrement']
         if self.delay:
             self.spike_delays = params['spikeDelays']
             self.spike_rows = params['spikeRows']
@@ -159,8 +164,7 @@ class SNS_Numpy(Backend):
             self.V = self.V_last + self.time_factor_membrane * (
                         -self.g_m * (self.V_last - self.V_rest) + self.i_b + i_syn + i_app)  # Update membrane potential
         if self.spiking:
-            self.theta = self.theta_last + self.time_factor_threshold * (
-                        -self.theta_last + self.theta_0 + self.m * (self.V_last - self.V_rest))  # Update the firing thresholds
+            self.theta = self.theta_last + self.time_factor_threshold * (self.theta_leak*(self.theta_0-self.theta_last) + self.m * (self.V_last - self.V_rest))  # Update the firing thresholds
             self.spikes = np.sign(np.minimum(0, self.theta - self.V))  # Compute which neurons have spiked
 
             # New stuff with delay
@@ -171,12 +175,11 @@ class SNS_Numpy(Backend):
                 self.delayed_spikes[self.spike_rows, self.spike_cols] = self.spike_buffer[
                     self.buffer_steps, self.buffer_nrns]
 
-                self.g_spike = np.maximum(self.g_spike, (
-                    -self.delayed_spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
+                self.g_spike += np.minimum((-self.delayed_spikes*self.g_increment), (-self.delayed_spikes)*(self.g_max_spike-self.g_spike))  # Update the conductance of connections which spiked
             else:
-                self.g_spike = np.maximum(self.g_spike, (
-                    -self.spikes) * self.g_max_spike)  # Update the conductance of connections which spiked
-            self.V = ((self.V-self.V_rest) * (self.spikes + 1))+self.V_rest  # Reset the membrane voltages of neurons which spiked
+                self.g_spike += np.minimum((-self.spikes*self.g_increment), (-self.spikes)*(self.g_max_spike-self.g_spike))  # Update the conductance of connections which spiked
+            self.V = ((self.V-self.V_reset) * (self.spikes + 1))+self.V_reset  # Reset the membrane voltages of neurons which spiked
+            self.theta = np.maximum(self.theta_increment, self.theta_floor-self.theta)*(-self.spikes) + self.theta
         self.outputs = np.matmul(self.output_voltage_connectivity, self.V)
         if self.spiking:
             self.outputs += np.matmul(self.output_spike_connectivity, -self.spikes)
