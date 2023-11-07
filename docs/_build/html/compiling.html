@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Compiling and Simulating Networks &mdash; SNS-Toolbox 1.5.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Rendering Networks" href="render.html" />
+    <link rel="prev" title="Building Networks" href="networks.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SNS-Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Building Networks</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Compiling and Simulating Networks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#general-interface-and-process">General Interface and Process</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#simulating-a-network">Simulating a Network</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#backend-statistics">Backend Statistics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sns-numpy">SNS_Numpy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sns-torch">SNS_Torch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sns-sparse">SNS_Sparse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sns-iterative">SNS_Iterative</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="render.html">Rendering Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="saving_loading.html">Saving and Loading Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">Running Networks on the GPU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neuron_models.html">Neural Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="connection_models.html">Connection Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_1.html">Tutorial 1: Designing Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_2.html">Tutorial 2: Simulating Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_3.html">Tutorial 3: Spiking Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_4.html">Tutorial 4: Adding Subnetworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_5.html">Tutorial 5: Spiking Networks with Synaptic Transmission Delay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_6.html">Tutorial 6: Using Connectivity Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_7.html">Tutorial 7: Electrical Synapses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_8.html">Tutorial 8: Neurons with Voltage-gated Ion Channels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SNS-Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Compiling and Simulating Networks</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/compiling.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="compiling-and-simulating-networks">
+<h1>Compiling and Simulating Networks<a class="headerlink" href="#compiling-and-simulating-networks" title="Permalink to this heading"></a></h1>
+<p>SNS-Toolbox is designed with two goals: designing networks with a simple scripting system, and simulating these networks
+in an efficient manner. In <a class="reference external" href="https://sns-toolbox.readthedocs.io/en/latest/networks.html">Building Networks</a>
+we covered the different options available when designing a network, here we will walk through the backend interface and
+how to simulate SNS networks using SNS-Toolbox.</p>
+<section id="general-interface-and-process">
+<h2>General Interface and Process<a class="headerlink" href="#general-interface-and-process" title="Permalink to this heading"></a></h2>
+<p>When simulating a network, we start with a
+<code class="code docutils literal notranslate"><span class="pre">Network</span></code> object:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">net</span> <span class="o">=</span> <span class="n">Network</span><span class="p">(</span><span class="s1">&#39;Name of network&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This network object is not capable of being simulated in its current state, it is just a container containing a
+description of the various components within a network. In order to simulate this network, we need to compile it to a
+simulation backend:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">dt</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="s1">&#39;numpy&#39;</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cpu&#39;</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where <code class="code docutils literal notranslate"><span class="pre">dt</span></code> is the simulation timestep in ms, <code class="code docutils literal notranslate"><span class="pre">backend</span></code> takes a string representing any of the backends
+included within SNS-Toolbox, <code class="code docutils literal notranslate"><span class="pre">device</span></code> is the hardware the network will run on (<code class="code docutils literal notranslate"><span class="pre">'cpu'</span></code> for the processor,
+<code class="code docutils literal notranslate"><span class="pre">'cuda'</span></code> for the GPU), and <code class="code docutils literal notranslate"><span class="pre">debug</span></code> causes various debugging information to be printed to the console if set
+to true.</p>
+</section>
+<section id="simulating-a-network">
+<h2>Simulating a Network<a class="headerlink" href="#simulating-a-network" title="Permalink to this heading"></a></h2>
+<p>Now that a model is built, the model can be called timestep by timestep to simulate the network dynamics as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_steps</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where <code class="code docutils literal notranslate"><span class="pre">x</span></code> is a vector of external inputs which is applied at each step. If there are no external inputs present in
+the network, it can be run as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_steps</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">model</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="backend-statistics">
+<h2>Backend Statistics<a class="headerlink" href="#backend-statistics" title="Permalink to this heading"></a></h2>
+<p>All of the simulation backends within SNS-Toolbox implement the same neural dynamics, just using different software
+strategies. Detailed descriptions of each backend option are presented in the following sections, for performance on a
+certain network topology please see the following performance chart:</p>
+<a class="reference internal image-reference" href="_images/backend_comparison.png"><img alt="_images/backend_comparison.png" src="_images/backend_comparison.png" style="width: 600px;" /></a>
+<p>Based on experimentation, here are some general recommendations for networks with a roughly 1:1 comparison between the
+number of neurons and synapses:</p>
+<ul class="simple">
+<li><p>for small networks (under ~300), <code class="code docutils literal notranslate"><span class="pre">SNS_Numpy</span></code> and <code class="code docutils literal notranslate"><span class="pre">SNS_Torch</span></code> (CPU version) will execute the fastest.</p></li>
+<li><p>Networks with 300-7000 neurons will execute the fastest using <code class="code docutils literal notranslate"><span class="pre">SNS_Torch</span></code> and a CUDA-compatible GPU.</p></li>
+<li><p>Networks with 7000-11000 neurons will execute the fastest using <code class="code docutils literal notranslate"><span class="pre">SNS_Sparse</span></code> and a CUDA-compatible GPU.</p></li>
+<li><p>For networks with over 11000 neurons, due to memory constraints the simple iterative <code class="code docutils literal notranslate"><span class="pre">SNS_Manual</span></code> backend is the best option.</p></li>
+</ul>
+<p>Additionally, due to constraints with memory access and architecture, each of these backends has a maximum possible
+network size before the host system runs out of memory. These examples are given below:</p>
+<p>If you run a simulation and find conflicting empirical performance data, please email the <a class="reference external" href="mailto:nourse&#37;&#52;&#48;case&#46;edu">project maintainer</a> and our
+documentation may be updated.</p>
+</section>
+<section id="sns-numpy">
+<h2>SNS_Numpy<a class="headerlink" href="#sns-numpy" title="Permalink to this heading"></a></h2>
+<p><code class="code docutils literal notranslate"><span class="pre">SNS_Numpy</span></code> simulates networks using the <a class="reference external" href="https://numpy.org/">numpy</a> python package. All parameters are
+stored in <code class="code docutils literal notranslate"><span class="pre">np.ndarray</span></code> objects. Build this backend with the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;numpy&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that <code class="code docutils literal notranslate"><span class="pre">SNS_Numpy</span></code> only supports execution on the CPU.</p>
+</section>
+<section id="sns-torch">
+<h2>SNS_Torch<a class="headerlink" href="#sns-torch" title="Permalink to this heading"></a></h2>
+<p><code class="code docutils literal notranslate"><span class="pre">SNS_Torch</span></code> simulates using <a class="reference external" href="https://pytorch.org/">PyTorch</a>. All parameters are stored in <code class="code docutils literal notranslate"><span class="pre">torch.Tensor</span></code>
+objects. <code class="code docutils literal notranslate"><span class="pre">SNS_Torch</span></code> networks can be simulated on either the CPU or a CUDA-enabled GPU. To simulate on the CPU,
+build the network as</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;torch&#39;</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For GPU simulation, use</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;torch&#39;</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>or for machines with multiple GPUs</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">SNS_Torch</span><span class="p">(</span><span class="n">net</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda:i&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where <code class="code docutils literal notranslate"><span class="pre">i</span></code> is the index of the desired GPU.</p>
+</section>
+<section id="sns-sparse">
+<h2>SNS_Sparse<a class="headerlink" href="#sns-sparse" title="Permalink to this heading"></a></h2>
+<p><code class="code docutils literal notranslate"><span class="pre">SNS_Sparse</span></code> simulates using <a class="reference external" href="https://pytorch.org/docs/stable/sparse.html">PyTorch Sparse</a>.
+All parameters are specified as <code class="code docutils literal notranslate"><span class="pre">torch.Tensor</span></code> objects, then stored in <code class="code docutils literal notranslate"><span class="pre">torch.sparse_coo_tensor</span></code> objects.
+<code class="code docutils literal notranslate"><span class="pre">SNS_Sparse</span></code> networks can be simulated on either the CPU or a CUDA-enabled GPU. To simulate on the CPU,
+build the network as</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;sparse&#39;</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For GPU simulation, use</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;sparse&#39;</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>or for machines with multiple GPUs</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;sparse&#39;</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cuda:i&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>where <code class="code docutils literal notranslate"><span class="pre">i</span></code> is the index of the desired GPU.</p>
+<p>Due to the process of building sparse tensors and matrices, <code class="code docutils literal notranslate"><span class="pre">SNS_Sparse</span></code> networks take longer to compile than the
+other backends. For improved performance, loading of a pre-built network may improve performance. See
+<a class="reference external" href="https://sns-toolbox.readthedocs.io/en/latest/saving_loading.html">Saving and Loading Networks</a>
+for more information.</p>
+</section>
+<section id="sns-iterative">
+<h2>SNS_Iterative<a class="headerlink" href="#sns-iterative" title="Permalink to this heading"></a></h2>
+<p>NOTE: This backend will not be updated to incorporate any neural or synaptic models added after version 1.5.0. As such,
+it is not recommended for new models.</p>
+<p>The <code class="code docutils literal notranslate"><span class="pre">SNS_Iterative</span></code> backend implements the same neural dynamics as the other backends, but does so using iterative
+operations instead of vectors and matrices. Its primary purpose is as a benchmarking comparison for the vector-based
+algorithms, however can be useful for extremely large and sparse networks which exceed the memory constraints of other
+backends.</p>
+<p>All parameters are stored in <code class="code docutils literal notranslate"><span class="pre">np.ndarray</span></code> objects. This backend can be built with the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;iterative&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that <code class="code docutils literal notranslate"><span class="pre">SNS_Iterative</span></code> only supports execution on the CPU.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="networks.html" class="btn btn-neutral float-left" title="Building Networks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="render.html" class="btn btn-neutral float-right" title="Rendering Networks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, William Nourse.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

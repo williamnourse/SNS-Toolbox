@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sns_toolbox.neurons &mdash; SNS-Toolbox 1.5.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SNS-Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../start.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../networks.html">Building Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../compiling.html">Compiling and Simulating Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../render.html">Rendering Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../saving_loading.html">Saving and Loading Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gpu.html">Running Networks on the GPU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../neuron_models.html">Neural Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connection_models.html">Connection Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_1.html">Tutorial 1: Designing Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_2.html">Tutorial 2: Simulating Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_3.html">Tutorial 3: Spiking Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_4.html">Tutorial 4: Adding Subnetworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_5.html">Tutorial 5: Spiking Networks with Synaptic Transmission Delay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_6.html">Tutorial 6: Using Connectivity Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_7.html">Tutorial 7: Electrical Synapses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_8.html">Tutorial 8: Neurons with Voltage-gated Ion Channels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SNS-Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sns_toolbox.neurons</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/sns_toolbox/neurons/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-sns_toolbox.neurons">
+<span id="sns-toolbox-neurons"></span><h1><a class="reference internal" href="#module-sns_toolbox.neurons" title="sns_toolbox.neurons"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sns_toolbox.neurons</span></code></a><a class="headerlink" href="#module-sns_toolbox.neurons" title="Permalink to this heading"></a></h1>
+<p>Neurons are the computational nodes of an SNS, and can be either spiking or non-spiking.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this heading"></a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.neurons.Neuron" title="sns_toolbox.neurons.Neuron"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Neuron</span></code></a></p></td>
+<td><p>Parent class of all neurons.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.neurons.NonSpikingNeuron" title="sns_toolbox.neurons.NonSpikingNeuron"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonSpikingNeuron</span></code></a></p></td>
+<td><p>Classic non-spiking neuron model, whose dynamics are as follows:</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.neurons.NonSpikingNeuronWithGatedChannels" title="sns_toolbox.neurons.NonSpikingNeuronWithGatedChannels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonSpikingNeuronWithGatedChannels</span></code></a></p></td>
+<td><p>Iion = sum_j[Gj * A_(inf,j)^Pa * Bj^Pb * Cj^Pc * (Ej - V)]</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.neurons.NonSpikingNeuronWithPersistentSodiumChannel" title="sns_toolbox.neurons.NonSpikingNeuronWithPersistentSodiumChannel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonSpikingNeuronWithPersistentSodiumChannel</span></code></a></p></td>
+<td><p>Iion = sum_j[Gj * m_(inf,j)^Pm * hj^Ph * (Ej - U)]</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.neurons.SpikingNeuron" title="sns_toolbox.neurons.SpikingNeuron"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpikingNeuron</span></code></a></p></td>
+<td><p>Generalized leaky integrate-and-fire neuron model, whose dynamics are as follows:</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.neurons.Neuron">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.neurons.</span></span><span class="sig-name descname"><span class="pre">Neuron</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Neuron'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'white'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">membrane_capacitance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">membrane_conductance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resting_potential</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bias</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.neurons.Neuron" title="Permalink to this definition"></a></dt>
+<dd><p>Parent class of all neurons.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of this neuron preset, default is ‘Neuron’.</p></li>
+<li><p><strong>color</strong> (<em>str</em><em>, </em><em>optional</em>) – Background fill color for the neuron, default is ‘white’.</p></li>
+<li><p><strong>membrane_capacitance</strong> (<em>Number</em><em>, </em><em>optional</em>) – Neural membrane capacitance, default is 5.0. Units are nanofarads (nF).</p></li>
+<li><p><strong>membrane_conductance</strong> (<em>Number</em><em>, </em><em>optional</em>) – Neural membrane conductance, default is 1.0. Units are microsiemens (uS).</p></li>
+<li><p><strong>resting_potential</strong> (<em>Number</em><em>, </em><em>optional</em>) – Neural resting potential, default is 0.0. Units are millivolts (mV).</p></li>
+<li><p><strong>bias</strong> (<em>Number</em><em>, </em><em>optional</em>) – Internal bias current, default is 0.0. Units are nanoamps (nA).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.neurons.NonSpikingNeuron">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.neurons.</span></span><span class="sig-name descname"><span class="pre">NonSpikingNeuron</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.neurons.NonSpikingNeuron" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.neurons.Neuron" title="sns_toolbox.neurons.Neuron"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Neuron</span></code></a></p>
+<p>Classic non-spiking neuron model, whose dynamics are as follows:
+membrane_capacitance*dV/dt = -membrane_conductance*(V - Er) + bias current + synaptic current + external current.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.neurons.NonSpikingNeuronWithGatedChannels">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.neurons.</span></span><span class="sig-name descname"><span class="pre">NonSpikingNeuronWithGatedChannels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g_ion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_ion</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pow_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slope_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pow_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slope_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_max_b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pow_c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slope_c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_c</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_max_c</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.neurons.NonSpikingNeuronWithGatedChannels" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.neurons.NonSpikingNeuron" title="sns_toolbox.neurons.NonSpikingNeuron"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonSpikingNeuron</span></code></a></p>
+<p>Iion = sum_j[Gj * A_(inf,j)^Pa * Bj^Pb * Cj^Pc * (Ej - V)]</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.neurons.NonSpikingNeuronWithPersistentSodiumChannel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.neurons.</span></span><span class="sig-name descname"><span class="pre">NonSpikingNeuronWithPersistentSodiumChannel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">g_ion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_ion</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_m</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slope_m</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_m</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slope_h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_max_h</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.neurons.NonSpikingNeuronWithPersistentSodiumChannel" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.neurons.NonSpikingNeuronWithGatedChannels" title="sns_toolbox.neurons.NonSpikingNeuronWithGatedChannels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonSpikingNeuronWithGatedChannels</span></code></a></p>
+<p>Iion = sum_j[Gj * m_(inf,j)^Pm * hj^Ph * (Ej - U)]</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.neurons.SpikingNeuron">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.neurons.</span></span><span class="sig-name descname"><span class="pre">SpikingNeuron</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold_time_constant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_initial_value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_proportionality_constant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_leak_rate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_increment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold_floor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_potential</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.neurons.SpikingNeuron" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.neurons.Neuron" title="sns_toolbox.neurons.Neuron"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Neuron</span></code></a></p>
+<p>Generalized leaky integrate-and-fire neuron model, whose dynamics are as follows:
+membrane_capacitance*dV/dt = -membrane_conductance*(V-Er) + bias current + synaptic current + external current;
+threshold_time_constant*dTheta/dt = -Theta + threshold_initial_value + threshold_proportionality_constant*V;
+if V &gt; Theta, V-&gt;Er.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>threshold_time_constant</strong> (<em>Number</em><em>, </em><em>optional</em>) – Rate that the firing threshold moves to the baseline value, default is 5.0. Units
+are milliseconds (ms).</p></li>
+<li><p><strong>threshold_initial_value</strong> (<em>Number</em><em>, </em><em>optional</em>) – Baseline value of the firing threshold, default is 1.0. Units are millivolts (mV).</p></li>
+<li><p><strong>threshold_proportionality_constant</strong> – Constant which determines spiking behavior.
+In response to constant stimulus, negative values cause the firing rate to decrease, positive values cause the
+rate to increase, and zero causes the rate to remain constant. Default is 0.0.</p></li>
+<li><p><strong>threshold_leak_rate</strong> – Constant which determines rate of decay to starting threshold. Default is 1.0.</p></li>
+<li><p><strong>threshold_increment</strong> (<em>Number</em><em>, </em><em>optional</em>) – Constant amount the threshold is increased after each spike. Default is 0.0</p></li>
+<li><p><strong>threshold_floor</strong> (<em>Number</em><em>, </em><em>optional</em>) – Minimum threshold value. Default is the resting potential</p></li>
+<li><p><strong>reset_potential</strong> (<em>Number</em><em>, </em><em>optional</em>) – Voltage that the membrane is reset to when a spike occurs. Default is resting_potential</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, William Nourse.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

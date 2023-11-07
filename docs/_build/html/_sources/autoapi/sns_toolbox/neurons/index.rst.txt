@@ -1,0 +1,96 @@
+:py:mod:`sns_toolbox.neurons`
+=============================
+
+.. py:module:: sns_toolbox.neurons
+
+.. autoapi-nested-parse::
+
+   Neurons are the computational nodes of an SNS, and can be either spiking or non-spiking.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   sns_toolbox.neurons.Neuron
+   sns_toolbox.neurons.NonSpikingNeuron
+   sns_toolbox.neurons.NonSpikingNeuronWithGatedChannels
+   sns_toolbox.neurons.NonSpikingNeuronWithPersistentSodiumChannel
+   sns_toolbox.neurons.SpikingNeuron
+
+
+
+
+.. py:class:: Neuron(name: str = 'Neuron', color: str = 'white', membrane_capacitance: float = 5.0, membrane_conductance: float = 1.0, resting_potential: float = 0.0, bias: float = 0.0)
+
+   Parent class of all neurons.
+
+   :param name:                    Name of this neuron preset, default is 'Neuron'.
+   :type name:                     str, optional
+   :param color:                   Background fill color for the neuron, default is 'white'.
+   :type color:                    str, optional
+   :param membrane_capacitance:    Neural membrane capacitance, default is 5.0. Units are nanofarads (nF).
+   :type membrane_capacitance:     Number, optional
+   :param membrane_conductance:    Neural membrane conductance, default is 1.0. Units are microsiemens (uS).
+   :type membrane_conductance:     Number, optional
+   :param resting_potential:       Neural resting potential, default is 0.0. Units are millivolts (mV).
+   :type resting_potential:        Number, optional
+   :param bias:                    Internal bias current, default is 0.0. Units are nanoamps (nA).
+   :type bias:                     Number, optional
+
+
+.. py:class:: NonSpikingNeuron(**kwargs)
+
+   Bases: :py:obj:`Neuron`
+
+   Classic non-spiking neuron model, whose dynamics are as follows:
+   membrane_capacitance*dV/dt = -membrane_conductance*(V - Er) + bias current + synaptic current + external current.
+
+
+.. py:class:: NonSpikingNeuronWithGatedChannels(g_ion, e_ion, pow_a, k_a, slope_a, e_a, pow_b, k_b, slope_b, e_b, tau_max_b, pow_c, k_c, slope_c, e_c, tau_max_c, **kwargs)
+
+   Bases: :py:obj:`NonSpikingNeuron`
+
+   Iion = sum_j[Gj * A_(inf,j)^Pa * Bj^Pb * Cj^Pc * (Ej - V)]
+
+
+.. py:class:: NonSpikingNeuronWithPersistentSodiumChannel(g_ion=None, e_ion=None, k_m=None, slope_m=None, e_m=None, k_h=None, slope_h=None, e_h=None, tau_max_h=None, **kwargs)
+
+   Bases: :py:obj:`NonSpikingNeuronWithGatedChannels`
+
+   Iion = sum_j[Gj * m_(inf,j)^Pm * hj^Ph * (Ej - U)]
+
+
+.. py:class:: SpikingNeuron(threshold_time_constant: float = 5.0, threshold_initial_value: float = 1.0, threshold_proportionality_constant: float = 0.0, threshold_leak_rate: float = 1.0, threshold_increment: float = 0.0, threshold_floor: float = None, reset_potential: float = None, **kwargs)
+
+   Bases: :py:obj:`Neuron`
+
+   Generalized leaky integrate-and-fire neuron model, whose dynamics are as follows:
+   membrane_capacitance*dV/dt = -membrane_conductance*(V-Er) + bias current + synaptic current + external current;
+   threshold_time_constant*dTheta/dt = -Theta + threshold_initial_value + threshold_proportionality_constant*V;
+   if V > Theta, V->Er.
+
+   :param threshold_time_constant: Rate that the firing threshold moves to the baseline value, default is 5.0. Units
+       are milliseconds (ms).
+   :type threshold_time_constant:  Number, optional
+   :param threshold_initial_value: Baseline value of the firing threshold, default is 1.0. Units are millivolts (mV).
+   :type threshold_initial_value:  Number, optional
+   :param threshold_proportionality_constant:  Constant which determines spiking behavior.
+       In response to constant stimulus, negative values cause the firing rate to decrease, positive values cause the
+       rate to increase, and zero causes the rate to remain constant. Default is 0.0.
+   :type threshold_proportionality constant:  Number, optional
+   :param threshold_leak_rate:  Constant which determines rate of decay to starting threshold. Default is 1.0.
+   :type threshold_leak_rate constant:  Number, optional
+   :param threshold_increment: Constant amount the threshold is increased after each spike. Default is 0.0
+   :type threshold_increment: Number, optional
+   :param threshold_floor: Minimum threshold value. Default is the resting potential
+   :type threshold_floor: Number, optional
+   :param reset_potential: Voltage that the membrane is reset to when a spike occurs. Default is resting_potential
+   :type reset_potential: Number, optional
+
+

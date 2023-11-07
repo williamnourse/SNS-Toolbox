@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sns_toolbox.backends &mdash; SNS-Toolbox 1.5.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SNS-Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../start.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../networks.html">Building Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../compiling.html">Compiling and Simulating Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../render.html">Rendering Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../saving_loading.html">Saving and Loading Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gpu.html">Running Networks on the GPU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../neuron_models.html">Neural Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connection_models.html">Connection Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_1.html">Tutorial 1: Designing Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_2.html">Tutorial 2: Simulating Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_3.html">Tutorial 3: Spiking Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_4.html">Tutorial 4: Adding Subnetworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_5.html">Tutorial 5: Spiking Networks with Synaptic Transmission Delay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_6.html">Tutorial 6: Using Connectivity Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_7.html">Tutorial 7: Electrical Synapses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_8.html">Tutorial 8: Neurons with Voltage-gated Ion Channels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SNS-Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sns_toolbox.backends</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/sns_toolbox/backends/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-sns_toolbox.backends">
+<span id="sns-toolbox-backends"></span><h1><a class="reference internal" href="#module-sns_toolbox.backends" title="sns_toolbox.backends"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sns_toolbox.backends</span></code></a><a class="headerlink" href="#module-sns_toolbox.backends" title="Permalink to this heading"></a></h1>
+<p>Simulation backends for synthetic nervous system networks. Each of these are python-based, and are constructed using a
+Network. They can then be run for a step, with the inputs being a vector of neural states and applied currents and the
+output being the next step of neural states.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this heading"></a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.backends.Backend" title="sns_toolbox.backends.Backend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Backend</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.backends.SNS_Numpy" title="sns_toolbox.backends.SNS_Numpy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SNS_Numpy</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.backends.SNS_Torch" title="sns_toolbox.backends.SNS_Torch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SNS_Torch</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.backends.SNS_Sparse" title="sns_toolbox.backends.SNS_Sparse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SNS_Sparse</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.backends.SNS_Iterative" title="sns_toolbox.backends.SNS_Iterative"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SNS_Iterative</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.backends.Backend">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.backends.</span></span><span class="sig-name descname"><span class="pre">Backend</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.backends.Backend" title="Permalink to this definition"></a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.backends.Backend.forward">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.backends.Backend.forward" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.backends.Backend.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.backends.Backend.set_params" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.backends.Backend.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.backends.Backend.__call__" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.backends.Backend.reset">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.backends.Backend.reset" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.backends.SNS_Numpy">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.backends.</span></span><span class="sig-name descname"><span class="pre">SNS_Numpy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.backends.SNS_Numpy" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.backends.Backend" title="sns_toolbox.backends.Backend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Backend</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.backends.SNS_Numpy.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.backends.SNS_Numpy.forward" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.backends.SNS_Numpy.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.backends.SNS_Numpy.reset" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.backends.SNS_Torch">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.backends.</span></span><span class="sig-name descname"><span class="pre">SNS_Torch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.backends.SNS_Torch" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.backends.Backend" title="sns_toolbox.backends.Backend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Backend</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.backends.SNS_Torch.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.backends.SNS_Torch.forward" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.backends.SNS_Torch.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.backends.SNS_Torch.reset" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.backends.SNS_Sparse">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.backends.</span></span><span class="sig-name descname"><span class="pre">SNS_Sparse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.backends.SNS_Sparse" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.backends.Backend" title="sns_toolbox.backends.Backend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Backend</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.backends.SNS_Sparse.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.backends.SNS_Sparse.forward" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.backends.SNS_Sparse.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.backends.SNS_Sparse.reset" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.backends.SNS_Iterative">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.backends.</span></span><span class="sig-name descname"><span class="pre">SNS_Iterative</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.backends.SNS_Iterative" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.backends.Backend" title="sns_toolbox.backends.Backend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Backend</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.backends.SNS_Iterative.set_params">
+<span class="sig-name descname"><span class="pre">set_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.backends.SNS_Iterative.set_params" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.backends.SNS_Iterative.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.backends.SNS_Iterative.forward" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.backends.SNS_Iterative.reset">
+<span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.backends.SNS_Iterative.reset" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, William Nourse.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

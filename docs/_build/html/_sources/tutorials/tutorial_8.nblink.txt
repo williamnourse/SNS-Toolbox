@@ -1,0 +1,3 @@
+{
+    "path": "../../tutorials/Tutorial 8 - Voltage-gated Ion Channels.ipynb"
+}

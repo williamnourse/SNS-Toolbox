@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sns_toolbox.connections &mdash; SNS-Toolbox 1.5.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SNS-Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../start.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../networks.html">Building Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../compiling.html">Compiling and Simulating Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../render.html">Rendering Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../saving_loading.html">Saving and Loading Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gpu.html">Running Networks on the GPU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../neuron_models.html">Neural Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connection_models.html">Connection Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_1.html">Tutorial 1: Designing Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_2.html">Tutorial 2: Simulating Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_3.html">Tutorial 3: Spiking Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_4.html">Tutorial 4: Adding Subnetworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_5.html">Tutorial 5: Spiking Networks with Synaptic Transmission Delay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_6.html">Tutorial 6: Using Connectivity Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_7.html">Tutorial 7: Electrical Synapses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_8.html">Tutorial 8: Neurons with Voltage-gated Ion Channels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SNS-Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sns_toolbox.connections</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/sns_toolbox/connections/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-sns_toolbox.connections">
+<span id="sns-toolbox-connections"></span><h1><a class="reference internal" href="#module-sns_toolbox.connections" title="sns_toolbox.connections"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sns_toolbox.connections</span></code></a><a class="headerlink" href="#module-sns_toolbox.connections" title="Permalink to this heading"></a></h1>
+<p>Connections are the mechanisms for data transmission between neurons. They can either define an individual conductance-
+based synapse, or a pattern of synapses which is tiled between two populations.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this heading"></a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.connections.Connection" title="sns_toolbox.connections.Connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Connection</span></code></a></p></td>
+<td><p>Base class of all connections. Initializes a dictionary of parameters which is modified by classes which inherit</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.connections.ElectricalSynapse" title="sns_toolbox.connections.ElectricalSynapse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ElectricalSynapse</span></code></a></p></td>
+<td><p>Base class of all connections. Initializes a dictionary of parameters which is modified by classes which inherit</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.connections.NonSpikingConnection" title="sns_toolbox.connections.NonSpikingConnection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonSpikingConnection</span></code></a></p></td>
+<td><p>Base class of all non-spiking connections. Initializes a dictionary of parameters which is modified by classes</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.connections.SpikingConnection" title="sns_toolbox.connections.SpikingConnection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpikingConnection</span></code></a></p></td>
+<td><p>Base class of all spiking connections. Initializes a dictionary of parameters which is modified by classes</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.connections.NonSpikingSynapse" title="sns_toolbox.connections.NonSpikingSynapse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonSpikingSynapse</span></code></a></p></td>
+<td><p>An individual non-spiking synapse, where the conductance is defined as Conductance = max_conductance * max(0,</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.connections.SpikingSynapse" title="sns_toolbox.connections.SpikingSynapse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpikingSynapse</span></code></a></p></td>
+<td><p>An individual spiking synapse, where the conductance is reset to max_conductance whenever the pre-synaptic</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.connections.NonSpikingMatrixConnection" title="sns_toolbox.connections.NonSpikingMatrixConnection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonSpikingMatrixConnection</span></code></a></p></td>
+<td><p>A connection matrix of non-spiking synapses, with matrices representing the maximum conductance and reversal</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.connections.SpikingMatrixConnection" title="sns_toolbox.connections.SpikingMatrixConnection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpikingMatrixConnection</span></code></a></p></td>
+<td><p>A connection matrix of spiking synapses, with matrices representing the maximum conductance, reversal potential, time</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.connections.NonSpikingPatternConnection" title="sns_toolbox.connections.NonSpikingPatternConnection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonSpikingPatternConnection</span></code></a></p></td>
+<td><p>A pattern of non-spiking synapses, with kernel matrices representing the maximum conductance and reversal potential</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.connections.SpikingPatternConnection" title="sns_toolbox.connections.SpikingPatternConnection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpikingPatternConnection</span></code></a></p></td>
+<td><p>A pattern of spiking synapses, with kernel matrices representing the maximum conductance, reversal potential, time</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.connections.NonSpikingTransmissionSynapse" title="sns_toolbox.connections.NonSpikingTransmissionSynapse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonSpikingTransmissionSynapse</span></code></a></p></td>
+<td><p>A non-spiking transmission synapse, where (given some integration_gain) the maximum conductance is</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.connections.NonSpikingModulationSynapse" title="sns_toolbox.connections.NonSpikingModulationSynapse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonSpikingModulationSynapse</span></code></a></p></td>
+<td><p>A non-spiking modulation synapse, where the reversal_potential is set to 0.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.connections.SpikingTransmissionSynapse" title="sns_toolbox.connections.SpikingTransmissionSynapse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpikingTransmissionSynapse</span></code></a></p></td>
+<td><p>A spiking version of the non-spiking transmission synapse.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.connections.Connection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.connections.</span></span><span class="sig-name descname"><span class="pre">Connection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_conductance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Connection'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.connections.Connection" title="Permalink to this definition"></a></dt>
+<dd><p>Base class of all connections. Initializes a dictionary of parameters which is modified by classes which inherit
+from it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_conductance</strong> (<em>Number</em><em>, </em><em>np.ndarray</em><em>, or </em><em>torch.Tensor</em>) – All connections have a maximum synaptic conductance. It can be a single value or a matrix,
+but it must be defined.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of this connection preset, defaults to ‘Connection’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.connections.ElectricalSynapse">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.connections.</span></span><span class="sig-name descname"><span class="pre">ElectricalSynapse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">conductance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Electrical</span> <span class="pre">Synapse'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rect</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.connections.ElectricalSynapse" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.connections.Connection" title="sns_toolbox.connections.Connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Connection</span></code></a></p>
+<p>Base class of all connections. Initializes a dictionary of parameters which is modified by classes which inherit
+from it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_conductance</strong> (<em>Number</em><em>, </em><em>np.ndarray</em><em>, or </em><em>torch.Tensor</em>) – All connections have a maximum synaptic conductance. It can be a single value or a matrix,
+but it must be defined.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of this connection preset, defaults to ‘Connection’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.connections.NonSpikingConnection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.connections.</span></span><span class="sig-name descname"><span class="pre">NonSpikingConnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_conductance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reversal_potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_lo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_hi</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Non-Spiking</span> <span class="pre">Connection'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.connections.NonSpikingConnection" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.connections.Connection" title="sns_toolbox.connections.Connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Connection</span></code></a></p>
+<p>Base class of all non-spiking connections. Initializes a dictionary of parameters which is modified by classes
+which inherit from it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_conductance</strong> (<em>Number</em><em>, </em><em>np.ndarray</em><em>, or </em><em>torch.Tensor</em>) – All connections have a maximum synaptic conductance. It can be a single value or a matrix,
+but it must be defined.</p></li>
+<li><p><strong>reversal_potential</strong> (<em>Number</em><em>, </em><em>np.ndarray</em><em>, or </em><em>torch.Tensor</em>) – All chemical connections have a relative synaptic reversal potential. It can be
+a single value or a matrix, but it must be defined.</p></li>
+<li><p><strong>e_lo</strong> (<em>Number</em><em>, </em><em>np.ndarray</em><em>, or </em><em>torch.Tensor</em>) – Synaptic activation threshold.</p></li>
+<li><p><strong>e_hi</strong> (<em>Number</em><em>, </em><em>np.ndarray</em><em>, or </em><em>torch.Tensor</em>) – Synaptic maximum activation limit.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of this connection preset, defaults to ‘Non-Spiking Connection’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.connections.SpikingConnection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.connections.</span></span><span class="sig-name descname"><span class="pre">SpikingConnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_conductance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reversal_potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_constant</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transmission_delay</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Spiking</span> <span class="pre">Connection'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.connections.SpikingConnection" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.connections.Connection" title="sns_toolbox.connections.Connection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Connection</span></code></a></p>
+<p>Base class of all spiking connections. Initializes a dictionary of parameters which is modified by classes
+which inherit from it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_conductance</strong> (<em>Number</em><em>, </em><em>np.ndarray</em><em>, or </em><em>torch.Tensor</em>) – All connections have a maximum synaptic conductance. It can be a single value or a matrix,
+but it must be defined.</p></li>
+<li><p><strong>reversal_potential</strong> (<em>Number</em><em>, </em><em>np.ndarray</em><em>, or </em><em>torch.Tensor</em>) – All chemical connections have a relative synaptic reversal potential. It can be
+a single value or a matrix, but it must be defined.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of this connection preset, defaults to ‘Spiking Connection’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.connections.NonSpikingSynapse">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.connections.</span></span><span class="sig-name descname"><span class="pre">NonSpikingSynapse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_conductance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reversal_potential</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">40.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_lo</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_hi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.connections.NonSpikingSynapse" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.connections.NonSpikingConnection" title="sns_toolbox.connections.NonSpikingConnection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonSpikingConnection</span></code></a></p>
+<p>An individual non-spiking synapse, where the conductance is defined as Conductance = max_conductance * max(0,
+min(1, Upre/R)), and the synaptic current is i_syn = Conductance*(reversal_potential - Upost).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_conductance</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum synaptic conductance, defaults to 1.0. Units are micro-siemens (uS).</p></li>
+<li><p><strong>reversal_potential</strong> (<em>float</em><em>, </em><em>optional</em>) – Synaptic reversal potential, defaults to 40.0. Units are millivolts (mV).</p></li>
+<li><p><strong>e_lo</strong> (<em>float</em>) – Synaptic activation threshold.</p></li>
+<li><p><strong>e_hi</strong> (<em>float</em>) – Synaptic maximum activation limit.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.connections.SpikingSynapse">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.connections.</span></span><span class="sig-name descname"><span class="pre">SpikingSynapse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_conductance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reversal_potential</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">194.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_constant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transmission_delay</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conductance_increment</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.connections.SpikingSynapse" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.connections.SpikingConnection" title="sns_toolbox.connections.SpikingConnection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpikingConnection</span></code></a></p>
+<p>An individual spiking synapse, where the conductance is reset to max_conductance whenever the pre-synaptic
+neuron spikes, and otherwise decays to zero according to the time constant. Synaptic current
+is i_syn = Conductance*(reversal_potential - Upost). Synaptic propagation can be delayed by a set number
+of timesteps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_conductance</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum synaptic conductance, defaults to 1.0. Units are micro-siemens (uS).</p></li>
+<li><p><strong>reversal_potential</strong> (<em>float</em><em>, </em><em>optional</em>) – Synaptic reversal potential, defaults to 194.0. Units are millivolts (mV).</p></li>
+<li><p><strong>time_constant</strong> (<em>float</em><em>, </em><em>optional</em>) – Time constant of synaptic decay, defaults to 1.0. Units are milliseconds (ms).</p></li>
+<li><p><strong>transmission_delay</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of timesteps to delay synaptic activity, defaults to 0. Units are timesteps (dt).</p></li>
+<li><p><strong>conductance_increment</strong> – Amount that the conductance is incremented at every presynaptic spiking, defaults to</p></li>
+</ul>
+</dd>
+</dl>
+<p>max_conductance. Units are millivolts (mV).
+:type conductance_increment: Number, optional</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.connections.NonSpikingMatrixConnection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.connections.</span></span><span class="sig-name descname"><span class="pre">NonSpikingMatrixConnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_conductance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reversal_potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_lo</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_hi</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.connections.NonSpikingMatrixConnection" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.connections.NonSpikingConnection" title="sns_toolbox.connections.NonSpikingConnection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonSpikingConnection</span></code></a></p>
+<p>A connection matrix of non-spiking synapses, with matrices representing the maximum conductance and reversal
+potential of each synapse in the pattern.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_conductance</strong> (<em>np.ndarray</em><em> or </em><em>torch.Tensor</em>) – Matrix of conductance values. Units are micro-siemens (uS).</p></li>
+<li><p><strong>reversal_potential</strong> (<em>np.ndarray</em><em> or </em><em>torch.Tensor</em>) – Kernel matrix of reversal potential values. Units are millivolts (mV).</p></li>
+<li><p><strong>e_lo</strong> (<em>np.ndarray</em><em>, or </em><em>torch.Tensor</em>) – Synaptic activation threshold kernel matrix. Units are millivolts (mV)</p></li>
+<li><p><strong>e_hi</strong> (<em>np.ndarray</em><em>, or </em><em>torch.Tensor</em>) – Synaptic maximum activation limit kernel matrix. Units are millivolts (mV)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.connections.SpikingMatrixConnection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.connections.</span></span><span class="sig-name descname"><span class="pre">SpikingMatrixConnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_conductance</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reversal_potential</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_constant</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transmission_delay</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.connections.SpikingMatrixConnection" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.connections.SpikingConnection" title="sns_toolbox.connections.SpikingConnection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpikingConnection</span></code></a></p>
+<p>A connection matrix of spiking synapses, with matrices representing the maximum conductance, reversal potential, time
+constant, and transmission delay of each synapse in the pattern.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_conductance</strong> (<em>np.ndarray</em><em> or </em><em>torch.Tensor</em>) – Matrix of conductance values. Units are micro-siemens (uS).</p></li>
+<li><p><strong>reversal_potential</strong> (<em>np.ndarray</em><em> or </em><em>torch.Tensor</em>) – Kernel matrix of reversal potential values. Units are millivolts (mV).</p></li>
+<li><p><strong>time_constant</strong> (<em>np.ndarray</em><em> or </em><em>torch.tensor</em>) – Matrix of time constant values. Units are milliseconds (ms).</p></li>
+<li><p><strong>transmission_delay</strong> (<em>np.ndarray</em><em> or </em><em>torch.tensor</em>) – Matrix of transmission delays. Units are timesteps (dt).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.connections.NonSpikingPatternConnection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.connections.</span></span><span class="sig-name descname"><span class="pre">NonSpikingPatternConnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_conductance_kernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reversal_potential_kernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_lo_kernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_hi_kernel</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.connections.NonSpikingPatternConnection" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.connections.NonSpikingConnection" title="sns_toolbox.connections.NonSpikingConnection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonSpikingConnection</span></code></a></p>
+<p>A pattern of non-spiking synapses, with kernel matrices representing the maximum conductance and reversal potential
+of each synapse in the pattern.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_conductance_kernel</strong> (<em>np.ndarray</em><em> or </em><em>torch.Tensor</em>) – Kernel matrix of conductance values. Units are micro-siemens (uS).</p></li>
+<li><p><strong>reversal_potential_kernel</strong> (<em>np.ndarray</em><em> or </em><em>torch.Tensor</em>) – Kernel matrix of reversal potential values. Units are millivolts (mV).</p></li>
+<li><p><strong>e_lo_kernel</strong> (<em>np.ndarray</em><em>, or </em><em>torch.Tensor</em>) – Synaptic activation threshold kernel matrix. Units are millivolts (mV)</p></li>
+<li><p><strong>e_hi_kernel</strong> (<em>np.ndarray</em><em>, or </em><em>torch.Tensor</em>) – Synaptic maximum activation limit kernel matrix. Units are millivolts (mV)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.connections.SpikingPatternConnection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.connections.</span></span><span class="sig-name descname"><span class="pre">SpikingPatternConnection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_conductance_kernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reversal_potential_kernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_constant_kernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transmission_delay_kernel</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.connections.SpikingPatternConnection" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.connections.SpikingConnection" title="sns_toolbox.connections.SpikingConnection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpikingConnection</span></code></a></p>
+<p>A pattern of spiking synapses, with kernel matrices representing the maximum conductance, reversal potential, time
+constant, and transmission delay of each synapse in the pattern.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_conductance_kernel</strong> (<em>np.ndarray</em><em> or </em><em>torch.tensor</em>) – Kernel matrix of conductance values. Units are micro-siemens (uS).</p></li>
+<li><p><strong>reversal_potential_kernel</strong> (<em>np.ndarray</em><em> or </em><em>torch.tensor</em>) – Kernel matrix of reversal potential values. Units are millivolts (mV).</p></li>
+<li><p><strong>time_constant_kernel</strong> (<em>np.ndarray</em><em> or </em><em>torch.tensor</em>) – Kernel matrix of time constant values. Units are milliseconds (ms).</p></li>
+<li><p><strong>transmission_delay_kernel</strong> (<em>np.ndarray</em><em> or </em><em>torch.tensor</em>) – Kernel matrix of transmission delays. Units are timesteps (dt).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.connections.NonSpikingTransmissionSynapse">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.connections.</span></span><span class="sig-name descname"><span class="pre">NonSpikingTransmissionSynapse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Transmit'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.connections.NonSpikingTransmissionSynapse" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.connections.NonSpikingSynapse" title="sns_toolbox.connections.NonSpikingSynapse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonSpikingSynapse</span></code></a></p>
+<p>A non-spiking transmission synapse, where (given some integration_gain) the maximum conductance is
+max_conductance = (integration_gain*R)/(reversal_potential - integration_gain*R).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gain</strong> (<em>Number</em><em>, </em><em>optional</em>) – Transmission integration gain, defaults to 1.0.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of this synapse preset, defaults to ‘Transmit’</p></li>
+<li><p><strong>R</strong> (<em>Number</em>) – Range of neural voltage activity, defaults to 20.0. Units are millivolts (mV).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.connections.NonSpikingModulationSynapse">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.connections.</span></span><span class="sig-name descname"><span class="pre">NonSpikingModulationSynapse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Modulate'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.connections.NonSpikingModulationSynapse" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.connections.NonSpikingSynapse" title="sns_toolbox.connections.NonSpikingSynapse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NonSpikingSynapse</span></code></a></p>
+<p>A non-spiking modulation synapse, where the reversal_potential is set to 0.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ratio</strong> (<em>Number</em>) – The desired ratio Upost/Upre when Upre is at max activity (R mV).</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of this synapse preset, defaults to ‘Modulate’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.connections.SpikingTransmissionSynapse">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.connections.</span></span><span class="sig-name descname"><span class="pre">SpikingTransmissionSynapse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gain</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Transmit'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">non_linearity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.connections.SpikingTransmissionSynapse" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.connections.SpikingSynapse" title="sns_toolbox.connections.SpikingSynapse"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SpikingSynapse</span></code></a></p>
+<p>A spiking version of the non-spiking transmission synapse.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gain</strong> (<em>Number</em><em>, </em><em>optional</em>) – Transmission frequency gain, defaults to 1.0.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of this preset, defaults to ‘Transmit’.</p></li>
+<li><p><strong>max_frequency</strong> (<em>Number</em><em>, </em><em>optional</em>) – Maximum spiking frequency, defaults to 10.0. Units are kilohertz (kHz).</p></li>
+<li><p><strong>non_linearity</strong> (<em>Number</em><em>, </em><em>optional</em>) – A constant between 0 and 1 which limits the synaptic non-linearity. Values closer to 0 improve
+linearity.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, William Nourse.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

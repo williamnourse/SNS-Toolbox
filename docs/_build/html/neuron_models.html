@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neural Models &mdash; SNS-Toolbox 1.5.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Connection Models" href="connection_models.html" />
+    <link rel="prev" title="Running Networks on the GPU" href="gpu.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SNS-Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Building Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compiling.html">Compiling and Simulating Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="render.html">Rendering Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="saving_loading.html">Saving and Loading Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">Running Networks on the GPU</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Neural Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#non-spiking-neuron">Non-Spiking Neuron</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#spiking-neuron">Spiking Neuron</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#non-spiking-neuron-with-gated-ion-channels">Non-Spiking Neuron with Gated Ion Channels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#non-spiking-neuron-with-persistent-sodium-channel">Non-Spiking Neuron with Persistent Sodium Channel</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="connection_models.html">Connection Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_1.html">Tutorial 1: Designing Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_2.html">Tutorial 2: Simulating Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_3.html">Tutorial 3: Spiking Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_4.html">Tutorial 4: Adding Subnetworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_5.html">Tutorial 5: Spiking Networks with Synaptic Transmission Delay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_6.html">Tutorial 6: Using Connectivity Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_7.html">Tutorial 7: Electrical Synapses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_8.html">Tutorial 8: Neurons with Voltage-gated Ion Channels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SNS-Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Neural Models</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/neuron_models.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="neural-models">
+<h1>Neural Models<a class="headerlink" href="#neural-models" title="Permalink to this heading"></a></h1>
+<p>A variety of neuron models are available to use within SNS-Toolbox, each with different dynamics.</p>
+<section id="non-spiking-neuron">
+<h2>Non-Spiking Neuron<a class="headerlink" href="#non-spiking-neuron" title="Permalink to this heading"></a></h2>
+<p>Non-spiking neurons are simulated as leaky integrators, where the membrane depolarization (<span class="math notranslate nohighlight">\(V\)</span>) behaves
+according to the differential equation</p>
+<div class="math notranslate nohighlight">
+\[C_m \cdot \frac{dV}{dt} = -G_m\cdot \left (V - V_{rest} \right ) + \sum I_{syn} + I_{bias} + I_{app},\]</div>
+<p>where <span class="math notranslate nohighlight">\(C_m\)</span> is the membrane capacitance, <span class="math notranslate nohighlight">\(G_m\)</span> is the membrane leak conductance, <span class="math notranslate nohighlight">\(V_{rest}\)</span> is the resting
+potential, <span class="math notranslate nohighlight">\(I_{bias}\)</span> is a constant offset current, <span class="math notranslate nohighlight">\(I_{app}\)</span> is an external applied current,
+and <span class="math notranslate nohighlight">\(I_{syn}\)</span> is the current induced by an incoming conductance-based or electrical synapse.</p>
+<p>Default values are as follows:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(C_m = 5 nF\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(G_m = 1 \mu S\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(V_{rest} = 0 mV\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(I_{bias} = 0 mV\)</span></p></li>
+</ul>
+<p>This neuron can be implemented using
+<a class="reference external" href="https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/neurons/index.html#sns_toolbox.neurons.NonSpikingNeuron">sns_toolbox.neurons.NonSpikingNeuron</a>.</p>
+</section>
+<section id="spiking-neuron">
+<h2>Spiking Neuron<a class="headerlink" href="#spiking-neuron" title="Permalink to this heading"></a></h2>
+<p>Spiking neurons have similar dynamics to the classic non-spiking neuron, with an additional dynamic variable
+(<span class="math notranslate nohighlight">\(\theta\)</span>) that acts as a firing threshold:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}C_{m} \cdot \frac{dV}{dt} = -G_{m}\cdot \left (V - V_{rest} \right ) + \sum I_{syn} + I_{bias} + I_{app}\\\tau_{\theta}\frac{d\theta}{dt} = b\cdot(-\theta + \theta_0) + m\cdot \left (V - V_{rest} \right )\end{aligned}\end{align} \]</div>
+<p>where <span class="math notranslate nohighlight">\(\tau_{\theta}\)</span> is a threshold time constant, <span class="math notranslate nohighlight">\(b\)</span> is the threshold leak rate, <span class="math notranslate nohighlight">\(\theta_0\)</span> is an initial threshold voltage, and <span class="math notranslate nohighlight">\(m\)</span>
+is a proportionality constant describing how changes in <span class="math notranslate nohighlight">\(U\)</span> affect <span class="math notranslate nohighlight">\(\theta\)</span>. These dynamics produce spiking
+behavior using the spiking variable <span class="math notranslate nohighlight">\(\delta\)</span>, which represents a spike. When a spike occurs, the membrane is set to <span class="math notranslate nohighlight">\(V_{reset}\)</span> and the threshold is incremented by <span class="math notranslate nohighlight">\(\theta_{inc}\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\begin{split}\delta =
+\begin{cases}
+    1, &amp; V\geq\theta\\
+    0, &amp; \text{otherwise}.
+\end{cases}\end{split}\\\text{if $\delta=1, V_{reset}\leftarrow V &amp; max(\theta+\theta_{inc}, \theta_{reset})\leftarrow \theta$.}\end{aligned}\end{align} \]</div>
+<p>Default values are as follows:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\tau_{\theta} = 5 ms\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\theta_0 = 1 mV\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(m = 0\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(b = 1\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\theta_{inc}=0\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\theta_{floor}=V_{rest}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(V_{reset}=V_{rest}\)</span></p></li>
+</ul>
+<p>This neuron can be implemented using
+<a class="reference external" href="https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/neurons/index.html#sns_toolbox.neurons.SpikingNeuron">sns_toolbox.neurons.SpikingNeuron</a>.</p>
+</section>
+<section id="non-spiking-neuron-with-gated-ion-channels">
+<h2>Non-Spiking Neuron with Gated Ion Channels<a class="headerlink" href="#non-spiking-neuron-with-gated-ion-channels" title="Permalink to this heading"></a></h2>
+<p>These neurons share the same dynamics as the classic non-spiking neuron, with additional ionic currents <span class="math notranslate nohighlight">\(I_{ion}\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[C_{m} \cdot \frac{dV}{dt} = -G_{m}\cdot \left (V - V_{rest} \right ) + \sum I_{syn} + I_{bias} + I_{app} + I_{ion}\]</div>
+<p><span class="math notranslate nohighlight">\(I_{ion}\)</span> represents currents flowing through voltage-gated ion channels, which can be responsible for additional
+nonlinear behavior:</p>
+<div class="math notranslate nohighlight">
+\[I_{ion} = \sum_j G_{ion,j} \cdot a_{\infty,j}(V) \cdot b_j^{p_{b,j}}  \cdot c_j^{p_{c,j}} \cdot \left ( E_{ion,j}-V \right )\]</div>
+<p>Any neuron within a network can have any number of ion channels. <span class="math notranslate nohighlight">\(G_{ion,j}\)</span> is the maximum ionic conductance of
+the j<sup>th</sup> ion channel, and <span class="math notranslate nohighlight">\(E_{ion,j}\)</span> is the ionic reversal potential. <span class="math notranslate nohighlight">\(b\)</span> and <span class="math notranslate nohighlight">\(c\)</span> are
+dynamical gating variables, and have the following dynamics:</p>
+<div class="math notranslate nohighlight">
+\[\frac{dz_j}{dt} = \frac{z_{\infty,j}(V) - z_j}{\tau_{z,j}(V)},\]</div>
+<p>where functions of the form <span class="math notranslate nohighlight">\(z_{\infty,j}\)</span> are a voltage-dependent steady-state</p>
+<div class="math notranslate nohighlight">
+\[z_{\infty,j} = \frac{1}{1 + K_{z,j} \cdot \text{exp}\left ( S_{z,j} \cdot \left ( E_{z,j} - V \right ) \right )}\]</div>
+<p>and <span class="math notranslate nohighlight">\(\tau_{z,j}(V)\)</span> is a voltage-dependent time constant</p>
+<div class="math notranslate nohighlight">
+\[\tau_{z,j}(V) = \tau_{max,z,j} \cdot z_{\infty,j}(V) \cdot \sqrt{K_{z,j} \cdot \text{exp}\left ( S_{z,j} \cdot \left ( E_{z,j} - V \right ) \right )}.\]</div>
+<p><span class="math notranslate nohighlight">\(p\)</span> denotes an exponent, and <span class="math notranslate nohighlight">\(E_{z,j}\)</span> is the gate reversal potential. <span class="math notranslate nohighlight">\(K_{z,j}\)</span> and
+<span class="math notranslate nohighlight">\(S_{z,j}\)</span> are parameters for shaping the <span class="math notranslate nohighlight">\(z_{\infty,j}(V)\)</span> and <span class="math notranslate nohighlight">\(\tau_{z,j}(V)\)</span> curves.
+<span class="math notranslate nohighlight">\(\tau_{max,z,j}\)</span> is the maximum value of <span class="math notranslate nohighlight">\(\tau_{z,j}(V)\)</span>.</p>
+<p>This neuron can be implemented using <a class="reference external" href="https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/neurons/index.html#sns_toolbox.neurons.NonSpikingNeuronWithGatedChannels">sns_toolbox.neurons.NonSpikingNeuronWithGatedChannels</a>.</p>
+</section>
+<section id="non-spiking-neuron-with-persistent-sodium-channel">
+<h2>Non-Spiking Neuron with Persistent Sodium Channel<a class="headerlink" href="#non-spiking-neuron-with-persistent-sodium-channel" title="Permalink to this heading"></a></h2>
+<p>These neurons are a special case of the non-spiking neuron with gated ion channels:</p>
+<div class="math notranslate nohighlight">
+\[C_{m} \cdot \frac{dV}{dt} = -G_{m}\cdot \left (V - V_{rest} \right ) + \sum I_{syn} + I_{bias} + I_{app} + \sum_j G_{Na,j} \cdot m_{\infty,j}(V) \cdot h_j \cdot \left ( E_{Na,j}-V \right )\]</div>
+<p>Default values of the channel are as follows:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(G_{Na} = 1.049 \mu S\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(p_{h} = 1\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(E_{Na} = 110mV\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(K_m = 1\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(S_m = \frac{1}{2}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(E_m = 20mV\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(K_h = \frac{1}{2}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(S_h = -\frac{1}{2}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(E_h = 0mV\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\tau_{max,h} = 300ms\)</span></p></li>
+</ul>
+<p>This neuron can be implemented using <a class="reference external" href="https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/neurons/index.html#sns_toolbox.neurons.NonSpikingNeuronWithPersistentSodiumChannel">sns_toolbox.neurons.NonSpikingNeuronWithPersisitentSodiumChannel</a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gpu.html" class="btn btn-neutral float-left" title="Running Networks on the GPU" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="connection_models.html" class="btn btn-neutral float-right" title="Connection Models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, William Nourse.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

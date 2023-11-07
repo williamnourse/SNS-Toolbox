@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutorial 6: Using Connectivity Patterns &mdash; SNS-Toolbox 1.5.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Tutorial 7: Electrical Synapses" href="tutorial_7.html" />
+    <link rel="prev" title="Tutorial 5: Spiking Networks with Synaptic Transmission Delay" href="tutorial_5.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SNS-Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../start.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../networks.html">Building Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compiling.html">Compiling and Simulating Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../render.html">Rendering Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../saving_loading.html">Saving and Loading Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gpu.html">Running Networks on the GPU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../neuron_models.html">Neural Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../connection_models.html">Connection Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_1.html">Tutorial 1: Designing Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_2.html">Tutorial 2: Simulating Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_3.html">Tutorial 3: Spiking Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_4.html">Tutorial 4: Adding Subnetworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_5.html">Tutorial 5: Spiking Networks with Synaptic Transmission Delay</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial 6: Using Connectivity Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_7.html">Tutorial 7: Electrical Synapses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_8.html">Tutorial 8: Neurons with Voltage-gated Ion Channels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SNS-Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Tutorial 6: Using Connectivity Patterns</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/tutorial_6.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="Tutorial-6:-Using-Connectivity-Patterns">
+<h1>Tutorial 6: Using Connectivity Patterns<a class="headerlink" href="#Tutorial-6:-Using-Connectivity-Patterns" title="Permalink to this heading"></a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add the library to the path</span>
+<span class="c1"># If jupyter cannot find SNS-Toolbox</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">module_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">))</span>
+<span class="k">if</span> <span class="n">module_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">sns_toolbox.connections</span> <span class="kn">import</span> <span class="n">NonSpikingPatternConnection</span>
+<span class="kn">from</span> <span class="nn">sns_toolbox.networks</span> <span class="kn">import</span> <span class="n">Network</span>
+<span class="kn">from</span> <span class="nn">sns_toolbox.neurons</span> <span class="kn">import</span> <span class="n">NonSpikingNeuron</span>
+<span class="kn">from</span> <span class="nn">sns_toolbox.renderer</span> <span class="kn">import</span> <span class="n">render</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">cv2</span> <span class="k">as</span> <span class="nn">cv</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">img</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s1">&#39;/home/will/Pictures/sample_images/cameraman.png&#39;</span><span class="p">)</span>   <span class="c1"># load image file</span>
+
+<span class="n">shape_original</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># dimensions of the original image</span>
+<span class="n">dim_long</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">shape_original</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">shape_original</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># longest dimension of the original image</span>
+<span class="n">dim_desired_max</span> <span class="o">=</span> <span class="mi">32</span>    <span class="c1"># constrain the longest dimension for easier processing</span>
+<span class="n">ratio</span> <span class="o">=</span> <span class="n">dim_desired_max</span><span class="o">/</span><span class="n">dim_long</span>    <span class="c1"># scaling ratio of original image</span>
+<span class="n">img_resized</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span><span class="kc">None</span><span class="p">,</span><span class="n">fx</span><span class="o">=</span><span class="n">ratio</span><span class="p">,</span><span class="n">fy</span><span class="o">=</span><span class="n">ratio</span><span class="p">)</span> <span class="c1"># scale original image using ratio</span>
+
+<span class="n">img_color</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>  <span class="c1"># transform the image from BGR to RGB</span>
+<span class="n">img_color_resized</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img_resized</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>  <span class="c1"># resize the RGB image</span>
+<span class="n">img_gray</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">img_resized</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_BGR2GRAY</span><span class="p">)</span>  <span class="c1"># convert the resized image to grayscale [0-255]</span>
+
+<span class="n">shape</span> <span class="o">=</span> <span class="n">img_gray</span><span class="o">.</span><span class="n">shape</span>  <span class="c1"># dimensions of the resized grayscale image</span>
+
+<span class="n">img_flat</span> <span class="o">=</span> <span class="n">img_gray</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>   <span class="c1"># flatten the image into 1 vector for neural processing</span>
+<span class="n">flat_size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">img_flat</span><span class="p">)</span>   <span class="c1"># length of the flattened image vector</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">img_gray</span><span class="p">,</span><span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+
+<span class="n">new_img</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="s1">&#39;/home/will/Documents/SNS Toolbox Paper LM2022/figures/kernel example/kernel diagram.png&#39;</span><span class="p">)</span>   <span class="c1"># load image file</span>
+<span class="n">new_img</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">new_img</span><span class="p">,</span> <span class="n">cv</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span><span class="p">)</span>  <span class="c1"># transform the image from BGR to RGB</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">new_img</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(-0.5, 2758.5, 1742.5, -0.5)
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial_6_2_1.png" src="../_images/tutorials_tutorial_6_2_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial_6_2_2.png" src="../_images/tutorials_tutorial_6_2_2.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># General network</span>
+<span class="n">R</span> <span class="o">=</span> <span class="mf">20.0</span>    <span class="c1"># range of network activity (mV)</span>
+<span class="n">neuron_type</span> <span class="o">=</span> <span class="n">NonSpikingNeuron</span><span class="p">()</span>    <span class="c1"># generic neuron type</span>
+<span class="n">net</span> <span class="o">=</span> <span class="n">Network</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Visual Network&#39;</span><span class="p">)</span>    <span class="c1"># create an empty network</span>
+
+<span class="c1"># Retina</span>
+<span class="n">net</span><span class="o">.</span><span class="n">add_population</span><span class="p">(</span><span class="n">neuron_type</span><span class="p">,</span><span class="n">shape</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Retina&#39;</span><span class="p">)</span> <span class="c1"># add a 2d population the same size as the scaled image</span>
+<span class="n">net</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span><span class="s1">&#39;Retina&#39;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">flat_size</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Image&#39;</span><span class="p">)</span>    <span class="c1"># add a vector input for the flattened scaled image</span>
+<span class="n">net</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span><span class="s1">&#39;Retina&#39;</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Retina Output&#39;</span><span class="p">)</span>  <span class="c1"># add a vector output from the retina, scaled correctly</span>
+
+<span class="c1"># Lamina</span>
+<span class="n">net</span><span class="o">.</span><span class="n">add_population</span><span class="p">(</span><span class="n">neuron_type</span><span class="p">,</span><span class="n">shape</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Lamina&#39;</span><span class="p">)</span>
+
+<span class="n">del_e_ex</span> <span class="o">=</span> <span class="mf">160.0</span>    <span class="c1"># excitatory reversal potential</span>
+<span class="n">del_e_in</span> <span class="o">=</span> <span class="o">-</span><span class="mf">80.0</span>    <span class="c1"># inhibitory reversal potential</span>
+<span class="n">k_ex</span> <span class="o">=</span> <span class="mf">1.0</span>  <span class="c1"># excitatory gain</span>
+<span class="n">k_in</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span><span class="o">/</span><span class="mf">9.0</span> <span class="c1"># inhibitory gain</span>
+<span class="n">g_max_ex</span> <span class="o">=</span> <span class="p">(</span><span class="n">k_ex</span><span class="o">*</span><span class="n">R</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">del_e_ex</span><span class="o">-</span><span class="n">k_ex</span><span class="o">*</span><span class="n">R</span><span class="p">)</span>   <span class="c1"># calculate excitatory conductance</span>
+<span class="n">g_max_in</span> <span class="o">=</span> <span class="p">(</span><span class="n">k_in</span><span class="o">*</span><span class="n">R</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">del_e_in</span><span class="o">-</span><span class="n">k_in</span><span class="o">*</span><span class="n">R</span><span class="p">)</span>   <span class="c1"># calculate inhibitory conductance</span>
+
+<span class="n">g_max_kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">g_max_in</span><span class="p">,</span> <span class="n">g_max_in</span><span class="p">,</span> <span class="n">g_max_in</span><span class="p">],</span>    <span class="c1"># kernel matrix of synaptic conductances</span>
+                         <span class="p">[</span><span class="n">g_max_in</span><span class="p">,</span> <span class="n">g_max_ex</span><span class="p">,</span> <span class="n">g_max_in</span><span class="p">],</span>
+                         <span class="p">[</span><span class="n">g_max_in</span><span class="p">,</span> <span class="n">g_max_in</span><span class="p">,</span> <span class="n">g_max_in</span><span class="p">]])</span>
+<span class="n">del_e_kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">del_e_in</span><span class="p">,</span> <span class="n">del_e_in</span><span class="p">,</span> <span class="n">del_e_in</span><span class="p">],</span>    <span class="c1"># kernel matrix of synaptic reversal potentials</span>
+                         <span class="p">[</span><span class="n">del_e_in</span><span class="p">,</span> <span class="n">del_e_ex</span><span class="p">,</span> <span class="n">del_e_in</span><span class="p">],</span>
+                         <span class="p">[</span><span class="n">del_e_in</span><span class="p">,</span> <span class="n">del_e_in</span><span class="p">,</span> <span class="n">del_e_in</span><span class="p">]])</span>
+<span class="n">e_lo_kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span>
+<span class="n">e_hi_kernel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">])</span> <span class="o">+</span> <span class="n">R</span>
+<span class="n">connection_hpf</span> <span class="o">=</span> <span class="n">NonSpikingPatternConnection</span><span class="p">(</span><span class="n">g_max_kernel</span><span class="p">,</span><span class="n">del_e_kernel</span><span class="p">,</span><span class="n">e_lo_kernel</span><span class="p">,</span><span class="n">e_hi_kernel</span><span class="p">)</span> <span class="c1"># pattern connection (acts as high pass filter)</span>
+<span class="n">net</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="n">connection_hpf</span><span class="p">,</span><span class="s1">&#39;Retina&#39;</span><span class="p">,</span><span class="s1">&#39;Lamina&#39;</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;HPF&#39;</span><span class="p">)</span> <span class="c1"># connect the retina to the lamina</span>
+<span class="n">net</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span><span class="s1">&#39;Lamina&#39;</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Lamina Output&#39;</span><span class="p">)</span>  <span class="c1"># add a vector output from the lamina</span>
+
+<span class="n">img_flat</span> <span class="o">=</span> <span class="n">img_flat</span><span class="o">*</span><span class="n">R</span><span class="o">/</span><span class="mf">255.0</span> <span class="c1"># scale all the intensities from 0-255 to 0-R</span>
+<span class="n">render</span><span class="p">(</span><span class="n">net</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial_6_3_0.svg" src="../_images/tutorials_tutorial_6_3_0.svg" /></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dt</span> <span class="o">=</span> <span class="n">neuron_type</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;membrane_capacitance&#39;</span><span class="p">]</span><span class="o">/</span><span class="n">neuron_type</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s1">&#39;membrane_conductance&#39;</span><span class="p">]</span>  <span class="c1"># calculate the ideal dt</span>
+<span class="n">t_max</span> <span class="o">=</span> <span class="mi">15</span>  <span class="c1"># run for 15 ms</span>
+<span class="n">steps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">t_max</span><span class="o">/</span><span class="n">dt</span><span class="p">)</span>   <span class="c1"># number of steps to simulate</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;numpy&#39;</span><span class="p">,</span><span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">,</span><span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="c1"># compile using the numpy backend</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%i</span><span class="s1"> / </span><span class="si">%i</span><span class="s1"> steps&#39;</span><span class="o">%</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span><span class="n">steps</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>    <span class="c1"># create a figure for live plotting the retina and lamina states</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Retina&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Lamina&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;off&#39;</span><span class="p">)</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">model</span><span class="p">(</span><span class="n">img_flat</span><span class="p">)</span>   <span class="c1"># run the network for one dt</span>
+    <span class="n">retina</span> <span class="o">=</span> <span class="n">out</span><span class="p">[:</span><span class="n">flat_size</span><span class="p">]</span>    <span class="c1"># separate the retina and lamina states</span>
+    <span class="n">lamina</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="n">flat_size</span><span class="p">:]</span>
+    <span class="n">retina_reshape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">retina</span><span class="p">,</span><span class="n">shape</span><span class="p">)</span>   <span class="c1"># reshape to from flat to an image</span>
+    <span class="n">lamina_reshape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">lamina</span><span class="p">,</span><span class="n">shape</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># plot the current state</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">retina_reshape</span><span class="p">,</span><span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">lamina_reshape</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+1 / 3 steps
+2 / 3 steps
+3 / 3 steps
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial_6_5_1.png" src="../_images/tutorials_tutorial_6_5_1.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial_6_5_2.png" src="../_images/tutorials_tutorial_6_5_2.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial_6_5_3.png" src="../_images/tutorials_tutorial_6_5_3.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorial_5.html" class="btn btn-neutral float-left" title="Tutorial 5: Spiking Networks with Synaptic Transmission Delay" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorial_7.html" class="btn btn-neutral float-right" title="Tutorial 7: Electrical Synapses" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, William Nourse.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

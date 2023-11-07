@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutorial 8: Neurons with Voltage-gated Ion Channels &mdash; SNS-Toolbox 1.5.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Tutorial 7: Electrical Synapses" href="tutorial_7.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            SNS-Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../start.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../networks.html">Building Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../compiling.html">Compiling and Simulating Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../render.html">Rendering Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../saving_loading.html">Saving and Loading Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gpu.html">Running Networks on the GPU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../neuron_models.html">Neural Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../connection_models.html">Connection Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_1.html">Tutorial 1: Designing Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_2.html">Tutorial 2: Simulating Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_3.html">Tutorial 3: Spiking Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_4.html">Tutorial 4: Adding Subnetworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_5.html">Tutorial 5: Spiking Networks with Synaptic Transmission Delay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_6.html">Tutorial 6: Using Connectivity Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial_7.html">Tutorial 7: Electrical Synapses</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial 8: Neurons with Voltage-gated Ion Channels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">SNS-Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Tutorial 8: Neurons with Voltage-gated Ion Channels</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/tutorials/tutorial_8.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt *,
+div.nbinput.container div.input_area pre,
+div.nboutput.container div.output_area pre,
+div.nbinput.container div.input_area .highlight,
+div.nboutput.container div.output_area .highlight {
+    border: none;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+div.nbinput.container > div[class*=highlight],
+div.nboutput.container > div[class*=highlight] {
+    margin: 0;
+}
+
+div.nbinput.container div.prompt *,
+div.nboutput.container div.prompt * {
+    background: none;
+}
+
+div.nboutput.container div.output_area .highlight,
+div.nboutput.container div.output_area pre {
+    background: unset;
+}
+
+div.nboutput.container div.output_area div.highlight {
+    color: unset;  /* override Pygments text color */
+}
+
+/* avoid gaps between output lines */
+div.nboutput.container div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput.container,
+div.nboutput.container {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput.container,
+    div.nboutput.container {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput.container {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast.container {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput.container div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput.container div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput.container div.prompt,
+div.nboutput.container div.prompt {
+    width: 4.5ex;
+    padding-top: 5px;
+    position: relative;
+    user-select: none;
+}
+
+div.nbinput.container div.prompt > div,
+div.nboutput.container div.prompt > div {
+    position: absolute;
+    right: 0;
+    margin-right: 0.3ex;
+}
+
+@media (max-width: 540px) {
+    div.nbinput.container div.prompt,
+    div.nboutput.container div.prompt {
+        width: unset;
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput.container div.prompt.empty {
+        padding: 0;
+    }
+
+    div.nbinput.container div.prompt > div,
+    div.nboutput.container div.prompt > div {
+        position: unset;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput.container div.prompt pre,
+div.nboutput.container div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput.container div.input_area,
+div.nboutput.container div.output_area {
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput.container div.input_area,
+    div.nboutput.container div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput.container div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    /*background: #f5f5f5;*/
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput.container div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput.container div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput.container div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+
+div.nbinput.container div.input_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight] > pre,
+div.nboutput.container div.output_area div[class*=highlight].math,
+div.nboutput.container div.output_area.rendered_html,
+div.nboutput.container div.output_area > div.output_javascript,
+div.nboutput.container div.output_area:not(.rendered_html) > img{
+    padding: 5px;
+    margin: 0;
+}
+
+/* fix copybtn overflow problem in chromium (needed for 'sphinx_copybutton') */
+div.nbinput.container div.input_area > div[class^='highlight'],
+div.nboutput.container div.output_area > div[class^='highlight']{
+    overflow-y: hidden;
+}
+
+/* hide copybtn icon on prompts (needed for 'sphinx_copybutton') */
+.prompt .copybtn {
+    display: none;
+}
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+.jp-RenderedHTMLCommon table,
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+.jp-RenderedHTMLCommon thead,
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+.jp-RenderedHTMLCommon tr,
+.jp-RenderedHTMLCommon th,
+.jp-RenderedHTMLCommon td,
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+.jp-RenderedHTMLCommon th,
+div.rendered_html th {
+  font-weight: bold;
+}
+.jp-RenderedHTMLCommon tbody tr:nth-child(odd),
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+.jp-RenderedHTMLCommon tbody tr:hover,
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="Tutorial-8:-Neurons-with-Voltage-gated-Ion-Channels">
+<h1>Tutorial 8: Neurons with Voltage-gated Ion Channels<a class="headerlink" href="#Tutorial-8:-Neurons-with-Voltage-gated-Ion-Channels" title="Permalink to this heading"></a></h1>
+<p>In this tutorial, we recreate a CPG network described in the following paper:</p>
+<p>NS Szczecinski, AJ Hunt, RD Quinn. Design process and tools for dynamic neuromechanical models and robot controllers. Biological cybernetics, 2017</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add the library to the path</span>
+<span class="c1"># If jupyter cannot find SNS-Toolbox</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">module_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s1">&#39;..&#39;</span><span class="p">))</span>
+<span class="k">if</span> <span class="n">module_path</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">module_path</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sns_toolbox.neurons</span> <span class="kn">import</span> <span class="n">NonSpikingNeuronWithGatedChannels</span><span class="p">,</span> <span class="n">NonSpikingNeuronWithPersistentSodiumChannel</span>
+<span class="kn">from</span> <span class="nn">sns_toolbox.connections</span> <span class="kn">import</span> <span class="n">NonSpikingSynapse</span>
+<span class="kn">from</span> <span class="nn">sns_toolbox.networks</span> <span class="kn">import</span> <span class="n">Network</span>
+<span class="kn">from</span> <span class="nn">sns_toolbox.renderer</span> <span class="kn">import</span> <span class="n">render</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">zinf</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">Kz</span><span class="p">,</span> <span class="n">Sz</span><span class="p">,</span> <span class="n">Ez</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="n">Kz</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">Sz</span><span class="o">*</span><span class="p">(</span><span class="n">Ez</span><span class="o">-</span><span class="n">U</span><span class="p">)))</span>
+
+<span class="k">def</span> <span class="nf">tauz</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">tauzmax</span><span class="p">,</span> <span class="n">Kz</span><span class="p">,</span> <span class="n">Sz</span><span class="p">,</span> <span class="n">Ez</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">tauzmax</span><span class="o">*</span><span class="n">zinf</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">Kz</span><span class="p">,</span> <span class="n">Sz</span><span class="p">,</span> <span class="n">Ez</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">Kz</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">Sz</span><span class="o">*</span><span class="p">(</span><span class="n">Ez</span><span class="o">-</span><span class="n">U</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">U</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">20</span><span class="p">)</span>
+
+<span class="n">Kh</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">Sh</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.046</span>
+<span class="n">Eh</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">tauhmax</span> <span class="o">=</span> <span class="mi">300</span>
+
+<span class="n">Km</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">Sm</span> <span class="o">=</span> <span class="mf">0.046</span>
+<span class="n">Em</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">zinf</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">Kh</span><span class="p">,</span> <span class="n">Sh</span><span class="p">,</span> <span class="n">Eh</span><span class="p">),</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">zinf</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">Km</span><span class="p">,</span> <span class="n">Sm</span><span class="p">,</span> <span class="n">Em</span><span class="p">),</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Zinf&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">tauz</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">tauhmax</span><span class="p">,</span> <span class="n">Kh</span><span class="p">,</span> <span class="n">Sh</span><span class="p">,</span> <span class="n">Eh</span><span class="p">),</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;h&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;TauZ&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0.5, 1.0, &#39;TauZ&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial_8_4_1.png" src="../_images/tutorials_tutorial_8_4_1.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">Cm</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">Gm</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">Ena</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">Er</span> <span class="o">=</span> <span class="o">-</span><span class="mi">60</span>
+<span class="n">delta</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.01</span>
+<span class="n">R</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="n">S</span> <span class="o">=</span> <span class="mf">0.05</span>
+<span class="n">delEna</span> <span class="o">=</span> <span class="n">Ena</span> <span class="o">-</span> <span class="n">Er</span>
+<span class="n">Km</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">Kh</span> <span class="o">=</span> <span class="mf">0.5</span>
+<span class="n">Em</span> <span class="o">=</span> <span class="o">-</span><span class="mi">40</span>
+<span class="n">Eh</span> <span class="o">=</span> <span class="o">-</span><span class="mi">60</span>
+<span class="n">delEm</span> <span class="o">=</span> <span class="n">Em</span><span class="o">-</span><span class="n">Er</span>
+<span class="n">delEh</span> <span class="o">=</span> <span class="n">Eh</span><span class="o">-</span><span class="n">Er</span>
+<span class="n">tauHmax</span> <span class="o">=</span> <span class="mi">300</span>
+
+<span class="n">Gna</span> <span class="o">=</span> <span class="n">Gm</span><span class="o">*</span><span class="n">R</span><span class="o">/</span><span class="p">(</span><span class="n">zinf</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">Km</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">delEm</span><span class="p">)</span><span class="o">*</span><span class="n">zinf</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">Kh</span><span class="p">,</span> <span class="o">-</span><span class="n">S</span><span class="p">,</span> <span class="n">delEh</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">delEna</span><span class="o">-</span><span class="n">R</span><span class="p">))</span>
+
+<span class="n">g_ion</span> <span class="o">=</span> <span class="n">Gna</span>
+<span class="n">e_ion</span> <span class="o">=</span> <span class="n">delEna</span>
+
+<span class="n">pow_a</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">k_a</span> <span class="o">=</span> <span class="n">Km</span>
+<span class="n">slope_a</span> <span class="o">=</span> <span class="n">S</span>
+<span class="n">e_a</span> <span class="o">=</span> <span class="n">delEm</span>
+
+<span class="n">pow_b</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">k_b</span> <span class="o">=</span> <span class="n">Kh</span>
+<span class="n">slope_b</span> <span class="o">=</span> <span class="o">-</span><span class="n">S</span>
+<span class="n">e_b</span> <span class="o">=</span> <span class="n">delEh</span>
+<span class="n">tau_max_b</span> <span class="o">=</span> <span class="n">tauHmax</span>
+
+<span class="n">pow_c</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">k_c</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">slope_c</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">e_c</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">tau_max_c</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="n">neuron_cpg</span> <span class="o">=</span> <span class="n">NonSpikingNeuronWithGatedChannels</span><span class="p">(</span><span class="n">membrane_capacitance</span><span class="o">=</span><span class="n">Cm</span><span class="p">,</span> <span class="n">membrane_conductance</span><span class="o">=</span><span class="n">Gm</span><span class="p">,</span><span class="n">g_ion</span><span class="o">=</span><span class="p">[</span><span class="n">g_ion</span><span class="p">],</span><span class="n">e_ion</span><span class="o">=</span><span class="p">[</span><span class="n">e_ion</span><span class="p">],</span>
+                                               <span class="n">pow_a</span><span class="o">=</span><span class="p">[</span><span class="n">pow_a</span><span class="p">],</span><span class="n">k_a</span><span class="o">=</span><span class="p">[</span><span class="n">k_a</span><span class="p">],</span><span class="n">slope_a</span><span class="o">=</span><span class="p">[</span><span class="n">slope_a</span><span class="p">],</span><span class="n">e_a</span><span class="o">=</span><span class="p">[</span><span class="n">e_a</span><span class="p">],</span>
+                                               <span class="n">pow_b</span><span class="o">=</span><span class="p">[</span><span class="n">pow_b</span><span class="p">],</span><span class="n">k_b</span><span class="o">=</span><span class="p">[</span><span class="n">k_b</span><span class="p">],</span><span class="n">slope_b</span><span class="o">=</span><span class="p">[</span><span class="n">slope_b</span><span class="p">],</span><span class="n">e_b</span><span class="o">=</span><span class="p">[</span><span class="n">e_b</span><span class="p">],</span><span class="n">tau_max_b</span><span class="o">=</span><span class="p">[</span><span class="n">tau_max_b</span><span class="p">],</span>
+                                               <span class="n">pow_c</span><span class="o">=</span><span class="p">[</span><span class="n">pow_c</span><span class="p">],</span><span class="n">k_c</span><span class="o">=</span><span class="p">[</span><span class="n">k_c</span><span class="p">],</span><span class="n">slope_c</span><span class="o">=</span><span class="p">[</span><span class="n">slope_c</span><span class="p">],</span><span class="n">e_c</span><span class="o">=</span><span class="p">[</span><span class="n">e_c</span><span class="p">],</span><span class="n">tau_max_c</span><span class="o">=</span><span class="p">[</span><span class="n">tau_max_c</span><span class="p">],</span>
+                                               <span class="n">name</span><span class="o">=</span><span class="s1">&#39;HC&#39;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">)</span>
+
+<span class="n">net</span> <span class="o">=</span> <span class="n">Network</span><span class="p">()</span>
+<span class="n">net</span><span class="o">.</span><span class="n">add_neuron</span><span class="p">(</span><span class="n">neuron_cpg</span><span class="p">)</span>
+<span class="n">net</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">net</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">render</span><span class="p">(</span><span class="n">net</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial_8_5_0.svg" src="../_images/tutorials_tutorial_8_5_0.svg" /></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">I</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">tStart</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">tEnd</span> <span class="o">=</span> <span class="mi">4000</span>
+
+<span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">tMax</span> <span class="o">=</span> <span class="mi">5000</span>
+
+<span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">tMax</span><span class="p">,</span><span class="n">dt</span><span class="p">)</span>
+<span class="n">numSteps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+<span class="n">Iapp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numSteps</span><span class="p">)</span>
+<span class="n">Iapp</span><span class="p">[</span><span class="n">tStart</span><span class="p">:</span><span class="n">tEnd</span><span class="p">]</span> <span class="o">=</span> <span class="n">I</span>
+
+<span class="n">Ipert</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numSteps</span><span class="p">)</span>
+<span class="n">Ipert</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;numpy&#39;</span><span class="p">,</span><span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">net</span><span class="o">.</span><span class="n">get_num_outputs_actual</span><span class="p">()])</span>
+<span class="n">inputs</span> <span class="o">=</span> <span class="n">Iapp</span> <span class="o">+</span> <span class="n">Ipert</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)):</span>
+    <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="p">([</span><span class="n">inputs</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">data</span><span class="p">[:][</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial_8_6_0.png" src="../_images/tutorials_tutorial_8_6_0.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">minf</span><span class="p">(</span><span class="n">U</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">zinf</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">Km</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">delEm</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">hinf</span><span class="p">(</span><span class="n">U</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">zinf</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">Kh</span><span class="p">,</span> <span class="o">-</span><span class="n">S</span><span class="p">,</span> <span class="n">delEh</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">cpg</span><span class="p">(</span><span class="n">delta</span><span class="o">=-</span><span class="mf">0.01</span><span class="p">):</span>
+    <span class="n">Cm</span> <span class="o">=</span> <span class="mi">5</span>
+    <span class="n">Gm</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">Ena</span> <span class="o">=</span> <span class="mi">50</span>
+    <span class="n">Er</span> <span class="o">=</span> <span class="o">-</span><span class="mi">60</span>
+    <span class="n">R</span> <span class="o">=</span> <span class="mi">20</span>
+
+    <span class="n">S</span> <span class="o">=</span> <span class="mf">0.05</span>
+    <span class="n">delEna</span> <span class="o">=</span> <span class="n">Ena</span> <span class="o">-</span> <span class="n">Er</span>
+    <span class="n">Km</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">Kh</span> <span class="o">=</span> <span class="mf">0.5</span>
+    <span class="n">Em</span> <span class="o">=</span> <span class="o">-</span><span class="mi">40</span>
+    <span class="n">Eh</span> <span class="o">=</span> <span class="o">-</span><span class="mi">60</span>
+    <span class="n">delEm</span> <span class="o">=</span> <span class="n">Em</span><span class="o">-</span><span class="n">Er</span>
+    <span class="n">delEh</span> <span class="o">=</span> <span class="n">Eh</span><span class="o">-</span><span class="n">Er</span>
+    <span class="n">tauHmax</span> <span class="o">=</span> <span class="mi">300</span>
+
+    <span class="n">Gna</span> <span class="o">=</span> <span class="n">Gm</span><span class="o">*</span><span class="n">R</span><span class="o">/</span><span class="p">(</span><span class="n">zinf</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">Km</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">delEm</span><span class="p">)</span><span class="o">*</span><span class="n">zinf</span><span class="p">(</span><span class="n">R</span><span class="p">,</span> <span class="n">Kh</span><span class="p">,</span> <span class="o">-</span><span class="n">S</span><span class="p">,</span> <span class="n">delEh</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">delEna</span><span class="o">-</span><span class="n">R</span><span class="p">))</span>
+
+    <span class="n">g_ion</span> <span class="o">=</span> <span class="p">[</span><span class="n">Gna</span><span class="p">]</span>
+    <span class="n">e_ion</span> <span class="o">=</span> <span class="p">[</span><span class="n">delEna</span><span class="p">]</span>
+
+    <span class="n">pow_m</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">k_m</span> <span class="o">=</span> <span class="p">[</span><span class="n">Km</span><span class="p">]</span>
+    <span class="n">slope_m</span> <span class="o">=</span> <span class="p">[</span><span class="n">S</span><span class="p">]</span>
+    <span class="n">e_m</span> <span class="o">=</span> <span class="p">[</span><span class="n">delEm</span><span class="p">]</span>
+
+    <span class="n">pow_h</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">k_h</span> <span class="o">=</span> <span class="p">[</span><span class="n">Kh</span><span class="p">]</span>
+    <span class="n">slope_h</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="n">S</span><span class="p">]</span>
+    <span class="n">e_h</span> <span class="o">=</span> <span class="p">[</span><span class="n">delEh</span><span class="p">]</span>
+    <span class="n">tau_max_h</span> <span class="o">=</span> <span class="p">[</span><span class="n">tauHmax</span><span class="p">]</span>
+
+    <span class="n">neuron_cpg</span> <span class="o">=</span> <span class="n">NonSpikingNeuronWithPersistentSodiumChannel</span><span class="p">(</span><span class="n">membrane_capacitance</span><span class="o">=</span><span class="n">Cm</span><span class="p">,</span> <span class="n">membrane_conductance</span><span class="o">=</span><span class="n">Gm</span><span class="p">,</span>
+                                                             <span class="n">g_ion</span><span class="o">=</span><span class="n">g_ion</span><span class="p">,</span><span class="n">e_ion</span><span class="o">=</span><span class="n">e_ion</span><span class="p">,</span>
+                                                             <span class="n">k_m</span><span class="o">=</span><span class="n">k_m</span><span class="p">,</span><span class="n">slope_m</span><span class="o">=</span><span class="n">slope_m</span><span class="p">,</span><span class="n">e_m</span><span class="o">=</span><span class="n">e_m</span><span class="p">,</span>
+                                                             <span class="n">k_h</span><span class="o">=</span><span class="n">k_h</span><span class="p">,</span><span class="n">slope_h</span><span class="o">=</span><span class="n">slope_h</span><span class="p">,</span><span class="n">e_h</span><span class="o">=</span><span class="n">e_h</span><span class="p">,</span><span class="n">tau_max_h</span><span class="o">=</span><span class="n">tau_max_h</span><span class="p">,</span>
+                                                             <span class="n">name</span><span class="o">=</span><span class="s1">&#39;HC&#39;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">)</span>
+
+    <span class="n">Ein</span> <span class="o">=</span> <span class="o">-</span><span class="mi">100</span>
+    <span class="n">delEsyn</span> <span class="o">=</span> <span class="n">Ein</span><span class="o">-</span><span class="n">R</span>
+
+    <span class="n">gSyn</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">delta</span> <span class="o">-</span> <span class="n">delta</span><span class="o">*</span><span class="n">Gna</span><span class="o">*</span><span class="n">minf</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span><span class="o">*</span><span class="n">hinf</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span> <span class="o">+</span> <span class="n">Gna</span><span class="o">*</span><span class="n">minf</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span><span class="o">*</span><span class="n">hinf</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span><span class="o">*</span><span class="n">delEna</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">delta</span> <span class="o">-</span> <span class="n">delEsyn</span><span class="p">)</span>
+
+    <span class="n">synapse_cpg</span> <span class="o">=</span> <span class="n">NonSpikingSynapse</span><span class="p">(</span><span class="n">max_conductance</span><span class="o">=</span><span class="n">gSyn</span><span class="p">,</span> <span class="n">reversal_potential</span><span class="o">=</span><span class="n">delEsyn</span><span class="p">)</span>
+
+    <span class="n">net</span> <span class="o">=</span> <span class="n">Network</span><span class="p">()</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">add_neuron</span><span class="p">(</span><span class="n">neuron_cpg</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;HC0&#39;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">)</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">add_input</span><span class="p">(</span><span class="s1">&#39;HC0&#39;</span><span class="p">)</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span><span class="s1">&#39;HC0&#39;</span><span class="p">)</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">add_neuron</span><span class="p">(</span><span class="n">neuron_cpg</span><span class="p">,</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;HC1&#39;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">)</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">add_output</span><span class="p">(</span><span class="s1">&#39;HC1&#39;</span><span class="p">)</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="n">synapse_cpg</span><span class="p">,</span><span class="s1">&#39;HC0&#39;</span><span class="p">,</span><span class="s1">&#39;HC1&#39;</span><span class="p">)</span>
+    <span class="n">net</span><span class="o">.</span><span class="n">add_connection</span><span class="p">(</span><span class="n">synapse_cpg</span><span class="p">,</span><span class="s1">&#39;HC1&#39;</span><span class="p">,</span><span class="s1">&#39;HC0&#39;</span><span class="p">)</span>
+
+    <span class="n">I</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">tStart</span> <span class="o">=</span> <span class="mi">1000</span>
+    <span class="n">tEnd</span> <span class="o">=</span> <span class="mi">4000</span>
+    <span class="n">tTail</span> <span class="o">=</span> <span class="mi">2500</span>
+
+    <span class="n">dt</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">tMax</span> <span class="o">=</span> <span class="mi">5000</span>
+
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">tMax</span><span class="p">,</span><span class="n">dt</span><span class="p">)</span>
+    <span class="n">numSteps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+    <span class="n">Iapp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numSteps</span><span class="p">)</span>
+    <span class="n">Iapp</span><span class="p">[</span><span class="n">tStart</span><span class="p">:</span><span class="n">tEnd</span><span class="p">]</span> <span class="o">=</span> <span class="n">I</span>
+
+    <span class="n">Ipert</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">numSteps</span><span class="p">)</span>
+    <span class="n">Ipert</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s1">&#39;numpy&#39;</span><span class="p">,</span><span class="n">dt</span><span class="o">=</span><span class="n">dt</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">net</span><span class="o">.</span><span class="n">get_num_outputs_actual</span><span class="p">()])</span>
+    <span class="n">inputs</span> <span class="o">=</span> <span class="n">Iapp</span> <span class="o">+</span> <span class="n">Ipert</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)):</span>
+        <span class="n">data</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">model</span><span class="p">([</span><span class="n">inputs</span><span class="p">[</span><span class="n">i</span><span class="p">]])</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+
+    <span class="n">render</span><span class="p">(</span><span class="n">net</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">plot_cpg</span><span class="p">(</span><span class="n">delta</span><span class="o">=-</span><span class="mf">0.01</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">cpg</span><span class="p">(</span><span class="n">delta</span><span class="o">=</span><span class="n">delta</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">data</span><span class="p">[:][</span><span class="mi">0</span><span class="p">],</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;HC0&#39;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;C0&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">data</span><span class="p">[:][</span><span class="mi">1</span><span class="p">],</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;HC1&#39;</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;C1&#39;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;t (ms)&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;U (mV)&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;CPG&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_cpg</span><span class="p">(</span><span class="n">delta</span><span class="o">=-</span><span class="mf">0.01</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial_8_9_0.png" src="../_images/tutorials_tutorial_8_9_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_cpg</span><span class="p">(</span><span class="n">delta</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial_8_10_0.png" src="../_images/tutorials_tutorial_8_10_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plot_cpg</span><span class="p">(</span><span class="n">delta</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/tutorials_tutorial_8_11_0.png" src="../_images/tutorials_tutorial_8_11_0.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tutorial_7.html" class="btn btn-neutral float-left" title="Tutorial 7: Electrical Synapses" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, William Nourse.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

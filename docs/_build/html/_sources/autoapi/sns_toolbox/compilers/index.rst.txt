@@ -1,0 +1,34 @@
+:py:mod:`sns_toolbox.compilers`
+===============================
+
+.. py:module:: sns_toolbox.compilers
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   sns_toolbox.compilers.__compile_numpy__
+   sns_toolbox.compilers.__compile_torch__
+   sns_toolbox.compilers.__compile_sparse__
+   sns_toolbox.compilers.__compile_manual__
+
+
+
+.. py:function:: __compile_numpy__(network, dt=0.01, debug=False) -> sns_toolbox.backends.SNS_Numpy
+
+
+.. py:function:: __compile_torch__(network, dt=0.01, debug=False, device='cpu', return_params=False) -> sns_toolbox.backends.SNS_Torch
+
+
+.. py:function:: __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> sns_toolbox.backends.SNS_Sparse
+
+
+.. py:function:: __compile_manual__(network, dt=0.01, debug=False) -> sns_toolbox.backends.SNS_Iterative
+
+

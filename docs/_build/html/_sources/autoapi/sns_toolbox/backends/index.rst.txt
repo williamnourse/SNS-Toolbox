@@ -1,0 +1,94 @@
+:py:mod:`sns_toolbox.backends`
+==============================
+
+.. py:module:: sns_toolbox.backends
+
+.. autoapi-nested-parse::
+
+   Simulation backends for synthetic nervous system networks. Each of these are python-based, and are constructed using a
+   Network. They can then be run for a step, with the inputs being a vector of neural states and applied currents and the
+   output being the next step of neural states.
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   sns_toolbox.backends.Backend
+   sns_toolbox.backends.SNS_Numpy
+   sns_toolbox.backends.SNS_Torch
+   sns_toolbox.backends.SNS_Sparse
+   sns_toolbox.backends.SNS_Iterative
+
+
+
+
+.. py:class:: Backend(params: Dict)
+
+   .. py:method:: forward(self, x=None)
+      :abstractmethod:
+
+
+   .. py:method:: set_params(self, params: Dict) -> None
+
+
+   .. py:method:: __call__(self, x=None)
+
+
+   .. py:method:: reset(self)
+      :abstractmethod:
+
+
+
+.. py:class:: SNS_Numpy(params: Dict)
+
+   Bases: :py:obj:`Backend`
+
+   .. py:method:: forward(self, x=None)
+
+
+   .. py:method:: reset(self)
+
+
+
+.. py:class:: SNS_Torch(params: Dict)
+
+   Bases: :py:obj:`Backend`
+
+   .. py:method:: forward(self, x=None)
+
+
+   .. py:method:: reset(self)
+
+
+
+.. py:class:: SNS_Sparse(params: Dict)
+
+   Bases: :py:obj:`Backend`
+
+   .. py:method:: forward(self, x=None)
+
+
+   .. py:method:: reset(self)
+
+
+
+.. py:class:: SNS_Iterative(params: Dict)
+
+   Bases: :py:obj:`Backend`
+
+   .. py:method:: set_params(self, params: Dict) -> None
+
+
+   .. py:method:: forward(self, x=None)
+
+
+   .. py:method:: reset(self)
+
+
+

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connection Models &mdash; SNS-Toolbox 1.5.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Tutorial 1: Designing Networks" href="tutorials/tutorial_1.html" />
+    <link rel="prev" title="Neural Models" href="neuron_models.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            SNS-Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="start.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="networks.html">Building Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="compiling.html">Compiling and Simulating Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="render.html">Rendering Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="saving_loading.html">Saving and Loading Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gpu.html">Running Networks on the GPU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neuron_models.html">Neural Models</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Connection Models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#non-spiking-chemical-synapse">Non-Spiking Chemical Synapse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#spiking-chemical-synapse">Spiking Chemical Synapse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#electrical-synapse">Electrical Synapse</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pattern-connection">Pattern Connection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#other-connections">Other Connections</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_1.html">Tutorial 1: Designing Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_2.html">Tutorial 2: Simulating Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_3.html">Tutorial 3: Spiking Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_4.html">Tutorial 4: Adding Subnetworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_5.html">Tutorial 5: Spiking Networks with Synaptic Transmission Delay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_6.html">Tutorial 6: Using Connectivity Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_7.html">Tutorial 7: Electrical Synapses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/tutorial_8.html">Tutorial 8: Neurons with Voltage-gated Ion Channels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="autoapi/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SNS-Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Connection Models</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/connection_models.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="connection-models">
+<h1>Connection Models<a class="headerlink" href="#connection-models" title="Permalink to this heading"></a></h1>
+<p>Neurons, and populations of neurons, are connected in SNS-Toolbox using <em>connections</em>. The different versions available
+are as follows:</p>
+<section id="non-spiking-chemical-synapse">
+<h2>Non-Spiking Chemical Synapse<a class="headerlink" href="#non-spiking-chemical-synapse" title="Permalink to this heading"></a></h2>
+<p>The most basic form of synaptic connection. The amount of synaptic current <span class="math notranslate nohighlight">\(I_{syn}^{ji}\)</span> from pre-synaptic neuron
+<span class="math notranslate nohighlight">\(j\)</span> to post-synaptic neuron <span class="math notranslate nohighlight">\(i\)</span> is</p>
+<div class="math notranslate nohighlight">
+\[I_{syn}^{ji} = G_{syn}^{ji}(V_j) \cdot \left ( E_{syn}^{ji} - V_i \right ),\]</div>
+<p>where <span class="math notranslate nohighlight">\(E_{syn}^{ji}\)</span> is the reversal potential of the synapse, and <span class="math notranslate nohighlight">\(G_{syn}^{ji}(V_j)\)</span> is
+the synaptic conductance as a function of the pre-synaptic neural voltage:</p>
+<div class="math notranslate nohighlight">
+\[G_{syn}^{ji}(V_j) = max \left ( 0, min \left ( G_{max,non}^{ji} \cdot \frac{V_j - E_{lo}}{E_{hi} - E_{lo}}, G_{max,non}^{ji} \right ) \right )\]</div>
+<a class="reference internal image-reference" href="_images/linear_conductance.png"><img alt="_images/linear_conductance.png" src="_images/linear_conductance.png" style="width: 400px;" /></a>
+<p><span class="math notranslate nohighlight">\(G_{max,non}^{ji}\)</span> is the maximum synaptic conductance, <span class="math notranslate nohighlight">\(E_{lo}\)</span> is the synaptic activation voltage, and
+<span class="math notranslate nohighlight">\(E_{hi}\)</span> is the synaptic saturation voltage.</p>
+<p>Default values are as follows:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(G_{max,non}^{ji} = 1 \mu S\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(E_{syn}^{ji} = 40mV\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(E_{lo} = 0mV\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(E_{hi} = 20mV\)</span></p></li>
+</ul>
+<p>This form of synapse can be implemented using
+<a class="reference external" href="https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/connections/index.html#sns_toolbox.connections.NonSpikingSynapse">sns_toolbox.connections.NonSpikingSynapse</a>.</p>
+</section>
+<section id="spiking-chemical-synapse">
+<h2>Spiking Chemical Synapse<a class="headerlink" href="#spiking-chemical-synapse" title="Permalink to this heading"></a></h2>
+<p>Spiking synapses produce a synaptic current similar in formulation to non-spiking chemical synapses,</p>
+<div class="math notranslate nohighlight">
+\[I_{syn}^{ji} = G_{syn}^{ji} \cdot \left ( E_{syn}^{ji} - V_i \right ),\]</div>
+<p>however they differ in that <span class="math notranslate nohighlight">\(G_{syn}^{ji}\)</span> is a dynamical variable. This conductance is incremented by the constant <span class="math notranslate nohighlight">\(G_{inc}^{ji}\)</span> (constrained to a maximum value
+of <span class="math notranslate nohighlight">\(G_{max,spike}^{ji}\)</span>) whenever the pre-synaptic neuron spikes, and otherwise decays to 0 with a time constant of
+<span class="math notranslate nohighlight">\(\tau_{syn}^{ji}\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\tau_{syn}^{ji}\frac{dG_{syn}^{ji}}{dt} = -G_{syn}^{ji}\\\text{if $\delta = 1, max\left ( G_{max,spike}^{ji}, G_{syn}^{ji}+G_{inc}^{ji} \right ) \leftarrow G_{syn}^{ji}$}\end{aligned}\end{align} \]</div>
+<p>If desired, synaptic propagation delay can also be incorporated. If the synapse from neuron <span class="math notranslate nohighlight">\(j\)</span> to <span class="math notranslate nohighlight">\(i\)</span> has a
+delay of <span class="math notranslate nohighlight">\(d\)</span> timesteps, the delayed spike can be defined as:</p>
+<div class="math notranslate nohighlight">
+\[\delta_{delay}^{ji}[t] = \delta^{ji}[t - d\cdot\Delta t].\]</div>
+<p>Default values are as follows:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(G_{max,spike}^{ji} = 1 \mu S\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(E_{syn}^{ji} = 194 mV\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\tau_{syn}^{ji} = 1 ms\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(d = 0\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(G_{inc}^{ji} = G_{max,spike}^{ji}\)</span></p></li>
+</ul>
+<p>This form of synapse can be implemented using
+<a class="reference external" href="https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.connections.SpikingSynapse">sns_toolbox.connections.SpikingSynapse</a>.</p>
+</section>
+<section id="electrical-synapse">
+<h2>Electrical Synapse<a class="headerlink" href="#electrical-synapse" title="Permalink to this heading"></a></h2>
+<p>Electrical synapses (also known as gap junctions) are a form of synaptic connection which communicates using direct
+current transmission instead of synaptic neurotransmitters. Their generated synaptic current is:</p>
+<div class="math notranslate nohighlight">
+\[I_{syn}^{ji} = G_{syn,electrical} \cdot \left ( V_j - V_i \right ),\]</div>
+<p>where <span class="math notranslate nohighlight">\(G_{syn,electrical}\)</span> is the synaptic conductance. By default electrical synapses are bidirectional, meaning
+current can flow in either direction between <span class="math notranslate nohighlight">\(U_j\)</span> and <span class="math notranslate nohighlight">\(U_i\)</span>. However electrical synapses can also be
+rectified if desired, meaning that current only flows from <span class="math notranslate nohighlight">\(U_j\)</span> to <span class="math notranslate nohighlight">\(U_i\)</span>, and only if <span class="math notranslate nohighlight">\(U_j&gt;U_i\)</span>.</p>
+<p>This form of synapse can be implemented using
+<a class="reference external" href="https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.connections.ElectricalSynapse">sns_toolbox.connections.ElectricalSynapse</a>.</p>
+</section>
+<section id="pattern-connection">
+<h2>Pattern Connection<a class="headerlink" href="#pattern-connection" title="Permalink to this heading"></a></h2>
+<p>Chemical synapses can also be defined which connect populations of neurons, instead of single neurons.</p>
+<a class="reference internal image-reference" href="_images/pattern_connection.png"><img alt="_images/pattern_connection.png" src="_images/pattern_connection.png" style="width: 400px;" /></a>
+<p>All of the synaptic dynamics are unchanged between a non-spiking or spiking synapse and a non-spiking or spiking pattern
+connection, the only difference is that these parameters are now vectors/matrices representing the kernel which is tiled
+to describe the synaptic pattern. <em>Note that there is currently no pattern implementation for electrical synapses</em>.</p>
+<p>These forms of synapse can be implemented using
+<a class="reference external" href="https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.connections.NonSpikingPatternConnection">sns_toolbox.connections.NonSpikingPatternConnection</a>
+and
+<a class="reference external" href="https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/design/connections/index.html#sns_toolbox.connections.SpikingPatternConnection">sns_toolbox.connections.SpikingPatternConnection</a>.</p>
+<p>For more information, see
+<a class="reference external" href="https://sns-toolbox.readthedocs.io/en/latest/tutorials/tutorial_6.html#Tutorial-6:-Using-Connectivity-Patterns">Tutorial 6: Connectivity Patterns</a>.</p>
+</section>
+<section id="other-connections">
+<h2>Other Connections<a class="headerlink" href="#other-connections" title="Permalink to this heading"></a></h2>
+<p>There are other connection presets available, which inherit from the above connection models. For a full reference to
+them, please consult
+<a class="reference external" href="https://sns-toolbox.readthedocs.io/en/latest/autoapi/sns_toolbox/connections/index.html#module-sns_toolbox.connections">sns_toolbox.connections</a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="neuron_models.html" class="btn btn-neutral float-left" title="Neural Models" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tutorials/tutorial_1.html" class="btn btn-neutral float-right" title="Tutorial 1: Designing Networks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, William Nourse.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

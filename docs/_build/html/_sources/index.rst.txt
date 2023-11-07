@@ -30,7 +30,6 @@ Nervous Systems (SNS).
    tutorials/tutorial_6
    tutorials/tutorial_7
    tutorials/tutorial_8
-   tutorials/tutorial_9
 
 Indices:
 ========================================================================================================================

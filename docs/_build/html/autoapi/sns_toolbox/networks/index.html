@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>sns_toolbox.networks &mdash; SNS-Toolbox 1.5.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            SNS-Toolbox
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../start.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../networks.html">Building Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../compiling.html">Compiling and Simulating Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../render.html">Rendering Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../saving_loading.html">Saving and Loading Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gpu.html">Running Networks on the GPU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../neuron_models.html">Neural Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../connection_models.html">Connection Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_1.html">Tutorial 1: Designing Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_2.html">Tutorial 2: Simulating Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_3.html">Tutorial 3: Spiking Networks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_4.html">Tutorial 4: Adding Subnetworks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_5.html">Tutorial 5: Spiking Networks with Synaptic Transmission Delay</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_6.html">Tutorial 6: Using Connectivity Patterns</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_7.html">Tutorial 7: Electrical Synapses</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorials/tutorial_8.html">Tutorial 8: Neurons with Voltage-gated Ion Channels</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SNS-Toolbox</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sns_toolbox.networks</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/autoapi/sns_toolbox/networks/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast.container,
+.nboutput.nblast.container {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast.container + .nbinput.container {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<section id="module-sns_toolbox.networks">
+<span id="sns-toolbox-networks"></span><h1><a class="reference internal" href="#module-sns_toolbox.networks" title="sns_toolbox.networks"><code class="xref py py-mod docutils literal notranslate"><span class="pre">sns_toolbox.networks</span></code></a><a class="headerlink" href="#module-sns_toolbox.networks" title="Permalink to this heading"></a></h1>
+<p>Networks store neuron and synapse types, and the pattern of connections between them. While not capable of being
+simulated directly, they are used as a template for compilation.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Permalink to this heading"></a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.networks.Network" title="sns_toolbox.networks.Network"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Network</span></code></a></p></td>
+<td><p>Base class for all Networks.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.networks.AdditionNetwork" title="sns_toolbox.networks.AdditionNetwork"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AdditionNetwork</span></code></a></p></td>
+<td><p>Network which performs addition or subtraction of multiple inputs. Currently only supports non-spiking neurons.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.networks.MultiplicationNetwork" title="sns_toolbox.networks.MultiplicationNetwork"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultiplicationNetwork</span></code></a></p></td>
+<td><p>Network where the activity in neuron 0 is roughly multiplied by the activity in neuron 1. Currently only supports</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.networks.DivisionNetwork" title="sns_toolbox.networks.DivisionNetwork"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DivisionNetwork</span></code></a></p></td>
+<td><p>Network where the activity in neuron 0 is roughly divided by the activity in neuron 1. Currently only supports</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.networks.DifferentiatorNetwork" title="sns_toolbox.networks.DifferentiatorNetwork"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DifferentiatorNetwork</span></code></a></p></td>
+<td><p>Network where the activity of 'Uout' is the derivative of the activity in 'Uin'. Currently only supports</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.networks.IntegratorNetwork" title="sns_toolbox.networks.IntegratorNetwork"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IntegratorNetwork</span></code></a></p></td>
+<td><p>Network where the activity of 'Uint' integrates the applied stimulus to itself over time. Currently only supports</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Permalink to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sns_toolbox.networks.__kernel_connections_1d__" title="sns_toolbox.networks.__kernel_connections_1d__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__kernel_connections_1d__</span></code></a>(pop_size, kernel, fill_value=0.0)</p></td>
+<td><p>Generate a connection matrix from a kernel vector and population size.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sns_toolbox.networks.__kernel_connections_2d__" title="sns_toolbox.networks.__kernel_connections_2d__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__kernel_connections_2d__</span></code></a>(pop_shape, kernel, fill_value=0.0)</p></td>
+<td><p>Generate a connection matrix from a kernel matrix and population shape.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.networks.Network">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.networks.</span></span><span class="sig-name descname"><span class="pre">Network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Network'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.networks.Network" title="Permalink to this definition"></a></dt>
+<dd><p>Base class for all Networks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name for this network, defaults to ‘Network”.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.networks.Network.get_num_neurons">
+<span class="sig-name descname"><span class="pre">get_num_neurons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#sns_toolbox.networks.Network.get_num_neurons" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the number of neurons in the network, including within populations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The number of neurons in the network.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.networks.Network.get_num_connections">
+<span class="sig-name descname"><span class="pre">get_num_connections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#sns_toolbox.networks.Network.get_num_connections" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the number of connections in the network. Does not account for individual synapses between neurons in
+populations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The number of connections in the network.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.networks.Network.get_num_populations">
+<span class="sig-name descname"><span class="pre">get_num_populations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#sns_toolbox.networks.Network.get_num_populations" title="Permalink to this definition"></a></dt>
+<dd><p>Get the number of populations in the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of populations.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.networks.Network.get_num_inputs">
+<span class="sig-name descname"><span class="pre">get_num_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#sns_toolbox.networks.Network.get_num_inputs" title="Permalink to this definition"></a></dt>
+<dd><p>Get the number of input nodes to the network. Vector inputs are treated as a single input node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of inputs.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.networks.Network.get_num_inputs_actual">
+<span class="sig-name descname"><span class="pre">get_num_inputs_actual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#sns_toolbox.networks.Network.get_num_inputs_actual" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the number of individual inputs throughout the network. Vector inputs have one input per dimension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of individual inputs.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.networks.Network.get_num_outputs">
+<span class="sig-name descname"><span class="pre">get_num_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#sns_toolbox.networks.Network.get_num_outputs" title="Permalink to this definition"></a></dt>
+<dd><p>Get the number of output nodes from the network. Vector outputs have one output node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of outputs.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.networks.Network.get_num_outputs_actual">
+<span class="sig-name descname"><span class="pre">get_num_outputs_actual</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#sns_toolbox.networks.Network.get_num_outputs_actual" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the number of individual outputs from the network. Vector outputs have one output per dimension.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of individual outputs.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.networks.Network.get_population_index">
+<span class="sig-name descname"><span class="pre">get_population_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#sns_toolbox.networks.Network.get_population_index" title="Permalink to this definition"></a></dt>
+<dd><p>Given a string, find the numerical index of the population corresponding to that name within the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Name of the population to find.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Index of the population.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.networks.Network.get_connection_index">
+<span class="sig-name descname"><span class="pre">get_connection_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#sns_toolbox.networks.Network.get_connection_index" title="Permalink to this definition"></a></dt>
+<dd><p>Given a string, find the numerical index of the connection corresponding to that name within the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Name of the connection to find.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Index of the connection.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.networks.Network.get_input_index">
+<span class="sig-name descname"><span class="pre">get_input_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#sns_toolbox.networks.Network.get_input_index" title="Permalink to this definition"></a></dt>
+<dd><p>Given a string, find the numerical index of the input node given by that name within the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Name of the input node to find.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Index of the input node.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.networks.Network.add_population">
+<span class="sig-name descname"><span class="pre">add_population</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neuron_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../neurons/index.html#sns_toolbox.neurons.Neuron" title="sns_toolbox.neurons.Neuron"><span class="pre">sns_toolbox.neurons.Neuron</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.networks.Network.add_population" title="Permalink to this definition"></a></dt>
+<dd><p>Add a neural population to the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>neuron_type</strong> (<em>sns_toolbox.design.neurons.Neuron</em>) – Type of neuron to add.</p></li>
+<li><p><strong>shape</strong> (<em>np.ndarray</em><em> or </em><em>torch.tensor</em>) – The number of neurons in each dimension of the population.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the population, default is the original name.</p></li>
+<li><p><strong>color</strong> (<em>str</em><em>, </em><em>optional</em>) – Color of the population in the rendered image, default is the original color.</p></li>
+<li><p><strong>initial_value</strong> (<em>class: 'numbers.Number'</em><em>, </em><em>class: 'np.ndarray'</em><em>, or </em><em>class: 'torch.tensor'</em>) – Initial value of membrane voltage for each neuron in the population. Must be either a
+single value, or an array matching ‘shape’. Default value is the original value.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>N/A</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.networks.Network.add_neuron">
+<span class="sig-name descname"><span class="pre">add_neuron</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neuron_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../neurons/index.html#sns_toolbox.neurons.Neuron" title="sns_toolbox.neurons.Neuron"><span class="pre">sns_toolbox.neurons.Neuron</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.networks.Network.add_neuron" title="Permalink to this definition"></a></dt>
+<dd><p>Add a neuron to the network. Note that this is just a special case of addPopulation, which makes a
+population of 1 neuron.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>neuron_type</strong> (<em>sns_toolbox.design.neurons.Neuron</em>) – Type of neuron to add.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the neuron, defaults to the original name.</p></li>
+<li><p><strong>color</strong> (<em>str</em><em>, </em><em>optional</em>) – Color of the neuron in the visual render, defaults to the original color.</p></li>
+<li><p><strong>initial_value</strong> (<em>Number</em>) – Initial value of the membrane voltage, defaults to 0.0. Units are millivolts (mV).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>N/A</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.networks.Network.add_input">
+<span class="sig-name descname"><span class="pre">add_input</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dest</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Input'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'white'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.networks.Network.add_input" title="Permalink to this definition"></a></dt>
+<dd><p>Add an input source to the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dest</strong> (<em>int</em><em> or </em><em>string</em>) – Destination this input connects to.</p></li>
+<li><p><strong>size</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of input elements, default is 1.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the input node, default is ‘Input’.</p></li>
+<li><p><strong>color</strong> (<em>str</em><em>, </em><em>optional</em>) – Color of the input node in the visual render, default is ‘white’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>N/A</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.networks.Network.add_output">
+<span class="sig-name descname"><span class="pre">add_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Output'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spiking</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'white'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.networks.Network.add_output" title="Permalink to this definition"></a></dt>
+<dd><p>Add an output node to the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>source</strong> (<em>int</em><em> or </em><em>str</em>) – Source this output is connected to.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the node, defaults to ‘Output’.</p></li>
+<li><p><strong>spiking</strong> (<em>bool</em><em>, </em><em>optional</em>) – Flag for if this node stores voltage or spikes, default is ‘False’.</p></li>
+<li><p><strong>color</strong> (<em>str</em><em>, </em><em>optional</em>) – Color of the output in the visual render, default is ‘white’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>N/A</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.networks.Network.add_connection">
+<span class="sig-name descname"><span class="pre">add_connection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../connections/index.html#sns_toolbox.connections.Connection" title="sns_toolbox.connections.Connection"><span class="pre">sns_toolbox.connections.Connection</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">destination</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">view_label</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.networks.Network.add_connection" title="Permalink to this definition"></a></dt>
+<dd><p>Add a synaptic connection between two populations in the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>connection_type</strong> (<em>sns_toolbox.design.connections.Connection</em>) – Type of connection to add.</p></li>
+<li><p><strong>source</strong> (<em>int</em><em> or </em><em>str</em>) – Index or name of source population in the network.</p></li>
+<li><p><strong>destination</strong> (<em>int</em><em> or </em><em>str</em>) – Index or name of destination population in the network.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of synapse, default is the original name.</p></li>
+<li><p><strong>view_label</strong> (<em>bool</em><em>, </em><em>optional</em>) – Flag to render the name on the output graph, default is ‘False’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>N/A</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.networks.Network.add_network">
+<span class="sig-name descname"><span class="pre">add_network</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">network</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#sns_toolbox.networks.Network" title="sns_toolbox.networks.Network"><span class="pre">Network</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#sns_toolbox.networks.Network.add_network" title="Permalink to this definition"></a></dt>
+<dd><p>Add an existing topology of inputs, outputs, and populations to the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>network</strong> (<em>sns_toolbox.design.networks.Network</em>) – Network to copy over.</p></li>
+<li><p><strong>color</strong> (<em>str</em><em>, </em><em>optional</em>) – Color to render nodes in the network, default is the original colors.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>N/A</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.networks.Network.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.networks.Network.copy" title="Permalink to this definition"></a></dt>
+<dd><p>Create a copy of the network.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A new network with the same properties as the original. Each can be edited without effecting the other.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>sns_toolbox.design.networks.Network</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sns_toolbox.networks.Network.compile">
+<span class="sig-name descname"><span class="pre">compile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'numpy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cpu'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="../backends/index.html#sns_toolbox.backends.Backend" title="sns_toolbox.backends.Backend"><span class="pre">sns_toolbox.backends.Backend</span></a></span></span><a class="headerlink" href="#sns_toolbox.networks.Network.compile" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sns_toolbox.networks.__kernel_connections_1d__">
+<span class="sig-prename descclassname"><span class="pre">sns_toolbox.networks.</span></span><span class="sig-name descname"><span class="pre">__kernel_connections_1d__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.networks.__kernel_connections_1d__" title="Permalink to this definition"></a></dt>
+<dd><p>Generate a connection matrix from a kernel vector and population size.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop_size</strong> (<em>int</em>) – Number of neurons in the population.</p></li>
+<li><p><strong>kernel</strong> (<em>list</em><em>, </em><em>np.ndarray</em><em>, or </em><em>torch.tensor</em>) – Kernel vector to apply.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Connection matrix.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="sns_toolbox.networks.__kernel_connections_2d__">
+<span class="sig-prename descclassname"><span class="pre">sns_toolbox.networks.</span></span><span class="sig-name descname"><span class="pre">__kernel_connections_2d__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pop_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.networks.__kernel_connections_2d__" title="Permalink to this definition"></a></dt>
+<dd><p>Generate a connection matrix from a kernel matrix and population shape.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pop_shape</strong> (<em>list</em><em>, </em><em>np.ndarray</em><em>, or </em><em>torch.tensor</em>) – Shape of the population.</p></li>
+<li><p><strong>kernel</strong> (<em>np.ndarray</em><em> or </em><em>torch.Tensor</em>) – Kernel matrix to apply.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Connection matrix.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.networks.AdditionNetwork">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.networks.</span></span><span class="sig-name descname"><span class="pre">AdditionNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gains</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_del_e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sub_del_e</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neuron_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NonSpikingNeuron()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Add'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.networks.AdditionNetwork" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.networks.Network" title="sns_toolbox.networks.Network"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Network</span></code></a></p>
+<p>Network which performs addition or subtraction of multiple inputs. Currently only supports non-spiking neurons.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>gains</strong> (<em>list</em><em>, </em><em>np.ndarray</em><em>, or </em><em>torch.tensor</em>) – List of addition or subtraction weights.</p></li>
+<li><p><strong>add_del_e</strong> (<em>Number</em><em>, </em><em>optional</em>) – Reversal potential of addition synapses, default is 100. Unit is millivolts (mV).</p></li>
+<li><p><strong>sub_del_e</strong> (<em>Number</em><em>, </em><em>optional</em>) – Reversal potential of subtraction synapses, default is -40. Unit is millivolts (mV).</p></li>
+<li><p><strong>neuron_type</strong> (<em>sns_toolbox.design.neurons.NonSpikingNeuron</em><em>, </em><em>optional</em>) – Neuron preset to use, default is sns_toolbox.design.neurons.NonSpikingNeuron.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of this network, default is ‘Add’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.networks.MultiplicationNetwork">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.networks.</span></span><span class="sig-name descname"><span class="pre">MultiplicationNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">neuron_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NonSpikingNeuron()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Multiply'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.networks.MultiplicationNetwork" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.networks.Network" title="sns_toolbox.networks.Network"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Network</span></code></a></p>
+<p>Network where the activity in neuron 0 is roughly multiplied by the activity in neuron 1. Currently only supports
+non-spiking neurons.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>neuron_type</strong> (<em>sns_toolbox.design.neurons.NonSpikingNeuron</em><em>, </em><em>optional</em>) – Neuron preset to use, default is sns_toolbox.design.neurons.NonSpikingNeuron.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of this network, default is ‘Multiply’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.networks.DivisionNetwork">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.networks.</span></span><span class="sig-name descname"><span class="pre">DivisionNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ratio</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Divide'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neuron_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NonSpikingNeuron()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.networks.DivisionNetwork" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.networks.Network" title="sns_toolbox.networks.Network"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Network</span></code></a></p>
+<p>Network where the activity in neuron 0 is roughly divided by the activity in neuron 1. Currently only supports
+non-spiking neurons.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>neuron_type</strong> (<em>sns_toolbox.design.neurons.NonSpikingNeuron</em><em>, </em><em>optional</em>) – Neuron preset to use, default is sns_toolbox.design.neurons.NonSpikingNeuron.</p></li>
+<li><p><strong>ratio</strong> (<em>Number</em>) – Modulation ratio.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of this network, default is ‘Divide’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.networks.DifferentiatorNetwork">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.networks.</span></span><span class="sig-name descname"><span class="pre">DifferentiatorNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">slew_rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Differentiate'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tau_fast</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20.0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.networks.DifferentiatorNetwork" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.networks.Network" title="sns_toolbox.networks.Network"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Network</span></code></a></p>
+<p>Network where the activity of ‘Uout’ is the derivative of the activity in ‘Uin’. Currently only supports
+non-spiking neurons.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>slew_rate</strong> (<em>Number</em><em>, </em><em>optional</em>) – Steepest signal this differentiator can handle, default is 1.0. Influences the difference in
+internal time constants.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of this network, default is ‘Differentiate’.</p></li>
+<li><p><strong>tau_fast</strong> (<em>Number</em><em>, </em><em>optional</em>) – Time constant of the faster neurons, default is 1.0. Units are milliseconds (ms).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="sns_toolbox.networks.IntegratorNetwork">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sns_toolbox.networks.</span></span><span class="sig-name descname"><span class="pre">IntegratorNetwork</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">integration_gain</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">relative_reversal_potential</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-</span> <span class="pre">40.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Integrator'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#sns_toolbox.networks.IntegratorNetwork" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#sns_toolbox.networks.Network" title="sns_toolbox.networks.Network"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Network</span></code></a></p>
+<p>Network where the activity of ‘Uint’ integrates the applied stimulus to itself over time. Currently only supports
+non-spiking neurons.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>integration_gain</strong> (<em>Number</em><em>, </em><em>optional</em>) – Gain of the integration, default is 1.0.</p></li>
+<li><p><strong>relative_reversal_potential</strong> (<em>Number</em><em>, </em><em>optional</em>) – Reversal potential of the synapses in the network, default is -40.0. Must be
+less than 0. Units are millivolts (mV).</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of this network, default is ‘Integrator’.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, William Nourse.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

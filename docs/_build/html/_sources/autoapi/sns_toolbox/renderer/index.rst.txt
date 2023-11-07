@@ -1,0 +1,52 @@
+:py:mod:`sns_toolbox.renderer`
+==============================
+
+.. py:module:: sns_toolbox.renderer
+
+.. autoapi-nested-parse::
+
+   Take in a network, and render its structure using the package 'graphviz'.
+
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   sns_toolbox.renderer.render
+
+
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   sns_toolbox.renderer.graphviz_available
+   sns_toolbox.renderer.graphviz_available
+   sns_toolbox.renderer.shell
+
+
+.. py:data:: graphviz_available
+   :annotation: = True
+
+   
+
+.. py:data:: graphviz_available
+   :annotation: = False
+
+   
+
+.. py:data:: shell
+   
+
+   
+
+.. py:function:: render(net: sns_toolbox.networks.Network, view=True, save=False, filename=None, img_format='png')
+
+
