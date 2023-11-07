@@ -49,7 +49,7 @@ behavior using the spiking variable :math:`\delta`, which represents a spike. Wh
         0, & \text{otherwise}.
     \end{cases}
 
-    \text{if $\delta=1, V_{reset}\leftarrow V and max(\theta+\theta_{inc}, \theta_{reset})\leftarrow \theta$.}
+    \text{if $\delta=1, V_{reset}\leftarrow V , max(\theta+\theta_{inc}, \theta_{reset})\leftarrow \theta$.}
 
 Default values are as follows:
 
