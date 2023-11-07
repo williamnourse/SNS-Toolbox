@@ -18,7 +18,7 @@
 # -- Project information -----------------------------------------------------
 
 project = 'SNS-Toolbox'
-copyright = '2022, William Nourse'
+copyright = '2023, William Nourse'
 author = 'William Nourse'
 
 # The full version, including alpha/beta/rc tags
