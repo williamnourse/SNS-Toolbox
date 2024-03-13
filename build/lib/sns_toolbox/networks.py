@@ -548,7 +548,7 @@ class Network:
             if np.any(connection_type.params['transmissionDelay']) > 0:
                 self.params['delay'] = True
 
-    def add_network(self, network: 'Network', color: str = None) -> None:
+    def add_network(self, network: 'Network', color: str = None, suffix: str = None) -> None:
         """
         Add an existing topology of inputs, outputs, and populations to the network.
 
@@ -556,11 +556,15 @@ class Network:
         :type network:  sns_toolbox.design.networks.Network
         :param color:   Color to render nodes in the network, default is the original colors.
         :type color:    str, optional
+        :param suffix:  String to append to all the population/neuron names in the network.
+        :type suffix:   str, optional
         :return: None
         :rtype: N/A
         """
         if not isinstance(network, Network):
             raise TypeError('Network must be of type Network')
+        if suffix is None:
+            suffix = ''
 
         num_inputs = len(self.inputs)
         num_populations = len(self.populations)
@@ -569,12 +573,12 @@ class Network:
         if color is None:
             for population in network.populations:
                 self.add_population(neuron_type=population['type'], shape=population['shape'],
-                                    name=population['name'], color=population['color'])
+                                    name=population['name']+suffix, color=population['color'])
             for inp in network.inputs:
-                self.add_input(dest=inp['destination'] + num_populations, name=inp['name'], color=inp['color']
+                self.add_input(dest=inp['destination'] + num_populations, name=inp['name']+suffix, color=inp['color']
                                ,size=inp['size'])
             for out in network.outputs:
-                self.add_output(source=out['source'] + num_populations, name=out['name'], color=out['color'],
+                self.add_output(source=out['source'] + num_populations, name=out['name']+suffix, color=out['color'],
                                 spiking=out['spiking'])
             for connection in network.connections:
                 self.add_connection(connection_type=connection['type'], source=connection['source'] + num_populations,
@@ -585,12 +589,12 @@ class Network:
                 color = 'white'
             for population in network.populations:
                 self.add_population(neuron_type=population['type'], shape=population['shape'],
-                                    name=population['name'], color=color)
+                                    name=population['name']+suffix, color=color)
             for inp in network.inputs:
-                self.add_input(dest=inp['destination'] + num_populations, name=inp['name'], color=color
+                self.add_input(dest=inp['destination'] + num_populations, name=inp['name']+suffix, color=color
                                ,size=inp['size'])
             for out in network.outputs:
-                self.add_output(source=out['source'] + num_populations, name=out['name'], color=color,
+                self.add_output(source=out['source'] + num_populations, name=out['name']+suffix, color=color,
                                 spiking=out['spiking'])
             for connection in network.connections:
                 self.add_connection(connection_type=connection['type'], source=connection['source'] + num_populations,
