@@ -241,7 +241,7 @@ def __compile_numpy__(network, dt=0.01, debug=False) -> SNS_Numpy:
         dest_pop = network.inputs[inp]['destination']  # get the destination
         if size == 1:
             for dest in pops_and_nrns[dest_pop]:
-                input_connectivity[dest][inp] = 1.0  # set the weight in the correct source and destination
+                input_connectivity[dest][index] = 1.0  # set the weight in the correct source and destination
             index += 1
         else:
             for dest in pops_and_nrns[dest_pop]:
@@ -852,7 +852,7 @@ def __compile_torch__(network, dt=0.01, debug=False, device='cpu', return_params
         dest_pop = network.inputs[inp]['destination']  # get the destination
         if size == 1:
             for dest in pops_and_nrns[dest_pop]:
-                input_connectivity[dest][inp] = 1.0  # set the weight in the correct source and destination
+                input_connectivity[dest][index] = 1.0  # set the weight in the correct source and destination
             index += 1
         else:
             for dest in pops_and_nrns[dest_pop]:
@@ -1521,7 +1521,7 @@ def __compile_sparse__(network, dt=0.01, debug=False, device='cpu') -> SNS_Spars
         input_connectivity = input_connectivity.to_dense()
         if size == 1:
             for dest in pops_and_nrns[dest_pop]:
-                input_connectivity[dest][inp] = 1.0  # set the weight in the correct source and destination
+                input_connectivity[dest][index] = 1.0  # set the weight in the correct source and destination
             index += 1
         else:
             for dest in pops_and_nrns[dest_pop]:
@@ -2147,7 +2147,7 @@ def __compile_manual__(network, dt=0.01, debug=False) -> SNS_Iterative:
         dest_pop = network.inputs[inp]['destination']  # get the destination
         if size == 1:
             for dest in pops_and_nrns[dest_pop]:
-                input_connectivity[dest][inp] = 1.0  # set the weight in the correct source and destination
+                input_connectivity[dest][index] = 1.0  # set the weight in the correct source and destination
             index += 1
         else:
             for dest in pops_and_nrns[dest_pop]:
